@@ -32,7 +32,7 @@ import android.widget.RelativeLayout;
 
 public class PrototypeActivity extends SacActivity {
 	static {
-        System.loadLibrary("cars");
+        System.loadLibrary("prototype");
     }
 	
 	@Override
@@ -44,7 +44,7 @@ public class PrototypeActivity extends SacActivity {
 	public int[] getSwarmBoards() {
 		return HeriswapSecret.boardsSwarm;
 	}
-	
+ 
 	@Override
 	public int getSwarmGameID() {
 		return HeriswapSecret.Swarm_gameID;
