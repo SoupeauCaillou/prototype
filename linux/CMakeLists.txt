@@ -12,11 +12,11 @@ file(
 )
 
 if (EMSCRIPTEN_BUILD)
-	add_executable(prototype.bc ${source_files})
-	target_link_libraries(prototype.bc prototypecommon sac GLEW glfw openal sqlite3  vorbisfile vorbis z png)
-	add_custom_command(TARGET prototype.bc
+	add_executable(blindmaze.bc ${source_files})
+	target_link_libraries(blindmaze.bc prototypecommon sac GLEW glfw openal sqlite3  vorbisfile vorbis z png)
+	add_custom_command(TARGET blindmaze.bc
 		POST_BUILD
-		COMMAND EMCC_DEBUG=1 emcc -s WARN_ON_UNDEFINED_SYMBOLS=1 -O2 --llvm-lto 1 ${CMAKE_BINARY_DIR}/linux/prototype.bc -o /tmp/prototype.html --preload-file assets
+		COMMAND EMCC_DEBUG=1 emcc -s WARN_ON_UNDEFINED_SYMBOLS=1 -O2 --llvm-lto 1 ${CMAKE_BINARY_DIR}/linux/blindmaze.bc -o /tmp/blindmaze.html --preload-file assets
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR} 
 		COMMENT "Building emscripten HTML")	
 else ()
