@@ -50,6 +50,7 @@
 #include "api/linux/LocalizeAPILinuxImpl.h"
 #include "api/linux/NameInputAPILinuxImpl.h"
 #include "api/linux/ExitAPILinuxImpl.h"
+#include "api/linux/NetworkAPILinuxImpl.h"
 
 #include "systems/TextRenderingSystem.h"
 #include "systems/ButtonSystem.h"
@@ -74,7 +75,7 @@ Entity globalFTW = 0;
 
 class MouseNativeTouchState: public NativeTouchState {
 	public:
-		bool isTouching(Vector2* windowCoords) const {
+		bool isTouching(int index, Vector2* windowCoords) const {
 			#ifdef EMSCRIPTEN
 			 static bool down = false;
 			 static Vector2 position;
@@ -153,6 +154,9 @@ class MouseNativeTouchState: public NativeTouchState {
 			return glfwGetMouseButton(GLFW_MOUSE_BUTTON_1) == GLFW_PRESS;
 			#endif
 		}
+        int maxTouchingCount() {
+            return 1;
+        }
 };
 
 #ifndef EMSCRIPTEN
@@ -234,6 +238,7 @@ static void updateAndRenderLoop() {
 			} else {
 				backIsDown = false;
 			}
+         #if 0
 			if (glfwGetKey( GLFW_KEY_LSHIFT)) {
 				uint8_t* state = 0;
 				int size = game->saveState(&state);
@@ -246,6 +251,7 @@ static void updateAndRenderLoop() {
 				running = false;
 				break;
 			}
+         #endif
 			timer -= DT;
 			frames++;
 			if (time > nextfps) {
@@ -285,11 +291,7 @@ static void updateAndRender() {
 extern bool __log_enabled;
 int main(int argc, char** argv) {
 	Vector2 reso16_9(394, 700);
-#ifdef EMSCRIPTEN
-	Vector2 reso16_10(800 * 1.5, 461 * 1.5);
-#else
-	Vector2 reso16_10(800 * 1.5, 461 * 1.5);
-#endif
+	Vector2 reso16_10(800, 500);
 	Vector2* reso = &reso16_10;
 
 #ifdef EMSCRIPTEN
@@ -299,6 +301,7 @@ int main(int argc, char** argv) {
 	}
 
 	SDL_Surface *ecran = SDL_SetVideoMode(reso->X, reso->Y, 16, SDL_OPENGL ); /* Double Buffering */
+    __log_enabled = false;
 #else
 	if (!glfwInit())
 		return 1;
@@ -335,7 +338,6 @@ int main(int argc, char** argv) {
 
 	game = new PrototypeGame(new AssetAPILinuxImpl(), nameInput, loc, new AdAPI(), new ExitAPILinuxImpl());
 
-	theRenderingSystem.opengles2 = true;
 	theSoundSystem.init();
 	theTouchInputManager.setNativeTouchStatePtr(new MouseNativeTouchState());
 	MusicAPILinuxOpenALImpl* openal = new MusicAPILinuxOpenALImpl();
