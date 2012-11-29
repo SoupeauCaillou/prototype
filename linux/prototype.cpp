@@ -76,6 +76,8 @@ Entity globalFTW = 0;
 class MouseNativeTouchState: public NativeTouchState {
 	public:
 		bool isTouching(int index, Vector2* windowCoords) const {
+            if (index > 0)
+                return false;
 			#ifdef EMSCRIPTEN
 			 static bool down = false;
 			 static Vector2 position;
@@ -156,6 +158,9 @@ class MouseNativeTouchState: public NativeTouchState {
 		}
         int maxTouchingCount() {
             return 1;
+        }
+        float getPitch() const {
+            return 0;
         }
 };
 
@@ -291,7 +296,7 @@ static void updateAndRender() {
 extern bool __log_enabled;
 int main(int argc, char** argv) {
 	Vector2 reso16_9(394, 700);
-	Vector2 reso16_10(800, 500);
+	Vector2 reso16_10(1000, 700);
 	Vector2* reso = &reso16_10;
 
 #ifdef EMSCRIPTEN

@@ -31,6 +31,7 @@
   <ItemGroup>
     <Compile Include="sources\DepthLayer.h" />
     <Compile Include="sources\PrototypeGame.h" />
+    <Compile Include="android\prototype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -39,5 +40,9 @@
   <ItemGroup>
     <Folder Include="sources\api\android\" />
     <Folder Include="linux\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="android\Android.mk" />
+    <None Include="android\Application.mk" />
   </ItemGroup>
 </Project>
