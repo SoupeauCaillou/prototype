@@ -45,21 +45,23 @@
 
 #include <cmath>
 
-
-static void updateFps(float dt);
-
 PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad, ExitAPI* exAPI) : Game() {
 	asset = ast;
 	exitAPI = exAPI;
 }
-void PrototypeGame::init(const uint8_t* in, int size) {    
-	theRenderingSystem.loadAtlas("alphabet", true);   
 
-	// init font
-	loadFont(asset, "typo");
-	
-	PlacementHelper::GimpWidth = 0; // TODO
-    PlacementHelper::GimpHeight = 0; // TODO	
+void PrototypeGame::sacInit(int windowW, int windowH) {
+    Game::sacInit(windowW, windowH);
+    PlacementHelper::GimpWidth = 0;
+    PlacementHelper::GimpHeight = 0;
+
+    theRenderingSystem.loadAtlas("alphabet", true);
+    // init font
+    loadFont(asset, "typo");
+}
+
+void PrototypeGame::init(const uint8_t* in, int size) {    
+
 }
 
 
@@ -71,34 +73,5 @@ void PrototypeGame::togglePause(bool activate) {
 }
 
 void PrototypeGame::tick(float dt) {
-	theTouchInputManager.Update(dt);
 
-    // systems update
-	theADSRSystem.Update(dt);
-	theButtonSystem.Update(dt);
-    theParticuleSystem.Update(dt);
-	theMorphingSystem.Update(dt);
-	thePhysicsSystem.Update(dt);
-	theScrollingSystem.Update(dt);
-	theContainerSystem.Update(dt);
-	theTextRenderingSystem.Update(dt);
-	theSoundSystem.Update(dt);
-    theMusicSystem.Update(dt);
-    theTransformationSystem.Update(dt);
-    theRenderingSystem.Update(dt);
 }
-
-void updateFps(float dt) {
-    #define COUNT 250
-    static int frameCount = 0;
-    static float accum = 0, t = 0;
-    frameCount++;
-    accum += dt;
-    if (frameCount == COUNT) {
-         LOGI("%d frames: %.3f s - diff: %.3f s - ms per frame: %.3f", COUNT, accum, TimeUtil::getTime() - t, accum / COUNT);
-         t = TimeUtil::getTime();
-         accum = 0;
-         frameCount = 0;
-     }
-}
-
