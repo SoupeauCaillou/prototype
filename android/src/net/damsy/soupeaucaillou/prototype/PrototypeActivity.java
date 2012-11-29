@@ -19,7 +19,6 @@
 package net.damsy.soupeaucaillou.prototype;
 
 import net.damsy.soupeaucaillou.SacActivity;
-import net.damsy.soupeaucaillou.heriswap.api.NameInputAPI;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -32,7 +31,7 @@ import android.widget.RelativeLayout;
 
 public class PrototypeActivity extends SacActivity {
 	static {
-        System.loadLibrary("cars");
+        System.loadLibrary("prototype");
     }
 	
 	@Override
@@ -42,27 +41,50 @@ public class PrototypeActivity extends SacActivity {
 	
 	@Override
 	public int[] getSwarmBoards() {
-		return HeriswapSecret.boardsSwarm;
+		return null;
 	}
 	
 	@Override
 	public int getSwarmGameID() {
-		return HeriswapSecret.Swarm_gameID;
+		return 0;
 	}
 	
 	@Override
 	public String getSwarmGameKey() {
-		return HeriswapSecret.Swarm_gameKey;
+		return null;
 	}
 	
 	@Override
 	public String getBundleKey() {
-		return TILEMATCH_BUNDLE_KEY;
+		return PROTOTYPE_BUNDLE_KEY;
 	}
+
+    public int getLayoutId() {
+        return R.layout.main;
+    }
+	public int getParentViewId() {
+        return R.id.parent_frame;
+    }
+    public String getCharboostAppId() {
+        return null;
+    }
+	public String getCharboostAppSignature() {
+        return null;
+    }
+    public View getNameInputView() {
+        return null;
+    }
+	public EditText getNameInputEdit() {
+        return null;
+    }
+	public Button getNameInputButton() {
+        return null;
+    }
 	
-	static public final String Tag = "HeriswapJ";
-	static final String TILEMATCH_BUNDLE_KEY = "plop";
-	static public final String HERISWAP_SHARED_PREF = "HeriswapPref";
+	
+	static public final String Tag = "Prototype";
+	static final String PROTOTYPE_BUNDLE_KEY = "plop";
+	static public final String PROTOTYPE_SHARED_PREF = "HeriswapPref";
 	
 	byte[] renderingSystemState;
 	
@@ -77,48 +99,5 @@ public class PrototypeActivity extends SacActivity {
     protected void onCreate(Bundle savedInstanceState) {
 		Log.i(PrototypeActivity.Tag, "-> onCreate [" + savedInstanceState);
         super.onCreate(savedInstanceState);
-
-        RelativeLayout rl = (RelativeLayout) findViewById(R.id.parent_frame);
-        playerNameInputView = findViewById(R.id.enter_name);
-        nameEdit = (EditText) findViewById(R.id.player_name_input);
-        rl.bringChildToFront(playerNameInputView);
-        playerNameInputView.setVisibility(View.GONE);
-
-        Button b = (Button) findViewById(R.id.name_save);
-        b.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				playerName = filterPlayerName(nameEdit.getText().toString());
-
-				//NOLOGLog.i(HeriswapActivity.Tag, "Player name: '" + playerName + "'");
-				if (playerName != null && playerName.length() > 0) {
-					playerNameInputView.setVisibility(View.GONE);
-					NameInputAPI.nameReady = true;
-					// hide keyboard
-					InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					mgr.hideSoftInputFromWindow(nameEdit.getWindowToken(), 0);
-				}
-			}
-		});
-        oldName = new Button[3];
-        oldName[0] = (Button)findViewById(R.id.reuse_name_1);
-        oldName[1] = (Button)findViewById(R.id.reuse_name_2);
-        oldName[2] = (Button)findViewById(R.id.reuse_name_3);
-        for (int i=0 ;i<3; i++) {
-        	oldName[i].setOnClickListener( new View.OnClickListener() {
-				public void onClick(View v) {
-	        		playerName = ((Button)v).getText().toString();
-	        		playerNameInputView.setVisibility(View.GONE);
-	        		NameInputAPI.nameReady = true;
-					// hide keyboard
-					InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					mgr.hideSoftInputFromWindow(nameEdit.getWindowToken(), 0);
-	        	}
-        	});
-        }
-    }
-	
-    private String filterPlayerName(String name) {
-    	String n = name.trim();
-    	return n.replaceAll("[^a-zA-Z0-9 ]"," ").substring(0, Math.min(11, n.length()));
     }
 }
