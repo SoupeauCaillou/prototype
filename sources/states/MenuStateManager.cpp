@@ -41,7 +41,7 @@ void MenuStateManager::setup() {
 ///----------------------------------------------------------------------------//
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
-void MenuStateManager::willEnter(State::Enum from) {
+void MenuStateManager::willEnter(State::Enum) {
 
 }
 
@@ -78,5 +78,5 @@ bool MenuStateManager::transitionCanExit(State::Enum) {
 }
 
 void MenuStateManager::exit(State::Enum) {
-    
+
 }
