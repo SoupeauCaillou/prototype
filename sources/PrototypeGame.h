@@ -30,6 +30,8 @@
 #include "api/AdAPI.h"
 #include "api/NameInputAPI.h"
 
+#include "states/StateManager.h"
+
 class PrototypeGame : public Game {
 	public:
 		PrototypeGame(AssetAPI* asset, NameInputAPI* inputUI, LocalizeAPI* localizeAPI, AdAPI* ad);
@@ -41,7 +43,11 @@ class PrototypeGame : public Game {
 		void togglePause(bool activate);
         bool willConsumeBackEvent();
 		void backPressed();
+        void changeState(State::Enum newState);
         
 	private:
 		AssetAPI* asset;
+        State::Enum currentState, overrideNextState;
+        std::map<State::Enum, StateManager*> state2manager;
+        TransitionStateManager transitionManager;
 };

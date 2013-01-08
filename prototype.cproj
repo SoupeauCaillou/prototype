@@ -32,6 +32,9 @@
     <Compile Include="sources\DepthLayer.h" />
     <Compile Include="sources\PrototypeGame.h" />
     <Compile Include="android\prototype.cpp" />
+    <Compile Include="sources\states\LogoStateManager.cpp" />
+    <Compile Include="sources\states\MenuStateManager.cpp" />
+    <Compile Include="sources\states\TransitionStateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -44,5 +47,6 @@
   <ItemGroup>
     <None Include="android\Android.mk" />
     <None Include="android\Application.mk" />
+    <None Include="sources\states\StateManager.h" />
   </ItemGroup>
 </Project>

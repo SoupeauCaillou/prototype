@@ -47,6 +47,11 @@
 
 PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad) : Game() {
 	asset = ast;
+
+   overrideNextState = State::Invalid;
+   currentState = State::Logo;
+   state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
+   state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -59,12 +64,28 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     loadFont(asset, "typo");
 }
 
-void PrototypeGame::init(const uint8_t* in, int size) {    
+void PrototypeGame::init(const uint8_t* in, int size) {
+    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
+        it->second->setup();
+    }
 
+    currentState = State::Logo;
+    quickInit();
 }
 
 void PrototypeGame::quickInit() {
+    state2manager[currentState]->willEnter(State::Invalid);
+    state2manager[currentState]->enter(State::Invalid);
+}
 
+void PrototypeGame::changeState(State::Enum newState) {
+    if (newState == currentState)
+        return;
+    state2manager[currentState]->willExit(newState);
+    state2manager[currentState]->exit(newState);
+    state2manager[newState]->willEnter(currentState);
+    state2manager[newState]->enter(currentState);
+    currentState = newState;
 }
 
 void PrototypeGame::backPressed() {
@@ -75,7 +96,27 @@ void PrototypeGame::togglePause(bool activate) {
 }
 
 void PrototypeGame::tick(float dt) {
+    if (overrideNextState != State::Invalid) {
+        changeState(overrideNextState);
+        overrideNextState = State::Invalid;
+    }
 
+    if (State::Transition != currentState) {
+        State::Enum newState = state2manager[currentState]->update(dt);
+
+        if (newState != currentState) {
+            state2manager[currentState]->willExit(newState);
+            transitionManager.enter(state2manager[currentState], state2manager[newState]);
+            currentState = State::Transition;
+        }
+    } else if (transitionManager.transitionFinished(&currentState)) {
+        transitionManager.exit();
+        state2manager[currentState]->enter(transitionManager.from->state);
+    }
+
+    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
+        it->second->backgroundUpdate(dt);
+    }
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
