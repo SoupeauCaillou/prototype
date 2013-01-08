@@ -28,20 +28,20 @@
 
 #include "api/LocalizeAPI.h"
 #include "api/AdAPI.h"
-#include "api/ExitAPI.h"
 #include "api/NameInputAPI.h"
 
 class PrototypeGame : public Game {
 	public:
-		PrototypeGame(AssetAPI* asset, NameInputAPI* inputUI, LocalizeAPI* localizeAPI, AdAPI* ad, ExitAPI* exAPI);
+		PrototypeGame(AssetAPI* asset, NameInputAPI* inputUI, LocalizeAPI* localizeAPI, AdAPI* ad);
 
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
-		void tick(float dt);
+        void quickInit();
+        void tick(float dt);
 		void togglePause(bool activate);
+        bool willConsumeBackEvent();
 		void backPressed();
         
 	private:
 		AssetAPI* asset;
-		ExitAPI* exitAPI;
 };

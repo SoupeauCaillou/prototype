@@ -45,9 +45,8 @@
 
 #include <cmath>
 
-PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad, ExitAPI* exAPI) : Game() {
+PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad) : Game() {
 	asset = ast;
-	exitAPI = exAPI;
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -64,6 +63,9 @@ void PrototypeGame::init(const uint8_t* in, int size) {
 
 }
 
+void PrototypeGame::quickInit() {
+
+}
 
 void PrototypeGame::backPressed() {
 }
@@ -74,4 +76,8 @@ void PrototypeGame::togglePause(bool activate) {
 
 void PrototypeGame::tick(float dt) {
 
+}
+
+bool PrototypeGame::willConsumeBackEvent() {
+    return false;
 }
