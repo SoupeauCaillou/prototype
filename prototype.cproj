@@ -35,6 +35,11 @@
     <Compile Include="sources\states\LogoStateManager.cpp" />
     <Compile Include="sources\states\MenuStateManager.cpp" />
     <Compile Include="sources\states\TransitionStateManager.cpp" />
+    <Compile Include="sources\systems\EquipmentSystem.cpp" />
+    <Compile Include="sources\systems\SlotSystem.cpp" />
+    <Compile Include="sources\systems\PickableSystem.cpp" />
+    <Compile Include="sources\systems\HighlightSystem.cpp" />
+    <Compile Include="sources\systems\FighterSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -43,10 +48,16 @@
   <ItemGroup>
     <Folder Include="sources\api\android\" />
     <Folder Include="linux\" />
+    <Folder Include="sources\systems\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="android\Android.mk" />
     <None Include="android\Application.mk" />
     <None Include="sources\states\StateManager.h" />
+    <None Include="sources\systems\EquipmentSystem.h" />
+    <None Include="sources\systems\SlotSystem.h" />
+    <None Include="sources\systems\PickableSystem.h" />
+    <None Include="sources\systems\HighlightSystem.h" />
+    <None Include="sources\systems\FighterSystem.h" />
   </ItemGroup>
 </Project>

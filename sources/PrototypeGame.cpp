@@ -43,6 +43,8 @@
 #include "systems/ScrollingSystem.h"
 #include "systems/MorphingSystem.h"
 
+#include "systems/FighterSystem.h"
+
 #include <cmath>
 
 PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad) : Game() {
@@ -52,6 +54,8 @@ PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* 
    currentState = State::Logo;
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
+
+   FighterSystem::CreateInstance();
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -60,6 +64,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theRenderingSystem.loadAtlas("alphabet", true);
+    theRenderingSystem.loadAtlas("fighter", true);
+
     // init font
     loadFont(asset, "typo");
 }
@@ -69,7 +75,32 @@ void PrototypeGame::init(const uint8_t* in, int size) {
         it->second->setup();
     }
 
-    currentState = State::Logo;
+    currentState = State::Menu;
+
+    Vector2 ref(363, 393);
+    float scale = 1 / 200.0;
+    Entity e = theEntityManager.CreateEntity();
+    ADD_COMPONENT(e, Transformation);
+    TRANSFORM(e)->size = ref * scale;
+    TRANSFORM(e)->z = 0.5;
+    ADD_COMPONENT(e, Fighter);
+
+    std::string textures[] = {"head", "torso", "left_arm", "right_arm", "left_leg", "right_leg"};
+    Vector2 positions[] = {
+        Vector2(196, 65), Vector2(193, 181), Vector2(84, 168), Vector2(294, 162), Vector2(142, 315), Vector2(235, 316)
+    };
+    #define P(v) ((Vector2(-0.5, 0.5) * ref + Vector2(v.X, -v.Y)) * scale)
+    for (int i=0; i<6; i++) {
+        Entity member = FIGHTER(e)->members[i] = theEntityManager.CreateEntity();
+        ADD_COMPONENT(member, Transformation);
+        TRANSFORM(member)->parent = e;
+        TRANSFORM(member)->size = theRenderingSystem.getTextureSize(textures[i]) * scale;
+        TRANSFORM(member)->position = P(positions[i]);
+        ADD_COMPONENT(member, Rendering);
+        RENDERING(member)->texture = theRenderingSystem.loadTextureFile(textures[i]);
+        RENDERING(member)->hide = false;
+    }
+
     quickInit();
 }
 
