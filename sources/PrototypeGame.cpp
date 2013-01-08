@@ -45,8 +45,8 @@
 
 #include <cmath>
 
-PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad) : Game() {
-	asset = ast;
+PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
+    asset = ast;
 
    overrideNextState = State::Invalid;
    currentState = State::Logo;
@@ -64,7 +64,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     loadFont(asset, "typo");
 }
 
-void PrototypeGame::init(const uint8_t* in, int size) {
+void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
     }
@@ -91,7 +91,7 @@ void PrototypeGame::changeState(State::Enum newState) {
 void PrototypeGame::backPressed() {
 }
 
-void PrototypeGame::togglePause(bool activate) {
+void PrototypeGame::togglePause(bool) {
 
 }
 

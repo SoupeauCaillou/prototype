@@ -34,7 +34,7 @@
 
 class PrototypeGame : public Game {
 	public:
-		PrototypeGame(AssetAPI* asset, NameInputAPI* inputUI, LocalizeAPI* localizeAPI, AdAPI* ad);
+		PrototypeGame(AssetAPI* asset);
 
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
@@ -44,7 +44,7 @@ class PrototypeGame : public Game {
         bool willConsumeBackEvent();
 		void backPressed();
         void changeState(State::Enum newState);
-        
+
 	private:
 		AssetAPI* asset;
         State::Enum currentState, overrideNextState;

@@ -311,15 +311,7 @@ int main(int argc, char** argv) {
     }
     #endif
 
-    LocalizeAPILinuxImpl* loc = new LocalizeAPILinuxImpl();
-    {
-        char* lang = strdup(getenv("LANG"));
-        lang[2] = '\0';
-        loc->init(lang);
-    }
-    nameInput = new NameInputAPILinuxImpl();
-
-    game = new PrototypeGame(new AssetAPILinuxImpl(), nameInput, loc, new AdAPI());
+    game = new PrototypeGame(new AssetAPILinuxImpl());
 
     theSoundSystem.init();
     theTouchInputManager.setNativeTouchStatePtr(new MouseNativeTouchState());
