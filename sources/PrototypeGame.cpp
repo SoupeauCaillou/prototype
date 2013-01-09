@@ -47,6 +47,7 @@
 #include "systems/PlayerSystem.h"
 #include "systems/EquipmentSystem.h"
 #include "systems/SlotSystem.h"
+#include "systems/PickableSystem.h"
 
 #include "GameMaster.h"
 #include <cmath>
@@ -64,6 +65,7 @@ PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* 
    PlayerSystem::CreateInstance();
    EquipmentSystem::CreateInstance();
    SlotSystem::CreateInstance();
+   PickableSystem::CreateInstance();
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -74,6 +76,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadAtlas("alphabet", true);
     theRenderingSystem.loadAtlas("fighter");
     theRenderingSystem.loadAtlas("equipment");
+    theRenderingSystem.loadEffectFile("selected.fs");
 
     // init font
     loadFont(asset, "typo");

@@ -21,6 +21,7 @@
 #include "systems/System.h"
 
 struct PickableComponent {
+    PickableComponent() : enable(false), picked(false) {}
     bool enable;
     bool picked;
 };

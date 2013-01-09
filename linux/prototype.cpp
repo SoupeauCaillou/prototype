@@ -282,7 +282,7 @@ int main(int argc, char** argv) {
     glfwOpenWindowHint( GLFW_WINDOW_NO_RESIZE, GL_TRUE );
     if( !glfwOpenWindow( reso->X,reso->Y, 8,8,8,8,8,8, GLFW_WINDOW ) )
         return 1;
-    glfwSetWindowTitle("RecursiveRunner");
+    glfwSetWindowTitle("Prototype: BW");
     glewInit();
     __log_enabled = false;
     bool restore = false;

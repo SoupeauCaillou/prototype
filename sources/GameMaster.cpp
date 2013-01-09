@@ -7,6 +7,7 @@
 #include "systems/PlayerSystem.h"
 #include "systems/EquipmentSystem.h"
 #include "systems/SlotSystem.h"
+#include "systems/PickableSystem.h"
 
 static const float scale = 1 / 200.0;
 #define P(v, ref) ((Vector2(-0.5, 0.5) * ref + Vector2(v.X, -v.Y)) * scale)
@@ -18,13 +19,14 @@ static Entity createFighter() {
     TRANSFORM(e)->size = ref * scale;
     TRANSFORM(e)->z = 0.5;
     ADD_COMPONENT(e, Fighter);
+    ADD_COMPONENT(e, Pickable);
 
     std::string textures[] = {"head", "torso", "left_arm", "right_arm", "left_leg", "right_leg"};
     Vector2 positions[] = {
         Vector2(196, 65), Vector2(193, 181), Vector2(84, 168), Vector2(294, 162), Vector2(142, 315), Vector2(235, 316)
     };
     Vector2 anchors[] = {
-        Vector2(), Vector2(67, 74), Vector2(27, 29), Vector2(74, 20), Vector2::Zero, Vector2::Zero
+        Vector2(56, 44), Vector2(67, 74), Vector2(27, 29), Vector2(74, 20), Vector2::Zero, Vector2::Zero
     };
     for (int i=0; i<6; i++) {
         Entity member = FIGHTER(e)->members[i] = theEntityManager.CreateEntity();
@@ -57,6 +59,7 @@ static Entity createEquipment() {
     ADD_COMPONENT(eq, Equipment);
     EQUIPMENT(eq)->type = (EquipmentType::Enum)type;
     EQUIPMENT(eq)->anchor = P(anchors[type], theRenderingSystem.getTextureSize(textures[type]));
+    ADD_COMPONENT(eq, Pickable);
     return eq;
 }
 
