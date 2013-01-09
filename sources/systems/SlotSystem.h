@@ -22,6 +22,7 @@
 
 struct SlotComponent {
     Entity boundEquipment;
+    Vector2 anchor;
 };
 
 #define theSlotSystem SlotSystem::GetInstance()

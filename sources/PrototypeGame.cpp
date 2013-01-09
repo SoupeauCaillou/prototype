@@ -45,7 +45,10 @@
 
 #include "systems/FighterSystem.h"
 #include "systems/PlayerSystem.h"
+#include "systems/EquipmentSystem.h"
+#include "systems/SlotSystem.h"
 
+#include "GameMaster.h"
 #include <cmath>
 
 PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad) : Game() {
@@ -59,6 +62,8 @@ PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* 
 
    FighterSystem::CreateInstance();
    PlayerSystem::CreateInstance();
+   EquipmentSystem::CreateInstance();
+   SlotSystem::CreateInstance();
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -67,37 +72,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theRenderingSystem.loadAtlas("alphabet", true);
-    theRenderingSystem.loadAtlas("fighter", true);
+    theRenderingSystem.loadAtlas("fighter");
+    theRenderingSystem.loadAtlas("equipment");
 
     // init font
     loadFont(asset, "typo");
-}
-
-static Entity createFighter() {
-    Vector2 ref(363, 393);
-    float scale = 1 / 200.0;
-    Entity e = theEntityManager.CreateEntity();
-    ADD_COMPONENT(e, Transformation);
-    TRANSFORM(e)->size = ref * scale;
-    TRANSFORM(e)->z = 0.5;
-    ADD_COMPONENT(e, Fighter);
-
-    std::string textures[] = {"head", "torso", "left_arm", "right_arm", "left_leg", "right_leg"};
-    Vector2 positions[] = {
-        Vector2(196, 65), Vector2(193, 181), Vector2(84, 168), Vector2(294, 162), Vector2(142, 315), Vector2(235, 316)
-    };
-    #define P(v) ((Vector2(-0.5, 0.5) * ref + Vector2(v.X, -v.Y)) * scale)
-    for (int i=0; i<6; i++) {
-        Entity member = FIGHTER(e)->members[i] = theEntityManager.CreateEntity();
-        ADD_COMPONENT(member, Transformation);
-        TRANSFORM(member)->parent = e;
-        TRANSFORM(member)->size = theRenderingSystem.getTextureSize(textures[i]) * scale;
-        TRANSFORM(member)->position = P(positions[i]);
-        ADD_COMPONENT(member, Rendering);
-        RENDERING(member)->texture = theRenderingSystem.loadTextureFile(textures[i]);
-        RENDERING(member)->hide = false;
-    }
-    return e;
 }
 
 void PrototypeGame::init(const uint8_t* in, int size) {
@@ -107,18 +86,8 @@ void PrototypeGame::init(const uint8_t* in, int size) {
 
     currentState = State::Menu;
 
-    // Create 2 players entity
-    Entity p1 = theEntityManager.CreateEntity();
-    ADD_COMPONENT(p1, Player);
-    Entity p2 = theEntityManager.CreateEntity();
-    ADD_COMPONENT(p2, Player);
-
-    for (int i=0; i<12; i++) {
-        Entity f1 = createFighter();
-        FIGHTER(f1)->player = p1;
-        Entity f2 = createFighter();
-        FIGHTER(f2)->player = p2;
-    }
+    // ...
+    stateChangeListeners.push_back(new GameMaster());
 
     quickInit();
 }
@@ -126,6 +95,10 @@ void PrototypeGame::init(const uint8_t* in, int size) {
 void PrototypeGame::quickInit() {
     state2manager[currentState]->willEnter(State::Invalid);
     state2manager[currentState]->enter(State::Invalid);
+
+    for(unsigned i=0; i<stateChangeListeners.size(); i++) {
+        stateChangeListeners[i]->stateChanged(State::Invalid, currentState);
+    }
 }
 
 void PrototypeGame::changeState(State::Enum newState) {
@@ -163,12 +136,17 @@ void PrototypeGame::tick(float dt) {
     } else if (transitionManager.transitionFinished(&currentState)) {
         transitionManager.exit();
         state2manager[currentState]->enter(transitionManager.from->state);
+        // notify state change
+        for(unsigned i=0; i<stateChangeListeners.size(); i++) {
+            stateChangeListeners[i]->stateChanged(transitionManager.from->state, currentState);
+        }
     }
 
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
     }
-    if (currentState != oldState) {
+    if (oldState != currentState) {
+        // notify state change
         for(unsigned i=0; i<stateChangeListeners.size(); i++) {
             stateChangeListeners[i]->stateChanged(oldState, currentState);
         }

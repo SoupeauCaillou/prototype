@@ -42,6 +42,7 @@
     <Compile Include="sources\systems\FighterSystem.cpp" />
     <Compile Include="sources\states\EquipmentStateManager.cpp" />
     <Compile Include="sources\systems\PlayerSystem.cpp" />
+    <Compile Include="sources\GameMaster.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -62,5 +63,6 @@
     <None Include="sources\systems\HighlightSystem.h" />
     <None Include="sources\systems\FighterSystem.h" />
     <None Include="sources\systems\PlayerSystem.h" />
+    <None Include="sources\GameMaster.h" />
   </ItemGroup>
 </Project>

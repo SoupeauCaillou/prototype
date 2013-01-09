@@ -18,27 +18,9 @@
 */
 #pragma once
 
-#include "systems/System.h"
+#include "states/StateManager.h"
 
-namespace EquipmentType {
-    enum Enum {
-        SingleHandedWeapon = 0,
-        DoubleHandedWeapon,
-        Shield,
-        Helmet,
-        Armor,
-        Bow,
-        Count
-    };
-}
-
-struct EquipmentComponent {
-    EquipmentType::Enum type;
-    Vector2 anchor;
-};
-
-#define theEquipmentSystem EquipmentSystem::GetInstance()
-#define EQUIPMENT(e) theEquipmentSystem.Get(e)
-
-UPDATABLE_SYSTEM(Equipment)
+class GameMaster : public StateChangeListener {
+    public:
+        virtual void stateChanged(State::Enum oldState, State::Enum newState);
 };
