@@ -40,6 +40,8 @@
     <Compile Include="sources\systems\PickableSystem.cpp" />
     <Compile Include="sources\systems\HighlightSystem.cpp" />
     <Compile Include="sources\systems\FighterSystem.cpp" />
+    <Compile Include="sources\states\EquipmentStateManager.cpp" />
+    <Compile Include="sources\systems\PlayerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -59,5 +61,6 @@
     <None Include="sources\systems\PickableSystem.h" />
     <None Include="sources\systems\HighlightSystem.h" />
     <None Include="sources\systems\FighterSystem.h" />
+    <None Include="sources\systems\PlayerSystem.h" />
   </ItemGroup>
 </Project>

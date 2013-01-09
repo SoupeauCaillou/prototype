@@ -44,6 +44,7 @@
 #include "systems/MorphingSystem.h"
 
 #include "systems/FighterSystem.h"
+#include "systems/PlayerSystem.h"
 
 #include <cmath>
 
@@ -54,8 +55,10 @@ PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* 
    currentState = State::Logo;
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
+   state2manager.insert(std::make_pair(State::Equipment, new EquipmentStateManager(this)));
 
    FighterSystem::CreateInstance();
+   PlayerSystem::CreateInstance();
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -70,13 +73,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     loadFont(asset, "typo");
 }
 
-void PrototypeGame::init(const uint8_t* in, int size) {
-    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
-        it->second->setup();
-    }
-
-    currentState = State::Menu;
-
+static Entity createFighter() {
     Vector2 ref(363, 393);
     float scale = 1 / 200.0;
     Entity e = theEntityManager.CreateEntity();
@@ -99,6 +96,28 @@ void PrototypeGame::init(const uint8_t* in, int size) {
         ADD_COMPONENT(member, Rendering);
         RENDERING(member)->texture = theRenderingSystem.loadTextureFile(textures[i]);
         RENDERING(member)->hide = false;
+    }
+    return e;
+}
+
+void PrototypeGame::init(const uint8_t* in, int size) {
+    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
+        it->second->setup();
+    }
+
+    currentState = State::Menu;
+
+    // Create 2 players entity
+    Entity p1 = theEntityManager.CreateEntity();
+    ADD_COMPONENT(p1, Player);
+    Entity p2 = theEntityManager.CreateEntity();
+    ADD_COMPONENT(p2, Player);
+
+    for (int i=0; i<12; i++) {
+        Entity f1 = createFighter();
+        FIGHTER(f1)->player = p1;
+        Entity f2 = createFighter();
+        FIGHTER(f2)->player = p2;
     }
 
     quickInit();
@@ -127,6 +146,7 @@ void PrototypeGame::togglePause(bool activate) {
 }
 
 void PrototypeGame::tick(float dt) {
+    State::Enum oldState = currentState;
     if (overrideNextState != State::Invalid) {
         changeState(overrideNextState);
         overrideNextState = State::Invalid;
@@ -147,6 +167,11 @@ void PrototypeGame::tick(float dt) {
 
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
+    }
+    if (currentState != oldState) {
+        for(unsigned i=0; i<stateChangeListeners.size(); i++) {
+            stateChangeListeners[i]->stateChanged(oldState, currentState);
+        }
     }
 }
 

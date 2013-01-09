@@ -16,22 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
-#pragma once
+#include "PlayerSystem.h"
 
-#include "systems/System.h"
+INSTANCE_IMPL(PlayerSystem);
 
-struct FighterComponent {
-    Entity player;
-    union {
-        struct {
-            Entity head, torso, arm[2], leg[2];
-        };
-        Entity members[6];
-    };
-};
+PlayerSystem::PlayerSystem() : ComponentSystemImpl<PlayerComponent>("Player") {
 
-#define theFighterSystem FighterSystem::GetInstance()
-#define FIGHTER(e) theFighterSystem.Get(e)
+}
 
-UPDATABLE_SYSTEM(Fighter)
-};
+void PlayerSystem::DoUpdate(float) {
+
+}
+

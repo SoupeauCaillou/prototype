@@ -50,4 +50,5 @@ class PrototypeGame : public Game {
         State::Enum currentState, overrideNextState;
         std::map<State::Enum, StateManager*> state2manager;
         TransitionStateManager transitionManager;
+        std::vector<StateChangeListener*> stateChangeListeners;
 };

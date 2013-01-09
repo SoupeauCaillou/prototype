@@ -62,7 +62,7 @@ void MenuStateManager::backgroundUpdate(float) {
 }
 
 State::Enum MenuStateManager::update(float) {
-    return State::Menu;
+    return State::Equipment;
 }
 
 

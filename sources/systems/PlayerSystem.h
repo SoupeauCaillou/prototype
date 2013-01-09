@@ -20,18 +20,12 @@
 
 #include "systems/System.h"
 
-struct FighterComponent {
-    Entity player;
-    union {
-        struct {
-            Entity head, torso, arm[2], leg[2];
-        };
-        Entity members[6];
-    };
+struct PlayerComponent {
+
 };
 
-#define theFighterSystem FighterSystem::GetInstance()
-#define FIGHTER(e) theFighterSystem.Get(e)
+#define thePlayerSystem PlayerSystem::GetInstance()
+#define PLAYER(e) thePlayerSystem.Get(e)
 
-UPDATABLE_SYSTEM(Fighter)
+UPDATABLE_SYSTEM(Player)
 };

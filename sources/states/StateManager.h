@@ -26,6 +26,7 @@ namespace State {
       Transition,
       Logo,
       Menu,
+      Equipment,
    };
 }
 
@@ -47,6 +48,11 @@ class StateManager {
         State::Enum state;
     protected:
         PrototypeGame* game;
+};
+
+class StateChangeListener {
+    public:
+        virtual void stateChanged(State::Enum oldState, State::Enum newState) = 0;
 };
 
 #define DEF_STATE_MANAGER(state) \
@@ -79,3 +85,4 @@ class TransitionStateManager {
 
 DEF_STATE_MANAGER(Logo)
 DEF_STATE_MANAGER(Menu)
+DEF_STATE_MANAGER(Equipment)
