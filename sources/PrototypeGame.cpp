@@ -48,8 +48,6 @@
 PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
     asset = ast;
 
-   overrideNextState = State::Invalid;
-   currentState = State::Logo;
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
 }
@@ -69,7 +67,9 @@ void PrototypeGame::init(const uint8_t*, int) {
         it->second->setup();
     }
 
+    overrideNextState = State::Invalid;
     currentState = State::Logo;
+
     quickInit();
 }
 
