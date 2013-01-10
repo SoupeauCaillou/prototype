@@ -27,6 +27,8 @@ namespace State {
       Logo,
       Menu,
       Equipment,
+      AssignColor,
+      PlaceOnBattlefield,
    };
 }
 
@@ -86,3 +88,5 @@ class TransitionStateManager {
 DEF_STATE_MANAGER(Logo)
 DEF_STATE_MANAGER(Menu)
 DEF_STATE_MANAGER(Equipment)
+DEF_STATE_MANAGER(AssignColor)
+DEF_STATE_MANAGER(PlaceOnBattlefield)

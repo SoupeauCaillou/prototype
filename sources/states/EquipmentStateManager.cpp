@@ -110,9 +110,10 @@ void EquipmentStateManager::backgroundUpdate(float) {
 }
 
 State::Enum EquipmentStateManager::update(float dt) {
+return State::AssignColor;
     if (datas->equipments.empty()) {
         // next state
-        // todo
+        return State::AssignColor;
     } else {
         // Browse equipment. Do we have one selected ?
         for (unsigned i=0; i<datas->equipments.size(); i++) {
@@ -173,6 +174,7 @@ State::Enum EquipmentStateManager::update(float dt) {
                             assignEquipment(datas->selectedEqpt, FIGHTER(fighter)->torso);
                             break;
                     }
+                    datas->equipments.erase(std::find(datas->equipments.begin(), datas->equipments.end(), datas->selectedEqpt));
                     datas->selectedEqpt = 0;
                     datas->activePlayer = (datas->activePlayer + 1) % datas->players.size();
                 }

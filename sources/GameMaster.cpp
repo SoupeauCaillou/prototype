@@ -81,7 +81,7 @@ void GameMaster::stateChanged(State::Enum oldState, State::Enum newState) {
             FIGHTER(f2)->player = p2;
         }
         // Create random equipments
-        for (int i=0; i<45; i++) {
+        for (int i=0; i<5; i++) {
             createEquipment();
         }
     }

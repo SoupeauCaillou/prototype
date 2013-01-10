@@ -60,6 +60,7 @@ PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* 
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
    state2manager.insert(std::make_pair(State::Equipment, new EquipmentStateManager(this)));
+   state2manager.insert(std::make_pair(State::AssignColor, new AssignColorStateManager(this)));
 
    FighterSystem::CreateInstance();
    PlayerSystem::CreateInstance();
@@ -83,12 +84,18 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 }
 
 void PrototypeGame::init(const uint8_t* in, int size) {
+    Color::nameColor(Color(172.0/255,39.0/255,39.0/255), "color_p1");
+    Color::nameColor(Color(53.0/255,102.0/255,45.0/255), "color_p2");
+
+    Color::nameColor(Color(232.0/255,176.0/255,14.0/255), "group_0");
+    Color::nameColor(Color(25.0/255,43.0/255,154.0/255), "group_1");
+    Color::nameColor(Color(154.0/255,89.0/255,25.0/255), "group_2");
+    Color::nameColor(Color(118.0/255,191.0/255,198.0/255), "group_3");
+
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
     }
-    
-    Color::nameColor(Color(172.0/255,39.0/255,39.0/255), "color_p1");
-    Color::nameColor(Color(53.0/255,102.0/255,45.0/255), "color_p2");
+
     currentState = State::Menu;
 
     // ...

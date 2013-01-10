@@ -28,6 +28,7 @@ struct FighterComponent {
         };
         Entity members[6];
     };
+    int group;
 };
 
 #define theFighterSystem FighterSystem::GetInstance()
