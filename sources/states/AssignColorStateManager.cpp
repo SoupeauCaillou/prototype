@@ -131,7 +131,7 @@ State::Enum AssignColorStateManager::update(float dt) {
         }
     }
 
-    return State::AssignColor;
+    return State::PlaceOnBattlefield;
 }
 
 

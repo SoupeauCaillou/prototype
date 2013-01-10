@@ -85,4 +85,32 @@ void GameMaster::stateChanged(State::Enum oldState, State::Enum newState) {
             createEquipment();
         }
     }
+    if (oldState == State::AssignColor && newState  == State::Transition) {
+        const Vector2 size(60, 40);
+        // Create battlefield
+        Entity e = theEntityManager.CreateEntity();
+        ADD_COMPONENT(e, Transformation);
+        TRANSFORM(e)->size = size;
+        TRANSFORM(e)->z = 0.01;
+        ADD_COMPONENT(e, Rendering);
+        RENDERING(e)->hide = false;
+        RENDERING(e)->color = Color(0.3, 0.3, 0.3);
+        // Create obstacle
+        for (int j=0; j<2; j++) {
+            for (int i=0; i<20; i++) {
+                Entity obs = theEntityManager.CreateEntity();
+                ADD_COMPONENT(obs, Transformation);
+                TRANSFORM(obs)->size = MathUtil::RandomVector(Vector2(0.5, 0.5), Vector2(5, 5));
+                TRANSFORM(obs)->rotation = MathUtil::RandomFloat() * MathUtil::TwoPi;
+                TRANSFORM(obs)->position = MathUtil::RandomVector(
+                    Vector2(-size.X * j, -size.Y) * 0.5,
+                    Vector2(size.X * (1 - j), size.Y) * 0.5);
+                TRANSFORM(obs)->z = 0.04;
+                ADD_COMPONENT(obs, Rendering);
+                RENDERING(obs)->hide = false;
+                float g = MathUtil::RandomFloatInRange(0.4, 0.7);
+                RENDERING(obs)->color = Color(g,g,g);
+            }
+         }
+    }
 }

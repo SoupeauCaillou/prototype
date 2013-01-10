@@ -29,6 +29,7 @@ namespace State {
       Equipment,
       AssignColor,
       PlaceOnBattlefield,
+      BattleColorPick
    };
 }
 
@@ -90,3 +91,4 @@ DEF_STATE_MANAGER(Menu)
 DEF_STATE_MANAGER(Equipment)
 DEF_STATE_MANAGER(AssignColor)
 DEF_STATE_MANAGER(PlaceOnBattlefield)
+DEF_STATE_MANAGER(BattleColorPick)

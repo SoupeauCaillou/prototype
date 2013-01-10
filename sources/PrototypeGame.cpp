@@ -61,6 +61,7 @@ PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* 
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
    state2manager.insert(std::make_pair(State::Equipment, new EquipmentStateManager(this)));
    state2manager.insert(std::make_pair(State::AssignColor, new AssignColorStateManager(this)));
+   state2manager.insert(std::make_pair(State::PlaceOnBattlefield, new PlaceOnBattlefieldStateManager(this)));
 
    FighterSystem::CreateInstance();
    PlayerSystem::CreateInstance();

@@ -44,6 +44,7 @@
     <Compile Include="sources\systems\PlayerSystem.cpp" />
     <Compile Include="sources\GameMaster.cpp" />
     <Compile Include="sources\states\AssignColorStateManager.cpp" />
+    <Compile Include="sources\states\PlaceOnBattlefieldStateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
