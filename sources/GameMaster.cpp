@@ -74,8 +74,10 @@ void GameMaster::stateChanged(State::Enum oldState, State::Enum newState) {
         // Create 12 x 2 fighters
         for (int i=0; i<12; i++) {
             Entity f1 = createFighter();
+            RENDERING(FIGHTER(f1)->torso)->color = Color("color_p1");
             FIGHTER(f1)->player = p1;
             Entity f2 = createFighter();
+            RENDERING(FIGHTER(f2)->torso)->color = Color("color_p2");
             FIGHTER(f2)->player = p2;
         }
         // Create random equipments

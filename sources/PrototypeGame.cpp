@@ -86,7 +86,9 @@ void PrototypeGame::init(const uint8_t* in, int size) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
     }
-
+    
+    Color::nameColor(Color(172.0/255,39.0/255,39.0/255), "color_p1");
+    Color::nameColor(Color(53.0/255,102.0/255,45.0/255), "color_p2");
     currentState = State::Menu;
 
     // ...
