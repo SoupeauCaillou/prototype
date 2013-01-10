@@ -101,7 +101,7 @@ void PrototypeGame::tick(float dt) {
         overrideNextState = State::Invalid;
     }
 
-    if (State::Transition != currentState) {
+    if (currentState != State::Transition) {
         State::Enum newState = state2manager[currentState]->update(dt);
 
         if (newState != currentState) {
