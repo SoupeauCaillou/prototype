@@ -8,6 +8,7 @@
 #include "systems/EquipmentSystem.h"
 #include "systems/SlotSystem.h"
 #include "systems/PickableSystem.h"
+#include "systems/CameraTargetSystem.h"
 
 static const float scale = 1 / 200.0;
 #define P(v, ref) ((Vector2(-0.5, 0.5) * ref + Vector2(v.X, -v.Y)) * scale)
@@ -20,6 +21,9 @@ static Entity createFighter() {
     TRANSFORM(e)->z = 0.5;
     ADD_COMPONENT(e, Fighter);
     ADD_COMPONENT(e, Pickable);
+    ADD_COMPONENT(e, CameraTarget);
+    CAM_TARGET(e)->cameraIndex = 0;
+    CAM_TARGET(e)->maxCameraSpeed = 20;
 
     std::string textures[] = {"head", "torso", "left_arm", "right_arm", "left_leg", "right_leg"};
     Vector2 positions[] = {
@@ -97,7 +101,7 @@ void GameMaster::stateChanged(State::Enum oldState, State::Enum newState) {
         RENDERING(e)->color = Color(0.3, 0.3, 0.3);
         // Create obstacle
         for (int j=0; j<2; j++) {
-            for (int i=0; i<20; i++) {
+            for (int i=0; i<30; i++) {
                 Entity obs = theEntityManager.CreateEntity();
                 ADD_COMPONENT(obs, Transformation);
                 TRANSFORM(obs)->size = MathUtil::RandomVector(Vector2(0.5, 0.5), Vector2(5, 5));

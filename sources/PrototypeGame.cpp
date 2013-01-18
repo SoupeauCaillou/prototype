@@ -99,6 +99,10 @@ void PrototypeGame::init(const uint8_t* in, int size) {
 
     currentState = State::Menu;
 
+    // add GUI camera
+    RenderingSystem::Camera cam = theRenderingSystem.cameras[0];
+    theRenderingSystem.cameras.push_back(cam);
+
     // ...
     stateChangeListeners.push_back(new GameMaster());
 

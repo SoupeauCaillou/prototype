@@ -51,4 +51,9 @@ class PrototypeGame : public Game {
         std::map<State::Enum, StateManager*> state2manager;
         TransitionStateManager transitionManager;
         std::vector<StateChangeListener*> stateChangeListeners;
+
+    public:
+        struct {
+            std::vector<std::pair<Entity, Entity> > fightersIcons;
+        } inGameUI;
 };
