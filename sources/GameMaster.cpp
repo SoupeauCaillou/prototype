@@ -24,6 +24,8 @@ static Entity createFighter() {
     ADD_COMPONENT(e, CameraTarget);
     CAM_TARGET(e)->cameraIndex = 0;
     CAM_TARGET(e)->maxCameraSpeed = 20;
+    CAM_TARGET(e)->limits.min = Vector2(-30, -20) + theRenderingSystem.cameras[0].worldSize * 0.5;
+    CAM_TARGET(e)->limits.max = Vector2(30, 20) - theRenderingSystem.cameras[0].worldSize * 0.5;
 
     std::string textures[] = {"head", "torso", "left_arm", "right_arm", "left_leg", "right_leg"};
     Vector2 positions[] = {

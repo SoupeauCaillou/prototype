@@ -48,9 +48,12 @@
 #include "systems/EquipmentSystem.h"
 #include "systems/SlotSystem.h"
 #include "systems/PickableSystem.h"
+#include "systems/CameraTargetSystem.h"
 
 #include "GameMaster.h"
 #include <cmath>
+
+#include <GL/glfw.h>
 
 PrototypeGame::PrototypeGame(AssetAPI* ast, NameInputAPI* inputUI, LocalizeAPI* lAPI, AdAPI* ad) : Game() {
 	asset = ast;
@@ -166,6 +169,46 @@ void PrototypeGame::tick(float dt) {
         // notify state change
         for(unsigned i=0; i<stateChangeListeners.size(); i++) {
             stateChangeListeners[i]->stateChanged(oldState, currentState);
+        }
+    }
+
+    // camera movement
+    {
+        bool manualMovement = false;
+        RenderingSystem::Camera& camera = theRenderingSystem.cameras[0];
+        float moveSpeed = glfwGetKey(GLFW_KEY_LSHIFT) ? 2 : 0.5;
+        if (glfwGetKey(GLFW_KEY_LEFT)) {
+            camera.worldPosition.X -= moveSpeed * camera.worldSize.X * dt;
+            manualMovement = true;
+        } else if (glfwGetKey(GLFW_KEY_RIGHT)) {
+            camera.worldPosition.X += moveSpeed * camera.worldSize.X * dt;
+            manualMovement = true;
+        }
+        if (glfwGetKey(GLFW_KEY_DOWN)) {
+            camera.worldPosition.Y -= moveSpeed * camera.worldSize.Y  * dt;
+            manualMovement = true;
+        } else if (glfwGetKey(GLFW_KEY_UP)) {
+            camera.worldPosition.Y += moveSpeed * camera.worldSize.Y * dt;
+            manualMovement = true;
+        }
+        float zoomSpeed = glfwGetKey(GLFW_KEY_LSHIFT) ? 2 : 1.1;
+        if (glfwGetKey(GLFW_KEY_KP_ADD)) {
+            camera.worldSize *= 1 - zoomSpeed * dt;
+        } else if (glfwGetKey(GLFW_KEY_KP_SUBTRACT)) {
+            camera.worldSize *= 1 + zoomSpeed * dt;
+        }
+
+        if (camera.worldSize.Y > 40)
+            camera.worldSize *= 40 / camera.worldSize.Y;
+        Vector2 lmin = Vector2(-30, -20) + camera.worldSize * 0.5;
+        Vector2 lmax = Vector2(30, 20) - camera.worldSize * 0.5;
+        camera.worldPosition.X = MathUtil::Min(lmax.X, MathUtil::Max(lmin.X, camera.worldPosition.X));
+        camera.worldPosition.Y = MathUtil::Min(lmax.Y, MathUtil::Max(lmin.Y, camera.worldPosition.Y));
+
+        if (manualMovement) {
+            std::vector<Entity> camTargets = theCameraTargetSystem.RetrieveAllEntityWithComponent();
+            for (unsigned j=0; j<camTargets.size(); j++)
+                CAM_TARGET(camTargets[j])->enabled = false;
         }
     }
 }

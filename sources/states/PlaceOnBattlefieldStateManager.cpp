@@ -106,7 +106,10 @@ State::Enum PlaceOnBattlefieldStateManager::update(float dt) {
             for (unsigned j=0; j<camTargets.size(); j++)
                 CAM_TARGET(camTargets[j])->enabled = false;
             // move camera on fighter
-            CAM_TARGET(game->inGameUI.fightersIcons[i].second)->enabled = true;
+            Entity fighter = game->inGameUI.fightersIcons[i].second;
+            CAM_TARGET(fighter)->enabled = true;
+            CAM_TARGET(fighter)->limits.min = Vector2(-30, -20) + theRenderingSystem.cameras[0].worldSize * 0.5;
+            CAM_TARGET(fighter)->limits.max = Vector2(30, 20) - theRenderingSystem.cameras[0].worldSize * 0.5;
             break;
         }
     }
