@@ -211,6 +211,20 @@ void PrototypeGame::tick(float dt) {
                 CAM_TARGET(camTargets[j])->enabled = false;
         }
     }
+    
+        { static int i=0;
+        std::cout << "Nombre d'entité = " << ++i << std::endl;
+        
+        Entity eq = theEntityManager.CreateEntity();
+        ADD_COMPONENT(eq, Transformation);
+        TRANSFORM(eq)->z = 0.1;
+        TRANSFORM(eq)->size = Vector2(0.5,0.5);
+        TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
+        ADD_COMPONENT(eq, Rendering);
+        RENDERING(eq)->color = Color::random();
+        RENDERING(eq)->hide = false;
+    }
+
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

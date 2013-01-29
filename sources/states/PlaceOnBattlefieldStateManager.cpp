@@ -31,7 +31,9 @@
 #include <sstream>
 
 struct PlaceOnBattlefieldStateManager::PlaceOnBattlefieldStateManagerDatas {
-
+    Entity activeFighter;
+    Entity selection;
+    float colorEvolution;
 };
 
 PlaceOnBattlefieldStateManager::PlaceOnBattlefieldStateManager(PrototypeGame* game) : StateManager(State::PlaceOnBattlefield, game) {
@@ -43,7 +45,11 @@ PlaceOnBattlefieldStateManager::~PlaceOnBattlefieldStateManager() {
 }
 
 void PlaceOnBattlefieldStateManager::setup() {
-
+    Entity selection = datas->selection = theEntityManager.CreateEntity();
+    ADD_COMPONENT(selection, Transformation);
+    TRANSFORM(selection)->z = -0.1;
+    ADD_COMPONENT(selection, Rendering);
+    RENDERING(selection)->color = Color(1, 0, 0);
 }
 
 
@@ -80,6 +86,8 @@ void PlaceOnBattlefieldStateManager::willEnter(State::Enum from) {
             }
         }
     }
+    datas->activeFighter = 0;
+    datas->colorEvolution = -1;
 }
 
 bool PlaceOnBattlefieldStateManager::transitionCanEnter(State::Enum) {
@@ -100,19 +108,49 @@ void PlaceOnBattlefieldStateManager::backgroundUpdate(float) {
 State::Enum PlaceOnBattlefieldStateManager::update(float dt) {
     for (unsigned i=0; i<game->inGameUI.fightersIcons.size(); i++) {
         if (BUTTON(game->inGameUI.fightersIcons[i].first)->clicked) {
-            std::cout << "Button #" << i << " clicked" <<  std::endl;
             // disable every other
             std::vector<Entity> camTargets = theCameraTargetSystem.RetrieveAllEntityWithComponent();
             for (unsigned j=0; j<camTargets.size(); j++)
                 CAM_TARGET(camTargets[j])->enabled = false;
             // move camera on fighter
             Entity fighter = game->inGameUI.fightersIcons[i].second;
-            CAM_TARGET(fighter)->enabled = true;
-            CAM_TARGET(fighter)->limits.min = Vector2(-30, -20) + theRenderingSystem.cameras[0].worldSize * 0.5;
-            CAM_TARGET(fighter)->limits.max = Vector2(30, 20) - theRenderingSystem.cameras[0].worldSize * 0.5;
+            if (fighter == datas->activeFighter) {
+                datas->activeFighter = 0;
+                RENDERING(datas->selection)->hide = true;
+                CAM_TARGET(fighter)->enabled = false;
+            } else {
+                CAM_TARGET(fighter)->enabled = true;
+                CAM_TARGET(fighter)->limits.min = Vector2(-30, -20) + theRenderingSystem.cameras[0].worldSize * 0.5;
+                CAM_TARGET(fighter)->limits.max = Vector2(30, 20) - theRenderingSystem.cameras[0].worldSize * 0.5;
+                datas->activeFighter = fighter;
+                TRANSFORM(datas->selection)->parent = fighter;
+                TRANSFORM(datas->selection)->size = TRANSFORM(FIGHTER(fighter)->torso)->size * Vector2(1.8, 0.25);
+                TRANSFORM(datas->selection)->position = TRANSFORM(FIGHTER(fighter)->leg[0])->size * Vector2(0, -1.55);
+                RENDERING(datas->selection)->hide = false;
+            }
             break;
         }
     }
+    RENDERING(datas->selection)->color.a += datas->colorEvolution * dt;
+    if (datas->colorEvolution < 0 && RENDERING(datas->selection)->color.a <= 0.1) {
+        RENDERING(datas->selection)->color.a = 0.1;
+        datas->colorEvolution = 1;
+    } else if (datas->colorEvolution > 0 && RENDERING(datas->selection)->color.a >= 1) {
+        RENDERING(datas->selection)->color.a = 1;
+        datas->colorEvolution = -1;
+    }
+
+    if (datas->activeFighter) {
+        if (theTouchInputManager.wasTouched(0) && !theTouchInputManager.isTouched(0)) {
+            if (MathUtil::Abs(theTouchInputManager.getTouchLastScreenPosition(0).X) > theRenderingSystem.screenW * 0.4) {
+                std::cout << "ignore click" << std::endl;
+            } else {
+                TRANSFORM(datas->activeFighter)->position = theTouchInputManager.getTouchLastPosition(0);
+                CAM_TARGET(datas->activeFighter)->enabled = false;
+            }
+        }
+    }
+
     return State::PlaceOnBattlefield; //BattleColorPick;
 }
 
