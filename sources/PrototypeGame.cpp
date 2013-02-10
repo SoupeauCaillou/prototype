@@ -58,6 +58,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theRenderingSystem.loadAtlas("alphabet", true);
+    theRenderingSystem.loadAtlas("logo", false);
+    
     // init font
     loadFont(asset, "typo");
 }
@@ -116,6 +118,22 @@ void PrototypeGame::tick(float dt) {
 
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
+    }
+    { static int i=0;
+        // std::cout << "Nombre d'entité = " << ++i << std::endl;
+        
+        Entity eq = theEntityManager.CreateEntity();
+        ADD_COMPONENT(eq, Transformation);
+        TRANSFORM(eq)->z = 0.5;
+        TRANSFORM(eq)->size = Vector2(0.5,0.5);
+        TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
+      ADD_COMPONENT(eq, Rendering);
+        RENDERING(eq)->color = Color::random();
+        RENDERING(eq)->hide = false;
+        RENDERING(eq)->cameraBitMask = 0xffff;
+        ADD_COMPONENT(eq, Physics);
+        PHYSICS(eq)->mass = MathUtil::RandomFloat();
+        PHYSICS(eq)->gravity = Vector2(0, -1);
     }
 }
 
