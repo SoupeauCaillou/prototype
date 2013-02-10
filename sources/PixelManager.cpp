@@ -10,7 +10,6 @@
 #include <base/PlacementHelper.h>
 #include "util/IntersectionUtil.h"
 #include "api/AssetAPI.h"
-#include "api/linux/AssetAPILinuxImpl.h"
 
 #include "api/NameInputAPI.h"
 
@@ -30,9 +29,11 @@
 
 #include <cmath>
 
-PixelManager::PixelManager(std::string assetName)
+pixel pixel::Default;
+
+PixelManager::PixelManager(std::string assetName, AssetAPI* assetAPI)
 {
-    asset = new AssetAPILinuxImpl();
+    asset = assetAPI;
     changeBackGround(assetName);
     
     pixel newPixel = pixel(theEntityManager.CreateEntity());
@@ -44,16 +45,15 @@ PixelManager::PixelManager(std::string assetName)
 
     newPixel.finalPosition = TRANSFORM(newPixel.p)->position;
     newPixel.finalSize = TRANSFORM(newPixel.p)->size;
-    
+
     if (bg.datas != 0)
         newPixel.finalColor = averageColor(TRANSFORM(newPixel.p)->size, TRANSFORM(newPixel.p)->position);
     else
         newPixel.finalColor = Color::random();
+
     RENDERING(newPixel.p)->color = newPixel.finalColor;
     RENDERING(newPixel.p)->hide = false;
     pixels.push_back(newPixel);
-
-    
 }
 
 PixelManager::~PixelManager(){}
@@ -70,8 +70,7 @@ pixel& PixelManager::findPixel(Vector2 pos)
             return *it;
         }
     }
-    pixel defaultReturn = pixel();
-    return defaultReturn;
+    return pixel::Default;
 }
 
 void PixelManager::updatePixel()
@@ -81,12 +80,13 @@ void PixelManager::updatePixel()
         splitPixel(findPixel(Vector2(MathUtil::RandomFloatInRange(0, theRenderingSystem.screenW) - theRenderingSystem.screenW/2 ,
                           MathUtil::RandomFloatInRange(0, theRenderingSystem.screenH) - theRenderingSystem.screenH/2)));
     }
-    if (MathUtil::RandomIntInRange(0, 20) < 1)
+    if (MathUtil::RandomIntInRange(0, 10) < 1)
     {
         fusePixel(findPixel(Vector2(MathUtil::RandomFloatInRange(0, theRenderingSystem.screenW) - theRenderingSystem.screenW/2 ,
                           MathUtil::RandomFloatInRange(0, theRenderingSystem.screenH) - theRenderingSystem.screenH/2)));
     }
     
+    LOGI("[Update operation] Number of pixel : %i \t %i", pixels.size(), pixels.size()*sizeof(pixel));
     for (std::list<pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
     {
         if(it->enabled || RENDERING(it->p)->hide)
@@ -137,7 +137,9 @@ bool PixelManager::changeBackGround(std::string assetName)
 
 bool PixelManager::splitPixel(pixel& p)
 {
-    if (p.enabled && !(TRANSFORM(p.p)->size < Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH) * 0.02))
+    if (p.enabled && 
+        !(TRANSFORM(p.p)->size < 
+        Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH) * 0.02))
     {
         bool children = false;
         for (std::list<pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
@@ -159,7 +161,7 @@ bool PixelManager::splitPixel(pixel& p)
             {
                 pixel newPixel = pixel(theEntityManager.CreateEntity(), p.p, false);
                 ADD_COMPONENT(newPixel.p, Transformation);
-                TRANSFORM(newPixel.p)->z = MathUtil::RandomFloatInRange(0,1);
+                TRANSFORM(newPixel.p)->z = MathUtil::RandomFloatInRange(0.1,1);
                 TRANSFORM(newPixel.p)->size = TRANSFORM(newPixel.parent)->size;
                 TRANSFORM(newPixel.p)->position = TRANSFORM(newPixel.parent)->position;
                 ADD_COMPONENT(newPixel.p, Rendering);
@@ -188,7 +190,7 @@ bool PixelManager::fusePixel(pixel& p)
     if (p.enabled && p.parent != 0)
     {
         pixel *parent = 0;
-        std::vector<Entity> children;
+        std::vector<std::list<pixel>::iterator> children;
 
         for (std::list<pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
         {
@@ -199,17 +201,17 @@ bool PixelManager::fusePixel(pixel& p)
             }
             if (p.parent == it->parent && RENDERING(it->p)->hide == false && it->enabled)
             {
-                children.push_back(it->p);
-                it->enabled = false;
+                children.push_back(it);
             }
         }
-        
-        std::cout << children.size() << std::endl;
+
+        LOGI("[Fuse operation] Number of children found : %i", children.size());
         if (children.size() != 4)
         {
             return false;
         }
-
+        
+        LOGI("[Fuse operation] Parent entity : %i", parent->p);
         TRANSFORM(parent->p)->size = TRANSFORM(p.p)->size;
         TRANSFORM(parent->p)->position = TRANSFORM(p.p)->position;
         RENDERING(parent->p)->color = RENDERING(p.p)->color;
@@ -218,11 +220,13 @@ bool PixelManager::fusePixel(pixel& p)
 
         for (int i=0; i<children.size(); ++i)
         {
-            RENDERING(children[i])->hide = true;
+            LOGI("[Fuse operation] Children to hide : %i", children[i]->p);
+            RENDERING(children[i]->p)->hide = true;
+            children[i]->enabled = false;
         }
 
         children.clear();
-        
+
         return true;
     }
     return false;
@@ -249,7 +253,7 @@ Color PixelManager::averageColor(Vector2 size, Vector2 position)
 
     for (int i=pos.X*bg.channels; i<(pos.X + sizeInPixel.X)*bg.channels; i+=bg.channels)
     {
-        for (int j=(bg.height - pos.Y)*bg.channels; j>((bg.height - pos.Y) - sizeInPixel.Y)*bg.channels; j-=bg.channels)
+        for (int j=(bg.height - 1 - pos.Y)*bg.channels; j>((bg.height -1 - pos.Y) - sizeInPixel.Y)*bg.channels; j-=bg.channels)
         {
             moyR += bg.datas[i + j*bg.width] & 0xFF;
             moyG += bg.datas[i + j*bg.width + 1] & 0xFF;

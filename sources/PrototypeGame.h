@@ -33,8 +33,6 @@
 #include "api/NameInputAPI.h"
 #include "util/ImageLoader.h"
 
-#include "states/StateManager.h"
-
 #include "PixelManager.h"
 
 class PrototypeGame : public Game {
@@ -48,28 +46,9 @@ class PrototypeGame : public Game {
 		void togglePause(bool activate);
         bool willConsumeBackEvent();
 		void backPressed();
-        void changeState(State::Enum newState);
-
+        
 	private:
-        bool createNewEntity(const Entity &parent);
-        void destructParent(const Entity &parent);
-        void moveEntity();
-        Color moyennePixel(Vector2 size, Vector2 position);
-        Vector2 randomSplit();
-        Vector2 randomFuse();
-        bool fuseEntity(const Entity &parent);
-    
 		AssetAPI* asset;
-        State::Enum currentState, overrideNextState;
-        std::map<State::Enum, StateManager*> state2manager;
-        TransitionStateManager transitionManager;
 
-        std::list<Entity> e;
-        std::map<Entity, Vector2> entityInMotion;
-        std::map<Entity, Color> colorInMotion;
-        std::map<Entity, Vector2> sizeInMotion;
-
-        ImageDesc bg;
-
-        PixelManager *test;
+        PixelManager *thePixelManager;
 };

@@ -11,7 +11,7 @@ LOCAL_CFLAGS := -DANDROID_NDK \
 				-I$(LOCAL_PATH)/..
 
 LOCAL_CXXFLAGS := -DANDROID_NDK \
-                -DDISABLE_IMPORTGL \
+                -DDISABLE_IMPORTGL -DENABLE_LOG \
             -I$(LOCAL_PATH)/../sources \
 				-I$(LOCAL_PATH)/.. \
 				-I$(LOCAL_PATH)/../sac/ \
@@ -21,6 +21,7 @@ LOCAL_CXXFLAGS := -DANDROID_NDK \
 LOCAL_SRC_FILES := \
     prototype.cpp \
     ../sources/PrototypeGame.cpp \
+    ../sources/PixelManager.cpp \
     ../sac/android/sacjnilib.cpp
 
 LOCAL_STATIC_LIBRARIES := sac png tremor jsoncpp

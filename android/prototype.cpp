@@ -40,10 +40,6 @@ GameHolder* GameHolder::build() {
 	PrototypeGameThreadJNIEnvCtx* jniCtx = new PrototypeGameThreadJNIEnvCtx();
 	hld->gameThreadJNICtx = jniCtx;
 	
-	hld->game = new PrototypeGame(&hld->renderThreadJNICtx.asset,
-		&hld->gameThreadJNICtx->nameInput,
-		&hld->gameThreadJNICtx->localize,
-		&hld->gameThreadJNICtx->ad,
-		&hld->gameThreadJNICtx->exitAPI);
+	hld->game = new PrototypeGame(&hld->renderThreadJNICtx.asset);
 	return hld;
 };

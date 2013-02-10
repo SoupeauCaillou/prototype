@@ -15,9 +15,8 @@
 #include "api/NameInputAPI.h"
 #include "util/ImageLoader.h"
 
-#include "states/StateManager.h"
-
 struct pixel {
+    static pixel Default;
     pixel(Entity p=0, Entity parent=0, bool enabled=false):p(p), parent(parent), enabled(enabled) {}
     Entity p;
     Entity parent;
@@ -46,7 +45,7 @@ class PixelManager {
         static const int DIVIDE_BY = 4;
         static const float SPEED = 0.05;
 
-        PixelManager(std::string assetName);
+        PixelManager(std::string assetName, AssetAPI* assetAPI);
         virtual ~PixelManager();
 
         pixel& findPixel(Vector2 pos);
