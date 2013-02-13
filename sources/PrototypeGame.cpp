@@ -42,6 +42,7 @@
 #include "systems/ParticuleSystem.h"
 #include "systems/ScrollingSystem.h"
 #include "systems/MorphingSystem.h"
+#include "systems/CameraSystem.h"
 
 #include <cmath>
 
@@ -59,18 +60,58 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     theRenderingSystem.loadAtlas("alphabet", true);
     theRenderingSystem.loadAtlas("logo", false);
+
+    theRenderingSystem.createFramebuffer("pip_camera", 64, 64);
     
     // init font
     loadFont(asset, "typo");
+    theRenderingSystem.loadEffectFile("randomize.fs");
 }
 
+Entity camera, camera2, pip;
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
     }
 
     overrideNextState = State::Invalid;
-    currentState = State::Logo;
+    currentState = State::Menu;
+
+    // default camera
+    camera = theEntityManager.CreateEntity();
+    ADD_COMPONENT(camera, Transformation);
+    TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH);
+    TRANSFORM(camera)->position = Vector2::Zero;
+    ADD_COMPONENT(camera, Camera);
+    CAMERA(camera)->enable = true;
+    CAMERA(camera)->order = 2;
+    CAMERA(camera)->id = 0;
+    CAMERA(camera)->clearColor = Color(0.3, 0.1, 0.4);
+
+    // PIP camera
+    camera2 = theEntityManager.CreateEntity();
+    ADD_COMPONENT(camera2, Transformation);
+    TRANSFORM(camera2)->size = Vector2(theRenderingSystem.screenH, theRenderingSystem.screenH);
+    TRANSFORM(camera2)->position = Vector2::Zero;
+    ADD_COMPONENT(camera2, Camera);
+    CAMERA(camera2)->enable = true;
+    CAMERA(camera2)->order = 1;
+    CAMERA(camera2)->fb = theRenderingSystem.getFramebuffer("pip_camera");
+    CAMERA(camera2)->id = 1;
+    CAMERA(camera2)->clearColor = Color();
+
+    // PIP renderer
+    pip = theEntityManager.CreateEntity();
+    ADD_COMPONENT(pip, Transformation);
+    TRANSFORM(pip)->size = Vector2(3, 3);
+    TRANSFORM(pip)->position = Vector2(-3, 3);
+    TRANSFORM(pip)->z = 0.9;
+    ADD_COMPONENT(pip, Rendering);
+    RENDERING(pip)->hide = false;
+    RENDERING(pip)->framebuffer = theRenderingSystem.getFramebuffer("pip_camera");
+    RENDERING(pip)->fbo = true;
+    RENDERING(pip)->effectRef = theRenderingSystem.loadEffectFile("randomize.fs");
+    RENDERING(pip)->cameraBitMask = 0x1;
 
     quickInit();
 }
@@ -98,6 +139,7 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
+    TRANSFORM(camera)->rotation += 1. * dt;
     if (overrideNextState != State::Invalid) {
         changeState(overrideNextState);
         overrideNextState = State::Invalid;
