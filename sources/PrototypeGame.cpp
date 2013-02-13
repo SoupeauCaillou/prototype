@@ -89,7 +89,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(0.3, 0.1, 0.4);
 
     // PIP camera
-    camera2 = theEntityManager.CreateEntity();
+    camera2 = theEntityManager.CreateEntity("camera2");
     ADD_COMPONENT(camera2, Transformation);
     TRANSFORM(camera2)->size = Vector2(theRenderingSystem.screenH, theRenderingSystem.screenH);
     TRANSFORM(camera2)->position = Vector2::Zero;
@@ -99,6 +99,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera2)->fb = theRenderingSystem.getFramebuffer("pip_camera");
     CAMERA(camera2)->id = 1;
     CAMERA(camera2)->clearColor = Color();
+    // to test failure RENDERING(camera2)->hide = false;
 
     // PIP renderer
     pip = theEntityManager.CreateEntity();
