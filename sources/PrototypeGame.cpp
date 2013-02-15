@@ -19,7 +19,6 @@
 #include "PrototypeGame.h"
 #include <sstream>
 
-#include <base/Log.h>
 #include <base/TouchInputManager.h>
 #include <base/MathUtil.h>
 #include <base/EntityManager.h>
@@ -104,7 +103,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     // PIP renderer
     pip = theEntityManager.CreateEntity();
     ADD_COMPONENT(pip, Transformation);
-    TRANSFORM(pip)->size = Vector2(3, 3);
+    TRANSFORM(pip)->size = Vector2(6, 6);
     TRANSFORM(pip)->position = Vector2(-3, 3);
     TRANSFORM(pip)->z = 0.9;
     ADD_COMPONENT(pip, Rendering);
@@ -140,7 +139,7 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
-    TRANSFORM(camera)->rotation += 1. * dt;
+    //TRANSFORM(camera)->rotation += 1. * dt;
     if (overrideNextState != State::Invalid) {
         changeState(overrideNextState);
         overrideNextState = State::Invalid;
@@ -162,21 +161,21 @@ void PrototypeGame::tick(float dt) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
     }
-    { static int i=0;
-        // std::cout << "Nombre d'entité = " << ++i << std::endl;
+    { 
+        LOG_EVERY_N(INFO, 50) << "Nombre d'entité = " << google::COUNTER;
         
         Entity eq = theEntityManager.CreateEntity();
         ADD_COMPONENT(eq, Transformation);
         TRANSFORM(eq)->z = 0.5;
-        TRANSFORM(eq)->size = Vector2(0.5,0.5);
+        TRANSFORM(eq)->size = Vector2(1, 1) * MathUtil::RandomFloatInRange(0.5, 1.);
         TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
-      ADD_COMPONENT(eq, Rendering);
+        ADD_COMPONENT(eq, Rendering);
         RENDERING(eq)->color = Color::random();
         RENDERING(eq)->hide = false;
         RENDERING(eq)->cameraBitMask = 0xffff;
         ADD_COMPONENT(eq, Physics);
         PHYSICS(eq)->mass = MathUtil::RandomFloat();
-        PHYSICS(eq)->gravity = Vector2(0, -1);
+        PHYSICS(eq)->gravity = Vector2(0, -0.1);
     }
 }
 

@@ -71,6 +71,9 @@
 #include <libintl.h>
 #endif
 
+#include <glog/logging.h>
+#include <gflags/gflags.h>
+
 #define DT 1/60.
 #define MAGICKEYTIME 0.15
 
@@ -263,14 +266,17 @@ static void updateAndRender() {
 
 #endif
 
-extern bool __log_enabled;
 int main(int argc, char** argv) {
+    google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = true;
+    google::ParseCommandLineFlags(&argc, &argv, true);
+
     Vector2 reso16_9(394, 700);
     Vector2 reso16_10(900, 625);
     Vector2* reso = &reso16_10;
 
 #ifdef EMSCRIPTEN
-    __log_enabled = true;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         return 1;
     }
@@ -284,10 +290,9 @@ int main(int argc, char** argv) {
         return 1;
     glfwSetWindowTitle("RecursiveRunner");
     glewInit();
-    __log_enabled = false;
+
     bool restore = false;
     for (int i=1; i<argc; i++) {
-        __log_enabled |= (!strcmp(argv[i], "--verbose") || !strcmp(argv[i], "-v"));
         restore |= !strcmp(argv[i], "-restore");
     }
 #endif
