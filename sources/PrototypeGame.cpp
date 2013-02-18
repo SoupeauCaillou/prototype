@@ -112,6 +112,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     RENDERING(pip)->fbo = true;
     RENDERING(pip)->effectRef = theRenderingSystem.loadEffectFile("randomize.fs");
     RENDERING(pip)->cameraBitMask = 0x1;
+    ADD_COMPONENT(pip, Particule);
 
     quickInit();
 }

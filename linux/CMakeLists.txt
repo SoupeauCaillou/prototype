@@ -5,6 +5,7 @@ include_directories(${PROJECT_SOURCE_DIR}/sac/libs/sqrat/include)
 include_directories(${PROJECT_SOURCE_DIR}/sac/libs/glog-gflags)
 link_directories (${PROJECT_BINARY_DIR}/sac)
 link_directories (${PROJECT_BINARY_DIR}/sac/libs/squirrel/lib)
+link_directories (${PROJECT_SOURCE_DIR}/sac/libs/AntTweakBar/lib)
 
 file(
         GLOB
@@ -22,5 +23,5 @@ if (EMSCRIPTEN_BUILD)
 		COMMENT "Building emscripten HTML")	
 else ()
 	add_executable(prototype ${source_files})
-	target_link_libraries(prototype prototypecommon sac GLEW glfw openal sqlite3  vorbisfile vorbis z vpx)
+	target_link_libraries(prototype prototypecommon sac GLEW glfw openal sqlite3  vorbisfile vorbis z vpx AntTweakBar)
 endif ()
