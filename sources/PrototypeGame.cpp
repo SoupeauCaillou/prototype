@@ -79,7 +79,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     currentState = State::Menu;
 
     // default camera
-    camera = theEntityManager.CreateEntity();
+    camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
     TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH);
     TRANSFORM(camera)->position = Vector2::Zero;
@@ -103,7 +103,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     // to test failure RENDERING(camera2)->hide = false;
 
     // PIP renderer
-    pip = theEntityManager.CreateEntity();
+    pip = theEntityManager.CreateEntity("pip_renderer");
     ADD_COMPONENT(pip, Transformation);
     TRANSFORM(pip)->size = Vector2(6, 6);
     TRANSFORM(pip)->position = Vector2(-3, 3);
@@ -169,7 +169,7 @@ void PrototypeGame::tick(float dt) {
         static float accum = 0;
         accum += dt * 2;
         while (accum > 1) {
-            Entity eq = theEntityManager.CreateEntity();
+            Entity eq = theEntityManager.CreateEntity("dummy");
             ADD_COMPONENT(eq, Transformation);
             TRANSFORM(eq)->z = 0.5;
             TRANSFORM(eq)->size = Vector2(1, 1) * MathUtil::RandomFloatInRange(0.5, 1.);

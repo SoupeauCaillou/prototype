@@ -54,10 +54,10 @@ LogoStateManager::~LogoStateManager() {
 }
 
 void LogoStateManager::setup() {
-    Entity logo = datas->logo = theEntityManager.CreateEntity();
-    Entity logobg = datas->logobg = theEntityManager.CreateEntity();
-    Entity logofade = datas->logofade = theEntityManager.CreateEntity();
-    datas->animLogo = theEntityManager.CreateEntity();
+    Entity logo = datas->logo = theEntityManager.CreateEntity("logo");
+    Entity logobg = datas->logobg = theEntityManager.CreateEntity("logobg");
+    Entity logofade = datas->logofade = theEntityManager.CreateEntity("logofade");
+    datas->animLogo = theEntityManager.CreateEntity("logo_anim");
 
     ADD_COMPONENT(logo, Rendering);
     ADD_COMPONENT(logo, Transformation);
