@@ -30,6 +30,8 @@
 
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/AnimationSystem.h"
+#include "systems/AutoDestroySystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/ADSRSystem.h"
 #include "systems/TextRenderingSystem.h"
@@ -163,20 +165,28 @@ void PrototypeGame::tick(float dt) {
         it->second->backgroundUpdate(dt);
     }
     { 
-        LOG_EVERY_N(INFO, 50) << "Nombre d'entité = " << google::COUNTER;
-        
-        Entity eq = theEntityManager.CreateEntity();
-        ADD_COMPONENT(eq, Transformation);
-        TRANSFORM(eq)->z = 0.5;
-        TRANSFORM(eq)->size = Vector2(1, 1) * MathUtil::RandomFloatInRange(0.5, 1.);
-        TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
-        ADD_COMPONENT(eq, Rendering);
-        RENDERING(eq)->color = Color::random();
-        RENDERING(eq)->hide = false;
-        RENDERING(eq)->cameraBitMask = 0xffff;
-        ADD_COMPONENT(eq, Physics);
-        PHYSICS(eq)->mass = MathUtil::RandomFloat();
-        PHYSICS(eq)->gravity = Vector2(0, -0.1);
+        LOG_EVERY_N(INFO, 50) << "Nouvelle entité";
+        static float accum = 0;
+        accum += dt * 2;
+        while (accum > 1) {
+            Entity eq = theEntityManager.CreateEntity();
+            ADD_COMPONENT(eq, Transformation);
+            TRANSFORM(eq)->z = 0.5;
+            TRANSFORM(eq)->size = Vector2(1, 1) * MathUtil::RandomFloatInRange(0.5, 1.);
+            TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
+            ADD_COMPONENT(eq, Rendering);
+            RENDERING(eq)->color = Color::random();
+            RENDERING(eq)->hide = false;
+            RENDERING(eq)->cameraBitMask = 0xffff;
+            ADD_COMPONENT(eq, Physics);
+            PHYSICS(eq)->mass = MathUtil::RandomFloat();
+            PHYSICS(eq)->gravity = Vector2(0, -0.1);
+            accum -= 1;
+            ADD_COMPONENT(eq, ADSR);
+            ADD_COMPONENT(eq, Animation);
+            ADD_COMPONENT(eq, AutoDestroy);
+            AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_SCREEN;
+        }
     }
 }
 
