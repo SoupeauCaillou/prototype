@@ -44,8 +44,11 @@
 #include "systems/ScrollingSystem.h"
 #include "systems/MorphingSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/NetworkSystem.h"
+#include "api/NetworkAPI.h"
 
 #include <cmath>
+#include <GL/glfw.h>
 
 PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
     asset = ast;
@@ -61,6 +64,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     theRenderingSystem.loadAtlas("alphabet", true);
     theRenderingSystem.loadAtlas("logo", false);
+    theRenderingSystem.loadAtlas("default", false);
 
     theRenderingSystem.createFramebuffer("pip_camera", 64, 64);
     
@@ -69,7 +73,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadEffectFile("randomize.fs");
 }
 
-Entity camera, camera2, pip;
+Entity camera, camera2, pip, hero;
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
@@ -78,17 +82,55 @@ void PrototypeGame::init(const uint8_t*, int) {
     overrideNextState = State::Invalid;
     currentState = State::Menu;
 
+    std::string runAnim[] = {"soldier_1", "soldier_2", "soldier_1", "soldier_3"};
+    theAnimationSystem.registerAnim("hero_run", 
+        runAnim,
+        4, 10, Interval<int> (-1, -1), "", Interval<float> (0,0));
+    theAnimationSystem.registerAnim("hero_idle", 
+        runAnim,
+        1, 1, Interval<int> (-1, -1), "", Interval<float> (0,0));
+
+    // create hero
+    hero = theEntityManager.CreateEntity("local_hero");
+    ADD_COMPONENT(hero, Transformation);
+    TRANSFORM(hero)->size = Vector2(1.1, 1.7) * 1;
+    TRANSFORM(hero)->position = Vector2::Zero;
+    TRANSFORM(hero)->z = 0.5;
+    ADD_COMPONENT(hero, Rendering);
+    RENDERING(hero)->hide = false;
+    ADD_COMPONENT(hero, Animation);
+    ANIMATION(hero)->name = "hero_idle";
+    if (theNetworkSystem.networkAPI && theNetworkSystem.networkAPI->isConnectedToAnotherPlayer()) {
+        ADD_COMPONENT(hero, Network);
+        NETWORK(hero)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
+        NETWORK(hero)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
+    }
+
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
     TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH);
-    TRANSFORM(camera)->position = Vector2::Zero;
+    TRANSFORM(camera)->position = Vector2(0, theRenderingSystem.screenH * .3);
+    TRANSFORM(camera)->parent = hero;
     ADD_COMPONENT(camera, Camera);
     CAMERA(camera)->enable = true;
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(0.3, 0.1, 0.4);
 
+    // random background
+    Entity bg = theEntityManager.CreateEntity("random_bg");
+    ADD_COMPONENT(bg, Transformation);
+    TRANSFORM(bg)->size = Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH) * 3;
+    TRANSFORM(bg)->position = Vector2::Zero;
+    TRANSFORM(bg)->z = 0.01;
+    ADD_COMPONENT(bg, Rendering);
+    RENDERING(bg)->hide = false;
+    RENDERING(bg)->texture = theRenderingSystem.loadTextureFile("random_bg");
+
+
+
+#if 0
     // PIP camera
     camera2 = theEntityManager.CreateEntity("camera2");
     ADD_COMPONENT(camera2, Transformation);
@@ -115,6 +157,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     RENDERING(pip)->effectRef = theRenderingSystem.loadEffectFile("randomize.fs");
     RENDERING(pip)->cameraBitMask = 0x1;
     ADD_COMPONENT(pip, Particule);
+#endif
 
     quickInit();
 }
@@ -148,6 +191,35 @@ void PrototypeGame::tick(float dt) {
         overrideNextState = State::Invalid;
     }
 
+    const float speed = 5;
+    TransformationComponent* tr = TRANSFORM(hero);
+    Vector2 move;
+    // move little guy
+    if (glfwGetKey( 'Z')) {
+        move += Vector2::Rotate(Vector2(0, 1), tr->worldRotation);
+    } else if (glfwGetKey('S')) {
+        move += Vector2::Rotate(Vector2(0, -0.5), tr->worldRotation);
+    }
+    if (glfwGetKey ('Q')) {
+        move += Vector2::Rotate(Vector2(-1, 0), tr->worldRotation);
+    } else if (glfwGetKey ('D')) {
+        move += Vector2::Rotate(Vector2(1, 0), tr->worldRotation);
+    }
+    if (move.X || move.Y) {
+        move.Normalize();
+        move *= speed * dt;
+        tr->position += move;
+        ANIMATION(hero)->name = "hero_run";
+    } else {
+        ANIMATION(hero)->name = "hero_idle";
+    }
+    const float rotSpeed = 3;
+    if (glfwGetKey ('A')) {
+        tr->rotation += rotSpeed * dt;
+    } else if (glfwGetKey ('E')) {
+        tr->rotation -= rotSpeed * dt;
+    }
+
     if (currentState != State::Transition) {
         State::Enum newState = state2manager[currentState]->update(dt);
 
@@ -164,6 +236,7 @@ void PrototypeGame::tick(float dt) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
     }
+    #if 0
     { 
         LOG_EVERY_N(INFO, 50) << "Nouvelle entité";
         static float accum = 0;
@@ -188,6 +261,7 @@ void PrototypeGame::tick(float dt) {
             AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_SCREEN;
         }
     }
+    #endif
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

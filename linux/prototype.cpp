@@ -43,6 +43,7 @@
 #include "systems/RenderingSystem.h"
 #include "systems/SoundSystem.h"
 #include "systems/MusicSystem.h"
+#include "systems/NetworkSystem.h"
 
 #include "api/linux/MusicAPILinuxOpenALImpl.h"
 #include "api/linux/AssetAPILinuxImpl.h"
@@ -332,6 +333,22 @@ int main(int argc, char** argv) {
     soundAPI->init();
 
     game->sacInit(reso->X,reso->Y);
+
+    if (argc > 1) {
+        NetworkAPILinuxImpl* net = new NetworkAPILinuxImpl();
+        theNetworkSystem.networkAPI = net;
+        net->connectToLobby(argv[1], "127.0.0.1");
+
+        while (!net->isConnectedToAnotherPlayer()) {
+            LOG(INFO) << "Is connected ? " << net->isConnectedToAnotherPlayer();
+
+            struct timespec ts;
+            ts.tv_sec = 1;
+            ts.tv_nsec = 0;// 0.25 * 1000000000LL;
+            nanosleep(&ts, 0);
+        }
+    }
+
     game->init(state, size);
 
 #ifndef EMSCRIPTEN
@@ -341,20 +358,6 @@ int main(int argc, char** argv) {
     glfwSetKeyCallback(myKeyCallback);
 #endif
 
-
-#if 0
-    NetworkAPILinuxImpl* net = new NetworkAPILinuxImpl();
-    net->connectToLobby(argv[1], "66.228.34.226");//127.0.0.1");
-
-    while (true) {
-        std::cout << "Is connected ? " << net->isConnectedToAnotherPlayer() << std::endl;
-
-        struct timespec ts;
-        ts.tv_sec = 1;
-        ts.tv_nsec = 0;// 0.25 * 1000000000LL;
-        nanosleep(&ts, 0);
-    }
-#endif
 
 #ifndef EMSCRIPTEN
     record = new Recorder(reso->X, reso->Y);
