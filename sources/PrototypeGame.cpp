@@ -73,7 +73,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadEffectFile("randomize.fs");
 }
 
-Entity camera, camera2, pip, hero;
+Entity camera, camera2, pip, hero, gun;
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
@@ -105,6 +105,24 @@ void PrototypeGame::init(const uint8_t*, int) {
         NETWORK(hero)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
         NETWORK(hero)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
     }
+    gun = theEntityManager.CreateEntity("local_gun");
+    ADD_COMPONENT(gun, Transformation);
+    TRANSFORM(gun)->size = Vector2(0.1);
+    TRANSFORM(gun)->position = Vector2(0.18,0.75);
+    TRANSFORM(gun)->z = 0.1;
+    TRANSFORM(gun)->parent = hero;
+    ADD_COMPONENT(gun, Particule);
+    PARTICULE(gun)->emissionRate = 0;
+    PARTICULE(gun)->lifetime = Interval<float>(0.02, 0.05);
+    PARTICULE(gun)->initialColor = Interval<Color>(Color(1, 95./255, 0, 210./255), Color(1, 1, 0, 206./255));
+    PARTICULE(gun)->finalColor = Interval<Color>(Color(1, 138./255, 20.0/255, 210./255), Color(1, 0, 107./255, 142./255));
+    PARTICULE(gun)->initialSize = Interval<float>(0.1, 0.2);
+    PARTICULE(gun)->finalSize = Interval<float>(0.05, 0.09);
+    PARTICULE(gun)->forceDirection = Interval<float>(0.78,2.24);
+    PARTICULE(gun)->forceAmplitude = Interval<float>(11,23);
+    PARTICULE(gun)->moment = Interval<float>(0, 0);
+    PARTICULE(gun)->mass = 0.1;
+    PARTICULE(gun)->gravity = Vector2::Zero;
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
@@ -219,7 +237,13 @@ void PrototypeGame::tick(float dt) {
     } else if (glfwGetKey ('E')) {
         tr->rotation -= rotSpeed * dt;
     }
-
+/*
+    if (theTouchInputManager.isTouched(0)) {
+        PARTICULE(gun)->emissionRate = 125;
+    } else {
+        PARTICULE(gun)->emissionRate = 0;
+    }
+*/
     if (currentState != State::Transition) {
         State::Enum newState = state2manager[currentState]->update(dt);
 
@@ -258,7 +282,9 @@ void PrototypeGame::tick(float dt) {
             ADD_COMPONENT(eq, ADSR);
             ADD_COMPONENT(eq, Animation);
             ADD_COMPONENT(eq, AutoDestroy);
-            AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_SCREEN;
+            AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
+            AUTO_DESTROY(eq)->params.area.w = 6;
+            AUTO_DESTROY(eq)->params.area.h = 6;
         }
     }
     #endif
