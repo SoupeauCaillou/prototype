@@ -81,8 +81,35 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     BallSystem::CreateInstance();
 }
 
+static Entity addPlayer() {
+    Entity player = theEntityManager.CreateEntity("player");
+    ADD_COMPONENT(player, Transformation);
+    TRANSFORM(player)->size = Vector2(1., 1.) * 1.5;
+    TRANSFORM(player)->position = TRANSFORM(player)->worldPosition = MathUtil::RandomVector(Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH)) -
+        Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH) * 0.5;
+    TRANSFORM(player)->z = 0.5;
+    ADD_COMPONENT(player, Rendering);
+    RENDERING(player)->hide = false;
+    ADD_COMPONENT(player, Animation);
+    ADD_COMPONENT(player, Physics);
+    PHYSICS(player)->gravity = Vector2::Zero;
+    PHYSICS(player)->mass = 1;
+    ADD_COMPONENT(player, FieldPlayer);
+    Entity contact = theEntityManager.CreateEntity("contact");
+    ADD_COMPONENT(contact, Transformation);
+    TRANSFORM(contact)->parent = player;
+    TRANSFORM(contact)->size = Vector2(0.5, 0.5);
+    TRANSFORM(contact)->position = Vector2(0., -0.25);
+    ADD_COMPONENT(contact, Rendering); // debug
+    RENDERING(contact)->hide = true;
+    FIELD_PLAYER(player)->ballContact = contact;
+    return player;
+}
+
 Entity camera;
-Entity playingField, ball, player;
+Entity playingField, ball;
+std::vector<Entity> players;
+unsigned activePlayer = 0;
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
@@ -116,25 +143,15 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 
     // create player
-    player = theEntityManager.CreateEntity("player");
-    ADD_COMPONENT(player, Transformation);
-    TRANSFORM(player)->size = Vector2(1., 1.) * 1.5;
-    TRANSFORM(player)->position = Vector2::Zero;
-    TRANSFORM(player)->z = 0.5;
-    ADD_COMPONENT(player, Rendering);
-    RENDERING(player)->hide = false;
-    ADD_COMPONENT(player, Animation);
-    ADD_COMPONENT(player, Physics);
-    PHYSICS(player)->gravity = Vector2::Zero;
-    PHYSICS(player)->mass = 1;
-    ADD_COMPONENT(player, FieldPlayer);
-
+    for (int i=0; i<5; i++)
+        players.push_back(addPlayer());
+#if 0
     if (theNetworkSystem.networkAPI && theNetworkSystem.networkAPI->isConnectedToAnotherPlayer()) {
         ADD_COMPONENT(player, Network);
         NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
         NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
     }
-
+#endif
     ball = theEntityManager.CreateEntity("ball");
     ADD_COMPONENT(ball, Transformation);
     TRANSFORM(ball)->size = Vector2(0.4);
@@ -191,6 +208,7 @@ void PrototypeGame::tick(float dt) {
         changeState(overrideNextState);
         overrideNextState = State::Invalid;
     }
+    Entity player = players[activePlayer];
     FIELD_PLAYER(player)->keyPresses = 0;
     if (glfwGetKey('Z') || glfwGetKey(GLFW_KEY_UP))
         FIELD_PLAYER(player)->keyPresses |= UP;

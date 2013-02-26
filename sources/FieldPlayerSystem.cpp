@@ -20,9 +20,11 @@ void FieldPlayerSystem::DoUpdate(float dt) {
     const Entity ball = theBallSystem.RetrieveAllEntityWithComponent()[0];
 
     FOR_EACH_ENTITY_COMPONENT(FieldPlayer, player, comp)
-        const bool ballContact = IntersectionUtil::rectangleRectangle(TRANSFORM(player), TRANSFORM(ball));
-        Vector2 toBall = TRANSFORM(ball)->worldPosition - TRANSFORM(player)->worldPosition;
+        Entity contact = FIELD_PLAYER(player)->ballContact;
+        // const bool ballContact = Vector2::IntersectionUtil::rectangleRectangle(TRANSFORM(zone), TRANSFORM(ball));
+        Vector2 toBall = TRANSFORM(ball)->worldPosition - TRANSFORM(contact)->worldPosition;
         const float dist = toBall.Normalize();
+        const bool ballContact = dist <= ((TRANSFORM(ball)->size.X + TRANSFORM(contact)->size.X) * 0.5);
         Vector2& velocity = PHYSICS(player)->linearVelocity;
 
         Vector2 moveTarget(Vector2::Zero);
