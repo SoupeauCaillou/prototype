@@ -13,7 +13,7 @@
     </Compiler>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <OutputPath>bin\Debug</OutputPath>
     <DefineSymbols>DEBUG MONODEVELOP</DefineSymbols>
     <SourceDirectory>.</SourceDirectory>
@@ -35,6 +35,8 @@
     <Compile Include="sources\states\LogoStateManager.cpp" />
     <Compile Include="sources\states\MenuStateManager.cpp" />
     <Compile Include="sources\states\TransitionStateManager.cpp" />
+    <Compile Include="sources\FieldPlayerSystem.cpp" />
+    <Compile Include="sources\BallSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -48,11 +50,13 @@
     <None Include="android\Android.mk" />
     <None Include="android\Application.mk" />
     <None Include="sources\states\StateManager.h" />
+    <None Include="sources\FieldPlayerSystem.h" />
+    <None Include="sources\BallSystem.h" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
-        <MonoDevelop.Autotools.MakefileInfo IntegrationEnabled="true" RelativeMakefileName="build/Makefile">
+        <MonoDevelop.Autotools.MakefileInfo IntegrationEnabled="True" RelativeMakefileName="build/Makefile">
           <BuildFilesVar />
           <DeployFilesVar />
           <ResourcesVar />
