@@ -244,9 +244,11 @@ static void updateAndRenderLoop() {
       }
       //user entered his name?
       if (glfwGetKey( GLFW_KEY_ENTER )) {
+      #if 0
      if (!TEXT_RENDERING(nameInput->nameEdit)->hide) {
         nameInput->textIsReady = true;
      }
+       #endif
       }
    }
    theRenderingSystem.setFrameQueueWritable(false);
@@ -331,13 +333,12 @@ int main(int argc, char** argv) {
     openal->init();
     theMusicSystem.init();
     soundAPI->init();
-
     game->sacInit(reso->X,reso->Y);
 
     if (argc > 1) {
         NetworkAPILinuxImpl* net = new NetworkAPILinuxImpl();
         theNetworkSystem.networkAPI = net;
-        net->connectToLobby(argv[1], "127.0.0.1");
+        net->connectToLobby(argv[1], "192.168.0.108");
 
         while (!net->isConnectedToAnotherPlayer()) {
             LOG(INFO) << "Is connected ? " << net->isConnectedToAnotherPlayer();
@@ -354,8 +355,8 @@ int main(int argc, char** argv) {
 #ifndef EMSCRIPTEN
     setlocale( LC_ALL, "" );
 
-    glfwSetCharCallback(myCharCallback);
-    glfwSetKeyCallback(myKeyCallback);
+    // glfwSetCharCallback(myCharCallback);
+    // glfwSetKeyCallback(myKeyCallback);
 #endif
 
 

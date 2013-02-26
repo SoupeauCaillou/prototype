@@ -73,7 +73,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadEffectFile("randomize.fs");
 }
 
-Entity camera, camera2, pip, hero, gun;
+Entity camera;
+Entity playingField, ball, player;
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
@@ -82,100 +83,48 @@ void PrototypeGame::init(const uint8_t*, int) {
     overrideNextState = State::Invalid;
     currentState = State::Menu;
 
-    std::string runAnim[] = {"soldier_1", "soldier_2", "soldier_1", "soldier_3"};
-    theAnimationSystem.registerAnim("hero_run", 
-        runAnim,
-        4, 10, Interval<int> (-1, -1), "", Interval<float> (0,0));
-    theAnimationSystem.registerAnim("hero_idle", 
-        runAnim,
-        1, 1, Interval<int> (-1, -1), "", Interval<float> (0,0));
 
-    // create hero
-    hero = theEntityManager.CreateEntity("local_hero");
-    ADD_COMPONENT(hero, Transformation);
-    TRANSFORM(hero)->size = Vector2(1.1, 1.7) * 1;
-    TRANSFORM(hero)->position = Vector2::Zero;
-    TRANSFORM(hero)->z = 0.5;
-    ADD_COMPONENT(hero, Rendering);
-    RENDERING(hero)->hide = false;
-    ADD_COMPONENT(hero, Animation);
-    ANIMATION(hero)->name = "hero_idle";
+    // create player
+    player = theEntityManager.CreateEntity("player");
+    ADD_COMPONENT(player, Transformation);
+    TRANSFORM(player)->size = Vector2(1., 1.) * 1;
+    TRANSFORM(player)->position = Vector2::Zero;
+    TRANSFORM(player)->z = 0.5;
+    ADD_COMPONENT(player, Rendering);
+    RENDERING(player)->hide = false;
+    ADD_COMPONENT(player, Animation);
+    ADD_COMPONENT(player, Physics);
+    PHYSICS(player)->gravity = Vector2::Zero;
+    PHYSICS(player)->mass = 1;
+
     if (theNetworkSystem.networkAPI && theNetworkSystem.networkAPI->isConnectedToAnotherPlayer()) {
-        ADD_COMPONENT(hero, Network);
-        NETWORK(hero)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
-        NETWORK(hero)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
+        ADD_COMPONENT(player, Network);
+        NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
+        NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
     }
-    gun = theEntityManager.CreateEntity("local_gun");
-    ADD_COMPONENT(gun, Transformation);
-    TRANSFORM(gun)->size = Vector2(0.1);
-    TRANSFORM(gun)->position = Vector2(0.18,0.75);
-    TRANSFORM(gun)->z = 0.1;
-    TRANSFORM(gun)->parent = hero;
-    ADD_COMPONENT(gun, Particule);
-    PARTICULE(gun)->emissionRate = 0;
-    PARTICULE(gun)->lifetime = Interval<float>(0.02, 0.05);
-    PARTICULE(gun)->initialColor = Interval<Color>(Color(1, 95./255, 0, 210./255), Color(1, 1, 0, 206./255));
-    PARTICULE(gun)->finalColor = Interval<Color>(Color(1, 138./255, 20.0/255, 210./255), Color(1, 0, 107./255, 142./255));
-    PARTICULE(gun)->initialSize = Interval<float>(0.1, 0.2);
-    PARTICULE(gun)->finalSize = Interval<float>(0.05, 0.09);
-    PARTICULE(gun)->forceDirection = Interval<float>(0.78,2.24);
-    PARTICULE(gun)->forceAmplitude = Interval<float>(11,23);
-    PARTICULE(gun)->moment = Interval<float>(0, 0);
-    PARTICULE(gun)->mass = 0.1;
-    PARTICULE(gun)->gravity = Vector2::Zero;
+
+    ball = theEntityManager.CreateEntity("ball");
+    ADD_COMPONENT(ball, Transformation);
+    TRANSFORM(ball)->size = Vector2(0.4);
+    TRANSFORM(ball)->position = Vector2::Zero;
+    TRANSFORM(ball)->z = 0.1;
+    ADD_COMPONENT(ball, Rendering);
+    RENDERING(ball)->hide = false;
+    ADD_COMPONENT(ball, Physics);
+    PHYSICS(ball)->gravity = Vector2::Zero;
+    PHYSICS(ball)->mass = 1;
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
-    TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH);
-    TRANSFORM(camera)->position = Vector2(0, theRenderingSystem.screenH * .3);
-    TRANSFORM(camera)->parent = hero;
+    TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW * 3, theRenderingSystem.screenH * 3);
+    TRANSFORM(camera)->position = Vector2(0, 0);
+    // TRANSFORM(camera)->parent = ball;
     ADD_COMPONENT(camera, Camera);
     CAMERA(camera)->enable = true;
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
-    CAMERA(camera)->clearColor = Color(0.3, 0.1, 0.4);
-
-    // random background
-    Entity bg = theEntityManager.CreateEntity("random_bg");
-    ADD_COMPONENT(bg, Transformation);
-    TRANSFORM(bg)->size = Vector2(theRenderingSystem.screenW, theRenderingSystem.screenH) * 3;
-    TRANSFORM(bg)->position = Vector2::Zero;
-    TRANSFORM(bg)->z = 0.01;
-    ADD_COMPONENT(bg, Rendering);
-    RENDERING(bg)->hide = false;
-    RENDERING(bg)->texture = theRenderingSystem.loadTextureFile("random_bg");
-
-
-
-#if 0
-    // PIP camera
-    camera2 = theEntityManager.CreateEntity("camera2");
-    ADD_COMPONENT(camera2, Transformation);
-    TRANSFORM(camera2)->size = Vector2(theRenderingSystem.screenH, theRenderingSystem.screenH);
-    TRANSFORM(camera2)->position = Vector2::Zero;
-    ADD_COMPONENT(camera2, Camera);
-    CAMERA(camera2)->enable = true;
-    CAMERA(camera2)->order = 1;
-    CAMERA(camera2)->fb = theRenderingSystem.getFramebuffer("pip_camera");
-    CAMERA(camera2)->id = 1;
-    CAMERA(camera2)->clearColor = Color();
-    // to test failure RENDERING(camera2)->hide = false;
-
-    // PIP renderer
-    pip = theEntityManager.CreateEntity("pip_renderer");
-    ADD_COMPONENT(pip, Transformation);
-    TRANSFORM(pip)->size = Vector2(6, 6);
-    TRANSFORM(pip)->position = Vector2(-3, 3);
-    TRANSFORM(pip)->z = 0.9;
-    ADD_COMPONENT(pip, Rendering);
-    RENDERING(pip)->hide = false;
-    RENDERING(pip)->framebuffer = theRenderingSystem.getFramebuffer("pip_camera");
-    RENDERING(pip)->fbo = true;
-    RENDERING(pip)->effectRef = theRenderingSystem.loadEffectFile("randomize.fs");
-    RENDERING(pip)->cameraBitMask = 0x1;
-    ADD_COMPONENT(pip, Particule);
-#endif
+    CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
 
     quickInit();
 }
@@ -202,6 +151,7 @@ void PrototypeGame::togglePause(bool) {
 
 }
 
+bool ballOwner = false;
 void PrototypeGame::tick(float dt) {
     //TRANSFORM(camera)->rotation += 1. * dt;
     if (overrideNextState != State::Invalid) {
@@ -209,41 +159,79 @@ void PrototypeGame::tick(float dt) {
         overrideNextState = State::Invalid;
     }
 
-    const float speed = 5;
-    TransformationComponent* tr = TRANSFORM(hero);
-    Vector2 move;
-    // move little guy
-    if (glfwGetKey( 'Z')) {
-        move += Vector2::Rotate(Vector2(0, 1), tr->worldRotation);
-    } else if (glfwGetKey('S')) {
-        move += Vector2::Rotate(Vector2(0, -0.5), tr->worldRotation);
+    const float speed = 8;
+    const float accel = 80 * dt;
+    Vector2& velocity = PHYSICS(player)->linearVelocity;
+
+    bool ballContact = IntersectionUtil::rectangleRectangle(TRANSFORM(player), TRANSFORM(ball));
+
+    // we want to head to the ball if it's near enough
+    Vector2 toBall = TRANSFORM(ball)->worldPosition - TRANSFORM(player)->worldPosition;
+    float dist = toBall.Normalize();
+    //if (ballOwner && dist > 2) ballOwner = false;
+    if (glfwGetKey( 'A')) ballOwner = !ballOwner;
+
+    Vector2 moveTarget(Vector2::Zero);
+
+    float weightDirChange = 0.85;
+    bool nokeyPressed = true;
+    if (!ballOwner || ballContact) {
+        // move little guy
+        if (glfwGetKey( 'Z')) {
+            moveTarget.Y = 1;
+            // velocity += Vector2(0, accel) * weightDirChange;
+            nokeyPressed = false;
+        } else if (glfwGetKey('S')) {
+            // velocity += Vector2(0, -accel) * weightDirChange;
+            moveTarget.Y = -1;
+            nokeyPressed = false;
+        }
+        if (glfwGetKey ('Q')) {
+            moveTarget.X = -1;
+            // velocity += Vector2(-accel, 0) * weightDirChange;
+            nokeyPressed = false;
+        } else if (glfwGetKey ('D')) {
+            moveTarget.X = 1;
+            // velocity += Vector2(accel, 0) * weightDirChange;
+            nokeyPressed = false;
+        }
+    } else if (ballOwner) {
+        nokeyPressed = false;
+        const float epsilon = 0.5;
+        if (dist > epsilon) {
+            moveTarget = toBall;
+            // velocity += toBall * accel * weightDirChange;
+        }
     }
-    if (glfwGetKey ('Q')) {
-        move += Vector2::Rotate(Vector2(-1, 0), tr->worldRotation);
-    } else if (glfwGetKey ('D')) {
-        move += Vector2::Rotate(Vector2(1, 0), tr->worldRotation);
-    }
-    if (move.X || move.Y) {
-        move.Normalize();
-        move *= speed * dt;
-        tr->position += move;
-        ANIMATION(hero)->name = "hero_run";
+    if (nokeyPressed) {
+        velocity -= velocity * 20 * dt;
     } else {
-        ANIMATION(hero)->name = "hero_idle";
+        velocity += moveTarget * (accel * weightDirChange);
+        float length = velocity.Normalize();
+        if (length > speed) length = speed;
+        velocity *= length;
     }
-    const float rotSpeed = 3;
-    if (glfwGetKey ('A')) {
-        tr->rotation += rotSpeed * dt;
-    } else if (glfwGetKey ('E')) {
-        tr->rotation -= rotSpeed * dt;
+
+    // kick ball
+    if (!nokeyPressed && ballContact) {
+        if (true || Vector2::Dot(PHYSICS(player)->linearVelocity, PHYSICS(ball)->linearVelocity) <= 0) {
+            LOG(INFO) << "Kick !";
+            const float maxForce = 1000;
+            ballOwner = true;
+            Vector2 force = moveTarget * maxForce;//PHYSICS(player)->linearVelocity * 100;
+            if (force.Length () > maxForce) {
+                force.Normalize();
+                force *= maxForce;
+            }
+            PHYSICS(ball)->forces.push_back(std::make_pair(Force(force, Vector2::Zero), 0.016));
+        }
     }
-/*
-    if (theTouchInputManager.isTouched(0)) {
-        PARTICULE(gun)->emissionRate = 125;
-    } else {
-        PARTICULE(gun)->emissionRate = 0;
+    // add friction to ball
+    if (PHYSICS(ball)->linearVelocity.LengthSquared() > 0) {
+        const float friction = -10;
+        PHYSICS(ball)->forces.push_back(std::make_pair(Force(PHYSICS(ball)->linearVelocity * friction, Vector2::Zero), dt));
     }
-*/
+
     if (currentState != State::Transition) {
         State::Enum newState = state2manager[currentState]->update(dt);
 
