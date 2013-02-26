@@ -5,8 +5,10 @@
 struct BallComponent {
     BallComponent() {
         friction = -10;
+        owner = 0;
     }
     float friction;
+    Entity owner;
 };
 
 #define theBallSystem BallSystem::GetInstance()

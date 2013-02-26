@@ -21,15 +21,16 @@ void FieldPlayerSystem::DoUpdate(float dt) {
 
     FOR_EACH_ENTITY_COMPONENT(FieldPlayer, player, comp)
         Entity contact = FIELD_PLAYER(player)->ballContact;
-        // const bool ballContact = Vector2::IntersectionUtil::rectangleRectangle(TRANSFORM(zone), TRANSFORM(ball));
         Vector2 toBall = TRANSFORM(ball)->worldPosition - TRANSFORM(contact)->worldPosition;
         const float dist = toBall.Normalize();
         const bool ballContact = dist <= ((TRANSFORM(ball)->size.X + TRANSFORM(contact)->size.X) * 0.5);
+        const bool ballOwner = (BALL(ball)->owner == player);
         Vector2& velocity = PHYSICS(player)->linearVelocity;
+
 
         Vector2 moveTarget(Vector2::Zero);
         bool nokeyPressed = true;
-        if (!comp->ballOwner || ballContact) {
+        if (!ballOwner || ballContact) {
             // move little guy
             if (comp->keyPresses & UP) {
                 moveTarget.Y = 1;
@@ -45,7 +46,7 @@ void FieldPlayerSystem::DoUpdate(float dt) {
                 moveTarget.X = 1;
                 nokeyPressed = false;
             }
-        } else if (comp->ballOwner) {
+        } else if (ballOwner) {
             nokeyPressed = false;
             const float epsilon = 0.5;
             if (dist > epsilon) {
@@ -70,7 +71,7 @@ void FieldPlayerSystem::DoUpdate(float dt) {
         if (!nokeyPressed && ballContact) {
             if (true || Vector2::Dot(PHYSICS(player)->linearVelocity, PHYSICS(ball)->linearVelocity) <= 0) {
                 LOG(INFO) << "Kick !";
-                comp->ballOwner = true;
+                BALL(ball)->owner = player;
                 Vector2 force = moveTarget * comp->maxForce;
                 if (force.Length () > comp->maxForce) {
                     force.Normalize();
@@ -79,6 +80,7 @@ void FieldPlayerSystem::DoUpdate(float dt) {
                 PHYSICS(ball)->forces.push_back(std::make_pair(Force(force, Vector2::Zero), 0.016));
             }
         }
+        comp->keyPresses = 0;
     }
 }
 

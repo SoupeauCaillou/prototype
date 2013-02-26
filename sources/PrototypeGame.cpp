@@ -202,6 +202,7 @@ void PrototypeGame::togglePause(bool) {
 
 }
 
+bool playerSwitchDown = false;
 void PrototypeGame::tick(float dt) {
     //TRANSFORM(camera)->rotation += 1. * dt;
     if (overrideNextState != State::Invalid) {
@@ -218,6 +219,13 @@ void PrototypeGame::tick(float dt) {
         FIELD_PLAYER(player)->keyPresses |= LEFT;
     if (glfwGetKey('D') || glfwGetKey(GLFW_KEY_RIGHT))
         FIELD_PLAYER(player)->keyPresses |= RIGHT;
+
+    if (glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT))
+        playerSwitchDown = true;
+    else if (playerSwitchDown) {
+        activePlayer = (activePlayer + 1) % players.size();
+        playerSwitchDown = false;
+    }
 
     if (currentState != State::Transition) {
         State::Enum newState = state2manager[currentState]->update(dt);
