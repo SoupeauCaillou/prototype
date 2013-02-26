@@ -50,6 +50,8 @@
 #include <cmath>
 #include <GL/glfw.h>
 
+#define ZOOM 2
+
 PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
     asset = ast;
 
@@ -134,6 +136,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     TRANSFORM(ball)->z = 0.1;
     ADD_COMPONENT(ball, Rendering);
     RENDERING(ball)->hide = false;
+    RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("ballon1");
     ADD_COMPONENT(ball, Physics);
     PHYSICS(ball)->gravity = Vector2::Zero;
     PHYSICS(ball)->mass = 1;
@@ -141,7 +144,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
-    TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW * 3, theRenderingSystem.screenH * 3);
+    TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
     TRANSFORM(camera)->position = Vector2(0, 0);
     // TRANSFORM(camera)->parent = ball;
     ADD_COMPONENT(camera, Camera);
