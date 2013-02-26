@@ -65,6 +65,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadAtlas("alphabet", true);
     theRenderingSystem.loadAtlas("logo", false);
     theRenderingSystem.loadAtlas("default", false);
+    theRenderingSystem.loadAtlas("soccerman", false);
 
     theRenderingSystem.createFramebuffer("pip_camera", 64, 64);
     
@@ -83,11 +84,34 @@ void PrototypeGame::init(const uint8_t*, int) {
     overrideNextState = State::Invalid;
     currentState = State::Menu;
 
+    const std::string runAnims[] = {
+        "S2", "S1", "S3", "SE2", "SE1", "SE3", "SW2", "SW1", "SW3",
+        "E2", "E1", "E3", "W2", "W1", "W3",
+        "N2", "N1", "N3", "NE2", "NE1", "NE3", "NW2", "NW1", "NW3",
+    };
+    const std::string idleAnims[] = {
+        "S1", "SE1", "SW1",
+        "E1", "W1",
+        "N1", "NE1", "NW1"
+    };
+    const int runAnimFrameCount = 3;
+    const float runAnimPlaybackSpeed = 9;
+    const Interval<int> noLoop (-1, -1);
+    const Interval<float> noWait (0, 0);
+
+    std::string directions[] = {"S", "SE", "SW", "E", "W", "N", "NE", "NW"};
+    for (int i=0; i<8; i++) {
+        std::stringstream runName, idleName;
+        runName << "run" << directions[i];
+        theAnimationSystem.registerAnim(runName.str(), &runAnims[i*runAnimFrameCount], runAnimFrameCount, runAnimPlaybackSpeed, noLoop, "", noWait);
+        idleName << "idle" << directions[i];
+        theAnimationSystem.registerAnim(idleName.str(), &idleAnims[i], 1, runAnimPlaybackSpeed, noLoop, "", noWait);
+    }
 
     // create player
     player = theEntityManager.CreateEntity("player");
     ADD_COMPONENT(player, Transformation);
-    TRANSFORM(player)->size = Vector2(1., 1.) * 1;
+    TRANSFORM(player)->size = Vector2(1., 1.) * 1.5;
     TRANSFORM(player)->position = Vector2::Zero;
     TRANSFORM(player)->z = 0.5;
     ADD_COMPONENT(player, Rendering);
@@ -151,6 +175,16 @@ void PrototypeGame::togglePause(bool) {
 
 }
 
+static std::string directionToAnimName(const std::string& prefix, const Vector2& direction) {
+    const std::string directions[] = {"E", "NE", "N", "NW", "W", "SW", "S", "SE"};
+    float angle = MathUtil::AngleFromVector(direction);
+    while (angle < 0) angle += MathUtil::TwoPi;
+    while (angle > MathUtil::TwoPi) angle -= MathUtil::TwoPi;
+    LOG_IF(FATAL, angle < 0 || angle > MathUtil::TwoPi) << "Invalid angle value: " << angle << ", from direction: " << direction;
+    float angle2 = (angle + MathUtil::PiOver4 * 0.5) / MathUtil::PiOver4;
+    return prefix + directions[((int)angle2) % 8];
+}
+
 bool ballOwner = false;
 void PrototypeGame::tick(float dt) {
     //TRANSFORM(camera)->rotation += 1. * dt;
@@ -205,11 +239,15 @@ void PrototypeGame::tick(float dt) {
     }
     if (nokeyPressed) {
         velocity -= velocity * 20 * dt;
+        if (velocity.Length() < 0.1) {
+            ANIMATION(player)->name = directionToAnimName("idle", velocity);
+        }
     } else {
         velocity += moveTarget * (accel * weightDirChange);
         float length = velocity.Normalize();
         if (length > speed) length = speed;
         velocity *= length;
+        ANIMATION(player)->name = directionToAnimName("run", velocity);
     }
 
     // kick ball
