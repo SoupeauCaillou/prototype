@@ -1,18 +1,26 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.6)
 
-project(TILEMATCH)
+project(Prototype)
 
-SET(CMAKE_C_FLAGS "-O0 -g -W -Wall")
+#set flags
 if (EMSCRIPTEN_BUILD)
-SET(CMAKE_CXX_FLAGS "-O0 -W -Wall -DDEBUG")
+	SET(CMAKE_CXX_FLAGS "-O0 -W -Wall -DDEBUG")
 else ()
-SET(CMAKE_CXX_FLAGS "-O0 -g -W -Wall -DDEBUG -DENABLE_LOG -DENABLE_PROFILING -DDATADIR=\\\"${CMAKE_SOURCE_DIR}/assets/\\\"")
+	SET(CMAKE_CXX_FLAGS "-O0 -g -W -Wall -DDEBUG -DENABLE_LOG -DENABLE_PROFILING -DDATADIR=\\\"${CMAKE_SOURCE_DIR}/assets/\\\"")
 endif()
 
-add_subdirectory(sources)
+#get the differents CMakeLists.txt
+	#everyone
+	add_subdirectory(sources)
 
-add_subdirectory(linux)
-if (EMSCRIPTEN_BUILD)
-else ()
-endif()
-add_subdirectory(sac/build/cmake)
+	if (ANDROID_BUILD)
+		add_subdirectory(platforms/android)
+	elif (EMSCRIPTEN_BUILD)
+		add_subdirectory(platforms/emscripten)
+	else ()
+		#default version (pc - windows)
+		add_subdirectory(platforms/default)
+	endif()
+
+	#sac
+	add_subdirectory(sac/build/cmake)

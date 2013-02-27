@@ -1,6 +1,4 @@
-include_directories(${PROJECT_SOURCE_DIR}/sources)
 include_directories(${PROJECT_SOURCE_DIR}/sac)
-
 link_directories (${PROJECT_BINARY_DIR}/sac)
 
 file(
@@ -9,4 +7,4 @@ file(
         *.cpp *.h states/*.cpp
 )
 
-add_library(prototypecommon ${source_files})
+add_library(${PROJECT_NAME}common ${source_files})

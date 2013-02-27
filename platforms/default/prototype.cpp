@@ -32,7 +32,7 @@
 #include <sys/time.h>
 #include <algorithm>
 #include <sstream>
-#include <cassert>
+#include <assert.h>
 #include <vector>
 
 #include <base/Vector2.h>
