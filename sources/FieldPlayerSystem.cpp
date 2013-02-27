@@ -1,6 +1,7 @@
 #include "FieldPlayerSystem.h"
 
 #include "BallSystem.h"
+#include "AISystem.h"
 
 #include "systems/TransformationSystem.h"
 #include "systems/AnimationSystem.h"
@@ -27,26 +28,11 @@ void FieldPlayerSystem::DoUpdate(float dt) {
         const bool ballOwner = (BALL(ball)->owner == player);
         Vector2& velocity = PHYSICS(player)->linearVelocity;
 
-        bool nokeyPressed = true;
-        Vector2 inputDirection(Vector2::Zero);
-        {
-            // move little guy
-            if (comp->keyPresses & UP) {
-                inputDirection.Y = 1;
-                nokeyPressed = false;
-            } else if (comp->keyPresses & DOWN) {
-                inputDirection.Y = -1;
-                nokeyPressed = false;
-            }
-            if (comp->keyPresses & LEFT) {
-                inputDirection.X = -1;
-                nokeyPressed = false;
-            } else if (comp->keyPresses & RIGHT) {
-                inputDirection.X = 1;
-                nokeyPressed = false;
-            }
-            if (!nokeyPressed)
-                inputDirection.Normalize();
+        Vector2& inputDirection = comp->input.direction;
+        bool nokeyPressed = (inputDirection == Vector2::Zero);
+
+        if (ballContact) {
+            AI(player)->state = AI::Idle;
         }
 
         Vector2 moveTarget(Vector2::Zero);
@@ -57,7 +43,7 @@ void FieldPlayerSystem::DoUpdate(float dt) {
             moveTarget = toBall;
         }
 
-        if (comp->keyPresses & PASS) {
+        if (comp->input.action & PASS) {
             // find nearest player
             Vector2 lookupDirection(inputDirection);
             if (lookupDirection == Vector2::Zero)
@@ -74,12 +60,12 @@ void FieldPlayerSystem::DoUpdate(float dt) {
                     min = dist;
                 }
             }
-            LOG(INFO) << "Trying to pass to " << passTarget;
             Vector2 d = TRANSFORM(passTarget)->worldPosition - TRANSFORM(player)->worldPosition;
             PHYSICS(ball)->linearVelocity = Vector2::Zero;
             PHYSICS(ball)->forces.push_back(std::make_pair(Force(d * 100, Vector2::Zero), 0.016));
-            BALL(ball)->friction = -0.5;
+            BALL(ball)->friction = -1;
             BALL(ball)->owner = 0;
+            AI(passTarget)->state = AI::ReceiveBall;
         } else {
             if (nokeyPressed) {
                 if (velocity.Length() > 0.1) {
@@ -102,7 +88,7 @@ void FieldPlayerSystem::DoUpdate(float dt) {
                 float length = velocity.Normalize();
                 float maxSpeed = comp->speed;
                 if (ballOwner) maxSpeed *= comp->ballSpeedDecrease;
-                if (comp->keyPresses & SPRINT) maxSpeed *= comp->sprintBoost;
+                if (comp->input.action & SPRINT) maxSpeed *= comp->sprintBoost;
                 if (length > comp->speed) length = comp->speed;
                 velocity *= length;
                 ANIMATION(player)->name = directionToAnimName("run", velocity);
@@ -124,7 +110,8 @@ void FieldPlayerSystem::DoUpdate(float dt) {
                 }
             }
         }
-        comp->keyPresses = 0;
+        comp->input.action = 0;
+        comp->input.direction = Vector2::Zero;
     }
 }
 

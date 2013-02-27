@@ -48,6 +48,7 @@
 #include "api/NetworkAPI.h"
 #include "FieldPlayerSystem.h"
 #include "BallSystem.h"
+#include "AISystem.h"
 
 #include <cmath>
 #include <GL/glfw.h>
@@ -79,6 +80,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     FieldPlayerSystem::CreateInstance();
     BallSystem::CreateInstance();
+    AISystem::CreateInstance();
 }
 
 static Entity addPlayer(const Vector2& position) {
@@ -104,6 +106,7 @@ static Entity addPlayer(const Vector2& position) {
     ADD_COMPONENT(contact, Rendering); // debug
     RENDERING(contact)->hide = true;
     FIELD_PLAYER(player)->ballContact = contact;
+    ADD_COMPONENT(player, AI);
     return player;
 }
 
@@ -227,21 +230,23 @@ void PrototypeGame::tick(float dt) {
         overrideNextState = State::Invalid;
     }
     Entity player = players[activePlayer];
-    FIELD_PLAYER(player)->keyPresses = 0;
+    Vector2& direction = FIELD_PLAYER(player)->input.direction;
     if (glfwGetKey('Z') || glfwGetKey(GLFW_KEY_UP))
-        FIELD_PLAYER(player)->keyPresses |= UP;
-    if (glfwGetKey('S') || glfwGetKey(GLFW_KEY_DOWN))
-        FIELD_PLAYER(player)->keyPresses |= DOWN;
+        direction.Y = 1;
+    else if (glfwGetKey('S') || glfwGetKey(GLFW_KEY_DOWN))
+        direction.Y = -1;
     if (glfwGetKey('Q') || glfwGetKey(GLFW_KEY_LEFT))
-        FIELD_PLAYER(player)->keyPresses |= LEFT;
-    if (glfwGetKey('D') || glfwGetKey(GLFW_KEY_RIGHT))
-        FIELD_PLAYER(player)->keyPresses |= RIGHT;
+        direction.X = -1;
+    else if (glfwGetKey('D') || glfwGetKey(GLFW_KEY_RIGHT))
+        direction.X = 1;
+    if (direction != Vector2::Zero)
+        direction.Normalize();
 
     if (glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT))
         playerSwitchDown = true;
     else if (playerSwitchDown) {
         if (BALL(ball)->owner == player) {
-            FIELD_PLAYER(player)->keyPresses |= PASS;
+            FIELD_PLAYER(player)->input.action |= PASS;
             LOG(INFO) << "Request pass";
         } else {
             activePlayer = (activePlayer + 1) % players.size();
@@ -278,7 +283,8 @@ void PrototypeGame::tick(float dt) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
     }
-    
+
+    theAISystem.Update(dt);
     theFieldPlayerSystem.Update(dt);
     theBallSystem.Update(dt);
 }

@@ -37,6 +37,7 @@
     <Compile Include="sources\states\TransitionStateManager.cpp" />
     <Compile Include="sources\FieldPlayerSystem.cpp" />
     <Compile Include="sources\BallSystem.cpp" />
+    <Compile Include="sources\AISystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -52,6 +53,7 @@
     <None Include="sources\states\StateManager.h" />
     <None Include="sources\FieldPlayerSystem.h" />
     <None Include="sources\BallSystem.h" />
+    <None Include="sources\AISystem.h" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

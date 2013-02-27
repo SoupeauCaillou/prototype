@@ -17,11 +17,15 @@ struct FieldPlayerComponent {
         maxForce = 1000;
         ballSpeedDecrease = 0.7;
         sprintBoost = 1.2;
-        keyPresses = 0;
+        input.direction = Vector2::Zero;
+        input.action = 0;
     }
     float speed, accel, friction, maxForce, ballSpeedDecrease, sprintBoost;
     Entity ballContact;
-    unsigned int keyPresses;
+    struct {
+        Vector2 direction;
+        unsigned int action;
+    } input;
 };
 
 #define theFieldPlayerSystem FieldPlayerSystem::GetInstance()
