@@ -15,3 +15,6 @@ tilematch.userprefs
 HeriswapSecret.java
 *.jar
 *.o
+build-*.sh
+build/
+build.xml
