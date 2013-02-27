@@ -58,8 +58,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theRenderingSystem.loadAtlas("alphabet", true);
-    theRenderingSystem.loadAtlas("logo", false);
-    
+    //-theRenderingSystem.loadAtlas("logo", false);
+
     // init font
     loadFont(asset, "typo");
 }
@@ -121,7 +121,7 @@ void PrototypeGame::tick(float dt) {
     }
     { static int i=0;
         // std::cout << "Nombre d'entité = " << ++i << std::endl;
-        
+
         Entity eq = theEntityManager.CreateEntity();
         ADD_COMPONENT(eq, Transformation);
         TRANSFORM(eq)->z = 0.5;

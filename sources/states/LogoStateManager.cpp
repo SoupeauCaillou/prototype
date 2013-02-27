@@ -64,7 +64,7 @@ void LogoStateManager::setup() {
     TRANSFORM(logo)->position = theRenderingSystem.cameras[0].worldPosition;
     TRANSFORM(logo)->size = Vector2(PlacementHelper::ScreenHeight * 0.8, PlacementHelper::ScreenHeight * 0.8);
     TRANSFORM(logo)->z = DL_Logo;
-    RENDERING(logo)->texture = theRenderingSystem.loadTextureFile("soupe_logo");
+    //-RENDERING(logo)->texture = theRenderingSystem.loadTextureFile("soupe_logo");
 
     ADD_COMPONENT(logobg, Rendering);
     ADD_COMPONENT(logobg, Transformation);
@@ -81,13 +81,13 @@ void LogoStateManager::setup() {
     TRANSFORM(logofade)->z = 1;
 
     ADD_COMPONENT(datas->animLogo, Transformation);
-    TRANSFORM(datas->animLogo)->size = TRANSFORM(datas->logo)->size * theRenderingSystem.getTextureSize("soupe_logo2_365_331")
-        * Vector2(1.0 / theRenderingSystem.getTextureSize("soupe_logo").X, 1.0 / theRenderingSystem.getTextureSize("soupe_logo").Y);
+    //-TRANSFORM(datas->animLogo)->size = TRANSFORM(datas->logo)->size * theRenderingSystem.getTextureSize("soupe_logo2_365_331")
+        //-* Vector2(1.0 / theRenderingSystem.getTextureSize("soupe_logo").X, 1.0 / theRenderingSystem.getTextureSize("soupe_logo").Y);
     Vector2 offset = Vector2(-10 / 800.0, 83/869.0) * TRANSFORM(datas->logo)->size;
     TRANSFORM(datas->animLogo)->position = TRANSFORM(datas->logo)->position + offset;
     TRANSFORM(datas->animLogo)->z = DL_LogoAnim;
     ADD_COMPONENT(datas->animLogo, Rendering);
-    RENDERING(datas->animLogo)->texture = theRenderingSystem.loadTextureFile("soupe_logo2_365_331");
+    //-RENDERING(datas->animLogo)->texture = theRenderingSystem.loadTextureFile("soupe_logo2_365_331");
     RENDERING(datas->animLogo)->hide = true;
     ADD_COMPONENT(datas->animLogo, Sound);
 }
@@ -108,7 +108,7 @@ void LogoStateManager::enter(State::Enum) {
     datas->duration = 0;
     RENDERING(datas->logo)->hide = RENDERING(datas->logobg)->hide = RENDERING(datas->logofade)->hide = false;
     // preload sound
-    theSoundSystem.loadSoundFile("son_monte.ogg");
+    //-theSoundSystem.loadSoundFile("son_monte.ogg");
     datas->step = LogoStep0;
 }
 
@@ -132,7 +132,7 @@ State::Enum LogoStateManager::update(float dt) {
             if (duration > 0.8) {
                 duration = 0;
                 RENDERING(datas->animLogo)->hide = false;
-                SOUND(datas->animLogo)->sound = theSoundSystem.loadSoundFile("son_monte.ogg");
+                //-SOUND(datas->animLogo)->sound = theSoundSystem.loadSoundFile("son_monte.ogg");
                 datas->step = LogoStep2;
             }
             break;
@@ -187,7 +187,7 @@ void LogoStateManager::willExit(State::Enum) {
     theEntityManager.DeleteEntity(datas->logobg);
     theEntityManager.DeleteEntity(datas->animLogo);
     theEntityManager.DeleteEntity(datas->logofade);
-    theRenderingSystem.unloadAtlas("logo");
+    //-theRenderingSystem.unloadAtlas("logo");
 }
 
 bool LogoStateManager::transitionCanExit(State::Enum) {
