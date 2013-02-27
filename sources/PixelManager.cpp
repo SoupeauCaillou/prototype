@@ -29,12 +29,17 @@
 
 #include <cmath>
 
+const float PixelManager::SPEED = 0.05f;
+const int PixelManager::DIVIDE_BY = 4;
+
 pixel pixel::Default;
 
 PixelManager::PixelManager(std::string assetName, AssetAPI* assetAPI)
 {
     asset = assetAPI;
     changeBackGround(assetName);
+
+    theRenderingSystem.loadAtlas("cercle", true);
     
     pixel newPixel = pixel(theEntityManager.CreateEntity());
     ADD_COMPONENT(newPixel.p, Transformation);
@@ -51,6 +56,8 @@ PixelManager::PixelManager(std::string assetName, AssetAPI* assetAPI)
     else
         newPixel.finalColor = Color::random();
 
+    //~ RENDERING(newPixel.p)->texture = theRenderingSystem.loadTextureFile("cercle");
+    //RENDERING(newPixel.p)->texture = theRenderingSystem.loadTextureFile("carre_arrondi");
     RENDERING(newPixel.p)->color = newPixel.finalColor;
     RENDERING(newPixel.p)->hide = false;
     pixels.push_back(newPixel);
@@ -75,18 +82,18 @@ pixel& PixelManager::findPixel(Vector2 pos)
 
 void PixelManager::updatePixel()
 {
-    if (MathUtil::RandomIntInRange(0, 10) < 1)
+    if (MathUtil::RandomIntInRange(0, 20) < 1)
     {
         splitPixel(findPixel(Vector2(MathUtil::RandomFloatInRange(0, theRenderingSystem.screenW) - theRenderingSystem.screenW/2 ,
                           MathUtil::RandomFloatInRange(0, theRenderingSystem.screenH) - theRenderingSystem.screenH/2)));
     }
-    if (MathUtil::RandomIntInRange(0, 10) < 1)
+    if (MathUtil::RandomIntInRange(0, 20) < 1)
     {
         fusePixel(findPixel(Vector2(MathUtil::RandomFloatInRange(0, theRenderingSystem.screenW) - theRenderingSystem.screenW/2 ,
                           MathUtil::RandomFloatInRange(0, theRenderingSystem.screenH) - theRenderingSystem.screenH/2)));
     }
     
-    LOGI("[Update operation] Number of pixel : %i \t %i", pixels.size(), pixels.size()*sizeof(pixel));
+    LOGI("[Update operation] Number of pixel : %lu", pixels.size());
     for (std::list<pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
     {
         if(it->enabled || RENDERING(it->p)->hide)
@@ -165,6 +172,8 @@ bool PixelManager::splitPixel(pixel& p)
                 TRANSFORM(newPixel.p)->size = TRANSFORM(newPixel.parent)->size;
                 TRANSFORM(newPixel.p)->position = TRANSFORM(newPixel.parent)->position;
                 ADD_COMPONENT(newPixel.p, Rendering);
+                //~ RENDERING(newPixel.p)->texture = theRenderingSystem.loadTextureFile("cercle");
+                //~ RENDERING(newPixel.p)->texture = theRenderingSystem.loadTextureFile("carre_arrondi");
                 RENDERING(newPixel.p)->color = RENDERING(newPixel.parent)->color;
                 RENDERING(newPixel.p)->hide = false;
 
@@ -205,22 +214,22 @@ bool PixelManager::fusePixel(pixel& p)
             }
         }
 
-        LOGI("[Fuse operation] Number of children found : %i", children.size());
+        LOGI("[Fuse operation] Number of children found : %lu", children.size());
         if (children.size() != 4)
         {
             return false;
         }
         
-        LOGI("[Fuse operation] Parent entity : %i", parent->p);
+        LOGI("[Fuse operation] Parent entity : %lu", parent->p);
         TRANSFORM(parent->p)->size = TRANSFORM(p.p)->size;
         TRANSFORM(parent->p)->position = TRANSFORM(p.p)->position;
         RENDERING(parent->p)->color = RENDERING(p.p)->color;
         RENDERING(parent->p)->hide = false;
         parent->enabled = false;
 
-        for (int i=0; i<children.size(); ++i)
+        for (ulong i=0; i<children.size(); ++i)
         {
-            LOGI("[Fuse operation] Children to hide : %i", children[i]->p);
+            LOGI("[Fuse operation] Children to hide : %lu", children[i]->p);
             RENDERING(children[i]->p)->hide = true;
             children[i]->enabled = false;
         }
@@ -234,8 +243,8 @@ bool PixelManager::fusePixel(pixel& p)
 
 void PixelManager::clickedOn(Vector2 position)
 {
-    //~ splitPixel(findPixel(position));
-    fusePixel(findPixel(position));
+    splitPixel(findPixel(position));
+    //~ fusePixel(findPixel(position));
 }
 
 Color PixelManager::averageColor(Vector2 size, Vector2 position)
@@ -260,7 +269,6 @@ Color PixelManager::averageColor(Vector2 size, Vector2 position)
             moyB += bg.datas[i + j*bg.width + 2] & 0xFF;
         }
     }
-
 
     moyR /= (sizeInPixel.X * sizeInPixel.Y);
     moyG /= (sizeInPixel.X * sizeInPixel.Y);

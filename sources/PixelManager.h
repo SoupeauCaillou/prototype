@@ -42,8 +42,8 @@ inline std::ostream& operator<<(std::ostream& s, const pixel& v){
 
 class PixelManager {
     public:
-        static const int DIVIDE_BY = 4;
-        static const float SPEED = 0.05;
+        static const int DIVIDE_BY;
+        static const float SPEED;
 
         PixelManager(std::string assetName, AssetAPI* assetAPI);
         virtual ~PixelManager();
