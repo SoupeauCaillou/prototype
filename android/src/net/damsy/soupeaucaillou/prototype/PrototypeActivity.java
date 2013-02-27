@@ -19,15 +19,12 @@
 package net.damsy.soupeaucaillou.prototype;
 
 import net.damsy.soupeaucaillou.SacActivity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 
 public class PrototypeActivity extends SacActivity {
 	static {
@@ -68,6 +65,9 @@ public class PrototypeActivity extends SacActivity {
     public String getCharboostAppId() {
         return null;
     }
+    public String getRevMobAppId() {
+        return null;
+    }
 	public String getCharboostAppSignature() {
         return null;
     }
@@ -80,11 +80,13 @@ public class PrototypeActivity extends SacActivity {
 	public Button getNameInputButton() {
         return null;
     }
-	
+	public boolean giftizEnabled() {
+		return false;
+	}
 	
 	static public final String Tag = "Prototype";
 	static final String PROTOTYPE_BUNDLE_KEY = "plop";
-	static public final String PROTOTYPE_SHARED_PREF = "HeriswapPref";
+	static public final String PROTOTYPE_SHARED_PREF = "PrototypePref";
 	
 	byte[] renderingSystemState;
 	

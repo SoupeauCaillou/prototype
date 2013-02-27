@@ -21,6 +21,9 @@ LOCAL_CXXFLAGS := -DANDROID_NDK \
 LOCAL_SRC_FILES := \
     prototype.cpp \
     ../sources/PrototypeGame.cpp \
+    ../sources/states/LogoStateManager.cpp \
+    ../sources/states/MenuStateManager.cpp \
+    ../sources/states/TransitionStateManager.cpp \
     ../sac/android/sacjnilib.cpp
 
 LOCAL_STATIC_LIBRARIES := sac png tremor jsoncpp
