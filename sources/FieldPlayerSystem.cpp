@@ -49,15 +49,17 @@ void FieldPlayerSystem::DoUpdate(float dt) {
             if (lookupDirection == Vector2::Zero)
                 lookupDirection = Vector2::Normalize(velocity);
             // pick nearest partner in this direction
-            float min = 0;
+            float max = -1;
             Entity passTarget = 0;
             const Vector2 perp(lookupDirection.Perp());
             FOR_EACH_ENTITY_COMPONENT(FieldPlayer, player2, comp2)
                 if (player2 == player) continue;
-                float dist = Vector2::Dot(TRANSFORM(player2)->worldPosition - TRANSFORM(player)->worldPosition, perp);
-                if (!passTarget || (min < 0 && dist > 0) || (min * dist > 0 && MathUtil::Abs(dist) < MathUtil::Abs(min))) {
+                float angle = MathUtil::AngleFromVectors(
+                    lookupDirection,
+                    TRANSFORM(player2)->worldPosition - TRANSFORM(player)->worldPosition);
+                if (cos(angle) >= max) {
                     passTarget = player2;
-                    min = dist;
+                    max = cos(angle);
                 }
             }
             Vector2 d = TRANSFORM(passTarget)->worldPosition - TRANSFORM(player)->worldPosition;
