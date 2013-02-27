@@ -6,6 +6,7 @@ namespace AI {
     enum Enum {
         Idle,
         ReceiveBall,
+        Dribble,
     };
 };
 

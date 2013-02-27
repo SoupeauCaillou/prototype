@@ -38,6 +38,7 @@
     <Compile Include="sources\FieldPlayerSystem.cpp" />
     <Compile Include="sources\BallSystem.cpp" />
     <Compile Include="sources\AISystem.cpp" />
+    <Compile Include="sources\TeamSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -54,6 +55,7 @@
     <None Include="sources\FieldPlayerSystem.h" />
     <None Include="sources\BallSystem.h" />
     <None Include="sources\AISystem.h" />
+    <None Include="sources\TeamSystem.h" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

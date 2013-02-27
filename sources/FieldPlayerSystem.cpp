@@ -54,6 +54,7 @@ void FieldPlayerSystem::DoUpdate(float dt) {
             const Vector2 perp(lookupDirection.Perp());
             FOR_EACH_ENTITY_COMPONENT(FieldPlayer, player2, comp2)
                 if (player2 == player) continue;
+                if (comp2->team != comp->team) continue;
                 float angle = MathUtil::AngleFromVectors(
                     lookupDirection,
                     TRANSFORM(player2)->worldPosition - TRANSFORM(player)->worldPosition);

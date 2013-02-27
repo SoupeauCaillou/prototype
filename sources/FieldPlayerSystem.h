@@ -20,6 +20,7 @@ struct FieldPlayerComponent {
         input.direction = Vector2::Zero;
         input.action = 0;
     }
+    Entity team;
     float speed, accel, friction, maxForce, ballSpeedDecrease, sprintBoost;
     Entity ballContact;
     struct {

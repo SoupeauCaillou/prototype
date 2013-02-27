@@ -49,6 +49,7 @@
 #include "FieldPlayerSystem.h"
 #include "BallSystem.h"
 #include "AISystem.h"
+#include "TeamSystem.h"
 
 #include <cmath>
 #include <GL/glfw.h>
@@ -81,9 +82,10 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     FieldPlayerSystem::CreateInstance();
     BallSystem::CreateInstance();
     AISystem::CreateInstance();
+    TeamSystem::CreateInstance();
 }
 
-static Entity addPlayer(const Vector2& position) {
+static Entity addPlayer(Entity team, const Vector2& position) {
     Entity player = theEntityManager.CreateEntity("player");
     ADD_COMPONENT(player, Transformation);
     TRANSFORM(player)->size = Vector2(1., 1.) * 1.5;
@@ -92,6 +94,7 @@ static Entity addPlayer(const Vector2& position) {
     //    Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH) * 0.5;
     TRANSFORM(player)->z = 0.5;
     ADD_COMPONENT(player, Rendering);
+    RENDERING(player)->color = TEAM(team)->color;
     RENDERING(player)->hide = false;
     ADD_COMPONENT(player, Animation);
     ADD_COMPONENT(player, Physics);
@@ -106,12 +109,13 @@ static Entity addPlayer(const Vector2& position) {
     ADD_COMPONENT(contact, Rendering); // debug
     RENDERING(contact)->hide = true;
     FIELD_PLAYER(player)->ballContact = contact;
+    FIELD_PLAYER(player)->team = team;
     ADD_COMPONENT(player, AI);
     return player;
 }
 
 Entity camera;
-Entity playingField, ball;
+Entity playingField, ball, teams[2];
 std::vector<Entity> players;
 unsigned activePlayer = 0;
 void PrototypeGame::init(const uint8_t*, int) {
@@ -153,16 +157,13 @@ void PrototypeGame::init(const uint8_t*, int) {
         Vector2(-9, -15), Vector2(9, -15)
     };
 
-    // create player
-    for (int i=0; i<6; i++)
-        players.push_back(addPlayer(positions[i]));
-#if 0
-    if (theNetworkSystem.networkAPI && theNetworkSystem.networkAPI->isConnectedToAnotherPlayer()) {
-        ADD_COMPONENT(player, Network);
-        NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
-        NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
-    }
-#endif
+    teams[0] = theEntityManager.CreateEntity("team_red");
+    ADD_COMPONENT(teams[0], Team);
+    TEAM(teams[0])->color = Color(1, 0.5, 0.5);
+    teams[1] = theEntityManager.CreateEntity("team_blue");
+    ADD_COMPONENT(teams[1], Team);
+    TEAM(teams[1])->color = Color(0.5, 0.5, 1);
+
     ball = theEntityManager.CreateEntity("ball");
     ADD_COMPONENT(ball, Transformation);
     TRANSFORM(ball)->size = Vector2(0.4);
@@ -196,6 +197,18 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+    // create player
+    for (int i=0; i<6; i++)
+        for (int j=0; j<2; j++)
+            players.push_back(addPlayer(teams[j], positions[i] * Vector2(1, 1 + j * -2)));
+#if 0
+    if (theNetworkSystem.networkAPI && theNetworkSystem.networkAPI->isConnectedToAnotherPlayer()) {
+        ADD_COMPONENT(player, Network);
+        NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theTransformationSystem.getName(), 0.01));
+        NETWORK(player)->systemUpdatePeriod.insert(std::make_pair(theRenderingSystem.getName(), 0.01));
+    }
+#endif
 
     quickInit();
 }
@@ -284,6 +297,7 @@ void PrototypeGame::tick(float dt) {
         it->second->backgroundUpdate(dt);
     }
 
+    theTeamSystem.Update(dt);
     theAISystem.Update(dt);
     theFieldPlayerSystem.Update(dt);
     theBallSystem.Update(dt);
