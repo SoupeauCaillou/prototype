@@ -35,9 +35,9 @@
 
 #include "PixelManager.h"
 
-class Fond_ecranGame : public Game {
+class PrototypeGame : public Game {
 	public:
-		Fond_ecranGame(AssetAPI* asset);
+		PrototypeGame(AssetAPI* asset);
 
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);

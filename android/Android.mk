@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 APP_DIR := $(LOCAL_PATH)
 
-LOCAL_MODULE := fond_ecran
+LOCAL_MODULE := prototype
 
 LOCAL_CFLAGS := -DANDROID_NDK \
                 -DDISABLE_IMPORTGL \
@@ -19,8 +19,8 @@ LOCAL_CXXFLAGS := -DANDROID_NDK \
 				-I$(LOCAL_PATH)/../sac/libs/
 
 LOCAL_SRC_FILES := \
-    fond_ecran.cpp \
-    ../sources/Fond_ecranGame.cpp \
+    prototype.cpp \
+    ../sources/PrototypeGame.cpp \
     ../sources/PixelManager.cpp \
     ../sac/android/sacjnilib.cpp
 

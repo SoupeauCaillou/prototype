@@ -9,4 +9,4 @@ file(
         *.cpp *.h states/*.cpp
 )
 
-add_library(fond_ecrancommon ${source_files})
+add_library(prototypecommon ${source_files})

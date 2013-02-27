@@ -16,12 +16,12 @@
 	You should have received a copy of the GNU General Public License
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
-package net.damsy.soupeaucaillou.fond_ecran;
+package net.damsy.soupeaucaillou.prototype;
 
 import android.app.Application;
 
 
-public class Fond_ecranApplication extends Application {
+public class PrototypeApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
