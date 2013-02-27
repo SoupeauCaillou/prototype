@@ -83,6 +83,8 @@ void FieldPlayerSystem::DoUpdate(float dt) {
                     }
                     velocity = Vector2::Zero;
                 }
+                if (ballContact)
+                    PHYSICS(ball)->linearVelocity = Vector2::Zero;
             } else {
                 velocity += moveTarget * (comp->accel * dt * weightDirChange);
                 float length = velocity.Normalize();
