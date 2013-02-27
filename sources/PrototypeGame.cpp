@@ -56,8 +56,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theRenderingSystem.loadAtlas("alphabet", true);
-    theRenderingSystem.loadAtlas("logo", false);
-    
+    //-theRenderingSystem.loadAtlas("logo", false);
+
     // init font
     loadFont(asset, "typo");
 }

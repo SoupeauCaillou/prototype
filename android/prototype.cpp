@@ -22,11 +22,11 @@
 
 class PrototypeGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
 	public:
-	 
+
     void init(JNIEnv* pEnv, jobject assetMgr) {
 	    GameThreadJNIEnvCtx::init(pEnv, assetMgr);
     }
-    
+
     void uninit(JNIEnv* pEnv) {
 		if (env == pEnv) {
 		}
@@ -36,10 +36,10 @@ class PrototypeGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
 
 GameHolder* GameHolder::build() {
 	GameHolder* hld = new GameHolder();
-	
+
 	PrototypeGameThreadJNIEnvCtx* jniCtx = new PrototypeGameThreadJNIEnvCtx();
 	hld->gameThreadJNICtx = jniCtx;
-	
+
 	hld->game = new PrototypeGame(&hld->renderThreadJNICtx.asset);
 	return hld;
 };
