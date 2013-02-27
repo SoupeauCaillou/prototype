@@ -81,12 +81,13 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     BallSystem::CreateInstance();
 }
 
-static Entity addPlayer() {
+static Entity addPlayer(const Vector2& position) {
     Entity player = theEntityManager.CreateEntity("player");
     ADD_COMPONENT(player, Transformation);
     TRANSFORM(player)->size = Vector2(1., 1.) * 1.5;
-    TRANSFORM(player)->position = TRANSFORM(player)->worldPosition = MathUtil::RandomVector(Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH)) -
-        Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH) * 0.5;
+    TRANSFORM(player)->position = TRANSFORM(player)->worldPosition = position;
+    // MathUtil::RandomVector(Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH)) -
+    //    Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH) * 0.5;
     TRANSFORM(player)->z = 0.5;
     ADD_COMPONENT(player, Rendering);
     RENDERING(player)->hide = false;
@@ -142,9 +143,16 @@ void PrototypeGame::init(const uint8_t*, int) {
         theAnimationSystem.registerAnim(idleName.str(), &idleAnims[i], 1, runAnimPlaybackSpeed, noLoop, "", noWait);
     }
 
+    Vector2 positions[] = {
+        Vector2(0, -3),
+        Vector2(-12, -7), Vector2(12, -7),
+        Vector2(0, -10),
+        Vector2(-9, -15), Vector2(9, -15)
+    };
+
     // create player
-    for (int i=0; i<5; i++)
-        players.push_back(addPlayer());
+    for (int i=0; i<6; i++)
+        players.push_back(addPlayer(positions[i]));
 #if 0
     if (theNetworkSystem.networkAPI && theNetworkSystem.networkAPI->isConnectedToAnotherPlayer()) {
         ADD_COMPONENT(player, Network);
@@ -165,12 +173,21 @@ void PrototypeGame::init(const uint8_t*, int) {
     PHYSICS(ball)->mass = 1;
     ADD_COMPONENT(ball, Ball);
 
+    playingField = theEntityManager.CreateEntity("playingField");
+    ADD_COMPONENT(playingField, Transformation);
+    TRANSFORM(playingField)->size = Vector2(theRenderingSystem.screenW * 2, theRenderingSystem.screenW * 2 * 1.5);
+    TRANSFORM(playingField)->position = Vector2::Zero;
+    TRANSFORM(playingField)->z = 0.01;
+    ADD_COMPONENT(playingField, Rendering);
+    RENDERING(playingField)->hide = false;
+    RENDERING(playingField)->texture = theRenderingSystem.loadTextureFile("palyingfield");
+
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
     TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
     TRANSFORM(camera)->position = Vector2(0, 0);
-    // TRANSFORM(camera)->parent = ball;
+    //TRANSFORM(camera)->parent = ball;
     ADD_COMPONENT(camera, Camera);
     CAMERA(camera)->enable = true;
     CAMERA(camera)->order = 2;
@@ -223,9 +240,27 @@ void PrototypeGame::tick(float dt) {
     if (glfwGetKey(GLFW_KEY_LSHIFT) || glfwGetKey(GLFW_KEY_RSHIFT))
         playerSwitchDown = true;
     else if (playerSwitchDown) {
-        activePlayer = (activePlayer + 1) % players.size();
+        if (BALL(ball)->owner == player) {
+            FIELD_PLAYER(player)->keyPresses |= PASS;
+            LOG(INFO) << "Request pass";
+        } else {
+            activePlayer = (activePlayer + 1) % players.size();
+        }
         playerSwitchDown = false;
     }
+
+    // simple camera tracking
+    Entity trackedEntity = BALL(ball)->owner;
+    if (!trackedEntity) trackedEntity = ball;
+    float yDiff = TRANSFORM(trackedEntity)->worldPosition.Y - TRANSFORM(camera)->worldPosition.Y;
+    float tolerance = TRANSFORM(camera)->size.Y * .01;
+    if (MathUtil::Abs(yDiff) > tolerance) {
+        TRANSFORM(camera)->position.Y += MathUtil::Max(2 * yDiff * dt, PHYSICS(trackedEntity)->linearVelocity.Y * dt);
+    }
+    // limit cam position
+    TRANSFORM(camera)->position.Y = MathUtil::Min(
+            (TRANSFORM(playingField)->size.Y - TRANSFORM(camera)->size.Y) * 0.5f,
+            MathUtil::Max(TRANSFORM(camera)->position.Y, (-TRANSFORM(playingField)->size.Y + TRANSFORM(camera)->size.Y) * 0.5f));
 
     if (currentState != State::Transition) {
         State::Enum newState = state2manager[currentState]->update(dt);

@@ -27,57 +27,101 @@ void FieldPlayerSystem::DoUpdate(float dt) {
         const bool ballOwner = (BALL(ball)->owner == player);
         Vector2& velocity = PHYSICS(player)->linearVelocity;
 
-
-        Vector2 moveTarget(Vector2::Zero);
         bool nokeyPressed = true;
-        if (!ballOwner || ballContact) {
+        Vector2 inputDirection(Vector2::Zero);
+        {
             // move little guy
             if (comp->keyPresses & UP) {
-                moveTarget.Y = 1;
+                inputDirection.Y = 1;
                 nokeyPressed = false;
             } else if (comp->keyPresses & DOWN) {
-                moveTarget.Y = -1;
+                inputDirection.Y = -1;
                 nokeyPressed = false;
             }
             if (comp->keyPresses & LEFT) {
-                moveTarget.X = -1;
+                inputDirection.X = -1;
                 nokeyPressed = false;
             } else if (comp->keyPresses & RIGHT) {
-                moveTarget.X = 1;
+                inputDirection.X = 1;
                 nokeyPressed = false;
             }
-        } else if (ballOwner) {
+            if (!nokeyPressed)
+                inputDirection.Normalize();
+        }
+
+        Vector2 moveTarget(Vector2::Zero);
+        if (!ballOwner || ballContact) {
+            moveTarget = inputDirection;
+        } else if (ballOwner && !ballContact) {
             nokeyPressed = false;
-            const float epsilon = 0.5;
-            if (dist > epsilon) {
-                moveTarget = toBall;
-            }
+            moveTarget = toBall;
         }
 
-        if (nokeyPressed) {
-            velocity -= velocity * 20 * dt;
-            if (velocity.Length() < 0.1) {
-                ANIMATION(player)->name = directionToAnimName("idle", velocity);
-            }
-        } else {
-            velocity += moveTarget * (comp->accel * dt * weightDirChange);
-            float length = velocity.Normalize();
-            if (length > comp->speed) length = comp->speed;
-            velocity *= length;
-            ANIMATION(player)->name = directionToAnimName("run", velocity);
-        }
-
-        // kick ball
-        if (!nokeyPressed && ballContact) {
-            if (true || Vector2::Dot(PHYSICS(player)->linearVelocity, PHYSICS(ball)->linearVelocity) <= 0) {
-                LOG(INFO) << "Kick !";
-                BALL(ball)->owner = player;
-                Vector2 force = moveTarget * comp->maxForce;
-                if (force.Length () > comp->maxForce) {
-                    force.Normalize();
-                    force *= comp->maxForce;
+        if (comp->keyPresses & PASS) {
+            // find nearest player
+            Vector2 lookupDirection(inputDirection);
+            if (lookupDirection == Vector2::Zero)
+                lookupDirection = Vector2::Normalize(velocity);
+            // pick nearest partner in this direction
+            float min = 0;
+            Entity passTarget = 0;
+            const Vector2 perp(lookupDirection.Perp());
+            FOR_EACH_ENTITY_COMPONENT(FieldPlayer, player2, comp2)
+                if (player2 == player) continue;
+                float dist = Vector2::Dot(TRANSFORM(player2)->worldPosition - TRANSFORM(player)->worldPosition, perp);
+                if (!passTarget || (min < 0 && dist > 0) || (min * dist > 0 && MathUtil::Abs(dist) < MathUtil::Abs(min))) {
+                    passTarget = player2;
+                    min = dist;
                 }
-                PHYSICS(ball)->forces.push_back(std::make_pair(Force(force, Vector2::Zero), 0.016));
+            }
+            LOG(INFO) << "Trying to pass to " << passTarget;
+            Vector2 d = TRANSFORM(passTarget)->worldPosition - TRANSFORM(player)->worldPosition;
+            PHYSICS(ball)->linearVelocity = Vector2::Zero;
+            PHYSICS(ball)->forces.push_back(std::make_pair(Force(d * 100, Vector2::Zero), 0.016));
+            BALL(ball)->friction = -0.5;
+            BALL(ball)->owner = 0;
+        } else {
+            if (nokeyPressed) {
+                if (velocity.Length() > 0.1) {
+                    velocity -= velocity * 20 * dt;
+                } else {
+                    size_t idx = ANIMATION(player)->name.find("run");
+                    if (idx == 0) {
+                        std::stringstream name;
+                        std::cout << ANIMATION(player)->name;
+                        name << "idle" << ANIMATION(player)->name.substr(3);
+                        std::cout << " -> " << name.str() << std::endl;
+                        ANIMATION(player)->name = name.str();
+                    } else if (ANIMATION(player)->name.find("idle") != 0) {
+                        ANIMATION(player)->name = directionToAnimName("idle", velocity);
+                    }
+                    velocity = Vector2::Zero;
+                }
+            } else {
+                velocity += moveTarget * (comp->accel * dt * weightDirChange);
+                float length = velocity.Normalize();
+                float maxSpeed = comp->speed;
+                if (ballOwner) maxSpeed *= comp->ballSpeedDecrease;
+                if (comp->keyPresses & SPRINT) maxSpeed *= comp->sprintBoost;
+                if (length > comp->speed) length = comp->speed;
+                velocity *= length;
+                ANIMATION(player)->name = directionToAnimName("run", velocity);
+            }
+
+            // kick ball
+            if (!nokeyPressed && ballContact) {
+                if (Vector2::Dot(moveTarget, PHYSICS(ball)->linearVelocity) <= 5) {
+                    BALL(ball)->owner = player;
+                    float c = MathUtil::Max(0.5f, Vector2::Dot(Vector2::Normalize(velocity), moveTarget));
+                    Vector2 force = moveTarget * c * PHYSICS(player)->linearVelocity.Length() * 80;
+                    if (force.Length () > comp->maxForce) {
+                        force.Normalize();
+                        force *= comp->maxForce;
+                    }
+                    PHYSICS(ball)->forces.push_back(std::make_pair(Force(force, Vector2::Zero), 0.016));
+                    BALL(ball)->friction = -3;
+                    LOG(INFO) << "Kick !" << PHYSICS(player)->linearVelocity.Length() << "/" << force.Length();
+                }
             }
         }
         comp->keyPresses = 0;
