@@ -227,7 +227,7 @@ bool PixelManager::fusePixel(pixel& p)
         RENDERING(parent->p)->hide = false;
         parent->enabled = false;
 
-        for (ulong i=0; i<children.size(); ++i)
+        for (unsigned long i=0; i<children.size(); ++i)
         {
             LOGI("[Fuse operation] Children to hide : %lu", children[i]->p);
             RENDERING(children[i]->p)->hide = true;

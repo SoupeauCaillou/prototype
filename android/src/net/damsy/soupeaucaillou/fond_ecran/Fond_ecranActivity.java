@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU General Public License
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
-package net.damsy.soupeaucaillou.prototype;
+package net.damsy.soupeaucaillou.fond_ecran;
 
 import net.damsy.soupeaucaillou.SacActivity;
 import android.content.SharedPreferences;
@@ -26,9 +26,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class PrototypeActivity extends SacActivity {
+public class Fond_ecranActivity extends SacActivity {
 	static {
-        System.loadLibrary("prototype");
+        System.loadLibrary("fond_ecran");
     }
  
 	@Override
@@ -44,11 +44,6 @@ public class PrototypeActivity extends SacActivity {
 	@Override
 	public int getSwarmGameID() {
 		return 0;
-	}
-	
-	@Override
-	public String getRevMobAppId() {
-		return null;
 	}
 	
 	@Override
@@ -89,9 +84,9 @@ public class PrototypeActivity extends SacActivity {
 		return false;
 	}
 	
-	static public final String Tag = "Prototype";
+	static public final String Tag = "Fond_ecran";
 	static final String PROTOTYPE_BUNDLE_KEY = "plop";
-	static public final String PROTOTYPE_SHARED_PREF = "PrototypePref";
+	static public final String PROTOTYPE_SHARED_PREF = "Fond_ecranPref";
 	
 	byte[] renderingSystemState;
 	
@@ -104,7 +99,7 @@ public class PrototypeActivity extends SacActivity {
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
-		Log.i(PrototypeActivity.Tag, "-> onCreate [" + savedInstanceState);
+		Log.i(Fond_ecranActivity.Tag, "-> onCreate [" + savedInstanceState);
         super.onCreate(savedInstanceState);
     }
 }

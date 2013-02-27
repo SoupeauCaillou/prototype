@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU General Public License
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PrototypeGame.h"
+#include "Fond_ecranGame.h"
 #include <sstream>
 
 #include <base/Log.h>
@@ -46,11 +46,11 @@
 
 #include <cmath>
 
-PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
+Fond_ecranGame::Fond_ecranGame(AssetAPI* ast) : Game() {
     asset = ast;
 }
 
-void PrototypeGame::sacInit(int windowW, int windowH) {
+void Fond_ecranGame::sacInit(int windowW, int windowH) {
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
@@ -62,7 +62,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     loadFont(asset, "typo");
 }
 
-void PrototypeGame::init(const uint8_t*, int) {
+void Fond_ecranGame::init(const uint8_t*, int) {
     quickInit();
 
     std::stringstream s;
@@ -70,16 +70,16 @@ void PrototypeGame::init(const uint8_t*, int) {
     thePixelManager = new PixelManager(s.str(), asset);
 }
 
-void PrototypeGame::quickInit() {
+void Fond_ecranGame::quickInit() {
 }
 
-void PrototypeGame::backPressed() {
+void Fond_ecranGame::backPressed() {
 }
 
-void PrototypeGame::togglePause(bool) {
+void Fond_ecranGame::togglePause(bool) {
 }
 
-void PrototypeGame::tick(float dt) {
+void Fond_ecranGame::tick(float dt) {
     Vector2 p = Vector2(-999, -999);
 
     if (theTouchInputManager.isTouched(0))
@@ -100,6 +100,6 @@ void PrototypeGame::tick(float dt) {
     thePixelManager->updatePixel();
 }
 
-bool PrototypeGame::willConsumeBackEvent() {
+bool Fond_ecranGame::willConsumeBackEvent() {
     return false;
 }

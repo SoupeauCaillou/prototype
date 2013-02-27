@@ -59,7 +59,7 @@
 #include "base/PlacementHelper.h"
 #include "DepthLayer.h"
 
-#include "PrototypeGame.h"
+#include "Fond_ecranGame.h"
 #include "base/Profiler.h"
 
 #include "../sac/util/Recorder.h"
@@ -74,7 +74,7 @@
 #define DT 1/60.
 #define MAGICKEYTIME 0.15
 
-PrototypeGame* game;
+Fond_ecranGame* game;
 NameInputAPILinuxImpl* nameInput;
 Entity globalFTW = 0;
 
@@ -311,7 +311,7 @@ int main(int argc, char** argv) {
     }
     #endif
 
-    game = new PrototypeGame(new AssetAPILinuxImpl());
+    game = new Fond_ecranGame(new AssetAPILinuxImpl());
 
     theSoundSystem.init();
     theTouchInputManager.setNativeTouchStatePtr(new MouseNativeTouchState());
