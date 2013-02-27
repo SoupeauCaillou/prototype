@@ -56,6 +56,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theRenderingSystem.loadAtlas("alphabet", true);
+    theRenderingSystem.loadAtlas("logo", false);
+    
     // init font
     loadFont(asset, "typo");
 }
@@ -89,6 +91,7 @@ void PrototypeGame::tick(float dt) {
     {
         thePixelManager->clickedOn(p);
     }
+
     thePixelManager->updatePixel();
     thePixelManager->updatePixel();
     thePixelManager->updatePixel();
