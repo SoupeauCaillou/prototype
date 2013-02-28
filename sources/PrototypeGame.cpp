@@ -74,7 +74,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadAtlas("soccerman", false);
 
     theRenderingSystem.createFramebuffer("pip_camera", 64, 64);
-    
+
     // init font
     loadFont(asset, "typo");
     theRenderingSystem.loadEffectFile("randomize.fs");
@@ -237,6 +237,18 @@ void PrototypeGame::togglePause(bool) {
 
 bool playerSwitchDown = false;
 void PrototypeGame::tick(float dt) {
+    #ifndef BEPO
+    static const char GOforward = 'Z';
+    static const char GObackward = 'S';
+    static const char GOleft = 'Q';
+    static const char GOright = 'D';
+    #else
+    static const char GOforward = '/';
+    static const char GObackward = 'U';
+    static const char GOleft = 'A';
+    static const char GOright = 'I';
+    #endif
+
     //TRANSFORM(camera)->rotation += 1. * dt;
     if (overrideNextState != State::Invalid) {
         changeState(overrideNextState);
@@ -244,13 +256,13 @@ void PrototypeGame::tick(float dt) {
     }
     Entity player = players[activePlayer];
     Vector2& direction = FIELD_PLAYER(player)->input.direction;
-    if (glfwGetKey('Z') || glfwGetKey(GLFW_KEY_UP))
+    if (glfwGetKey(GOforward) || glfwGetKey(GLFW_KEY_UP))
         direction.Y = 1;
-    else if (glfwGetKey('S') || glfwGetKey(GLFW_KEY_DOWN))
+    else if (glfwGetKey(GObackward) || glfwGetKey(GLFW_KEY_DOWN))
         direction.Y = -1;
-    if (glfwGetKey('Q') || glfwGetKey(GLFW_KEY_LEFT))
+    if (glfwGetKey(GOleft) || glfwGetKey(GLFW_KEY_LEFT))
         direction.X = -1;
-    else if (glfwGetKey('D') || glfwGetKey(GLFW_KEY_RIGHT))
+    else if (glfwGetKey(GOright) || glfwGetKey(GLFW_KEY_RIGHT))
         direction.X = 1;
     if (direction != Vector2::Zero)
         direction.Normalize();
