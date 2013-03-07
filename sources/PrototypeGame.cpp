@@ -45,6 +45,7 @@
 #include "systems/MorphingSystem.h"
 #include "systems/CameraSystem.h"
 #include "systems/NetworkSystem.h"
+#include "systems/GraphSystem.h"
 #include "api/NetworkAPI.h"
 #include "FieldPlayerSystem.h"
 #include "BallSystem.h"
@@ -118,6 +119,8 @@ Entity camera;
 Entity playingField, ball, teams[2];
 std::vector<Entity> players;
 unsigned activePlayer = 0;
+ImageDesc desc;
+float offset;
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
@@ -166,12 +169,16 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     ball = theEntityManager.CreateEntity("ball");
     ADD_COMPONENT(ball, Transformation);
-    TRANSFORM(ball)->size = Vector2(0.4);
+    TRANSFORM(ball)->size = Vector2(10.4);
     TRANSFORM(ball)->position = Vector2::Zero;
     TRANSFORM(ball)->z = 0.1;
     ADD_COMPONENT(ball, Rendering);
     RENDERING(ball)->hide = false;
-    RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("ballon1");
+    // RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("herisson_2_4");
+    ADD_COMPONENT(ball, Graph);
+    for (int i=-10; i<=10; i++)
+        GRAPH_SYSTEM(ball)->pointsList.push_back(std::make_pair(i, i * i));
+
     ADD_COMPONENT(ball, Physics);
     PHYSICS(ball)->gravity = Vector2::Zero;
     PHYSICS(ball)->mass = 1;
@@ -235,6 +242,7 @@ void PrototypeGame::togglePause(bool) {
 
 }
 
+int count = 0;
 bool playerSwitchDown = false;
 void PrototypeGame::tick(float dt) {
     #ifndef BEPO
@@ -255,6 +263,13 @@ void PrototypeGame::tick(float dt) {
         overrideNextState = State::Invalid;
     }
     Entity player = players[activePlayer];
+    /*
+    GRAPH_SYSTEM(ball)->pointsList.push_back(
+        std::make_pair(count++, dt));
+    while (GRAPH_SYSTEM(ball)->pointsList.size() > 300)
+        GRAPH_SYSTEM(ball)->pointsList.pop_front();
+        */
+        
     Vector2& direction = FIELD_PLAYER(player)->input.direction;
     if (glfwGetKey(GOforward) || glfwGetKey(GLFW_KEY_UP))
         direction.Y = 1;
