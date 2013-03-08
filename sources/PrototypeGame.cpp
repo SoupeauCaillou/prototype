@@ -78,7 +78,6 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     // init font
     loadFont(asset, "typo");
-    theRenderingSystem.loadEffectFile("randomize.fs");
 
     FieldPlayerSystem::CreateInstance();
     BallSystem::CreateInstance();
@@ -176,8 +175,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     RENDERING(ball)->hide = false;
     // RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("herisson_2_4");
     ADD_COMPONENT(ball, Graph);
-    for (int i=-10; i<=10; i++)
-        GRAPH_SYSTEM(ball)->pointsList.push_back(std::make_pair(i, i * i));
+    
 
     ADD_COMPONENT(ball, Physics);
     PHYSICS(ball)->gravity = Vector2::Zero;
@@ -243,8 +241,19 @@ void PrototypeGame::togglePause(bool) {
 }
 
 int count = 0;
+float accum = 0;
 bool playerSwitchDown = false;
 void PrototypeGame::tick(float dt) {
+    accum += 20 * dt;
+    /*
+    while (accum > 1) {
+        accum -=1;
+        count++;
+        float r = -1 + 2 * MathUtil::RandomFloat();
+        GRAPH_SYSTEM(ball)->pointsList.push_back(std::make_pair(count++, r * r));
+    }
+    while (GRAPH_SYSTEM(ball)->pointsList.size() > 100) GRAPH_SYSTEM(ball)->pointsList.pop_front();
+        */
     #ifndef BEPO
     static const char GOforward = 'Z';
     static const char GObackward = 'S';
