@@ -173,8 +173,9 @@ void PrototypeGame::init(const uint8_t*, int) {
     TRANSFORM(ball)->z = 0.1;
     ADD_COMPONENT(ball, Rendering);
     RENDERING(ball)->hide = false;
-    // RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("herisson_2_4");
     ADD_COMPONENT(ball, Graph);
+    GRAPH(ball)->textureName = "plop";
+    RENDERING(ball)->texture = theRenderingSystem.loadTextureFile(GRAPH(ball)->textureName);
     
 
     ADD_COMPONENT(ball, Physics);
@@ -190,6 +191,10 @@ void PrototypeGame::init(const uint8_t*, int) {
     ADD_COMPONENT(playingField, Rendering);
     RENDERING(playingField)->hide = false;
     RENDERING(playingField)->texture = theRenderingSystem.loadTextureFile("palyingfield");
+    ADD_COMPONENT(playingField, Graph);
+    GRAPH(playingField)->textureName = "plop";
+    GRAPH(playingField)->maxY = 0.5;
+    GRAPH(playingField)->minY = -1.1;
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
@@ -241,19 +246,22 @@ void PrototypeGame::togglePause(bool) {
 }
 
 int count = 0;
-float accum = 0;
+float accum = 0, accum2=0;
 bool playerSwitchDown = false;
 void PrototypeGame::tick(float dt) {
-    accum += 20 * dt;
-    /*
+    accum += 5 * dt;
+    
     while (accum > 1) {
         accum -=1;
         count++;
         float r = -1 + 2 * MathUtil::RandomFloat();
-        GRAPH_SYSTEM(ball)->pointsList.push_back(std::make_pair(count++, r * r));
+        GRAPH(ball)->pointsList.push_back(std::make_pair(count++, r * r));
     }
-    while (GRAPH_SYSTEM(ball)->pointsList.size() > 100) GRAPH_SYSTEM(ball)->pointsList.pop_front();
-        */
+    while (GRAPH(ball)->pointsList.size() > 100) GRAPH(ball)->pointsList.pop_front();
+    accum2 += dt;
+    GRAPH(playingField)->pointsList.push_back(std::make_pair(accum2, cos(accum2)));
+    while (GRAPH(playingField)->pointsList.size() > 250) GRAPH(playingField)->pointsList.pop_front();
+        
     #ifndef BEPO
     static const char GOforward = 'Z';
     static const char GObackward = 'S';
