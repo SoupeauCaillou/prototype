@@ -3,11 +3,19 @@ cmake_minimum_required(VERSION 2.6)
 project(Prototype)
 
 #set flags
-if (EMSCRIPTEN_BUILD)
-	SET(CMAKE_CXX_FLAGS "-O0 -W -Wall -DDEBUG")
-else ()
-	SET(CMAKE_CXX_FLAGS "-O0 -g -W -Wall -DDEBUG -DENABLE_LOG -DENABLE_PROFILING -DDATADIR=\\\"${CMAKE_SOURCE_DIR}/assets/\\\"")
+ADD_DEFINITIONS(-DDEBUG)
+if (!EMSCRIPTEN_BUILD)
+	ADD_DEFINITIONS(-DENABLE_LOG -DENABLE_PROFILING -DDATADIR=\\\"${CMAKE_SOURCE_DIR}/assets/\\\")
+	
+	#Enable warnings
+	# if (MSVC) 
+		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	# else if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W")
+	# endif()
+	
 endif()
+
 
 #get the differents CMakeLists.txt
 	#everyone

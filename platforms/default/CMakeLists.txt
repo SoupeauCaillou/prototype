@@ -15,23 +15,22 @@ add_executable(${PROJECT_NAME} ${source_files})
 
 
 
-
 find_package (GLEW)
 if (GLEW_FOUND)
-	  include_directories(${GLEW_INCLUDE_DIRS})
-	  target_link_libraries (${PROJECT_NAME} ${GLEW_LIBRARIES})
+	  include_directories(${GLEW_INCLUDE_DIR})
+	  target_link_libraries (${PROJECT_NAME} ${GLEW_LIBRARY})
 endif ()
 
 find_package (GLFW)
 if (GLFW_FOUND)
-  include_directories(${GLFW_INCLUDE_DIRS})
-  target_link_libraries (${PROJECT_NAME} ${GLFW_LIBRARIES})
+  include_directories(${GLFW_INCLUDE_DIR})
+  target_link_libraries (${PROJECT_NAME} ${GLFW_LIBRARY})
 endif ()
 
 find_package (OpenAL)
 if (OPENAL_FOUND)
-	include_directories(${OPENAL_INCLUDE_DIRS})
-	target_link_libraries (${PROJECT_NAME} ${OPENAL_LIBRARIES})
+	include_directories(${OPENAL_INCLUDE_DIR})
+	target_link_libraries (${PROJECT_NAME} ${OPENAL_LIBRARY})
 endif ()
 
 # find_package (Sqlite3)
@@ -63,6 +62,7 @@ if (ZLIB_FOUND)
   include_directories(${ZLIB_INCLUDE_DIRS})
   target_link_libraries (${PROJECT_NAME} ${ZLIB_LIBRARIES})
 endif ()
+
 
 
 
