@@ -63,9 +63,8 @@
 #include "PrototypeGame.h"
 #include "base/Profiler.h"
 
-//~ #include "../sac/util/Recorder.h"
-#include <pthread.h>
-#include <signal.h>
+#include "../sac/util/Recorder.h"
+
 #include <thread>
 #include <mutex>
 
@@ -85,7 +84,7 @@ NameInputAPILinuxImpl* nameInput;
 Entity globalFTW = 0;
 
 #ifndef EMSCRIPTEN
-//~ Recorder *record;
+Recorder *record;
 std::mutex m;
 #endif
 
@@ -240,10 +239,10 @@ static void updateAndRenderLoop() {
 
       // recording
       if (glfwGetKey( GLFW_KEY_F10)){
-     //~ record->stop();
+     record->stop();
       }
       if (glfwGetKey( GLFW_KEY_F9)){
-     //~ record->start();
+     record->start();
       }
       //user entered his name?
       if (glfwGetKey( GLFW_KEY_ENTER )) {
@@ -366,23 +365,23 @@ int main(int argc, char** argv) {
 
 
 #ifndef EMSCRIPTEN
-    //~ record = new Recorder(reso->X, reso->Y);
-    //~ pthread_t th1;
-    //~ pthread_create (&th1, NULL, callback_thread, NULL);
+    record = new Recorder(reso->X, reso->Y);
+
     std::thread th1(callback_thread);
     
     do {
         game->render();
         glfwSwapBuffers();
-        //~ record->record();
-    } while (m.try_lock());
+        record->record();
+    } while (!m.try_lock());
+    th1.join();
 #else
     emscripten_set_main_loop(updateAndRender, 60, 0);
 #endif
 
 #ifndef EMSCRIPTEN
     delete game;
-    //~ delete record;
+    delete record;
 #endif
     return 0;
 }
