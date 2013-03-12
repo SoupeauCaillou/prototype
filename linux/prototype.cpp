@@ -63,9 +63,11 @@
 #include "PrototypeGame.h"
 #include "base/Profiler.h"
 
-#include "../sac/util/Recorder.h"
+//~ #include "../sac/util/Recorder.h"
 #include <pthread.h>
 #include <signal.h>
+#include <thread>
+#include <mutex>
 
 #ifndef EMSCRIPTEN
 #include <locale.h>
@@ -83,7 +85,8 @@ NameInputAPILinuxImpl* nameInput;
 Entity globalFTW = 0;
 
 #ifndef EMSCRIPTEN
-Recorder *record;
+//~ Recorder *record;
+std::mutex m;
 #endif
 
 class MouseNativeTouchState: public NativeTouchState {
@@ -237,10 +240,10 @@ static void updateAndRenderLoop() {
 
       // recording
       if (glfwGetKey( GLFW_KEY_F10)){
-     record->stop();
+     //~ record->stop();
       }
       if (glfwGetKey( GLFW_KEY_F9)){
-     record->start();
+     //~ record->start();
       }
       //user entered his name?
       if (glfwGetKey( GLFW_KEY_ENTER )) {
@@ -255,9 +258,11 @@ static void updateAndRenderLoop() {
    glfwTerminate();
 }
 
-static void* callback_thread(void *){
+static void* callback_thread(){
+    m.lock();
     updateAndRenderLoop();
-    pthread_exit (0);
+    m.unlock();
+    return NULL;
 }
 
 #else
@@ -361,22 +366,23 @@ int main(int argc, char** argv) {
 
 
 #ifndef EMSCRIPTEN
-    record = new Recorder(reso->X, reso->Y);
-    pthread_t th1;
-    pthread_create (&th1, NULL, callback_thread, NULL);
-    while (pthread_kill(th1, 0) == 0)
-    {
+    //~ record = new Recorder(reso->X, reso->Y);
+    //~ pthread_t th1;
+    //~ pthread_create (&th1, NULL, callback_thread, NULL);
+    std::thread th1(callback_thread);
+    
+    do {
         game->render();
         glfwSwapBuffers();
-        record->record();
-    }
+        //~ record->record();
+    } while (m.try_lock());
 #else
     emscripten_set_main_loop(updateAndRender, 60, 0);
 #endif
 
 #ifndef EMSCRIPTEN
     delete game;
-    delete record;
+    //~ delete record;
 #endif
     return 0;
 }
