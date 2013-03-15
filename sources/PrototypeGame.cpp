@@ -128,28 +128,13 @@ void PrototypeGame::init(const uint8_t*, int) {
     overrideNextState = State::Invalid;
     currentState = State::Menu;
 
-    const std::string runAnims[] = {
-        "S2", "S1", "S3", "SE2", "SE1", "SE3", "SW2", "SW1", "SW3",
-        "E2", "E1", "E3", "W2", "W1", "W3",
-        "N2", "N1", "N3", "NE2", "NE1", "NE3", "NW2", "NW1", "NW3",
-    };
-    const std::string idleAnims[] = {
-        "S1", "SE1", "SW1",
-        "E1", "W1",
-        "N1", "NE1", "NW1"
-    };
-    const int runAnimFrameCount = 3;
-    const float runAnimPlaybackSpeed = 9;
-    const Interval<int> noLoop (-1, -1);
-    const Interval<float> noWait (0, 0);
-
     std::string directions[] = {"S", "SE", "SW", "E", "W", "N", "NE", "NW"};
     for (int i=0; i<8; i++) {
         std::stringstream runName, idleName;
         runName << "run" << directions[i];
-        theAnimationSystem.registerAnim(runName.str(), &runAnims[i*runAnimFrameCount], runAnimFrameCount, runAnimPlaybackSpeed, noLoop, "", noWait);
         idleName << "idle" << directions[i];
-        theAnimationSystem.registerAnim(idleName.str(), &idleAnims[i], 1, runAnimPlaybackSpeed, noLoop, "", noWait);
+        theAnimationSystem.loadAnim(runName.str());
+        theAnimationSystem.loadAnim(idleName.str());
     }
 
     Vector2 positions[] = {
@@ -168,15 +153,17 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     ball = theEntityManager.CreateEntity("ball");
     ADD_COMPONENT(ball, Transformation);
-    TRANSFORM(ball)->size = Vector2(10.4);
+    TRANSFORM(ball)->size = Vector2(0.4);
     TRANSFORM(ball)->position = Vector2::Zero;
     TRANSFORM(ball)->z = 0.1;
     ADD_COMPONENT(ball, Rendering);
     RENDERING(ball)->hide = false;
+    RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("ballon1"); 
+    #if 0
     ADD_COMPONENT(ball, Graph);
     GRAPH(ball)->textureName = "plop";
     RENDERING(ball)->texture = theRenderingSystem.loadTextureFile(GRAPH(ball)->textureName);
-    
+    #endif
 
     ADD_COMPONENT(ball, Physics);
     PHYSICS(ball)->gravity = Vector2::Zero;
@@ -262,8 +249,9 @@ float accum = 0, accum2=0;
 bool playerSwitchDown = false;
 void PrototypeGame::tick(float dt) {
     accum += 5 * dt;
-    
-    while (accum > 1) {
+
+#if 0
+    while (0 && accum > 1) {
         accum -=1;
         count++;
         float r = -1 + 2 * MathUtil::RandomFloat();
@@ -273,7 +261,8 @@ void PrototypeGame::tick(float dt) {
     accum2 += dt;
     GRAPH(playingField)->pointsList.push_back(std::make_pair(accum2, cos(accum2)));
     while (GRAPH(playingField)->pointsList.size() > 250) GRAPH(playingField)->pointsList.pop_front();
-        
+    GRAPH(ball)->reloadTexture = true;
+#endif
     #ifndef BEPO
     static const char GOforward = 'Z';
     static const char GObackward = 'S';

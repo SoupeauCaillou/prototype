@@ -44,6 +44,7 @@
 #include "systems/SoundSystem.h"
 #include "systems/MusicSystem.h"
 #include "systems/NetworkSystem.h"
+#include "systems/AnimationSystem.h"
 
 #include "api/linux/MusicAPILinuxOpenALImpl.h"
 #include "api/linux/AssetAPILinuxImpl.h"
@@ -258,9 +259,9 @@ static void updateAndRenderLoop() {
 }
 
 static void* callback_thread(){
-    // m.lock();
+    m.lock();
     updateAndRenderLoop();
-    // m.unlock();
+    m.unlock();
     return NULL;
 }
 
@@ -332,6 +333,7 @@ int main(int argc, char** argv) {
     theMusicSystem.musicAPI = openal;
     theMusicSystem.assetAPI = new AssetAPILinuxImpl();
     theRenderingSystem.assetAPI = new AssetAPILinuxImpl();
+    theAnimationSystem.assetAPI = new AssetAPILinuxImpl();
     SoundAPILinuxOpenALImpl* soundAPI = new SoundAPILinuxOpenALImpl();
     theSoundSystem.soundAPI = soundAPI;
     openal->init();

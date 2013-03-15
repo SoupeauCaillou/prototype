@@ -1,0 +1,14 @@
+[meta]
+speed=9
+loop=infinite
+num_frames=3
+
+[frame0]
+texture=NE2
+
+[frame1]
+texture=NE1
+
+[frame2]
+texture=NE3
+

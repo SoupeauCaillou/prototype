@@ -1,0 +1,14 @@
+[meta]
+speed=9
+loop=infinite
+num_frames=3
+
+[frame0]
+texture=W2
+
+[frame1]
+texture=W1
+
+[frame2]
+texture=W3
+

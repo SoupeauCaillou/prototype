@@ -1,0 +1,9 @@
+[meta]
+speed=1
+loop=infinite
+num_frames=1
+
+[frame0]
+texture=E1
+
+
