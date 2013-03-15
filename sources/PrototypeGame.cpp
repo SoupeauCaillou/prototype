@@ -69,10 +69,10 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
-    theRenderingSystem.loadAtlas("alphabet", true);
     theRenderingSystem.loadAtlas("logo", false);
     theRenderingSystem.loadAtlas("default", false);
     theRenderingSystem.loadAtlas("soccerman", false);
+    theRenderingSystem.loadAtlas("font", false);
 
     theRenderingSystem.createFramebuffer("pip_camera", 64, 64);
 
@@ -195,18 +195,30 @@ void PrototypeGame::init(const uint8_t*, int) {
     GRAPH(playingField)->textureName = "plop";
     GRAPH(playingField)->maxY = 0.5;
     GRAPH(playingField)->minY = -1.1;
-
+    
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
     TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
     TRANSFORM(camera)->position = Vector2(0, 0);
+    TRANSFORM(camera)->z = 1;
     //TRANSFORM(camera)->parent = ball;
     ADD_COMPONENT(camera, Camera);
     CAMERA(camera)->enable = true;
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+    Entity text = theEntityManager.CreateEntity("dyummy text");
+    ADD_COMPONENT(text, Transformation);
+    TRANSFORM(text)->parent = camera;
+    TRANSFORM(text)->z = -0.1;
+    ADD_COMPONENT(text, TextRendering);
+    TEXT_RENDERING(text)->fontName = "typo";
+    //TEXT_RENDERING(text)->text = "test ×soupe_logo,1,1× de texte ¿";
+    TEXT_RENDERING(text)->text = "Çest de texte ×soupe_logo,1,1× ¿ <- manquant";
+    TEXT_RENDERING(text)->hide = false;
+    TEXT_RENDERING(text)->charHeight = 2;
 
     // create player
     for (int i=0; i<6; i++)

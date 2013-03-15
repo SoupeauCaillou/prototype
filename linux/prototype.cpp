@@ -258,9 +258,9 @@ static void updateAndRenderLoop() {
 }
 
 static void* callback_thread(){
-    m.lock();
+    // m.lock();
     updateAndRenderLoop();
-    m.unlock();
+    // m.unlock();
     return NULL;
 }
 
