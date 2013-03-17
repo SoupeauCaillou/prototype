@@ -13,8 +13,6 @@ file(
 
 add_executable(${PROJECT_NAME} ${source_files})
 
-
-
 find_package (GLEW)
 if (GLEW_FOUND)
 	  include_directories(${GLEW_INCLUDE_DIR})
@@ -41,15 +39,15 @@ endif ()
 
 # find_package (VorbisFile)
 # if (VORBISFILE_FOUND)
-  # include_directories(${VORBISFILE_INCLUDE_DIRS})
-  # target_link_libraries (${PROJECT_NAME} ${VORBISFILE_LIBRARIES})
+#   include_directories(${VORBISFILE_INCLUDE_DIR})
+#   target_link_libraries (${PROJECT_NAME} ${VORBISFILE_LIBRARY})
 # endif ()
 
-# find_package (Vorbis)
-# if (VORBIS_FOUND)
-  # include_directories(${VORBIS_INCLUDE_DIRS})
-  # target_link_libraries (${PROJECT_NAME} ${VORBIS_LIBRARIES})
-# endif ()
+#  find_package (Vorbis)
+#  if (VORBIS_FOUND)
+#   include_directories(${VORBIS_INCLUDE_DIR})
+#   target_link_libraries (${PROJECT_NAME} ${VORBIS_LIBRARY})
+#  endif ()
 
 # find_package (Vpx)
 # if (VPX_FOUND)

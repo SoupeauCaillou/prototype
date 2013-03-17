@@ -26,18 +26,20 @@ find_path(GLFW_INCLUDE_DIR GL/glfw.h
   ~/Library/Frameworks
   /Library/Frameworks
   /opt
+  /usr/include/
 )
 
 
-find_library(GLEW_LIBRARY 
-	NAMES GLEW glew32 glew glew32s 
+find_library(GLFW_LIBRARY 
+	NAMES GLFW glfw 
   HINTS
-    ENV GLEWDIR
+    ENV GLFWDIR
   PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
   PATHS
-  "$ENV{PROGRAMFILES}/../Program\ Files/glew"
+  "$ENV{PROGRAMFILES}/../Program\ Files/glfw"
   ~/Library/Frameworks
   /Library/Frameworks
+  /usr/lib/
 )
 
 find_library(GLFW_LIBRARY 
@@ -51,7 +53,7 @@ find_library(GLFW_LIBRARY
   /Library/Frameworks
 )
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(GLFW
                                   REQUIRED_VARS GLFW_INCLUDE_DIR GLFW_LIBRARY)
 
