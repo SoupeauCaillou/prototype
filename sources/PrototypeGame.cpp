@@ -130,11 +130,11 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     std::string directions[] = {"S", "SE", "SW", "E", "W", "N", "NE", "NW"};
     for (int i=0; i<8; i++) {
-        std::stringstream runName, idleName;
-        runName << "run" << directions[i];
-        idleName << "idle" << directions[i];
-        theAnimationSystem.loadAnim(runName.str());
-        theAnimationSystem.loadAnim(idleName.str());
+        std::string var[2];
+        var[0] = "direction";
+        var[1] = directions[i];
+        theAnimationSystem.loadAnim("run" + directions[i], "run", var, 1);
+        theAnimationSystem.loadAnim("idle" + directions[i], "idle", var, 1);
     }
 
     Vector2 positions[] = {
@@ -159,6 +159,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     ADD_COMPONENT(ball, Rendering);
     RENDERING(ball)->hide = false;
     RENDERING(ball)->texture = theRenderingSystem.loadTextureFile("ballon1"); 
+    ADD_COMPONENT(ball, Particule);
     #if 0
     ADD_COMPONENT(ball, Graph);
     GRAPH(ball)->textureName = "plop";

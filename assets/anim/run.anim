@@ -4,11 +4,11 @@ loop=infinite
 num_frames=3
 
 [frame0]
-texture=E2
+texture=$direction2
 
 [frame1]
-texture=E1
+texture=$direction1
 
 [frame2]
-texture=E3
+texture=$direction3
 

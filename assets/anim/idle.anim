@@ -4,5 +4,6 @@ loop=infinite
 num_frames=1
 
 [frame0]
-texture=SW1
+texture=$direction1
+
 
