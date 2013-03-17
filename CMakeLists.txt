@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 2.6)
 
 project(Prototype)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules_cmake/")
-
 #set flags
 #ADD_DEFINITIONS(-DDEBUG)
 if (NOT EMSCRIPTEN_BUILD)
