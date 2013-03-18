@@ -45,9 +45,7 @@
 
 #include <cmath>
 
-PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
-    asset = ast;
-
+PrototypeGame::PrototypeGame() : Game() {
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
 }
@@ -61,7 +59,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     //-theRenderingSystem.loadAtlas("logo", false);
 
     // init font
-    loadFont(asset, "typo");
+    loadFont(gameThreadContext->assetAPI, "typo");
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
@@ -70,7 +68,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 
     overrideNextState = State::Invalid;
-    currentState = State::Logo;
+    currentState = State::Menu;
 
     quickInit();
 }
@@ -120,7 +118,7 @@ void PrototypeGame::tick(float dt) {
         it->second->backgroundUpdate(dt);
     }
     { static int i=0;
-        // std::cout << "Nombre d'entité = " << ++i << std::endl;
+        //std::cout << "Nombre d'entité = " << ++i << std::endl;
 
         Entity eq = theEntityManager.CreateEntity();
         ADD_COMPONENT(eq, Transformation);

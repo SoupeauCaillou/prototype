@@ -34,7 +34,7 @@
 
 class PrototypeGame : public Game {
 	public:
-		PrototypeGame(AssetAPI* asset);
+		PrototypeGame();
 
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
@@ -46,7 +46,6 @@ class PrototypeGame : public Game {
         void changeState(State::Enum newState);
 
 	private:
-		AssetAPI* asset;
         State::Enum currentState, overrideNextState;
         std::map<State::Enum, StateManager*> state2manager;
         TransitionStateManager transitionManager;
