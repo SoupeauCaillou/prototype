@@ -3,19 +3,15 @@ cmake_minimum_required(VERSION 2.6)
 project(Prototype)
 
 #set flags
-#ADD_DEFINITIONS(-DDEBUG)
 if (NOT EMSCRIPTEN_BUILD)
-	ADD_DEFINITIONS(-DENABLE_LOG -DENABLE_PROFILING -DDATADIR="${CMAKE_SOURCE_DIR}/assets/")
+	ADD_DEFINITIONS(-D${CMAKE_SYSTEM_NAME}=1 -DENABLE_LOG -DENABLE_PROFILING -DDATADIR="${CMAKE_SOURCE_DIR}/assets/")
 	
-	#Enable warnings
-	if (MSVC) 
-		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-	elseif(LINUX_BUILD)
-	# else if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W")
-		ADD_DEFINITIONS(-DLINUX=1)
+	#Enable warnings - operating system dependent
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W")
 	endif()
-	
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/sources)
@@ -27,10 +23,10 @@ include_directories(${PROJECT_SOURCE_DIR}/sources)
 
 	if (ANDROID_BUILD)
 		add_subdirectory(platforms/android)
-	elif (EMSCRIPTEN_BUILD)
+	elseif (EMSCRIPTEN_BUILD)
 		add_subdirectory(platforms/emscripten)
 	else ()
-		#default version (pc - windows)
+		#default version (linux - windows)
 		add_subdirectory(platforms/default)
 	endif()
 
