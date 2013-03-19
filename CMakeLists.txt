@@ -10,11 +10,11 @@ if (NOT EMSCRIPTEN_BUILD)
 	
 	#Enable warnings - operating system dependent
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
-		message ("Building for Windows")
+		message ("Building for Windows [TODO add C++11 flag]")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		message ("Building for Linux")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W -g -O0")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -W -g -O0")
 	else ()
 		message (WARNING "Building for unknown platform: ${CMAKE_SYSTEM_NAME}")
 		
@@ -22,7 +22,6 @@ if (NOT EMSCRIPTEN_BUILD)
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/sources)
-
 
 #get the differents CMakeLists.txt
 	#everyone

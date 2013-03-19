@@ -54,28 +54,28 @@ LogoStateManager::~LogoStateManager() {
 }
 
 void LogoStateManager::setup() {
-    Entity logo = datas->logo = theEntityManager.CreateEntity();
-    Entity logobg = datas->logobg = theEntityManager.CreateEntity();
-    Entity logofade = datas->logofade = theEntityManager.CreateEntity();
-    datas->animLogo = theEntityManager.CreateEntity();
+    Entity logo = datas->logo = theEntityManager.CreateEntity("logo");
+    Entity logobg = datas->logobg = theEntityManager.CreateEntity("logobg");
+    Entity logofade = datas->logofade = theEntityManager.CreateEntity("logofade");
+    datas->animLogo = theEntityManager.CreateEntity("logo_anim");
 
     ADD_COMPONENT(logo, Rendering);
     ADD_COMPONENT(logo, Transformation);
-    TRANSFORM(logo)->position = theRenderingSystem.cameras[0].worldPosition;
+    TRANSFORM(logo)->position = Vector2::Zero;
     TRANSFORM(logo)->size = Vector2(PlacementHelper::ScreenHeight * 0.8, PlacementHelper::ScreenHeight * 0.8);
     TRANSFORM(logo)->z = DL_Logo;
     //-RENDERING(logo)->texture = theRenderingSystem.loadTextureFile("soupe_logo");
 
     ADD_COMPONENT(logobg, Rendering);
     ADD_COMPONENT(logobg, Transformation);
-    TRANSFORM(logobg)->position = theRenderingSystem.cameras[0].worldPosition;
+    TRANSFORM(logobg)->position = Vector2::Zero;
     TRANSFORM(logobg)->size = Vector2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
     RENDERING(logobg)->color = Color(0,0,0);
     TRANSFORM(logobg)->z = DL_BehindLogo;
 
     ADD_COMPONENT(logofade, Rendering);
     ADD_COMPONENT(logofade, Transformation);
-    TRANSFORM(logofade)->position = theRenderingSystem.cameras[0].worldPosition;
+    TRANSFORM(logofade)->position = Vector2::Zero;
     TRANSFORM(logofade)->size = Vector2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
     RENDERING(logofade)->color = Color(0,0,0);
     TRANSFORM(logofade)->z = 1;
@@ -107,8 +107,6 @@ bool LogoStateManager::transitionCanEnter(State::Enum) {
 void LogoStateManager::enter(State::Enum) {
     datas->duration = 0;
     RENDERING(datas->logo)->hide = RENDERING(datas->logobg)->hide = RENDERING(datas->logofade)->hide = false;
-    // preload sound
-    //-theSoundSystem.loadSoundFile("son_monte.ogg");
     datas->step = LogoStep0;
 }
 
@@ -132,7 +130,6 @@ State::Enum LogoStateManager::update(float dt) {
             if (duration > 0.8) {
                 duration = 0;
                 RENDERING(datas->animLogo)->hide = false;
-                //-SOUND(datas->animLogo)->sound = theSoundSystem.loadSoundFile("son_monte.ogg");
                 datas->step = LogoStep2;
             }
             break;

@@ -1,0 +1,14 @@
+[meta]
+speed=9
+loop=infinite
+num_frames=3
+
+[frame0]
+texture=$direction2
+
+[frame1]
+texture=$direction1
+
+[frame2]
+texture=$direction3
+
