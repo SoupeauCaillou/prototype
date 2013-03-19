@@ -6,7 +6,7 @@ string (TOUPPER "${CMAKE_SYSTEM_NAME}" VarPlatform)
 
 #set flags
 if (NOT EMSCRIPTEN_BUILD)
-	ADD_DEFINITIONS(-D${VarPlatform}=1 -DENABLE_LOG -DENABLE_PROFILING -DDATADIR="${CMAKE_SOURCE_DIR}/assets/")
+	ADD_DEFINITIONS(-D${VarPlatform}=1 -DDEBUG=1 -DENABLE_LOG=1 -DENABLE_PROFILING=1 -DINGAME_EDITORS=1 -DDATADIR="${CMAKE_SOURCE_DIR}/assets/")
 	
 	#Enable warnings - operating system dependent
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
