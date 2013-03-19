@@ -29,16 +29,11 @@
     <CompileTarget>Bin</CompileTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="sources\DepthLayer.h" />
     <Compile Include="sources\PrototypeGame.h" />
     <Compile Include="android\prototype.cpp" />
     <Compile Include="sources\states\LogoStateManager.cpp" />
     <Compile Include="sources\states\MenuStateManager.cpp" />
     <Compile Include="sources\states\TransitionStateManager.cpp" />
-    <Compile Include="sources\FieldPlayerSystem.cpp" />
-    <Compile Include="sources\BallSystem.cpp" />
-    <Compile Include="sources\AISystem.cpp" />
-    <Compile Include="sources\TeamSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="linux\prototype.cpp" />
@@ -52,10 +47,6 @@
     <None Include="android\Android.mk" />
     <None Include="android\Application.mk" />
     <None Include="sources\states\StateManager.h" />
-    <None Include="sources\FieldPlayerSystem.h" />
-    <None Include="sources\BallSystem.h" />
-    <None Include="sources\AISystem.h" />
-    <None Include="sources\TeamSystem.h" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

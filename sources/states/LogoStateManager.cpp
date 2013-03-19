@@ -26,8 +26,6 @@
 #include "systems/RenderingSystem.h"
 #include "systems/SoundSystem.h"
 
-#include "DepthLayer.h"
-
 enum LogoStep {
     LogoStep0,
     LogoStep1,
@@ -63,7 +61,7 @@ void LogoStateManager::setup() {
     ADD_COMPONENT(logo, Transformation);
     TRANSFORM(logo)->position = Vector2::Zero;
     TRANSFORM(logo)->size = Vector2(PlacementHelper::ScreenHeight * 0.8, PlacementHelper::ScreenHeight * 0.8);
-    TRANSFORM(logo)->z = DL_Logo;
+    TRANSFORM(logo)->z = 0.9;
     //-RENDERING(logo)->texture = theRenderingSystem.loadTextureFile("soupe_logo");
 
     ADD_COMPONENT(logobg, Rendering);
@@ -71,7 +69,7 @@ void LogoStateManager::setup() {
     TRANSFORM(logobg)->position = Vector2::Zero;
     TRANSFORM(logobg)->size = Vector2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
     RENDERING(logobg)->color = Color(0,0,0);
-    TRANSFORM(logobg)->z = DL_BehindLogo;
+    TRANSFORM(logobg)->z = 0.89;
 
     ADD_COMPONENT(logofade, Rendering);
     ADD_COMPONENT(logofade, Transformation);
@@ -85,7 +83,7 @@ void LogoStateManager::setup() {
         //-* Vector2(1.0 / theRenderingSystem.getTextureSize("soupe_logo").X, 1.0 / theRenderingSystem.getTextureSize("soupe_logo").Y);
     Vector2 offset = Vector2(-10 / 800.0, 83/869.0) * TRANSFORM(datas->logo)->size;
     TRANSFORM(datas->animLogo)->position = TRANSFORM(datas->logo)->position + offset;
-    TRANSFORM(datas->animLogo)->z = DL_LogoAnim;
+    TRANSFORM(datas->animLogo)->z = 0.91;
     ADD_COMPONENT(datas->animLogo, Rendering);
     //-RENDERING(datas->animLogo)->texture = theRenderingSystem.loadTextureFile("soupe_logo2_365_331");
     RENDERING(datas->animLogo)->hide = true;
