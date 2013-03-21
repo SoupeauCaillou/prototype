@@ -9,6 +9,7 @@ link_directories (${PROJECT_SOURCE_DIR}/sac/libs/AntTweakBar/lib)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/sac/build/cmake/Modules")
 
+
 file(
 	GLOB
 	source_files
@@ -17,5 +18,61 @@ file(
 
 add_executable(${PROJECT_NAME} ${source_files})
 
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac)
 
+
+
+find_package (GLEW)
+	if (GLEW_FOUND)
+		  include_directories(${GLEW_INCLUDE_DIR})
+      target_link_libraries (${PROJECT_NAME} ${GLEW_LIBRARY})
+	endif ()
+
+	find_package (GLFW)
+	if (GLFW_FOUND)
+	  include_directories(${GLFW_INCLUDE_DIR})
+      target_link_libraries (${PROJECT_NAME} ${GLFW_LIBRARY})
+	endif ()
+
+	find_package (OpenAL)
+	if (OPENAL_FOUND)
+		include_directories(${OPENAL_INCLUDE_DIR})
+        target_link_libraries (${PROJECT_NAME} ${OPENAL_LIBRARY})
+	endif ()
+
+	find_package (Sqlite3)
+	if (SQLITE3_FOUND)
+	  include_directories(${SQLITE3_INCLUDE_DIRS})
+	  target_link_libraries (${PROJECT_NAME} ${SQLITE3_LIBRARIES})
+	endif ()
+
+	find_package (VorbisFile)
+	if (VORBISFILE_FOUND)
+	  include_directories(${VORBISFILE_INCLUDE_DIR})
+	  target_link_libraries (${PROJECT_NAME} ${VORBISFILE_LIBRARY})
+    endif ()
+
+	find_package (Vorbis)
+	if (VORBIS_FOUND)
+	  include_directories(${VORBIS_INCLUDE_DIRS})
+	  target_link_libraries (${PROJECT_NAME} ${VORBIS_LIBRARIES})
+	endif ()
+
+	find_package (VPX)
+	if (VPX_FOUND)
+	  include_directories(${VPX_INCLUDE_DIR})
+	  target_link_libraries (${PROJECT_NAME} ${VPX_LIBRARY})
+	endif ()
+
+	find_package (ZLIB)
+	if (ZLIB_FOUND)
+	  include_directories(${ZLIB_INCLUDE_DIR})
+      target_link_libraries (${PROJECT_NAME} ${ZLIB_LIBRARY})
+	endif ()
+
+	find_package (AntTweakBar)
+	if (ANTTWEAKBAR_FOUND)
+	  include_directories(${ANTTWEAKBAR_INCLUDE_DIR})
+      target_link_libraries (${PROJECT_NAME} ${ANTTWEAKBAR_LIBRARY})
+	endif ()
+	
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac)

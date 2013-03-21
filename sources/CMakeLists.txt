@@ -7,6 +7,17 @@ include_directories(${PROJECT_SOURCE_DIR}/sac/libs/glog-gflags)
 link_directories (${PROJECT_BINARY_DIR}/sac)
 link_directories (${PROJECT_BINARY_DIR}/sac/libs/squirrel/lib)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/sac/build/cmake/Modules")
+
+find_package (GLEW)
+if (GLEW_FOUND)
+	  include_directories(${GLEW_INCLUDE_DIR})
+endif ()
+
+	find_package (GLFW)
+	if (GLFW_FOUND)
+	  include_directories(${GLFW_INCLUDE_DIR})
+	endif ()
 
 link_directories (${PROJECT_BINARY_DIR}/sac)
 
