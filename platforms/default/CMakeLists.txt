@@ -1,14 +1,8 @@
 include_directories(${PROJECT_SOURCE_DIR}/sources)
 include_directories(${PROJECT_SOURCE_DIR}/sac)
-include_directories(${PROJECT_SOURCE_DIR}/sac/libs/squirrel/include)
-include_directories(${PROJECT_SOURCE_DIR}/sac/libs/AntTweakBar/include)
-include_directories(${PROJECT_SOURCE_DIR}/sac/libs/glog-gflags)
 link_directories (${PROJECT_BINARY_DIR}/sac)
-link_directories (${PROJECT_BINARY_DIR}/sac/libs/squirrel/lib)
-link_directories (${PROJECT_SOURCE_DIR}/sac/libs/AntTweakBar/lib)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/sac/build/cmake/Modules")
-
 
 file(
 	GLOB
@@ -20,7 +14,7 @@ add_executable(${PROJECT_NAME} ${source_files})
 
 
 #the necessary libs
-set(LIBS_NEEDED GLEW GLFW OpenAL Sqlite3 VorbisFile Vorbis Zlib AntTweakBar Gflags Glog)
+set(LIBS_NEEDED GLEW GLFW OpenAL Sqlite3 VorbisFile Vorbis Zlib AntTweakBar Gflags Glog ogg)
 
 #you shouldn't touch that
 foreach(lib ${LIBS_NEEDED})
@@ -43,4 +37,15 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 	
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac opengl32)
+
+#copy .dll near the .exe
+set(SAC_DLL_POSSIBLE_DIRS $ENV{SAC_DLL_DIR} "{PROJECT_SOURCE_DIR}/../sac_dll_deps")
+foreach (SAC_DLL_DIR ${SAC_DLL_POSSIBLE_DIRS})
+	if (EXISTS ${SAC_DLL_DIR})
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		    COMMAND ${CMAKE_COMMAND} -E copy_directory "${SAC_DLL_DIR}"
+		        "${PROJECT_BINARY_DIR}")
+	endif()
+endforeach()
+
