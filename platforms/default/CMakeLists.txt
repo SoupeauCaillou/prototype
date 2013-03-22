@@ -19,43 +19,21 @@ file(
 add_executable(${PROJECT_NAME} ${source_files})
 
 
+#the necessary libs
+set(LIBS_NEEDED GLEW GLFW OpenAL Sqlite3 VorbisFile Vorbis Zlib AntTweakBar Gflags Glog)
 
-
-find_package (GLEW)
-	if (GLEW_FOUND)
-		  include_directories(${GLEW_INCLUDE_DIR})
-      target_link_libraries (${PROJECT_NAME} ${GLEW_LIBRARY})
+#you shouldn't touch that
+foreach(lib ${LIBS_NEEDED})
+	string(TOUPPER ${lib} LIB) #in uppercase
+	
+	find_package (${lib})
+	if (${LIB}_FOUND)
+	  include_directories(${${LIB}_INCLUDE_DIR})
+	  target_link_libraries (${PROJECT_NAME} ${${LIB}_LIBRARY})
 	endif ()
+endforeach()
 
-	find_package (GLFW)
-	if (GLFW_FOUND)
-	  include_directories(${GLFW_INCLUDE_DIR})
-      target_link_libraries (${PROJECT_NAME} ${GLFW_LIBRARY})
-	endif ()
-
-	find_package (OpenAL)
-	if (OPENAL_FOUND)
-		include_directories(${OPENAL_INCLUDE_DIR})
-        target_link_libraries (${PROJECT_NAME} ${OPENAL_LIBRARY})
-	endif ()
-
-	find_package (Sqlite3)
-	if (SQLITE3_FOUND)
-	  include_directories(${SQLITE3_INCLUDE_DIR})
-	  target_link_libraries (${PROJECT_NAME} ${SQLITE3_LIBRARY})
-	endif ()
-
-	find_package (VorbisFile)
-	if (VORBISFILE_FOUND)
-	  include_directories(${VORBISFILE_INCLUDE_DIR})
-	  target_link_libraries (${PROJECT_NAME} ${VORBISFILE_LIBRARY})
-    endif ()
-
-	find_package (Vorbis)
-	if (VORBIS_FOUND)
-	  include_directories(${VORBIS_INCLUDE_DIR})
-	  target_link_libraries (${PROJECT_NAME} ${VORBIS_LIBRARY})
-	endif ()
+#particular libs
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	find_package (VPX)
 	if (VPX_FOUND)
@@ -63,16 +41,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	  target_link_libraries (${PROJECT_NAME} ${VPX_LIBRARY})
 	endif ()
 endif()
-	find_package (ZLIB)
-	if (ZLIB_FOUND)
-	  include_directories(${ZLIB_INCLUDE_DIR})
-      target_link_libraries (${PROJECT_NAME} ${ZLIB_LIBRARY})
-	endif ()
 
-	find_package (AntTweakBar)
-	if (ANTTWEAKBAR_FOUND)
-	  include_directories(${ANTTWEAKBAR_INCLUDE_DIR})
-      target_link_libraries (${PROJECT_NAME} ${ANTTWEAKBAR_LIBRARY})
-	endif ()
 	
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac)
