@@ -169,6 +169,12 @@ void PrototypeGame::tick(float dt) {
         ADD_COMPONENT(eq, Physics);
         PHYSICS(eq)->mass = MathUtil::RandomFloat();
         PHYSICS(eq)->gravity = Vector2(0, -1);
+		
+		ADD_COMPONENT(eq, AutoDestroy);
+        AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
+        AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
+        AUTO_DESTROY(eq)->params.area.w = TRANSFORM(camera)->size.X;
+        AUTO_DESTROY(eq)->params.area.h = TRANSFORM(camera)->size.Y;
     }
 }
 
