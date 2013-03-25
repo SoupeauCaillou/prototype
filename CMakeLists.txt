@@ -6,7 +6,7 @@ string (TOUPPER "${CMAKE_SYSTEM_NAME}" VarPlatform)
 
 #set flags
 if (NOT EMSCRIPTEN_BUILD)
-	ADD_DEFINITIONS(-D${VarPlatform}=1 -DDEBUG=1 -DENABLE_LOG=1 -DENABLE_PROFILING=1 -DINGAME_EDITORS=1 -DSAC_ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets/")
+	ADD_DEFINITIONS(-D${VarPlatform}=1 -DDEBUG=1 -DENABLE_LOG=1 -DINGAME_EDITORS=1 -DSAC_ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets/")
 	
 	#Enable warnings - operating system dependent
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
@@ -15,6 +15,7 @@ if (NOT EMSCRIPTEN_BUILD)
 	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		message ("Building for Linux")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -W -g -O0")
+		ADD_DEFINITIONS(-DENABLE_PROFILING=1)
 	else ()
 		message (WARNING "Building for unknown platform: ${CMAKE_SYSTEM_NAME}")
 
