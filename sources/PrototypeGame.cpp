@@ -68,6 +68,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 }
 
 Entity camera;
+Entity timer;
 
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
@@ -89,6 +90,18 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
     
+	
+	timer = theEntityManager.CreateEntity("timer");
+    ADD_COMPONENT(timer, Transformation);
+    TRANSFORM(timer)->z = .9;
+    TRANSFORM(timer)->size = Vector2(2.,2.);
+    TRANSFORM(timer)->position = Vector2(5., -5);
+    ADD_COMPONENT(timer, TextRendering);
+	TEXT_RENDERING(timer)->hide = false;
+	TEXT_RENDERING(timer)->text = "0";
+	TEXT_RENDERING(timer)->charHeight = 0.5;
+	TEXT_RENDERING(timer)->cameraBitMask = 0xffff;
+
     quickInit();
 }
 
@@ -131,6 +144,16 @@ void PrototypeGame::tick(float dt) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
     }
+
+	//update the timer
+	static float time = 0.f;
+	time += dt;
+	std::stringstream a;
+	a << time << "s";
+	
+	TEXT_RENDERING(timer)->text = a.str();
+
+
     { static int i=0;
         //std::cout << "Nombre d'entité = " << ++i << std::endl;
 
