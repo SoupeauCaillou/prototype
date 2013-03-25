@@ -35,7 +35,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	  target_link_libraries (${PROJECT_NAME} ${VPX_LIBRARY})
 	endif ()
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	target_link_libraries (sac opengl32)
+	target_link_libraries (${PROJECT_NAME} opengl32 Winmm)
 endif()
 
 IF(APPLE)

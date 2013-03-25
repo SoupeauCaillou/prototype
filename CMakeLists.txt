@@ -11,7 +11,7 @@ if (NOT EMSCRIPTEN_BUILD)
 	#Enable warnings - operating system dependent
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
 		message ("Building for Windows [TODO add C++11 flag]")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /D NOMINMAX")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /D NOMINMAX /D NOGDI /D WIN32_LEAN_AND_MEAN ")
 	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		message ("Building for Linux")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -W -g -O0")
