@@ -38,10 +38,22 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	target_link_libraries (sac opengl32)
 endif()
 
+IF(APPLE)
+   #SET(GUI_TYPE MACOSX_BUNDLE)
+   INCLUDE_DIRECTORIES ( /Developer/Headers/FlatCarbon )
+   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+   FIND_LIBRARY(OPENGL_LIBRARY OpenGL )
+   FIND_LIBRARY(IOKIT_LIBRARY IOKit )
+   MARK_AS_ADVANCED (COCOA_LIBRARY
+                     OPENGL_LIBRARY
+                     IOKIT_LIBRARY)
+   SET(EXTRA_LIBS ${COCOA_LIBRARY} ${OPENGL_LIBRARY} ${IOKIT_LIBRARY} c)
+ENDIF (APPLE)
 
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac ${EXTRA_LIBS})
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	target_link_libraries(${PROJECT_NAME} opengl32)
 	#copy .dll near the .exe
 	set(SAC_DLL_POSSIBLE_DIRS $ENV{SAC_DLLS_DIR} "{PROJECT_SOURCE_DIR}/../sac_dlls_dep")
 	foreach (SAC_DLLS_DIR ${SAC_DLL_POSSIBLE_DIRS})
