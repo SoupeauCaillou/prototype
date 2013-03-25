@@ -14,7 +14,7 @@ add_executable(${PROJECT_NAME} ${source_files})
 
 
 #the necessary libs
-set(LIBS_NEEDED GLEW GLFW OpenAL Sqlite3 VorbisFile Vorbis ZLIB AntTweakBar Gflags Glog Ogg)
+set(LIBS_NEEDED GLEW GLFW OpenAL Sqlite3 VorbisFile Vorbis ZLIB AntTweakBar Ogg)
 
 #you shouldn't touch that
 foreach(lib ${LIBS_NEEDED})

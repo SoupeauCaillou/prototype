@@ -5,7 +5,7 @@ link_directories (${PROJECT_BINARY_DIR}/sac)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/sac/build/cmake/Modules")
 
 #the necessary libs
-set(LIBS_NEEDED GLEW GLFW Glog AntTweakBar)
+set(LIBS_NEEDED GLEW GLFW AntTweakBar)
 
 #you shouldn't touch that
 foreach(lib ${LIBS_NEEDED})
