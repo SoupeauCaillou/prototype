@@ -34,10 +34,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	  include_directories(${VPX_INCLUDE_DIR})
 	  target_link_libraries (${PROJECT_NAME} ${VPX_LIBRARY})
 	endif ()
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	target_link_libraries (sac opengl32)
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac opengl32)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	#copy .dll near the .exe
