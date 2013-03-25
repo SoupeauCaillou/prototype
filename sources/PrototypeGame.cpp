@@ -94,13 +94,13 @@ void PrototypeGame::init(const uint8_t*, int) {
 	timer = theEntityManager.CreateEntity("timer");
     ADD_COMPONENT(timer, Transformation);
     TRANSFORM(timer)->z = .9;
-    TRANSFORM(timer)->size = Vector2(2.,2.);
-    TRANSFORM(timer)->position = Vector2(5., -5);
+    TRANSFORM(timer)->position = Vector2(9., -5);
     ADD_COMPONENT(timer, TextRendering);
 	TEXT_RENDERING(timer)->hide = false;
 	TEXT_RENDERING(timer)->text = "0";
-	TEXT_RENDERING(timer)->charHeight = 0.5;
+	TEXT_RENDERING(timer)->charHeight = 2;
 	TEXT_RENDERING(timer)->cameraBitMask = 0xffff;
+	TEXT_RENDERING(timer)->positioning = TextRenderingComponent::RIGHT;
 
     quickInit();
 }
@@ -149,6 +149,7 @@ void PrototypeGame::tick(float dt) {
 	static float time = 0.f;
 	time += dt;
 	std::stringstream a;
+	a.precision(3);
 	a << time << "s";
 	
 	TEXT_RENDERING(timer)->text = a.str();
