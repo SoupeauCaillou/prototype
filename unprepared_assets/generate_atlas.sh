@@ -43,4 +43,4 @@ split -d -b 1024K /tmp/$1.pvr $1.pkm.
 mv $1.pkm.0* ../assets/
 
 
-cp -v /tmp/$1.desc ../assets/
+cp -v /tmp/$1.atlas ../assets/
