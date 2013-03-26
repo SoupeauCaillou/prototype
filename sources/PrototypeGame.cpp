@@ -146,11 +146,13 @@ void PrototypeGame::tick(float dt) {
     }
 
 	//update the timer
-	static float time = 0.f;
-	time += dt;
+	static double timeElapsed = 0.;
+
+    std::cout << dt <<  "+ " << timeElapsed << std::endl;
+	timeElapsed += dt;
 	std::stringstream a;
 	a.precision(3);
-	a << time << "s";
+	a << timeElapsed << "s";
 	
 	TEXT_RENDERING(timer)->text = a.str();
 
