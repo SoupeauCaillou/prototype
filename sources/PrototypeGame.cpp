@@ -52,6 +52,11 @@
 
 #define ZOOM 1
 
+//global variables
+Entity camera;
+Entity timer;
+
+
 PrototypeGame::PrototypeGame() : Game() {
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
@@ -66,9 +71,6 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     // init font
     loadFont(gameThreadContext->assetAPI, "typo");
 }
-
-Entity camera;
-Entity timer;
 
 void PrototypeGame::init(const uint8_t*, int) {
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
@@ -113,6 +115,7 @@ void PrototypeGame::quickInit() {
 void PrototypeGame::changeState(State::Enum newState) {
     if (newState == currentState)
         return;
+
     state2manager[currentState]->willExit(newState);
     state2manager[currentState]->exit(newState);
     state2manager[newState]->willEnter(currentState);
@@ -146,18 +149,21 @@ void PrototypeGame::tick(float dt) {
     }
 
 	//update the timer
-	static double timeElapsed = 0.;
-
-    std::cout << dt <<  "+ " << timeElapsed << std::endl;
+	static float timeElapsed = 0.f;
 	timeElapsed += dt;
+
+    //update the text from the entity
 	std::stringstream a;
-	a.precision(3);
-	a << timeElapsed << "s";
-	
+    a << (int)timeElapsed << ".";
+    //keep only 2 digits after the '.'
+	a.precision(2);
+    a.fill('0');
+	a << (int)(100 * (timeElapsed - (int)timeElapsed)) % 100 << "s";
 	TEXT_RENDERING(timer)->text = a.str();
 
 
-    { static int i=0;
+    { 
+        //static int i=0;
         //std::cout << "Nombre d'entité = " << ++i << std::endl;
 
         Entity eq = theEntityManager.CreateEntity();
@@ -165,7 +171,7 @@ void PrototypeGame::tick(float dt) {
         TRANSFORM(eq)->z = 0.5;
         TRANSFORM(eq)->size = Vector2(0.5,0.5);
         TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
-      ADD_COMPONENT(eq, Rendering);
+        ADD_COMPONENT(eq, Rendering);
         RENDERING(eq)->color = Color::random();
         RENDERING(eq)->hide = false;
         RENDERING(eq)->cameraBitMask = 0xffff;
