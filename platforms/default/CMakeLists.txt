@@ -53,14 +53,18 @@ ENDIF (APPLE)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}common sac ${EXTRA_LIBS})
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	#link to opengl.dll library
 	target_link_libraries(${PROJECT_NAME} opengl32)
-	#copy .dll near the .exe
-	set(SAC_DLL_POSSIBLE_DIRS $ENV{SAC_DLLS_DIR} "{PROJECT_SOURCE_DIR}/../sac_dlls_dep")
+	#copy the libs .dll near the .exe
+	set(SAC_DLL_POSSIBLE_DIRS $ENV{SAC_DLLS_DIR} "${PROJECT_SOURCE_DIR}/../sac_dlls_dep")
 	foreach (SAC_DLLS_DIR ${SAC_DLL_POSSIBLE_DIRS})
 		if (EXISTS ${SAC_DLLS_DIR})
-			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			    COMMAND ${CMAKE_COMMAND} -E copy_directory "${SAC_DLLS_DIR}"
-			        "${PROJECT_BINARY_DIR}")
+			set(BIN_DIR "${PROJECT_BINARY_DIR}/platforms/default/")
+			foreach (BUILD_TYPE "Debug" "Release")
+				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_directory "${SAC_DLLS_DIR}"
+			    "${BIN_DIR}/${BUILD_TYPE}")
+			endforeach()
 		endif()
 	endforeach()
 endif()
