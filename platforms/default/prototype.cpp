@@ -20,5 +20,9 @@
 #include "app/AppSetup.h"
 
 int main(int argc, char** argv) {
-    return launchGame("Prototype", new PrototypeGame(), CONTEXT_WANT_ASSET_API, argc, argv);
+    if (initGame("Prototype")) {
+        LOGE("Failed to initialize");
+        return 1;
+    }
+    return launchGame(new PrototypeGame(), CONTEXT_WANT_ASSET_API, argc, argv);
 }
