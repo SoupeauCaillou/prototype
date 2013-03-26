@@ -59,29 +59,29 @@ void LogoStateManager::setup() {
 
     ADD_COMPONENT(logo, Rendering);
     ADD_COMPONENT(logo, Transformation);
-    TRANSFORM(logo)->position = Vector2::Zero;
-    TRANSFORM(logo)->size = Vector2(PlacementHelper::ScreenHeight * 0.8, PlacementHelper::ScreenHeight * 0.8);
+    TRANSFORM(logo)->position = glm::vec2(0.0f);
+    TRANSFORM(logo)->size = glm::vec2(PlacementHelper::ScreenHeight * 0.8f, PlacementHelper::ScreenHeight * 0.8f);
     TRANSFORM(logo)->z = 0.9;
     //-RENDERING(logo)->texture = theRenderingSystem.loadTextureFile("soupe_logo");
 
     ADD_COMPONENT(logobg, Rendering);
     ADD_COMPONENT(logobg, Transformation);
-    TRANSFORM(logobg)->position = Vector2::Zero;
-    TRANSFORM(logobg)->size = Vector2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
+    TRANSFORM(logobg)->position = glm::vec2(0.0f);
+    TRANSFORM(logobg)->size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
     RENDERING(logobg)->color = Color(0,0,0);
     TRANSFORM(logobg)->z = 0.89;
 
     ADD_COMPONENT(logofade, Rendering);
     ADD_COMPONENT(logofade, Transformation);
-    TRANSFORM(logofade)->position = Vector2::Zero;
-    TRANSFORM(logofade)->size = Vector2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
+    TRANSFORM(logofade)->position = glm::vec2(0.0f);
+    TRANSFORM(logofade)->size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
     RENDERING(logofade)->color = Color(0,0,0);
     TRANSFORM(logofade)->z = 1;
 
     ADD_COMPONENT(datas->animLogo, Transformation);
     //-TRANSFORM(datas->animLogo)->size = TRANSFORM(datas->logo)->size * theRenderingSystem.getTextureSize("soupe_logo2_365_331")
         //-* Vector2(1.0 / theRenderingSystem.getTextureSize("soupe_logo").X, 1.0 / theRenderingSystem.getTextureSize("soupe_logo").Y);
-    Vector2 offset = Vector2(-10 / 800.0, 83/869.0) * TRANSFORM(datas->logo)->size;
+    glm::vec2 offset = glm::vec2(-10.0f / 800.0f, 83/869.0f) * TRANSFORM(datas->logo)->size;
     TRANSFORM(datas->animLogo)->position = TRANSFORM(datas->logo)->position + offset;
     TRANSFORM(datas->animLogo)->z = 0.91;
     ADD_COMPONENT(datas->animLogo, Rendering);

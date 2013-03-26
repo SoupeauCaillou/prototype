@@ -18,9 +18,9 @@
 */
 #include "PrototypeGame.h"
 #include <sstream>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 #include <base/TouchInputManager.h>
-#include <base/MathUtil.h>
 #include <base/EntityManager.h>
 #include <base/TimeUtil.h>
 #include <base/PlacementHelper.h>
@@ -86,8 +86,8 @@ void PrototypeGame::init(const uint8_t*, int) {
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
-    TRANSFORM(camera)->size = Vector2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
-    TRANSFORM(camera)->position = Vector2(0, 0);
+    TRANSFORM(camera)->size = glm::vec2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
+    TRANSFORM(camera)->position = glm::vec2(0, 0);
     TRANSFORM(camera)->z = 1;
     ADD_COMPONENT(camera, Camera);
     CAMERA(camera)->enable = true;
@@ -99,7 +99,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 	timer = theEntityManager.CreateEntity("timer");
     ADD_COMPONENT(timer, Transformation);
     TRANSFORM(timer)->z = .9;
-    TRANSFORM(timer)->position = Vector2(9., -5);
+    TRANSFORM(timer)->position = glm::vec2(9., -5);
     ADD_COMPONENT(timer, TextRendering);
 	TEXT_RENDERING(timer)->show = true;
 	TEXT_RENDERING(timer)->text = "0";
@@ -172,21 +172,21 @@ void PrototypeGame::tick(float dt) {
         Entity eq = theEntityManager.CreateEntity();
         ADD_COMPONENT(eq, Transformation);
         TRANSFORM(eq)->z = 0.5;
-        TRANSFORM(eq)->size = Vector2(0.5,0.5);
-        TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
+        TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
+        TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
         ADD_COMPONENT(eq, Rendering);
         RENDERING(eq)->color = Color::random();
         RENDERING(eq)->show = true;
         RENDERING(eq)->cameraBitMask = 0xffff;
         ADD_COMPONENT(eq, Physics);
-        PHYSICS(eq)->mass = MathUtil::RandomFloat();
-        PHYSICS(eq)->gravity = Vector2(0, -1);
+        PHYSICS(eq)->mass = 1;
+        PHYSICS(eq)->gravity = glm::vec2(0, -1);
 
 		ADD_COMPONENT(eq, AutoDestroy);
         AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
         AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
-        AUTO_DESTROY(eq)->params.area.w = TRANSFORM(camera)->size.X;
-        AUTO_DESTROY(eq)->params.area.h = TRANSFORM(camera)->size.Y;
+        AUTO_DESTROY(eq)->params.area.w = TRANSFORM(camera)->size.x;
+        AUTO_DESTROY(eq)->params.area.h = TRANSFORM(camera)->size.y;
     }
 }
 

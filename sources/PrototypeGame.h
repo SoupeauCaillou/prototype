@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-#include "base/MathUtil.h"
 #include "base/Game.h"
 
 #include "systems/RenderingSystem.h"
