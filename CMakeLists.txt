@@ -6,10 +6,11 @@ string (TOUPPER "${CMAKE_SYSTEM_NAME}" VarPlatform)
 
 #set flags
 if (NOT EMSCRIPTEN_BUILD)
-	ADD_DEFINITIONS(-D${VarPlatform}=1 -DDEBUG=1 -DENABLE_LOG=1 -DINGAME_EDITORS=1 -DSAC_ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets/")
-	
+	ADD_DEFINITIONS(-DSAC_${VarPlatform}=1 -DSAC_DEBUG=1 -DSAC_ENABLE_LOG=1
+     -DSAC_INGAME_EDITORS=1 -DSAC_ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets/")
+
 	#Enable warnings - operating system dependent
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows") 
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 		message ("Building for Windows [TODO add C++11 flag]")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /D NOMINMAX /D NOGDI /D WIN32_LEAN_AND_MEAN ")
 	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -22,11 +23,11 @@ if (NOT EMSCRIPTEN_BUILD)
 	else ()
 		message (WARNING "Building for unknown platform: ${CMAKE_SYSTEM_NAME}")
 
-		
+
 	endif()
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/sources)
+include_directories(sources)
 
 #get the differents CMakeLists.txt
 	#everyone
