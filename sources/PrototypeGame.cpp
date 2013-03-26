@@ -70,6 +70,9 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadAtlas("font", true);
     // init font
     loadFont(gameThreadContext->assetAPI, "typo");
+    std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
+    for(auto it=files.begin(); it!=files.end(); ++it)
+        std::cout << *it << std::endl;
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
@@ -91,8 +94,8 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
-    
-	
+
+
 	timer = theEntityManager.CreateEntity("timer");
     ADD_COMPONENT(timer, Transformation);
     TRANSFORM(timer)->z = .9;
@@ -162,7 +165,7 @@ void PrototypeGame::tick(float dt) {
 	TEXT_RENDERING(timer)->text = a.str();
 
 
-    { 
+    {
         //static int i=0;
         //std::cout << "Nombre d'entité = " << ++i << std::endl;
 
@@ -178,7 +181,7 @@ void PrototypeGame::tick(float dt) {
         ADD_COMPONENT(eq, Physics);
         PHYSICS(eq)->mass = MathUtil::RandomFloat();
         PHYSICS(eq)->gravity = Vector2(0, -1);
-		
+
 		ADD_COMPONENT(eq, AutoDestroy);
         AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
         AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
