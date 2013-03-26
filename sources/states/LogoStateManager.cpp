@@ -86,7 +86,7 @@ void LogoStateManager::setup() {
     TRANSFORM(datas->animLogo)->z = 0.91;
     ADD_COMPONENT(datas->animLogo, Rendering);
     //-RENDERING(datas->animLogo)->texture = theRenderingSystem.loadTextureFile("soupe_logo2_365_331");
-    RENDERING(datas->animLogo)->hide = true;
+    RENDERING(datas->animLogo)->show = false;
     ADD_COMPONENT(datas->animLogo, Sound);
 }
 
@@ -104,7 +104,7 @@ bool LogoStateManager::transitionCanEnter(State::Enum) {
 #define FADE 0.5
 void LogoStateManager::enter(State::Enum) {
     datas->duration = 0;
-    RENDERING(datas->logo)->hide = RENDERING(datas->logobg)->hide = RENDERING(datas->logofade)->hide = false;
+    RENDERING(datas->logo)->show = RENDERING(datas->logobg)->show = RENDERING(datas->logofade)->show = true;
     datas->step = LogoStep0;
 }
 
@@ -120,14 +120,14 @@ State::Enum LogoStateManager::update(float dt) {
             RENDERING(datas->logofade)->color.a = 1 - (duration / FADE);
             if (duration > FADE) {
                 duration = 0;
-                RENDERING(datas->logofade)->hide = true;
+                RENDERING(datas->logofade)->show = false;
                 datas->step = LogoStep1;
             }
             break;
         case LogoStep1:
             if (duration > 0.8) {
                 duration = 0;
-                RENDERING(datas->animLogo)->hide = false;
+                RENDERING(datas->animLogo)->show = true;
                 datas->step = LogoStep2;
             }
             break;
@@ -148,14 +148,14 @@ State::Enum LogoStateManager::update(float dt) {
         case LogoStep4:
             if (duration > 0.05) {
                 duration = 0;
-                RENDERING(datas->animLogo)->hide = true;
+                RENDERING(datas->animLogo)->show = false;
                 datas->step = LogoStep5;
             }
             break;
         case LogoStep5:
             if (duration > 0.6) {
                 duration = 0;
-                RENDERING(datas->logofade)->hide = false;
+                RENDERING(datas->logofade)->show = true;
                 datas->step = LogoStep6;
             }
             break;

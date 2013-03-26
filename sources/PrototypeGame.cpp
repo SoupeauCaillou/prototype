@@ -98,7 +98,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     TRANSFORM(timer)->z = .9;
     TRANSFORM(timer)->position = Vector2(9., -5);
     ADD_COMPONENT(timer, TextRendering);
-	TEXT_RENDERING(timer)->hide = false;
+	TEXT_RENDERING(timer)->show = true;
 	TEXT_RENDERING(timer)->text = "0";
 	TEXT_RENDERING(timer)->charHeight = 2;
 	TEXT_RENDERING(timer)->cameraBitMask = 0xffff;
@@ -173,7 +173,7 @@ void PrototypeGame::tick(float dt) {
         TRANSFORM(eq)->position = Vector2(MathUtil::RandomFloatInRange(-10, 10), MathUtil::RandomFloatInRange(-10, 10));
         ADD_COMPONENT(eq, Rendering);
         RENDERING(eq)->color = Color::random();
-        RENDERING(eq)->hide = false;
+        RENDERING(eq)->show = true;
         RENDERING(eq)->cameraBitMask = 0xffff;
         ADD_COMPONENT(eq, Physics);
         PHYSICS(eq)->mass = MathUtil::RandomFloat();
