@@ -13,8 +13,9 @@ message ("Building for ${VarPlatform}")
 
 include(sac/build/cmake/toolchains/${VarPlatform}.cmake)
 
-ADD_DEFINITIONS(-DSAC_${VARPLATFORM})
+add_definitions(-DSAC_${VARPLATFORM})
 
+set(DESKTOP_BUILD 1) #should nont be here
 add_subdirectory(sac/build/cmake)
 
 
