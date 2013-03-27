@@ -2,45 +2,36 @@ cmake_minimum_required(VERSION 2.6)
 
 project(Prototype)
 
-string (TOUPPER "${CMAKE_SYSTEM_NAME}" VarPlatform)
+string (TOLOWER "${CMAKE_SYSTEM_NAME}" VarPlatform)
+string (TOUPPER "${CMAKE_SYSTEM_NAME}" VARPLATFORM)
 
-#set flags
-if (NOT EMSCRIPTEN_BUILD)
-	ADD_DEFINITIONS(-DSAC_${VarPlatform}=1 -DSAC_DEBUG=1 -DSAC_ENABLE_LOG=1
-     -DSAC_INGAME_EDITORS=1 -DSAC_ASSETS_DIR="${CMAKE_SOURCE_DIR}/assets/")
-
-	#Enable warnings - operating system dependent
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-		message ("Building for Windows [TODO add C++11 flag]")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /D NOMINMAX /D NOGDI /D WIN32_LEAN_AND_MEAN ")
-	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-		message ("Building for Linux")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -W -g -O0")
-		ADD_DEFINITIONS(-DENABLE_PROFILING=1)
-	elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		message ("Building for MacOSX")
-		set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -g -O0 -fno-exceptions")
-	else ()
-		message (WARNING "Building for unknown platform: ${CMAKE_SYSTEM_NAME}")
-
-
-	endif()
+if (EMSCRIPTEN_BUILD) 
+	set (VarPlatform "emscripten")
 endif()
 
-include_directories(sources)
+message ("Building for ${VarPlatform}")
+
+include(sac/build/cmake/toolchains/${VarPlatform}.cmake)
+
+ADD_DEFINITIONS(-DSAC_${VARPLATFORM})
+
+add_subdirectory(sac/build/cmake)
+
+
+#include_directories(sources)
 
 #get the differents CMakeLists.txt
 	#everyone
-	add_subdirectory(sources)
+#	add_subdirectory(sources)
 
-	if (ANDROID_BUILD)
-		add_subdirectory(platforms/android)
-	elseif (EMSCRIPTEN_BUILD)
-		add_subdirectory(platforms/emscripten)
-	else ()
+#	if (ANDROID_BUILD)
+#		add_subdirectory(platforms/android)
+#	elseif (EMSCRIPTEN_BUILD)
+#		add_subdirectory(platforms/emscripten)
+#	else ()
 		#default version (linux - windows)
-		add_subdirectory(platforms/default)
-	endif()
+#		add_subdirectory(platforms/default)
+#	endif()
 
 	#sac
-	add_subdirectory(sac/build/cmake)
+#	add_subdirectory(sac/build/cmake)
