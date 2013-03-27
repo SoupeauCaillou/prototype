@@ -16,7 +16,7 @@ include(sac/build/cmake/toolchains/${VarPlatform}.cmake)
 add_definitions(-DSAC_${VARPLATFORM})
 
 set(DESKTOP_BUILD 1) #should nont be here
-add_subdirectory(sac/build/cmake)
+include(sac/build/cmake/CMakeLists.txt)
 
 
 #include_directories(sources)
