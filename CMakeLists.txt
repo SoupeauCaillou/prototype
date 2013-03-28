@@ -2,37 +2,31 @@ cmake_minimum_required(VERSION 2.6)
 
 project(Prototype)
 
-string (TOLOWER "${CMAKE_SYSTEM_NAME}" VarPlatform)
-string (TOUPPER "${CMAKE_SYSTEM_NAME}" VARPLATFORM)
+#list of the supported OS
+SET(SUPPORTED_TARGETS linux android emscripten windows mac)
 
-if (EMSCRIPTEN_BUILD) 
-	set (VarPlatform "emscripten")
+#check that target has been set
+if (NOT TARGET)
+    message(SEND_ERROR "No target defined! Aborting. Targets available: ${SUPPORTED_TARGETS}.
+    Example: cmake . -DTARGET=linux")
+    return()
 endif()
 
-message ("Building for ${VarPlatform}")
 
-include(sac/build/cmake/toolchains/${VarPlatform}.cmake)
+string (TOLOWER "${TARGET}" varplatform)
+string (TOUPPER "${TARGET}" VARPLATFORM)
 
+#check it's supported yet
+LIST(FIND SUPPORTED_TARGETS varplatform target_in_list)
+message("${target_in_list}")
+if (target_in_list EQUAL -1)
+    message(SEND_ERROR "${varplatform} not in supported targets: ${SUPPORTED_TARGETS}")
+    return()
+endif()
+
+message ("Building for ${varplatform}")
 add_definitions(-DSAC_${VARPLATFORM})
 
-set(DESKTOP_BUILD 1) #should nont be here
+
+include(sac/build/cmake/toolchains/${varplatform}.cmake)
 include(sac/build/cmake/CMakeLists.txt)
-
-
-#include_directories(sources)
-
-#get the differents CMakeLists.txt
-	#everyone
-#	add_subdirectory(sources)
-
-#	if (ANDROID_BUILD)
-#		add_subdirectory(platforms/android)
-#	elseif (EMSCRIPTEN_BUILD)
-#		add_subdirectory(platforms/emscripten)
-#	else ()
-		#default version (linux - windows)
-#		add_subdirectory(platforms/default)
-#	endif()
-
-	#sac
-#	add_subdirectory(sac/build/cmake)
