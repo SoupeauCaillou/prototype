@@ -24,5 +24,5 @@ int main(int argc, char** argv) {
         LOGE("Failed to initialize");
         return 1;
     }
-    return launchGame(new PrototypeGame(), CONTEXT_WANT_ASSET_API, argc, argv);
+    return launchGame(new PrototypeGame(), CONTEXT_WANT_ASSET_API | CONTEXT_WANT_LOCALIZE_API, argc, argv);
 }

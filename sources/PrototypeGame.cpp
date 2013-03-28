@@ -152,18 +152,19 @@ void PrototypeGame::tick(float dt) {
     }
 
 	//update the timer
-	static float timeElapsed = 0.f;
-	timeElapsed += dt;
+    {
+    	static float timeElapsed = 0.f;
+    	timeElapsed += dt;
 
-    //update the text from the entity
-	std::stringstream a;
-    a << (int)timeElapsed << ".";
-    //keep only 2 digits after the '.'
-    a.width(2);
-    a.fill('0'); //fill with '0'
-	a << (int)(100 * (timeElapsed - (int)timeElapsed)) % 100 << "s";
-	TEXT_RENDERING(timer)->text = a.str();
-
+        //update the text from the entity
+    	std::stringstream a;
+        a << gameThreadContext->localizeAPI->text("time") << ": " << (int)timeElapsed << ".";
+        //keep only 2 digits after the '.'
+        a.width(2);
+        a.fill('0'); //fill with '0'
+    	a << (int)(100 * (timeElapsed - (int)timeElapsed)) % 100 << "s";
+    	TEXT_RENDERING(timer)->text = a.str();
+    }
 
     {
         //static int i=0;
