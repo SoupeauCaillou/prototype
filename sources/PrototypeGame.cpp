@@ -159,8 +159,8 @@ void PrototypeGame::tick(float dt) {
 	std::stringstream a;
     a << (int)timeElapsed << ".";
     //keep only 2 digits after the '.'
-	a.precision(2);
-    a.fill('0');
+    a.width(2);
+    a.fill('0'); //fill with '0'
 	a << (int)(100 * (timeElapsed - (int)timeElapsed)) % 100 << "s";
 	TEXT_RENDERING(timer)->text = a.str();
 
