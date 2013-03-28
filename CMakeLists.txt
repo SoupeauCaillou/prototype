@@ -5,21 +5,24 @@ project(Prototype)
 #list of the supported OS
 SET(SUPPORTED_TARGETS linux android emscripten windows mac)
 
-#check that target has been set
+#if target = NULL then target = current OS
 if (NOT TARGET)
-    message(SEND_ERROR "No target defined! Aborting. Targets available: ${SUPPORTED_TARGETS}.
+    message("No target defined! Targets available: ${SUPPORTED_TARGETS}.
     Example: cmake . -DTARGET=linux")
-    return()
+
+    string (TOLOWER "${CMAKE_SYSTEM_NAME}" varplatform)
+    string (TOUPPER "${CMAKE_SYSTEM_NAME}" VARPLATFORM)
+    message("Assuming your OS platform: ${varplatform}")
+else()
+    string (TOLOWER "${TARGET}" varplatform)
+    string (TOUPPER "${TARGET}" VARPLATFORM)
 endif()
-
-
-string (TOLOWER "${TARGET}" varplatform)
-string (TOUPPER "${TARGET}" VARPLATFORM)
 
 LIST(FIND SUPPORTED_TARGETS ${varplatform} target_in_list)
 #check it's supported yet
 if (target_in_list EQUAL -1)
     message(SEND_ERROR "${varplatform} not in supported targets: ${SUPPORTED_TARGETS}")
+
     return()
 endif()
 
