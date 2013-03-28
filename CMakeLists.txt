@@ -16,8 +16,8 @@ endif()
 string (TOLOWER "${TARGET}" varplatform)
 string (TOUPPER "${TARGET}" VARPLATFORM)
 
+LIST(FIND SUPPORTED_TARGETS ${varplatform} target_in_list)
 #check it's supported yet
-LIST(FIND SUPPORTED_TARGETS varplatform target_in_list)
 message("${target_in_list}")
 if (target_in_list EQUAL -1)
     message(SEND_ERROR "${varplatform} not in supported targets: ${SUPPORTED_TARGETS}")
