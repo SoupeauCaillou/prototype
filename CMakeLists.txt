@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(Prototype)
 
 #list of the supported OS
-SET(SUPPORTED_TARGETS linux android emscripten windows mac)
+SET(SUPPORTED_TARGETS linux android emscripten windows darwin)
 
 #if target = NULL then target = current OS
 if (NOT TARGET)
