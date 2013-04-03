@@ -17,7 +17,7 @@
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sac/android/sacjnilib.h"
+#include "android/sacjnilib.h"
 #include "../sources/PrototypeGame.h"
 
 class PrototypeGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
@@ -40,6 +40,6 @@ GameHolder* GameHolder::build() {
 	PrototypeGameThreadJNIEnvCtx* jniCtx = new PrototypeGameThreadJNIEnvCtx();
 	hld->gameThreadJNICtx = jniCtx;
 
-	hld->game = new PrototypeGame(&hld->renderThreadJNICtx.asset);
+	hld->game = new PrototypeGame();
 	return hld;
 };

@@ -28,9 +28,9 @@ import android.widget.EditText;
 
 public class PrototypeActivity extends SacActivity {
 	static {
-        System.loadLibrary("prototype");
+        System.loadLibrary("sac");
     }
-	
+	 
 	@Override
 	public boolean canShowAppRater() {
 		return false;
