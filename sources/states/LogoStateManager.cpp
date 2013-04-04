@@ -101,7 +101,8 @@ bool LogoStateManager::transitionCanEnter(State::Enum) {
     return true;
 }
 
-#define FADE 0.5
+const float FADE = 0.5;
+
 void LogoStateManager::enter(State::Enum) {
     datas->duration = 0;
     RENDERING(datas->logo)->show = RENDERING(datas->logobg)->show = RENDERING(datas->logofade)->show = true;

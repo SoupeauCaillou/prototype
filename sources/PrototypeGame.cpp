@@ -32,7 +32,6 @@
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/AnimationSystem.h"
-#include "systems/AutoDestroySystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/ADSRSystem.h"
 #include "systems/TextRenderingSystem.h"
@@ -40,7 +39,6 @@
 #include "systems/TaskAISystem.h"
 #include "systems/MusicSystem.h"
 #include "systems/ContainerSystem.h"
-#include "systems/PhysicsSystem.h"
 #include "systems/ParticuleSystem.h"
 #include "systems/ScrollingSystem.h"
 #include "systems/MorphingSystem.h"
@@ -49,18 +47,14 @@
 #include "systems/GraphSystem.h"
 #include "api/NetworkAPI.h"
 
-#include <iomanip>
 
 #define ZOOM 1
-
-//global variables
-Entity camera;
-Entity timer;
 
 
 PrototypeGame::PrototypeGame() : Game() {
    state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
    state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
+   state2manager.insert(std::make_pair(State::Social, new SocialStateManager(this)));
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -95,18 +89,6 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
-
-
-	timer = theEntityManager.CreateEntity("timer");
-    ADD_COMPONENT(timer, Transformation);
-    TRANSFORM(timer)->z = .9;
-    TRANSFORM(timer)->position = glm::vec2(9., -5);
-    ADD_COMPONENT(timer, TextRendering);
-	TEXT_RENDERING(timer)->show = true;
-	TEXT_RENDERING(timer)->text = "0";
-	TEXT_RENDERING(timer)->charHeight = 2;
-	TEXT_RENDERING(timer)->cameraBitMask = 0xffff;
-	TEXT_RENDERING(timer)->positioning = TextRenderingComponent::RIGHT;
 
     quickInit();
 }
@@ -150,42 +132,6 @@ void PrototypeGame::tick(float dt) {
 
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->backgroundUpdate(dt);
-    }
-
-	//update the timer
-    {
-    static float timeElapsed = 0.f;
-    timeElapsed += dt;
-
-    //update the text from the entity
-    std::stringstream a;
-    a << gameThreadContext->localizeAPI->text("time") << ": " <<
-        std::fixed << std::setprecision(2) << timeElapsed << " s";
-    TEXT_RENDERING(timer)->text = a.str();
-    }
-
-    {
-        //static int i=0;
-        //std::cout << "Nombre d'entité = " << ++i << std::endl;
-
-        Entity eq = theEntityManager.CreateEntity();
-        ADD_COMPONENT(eq, Transformation);
-        TRANSFORM(eq)->z = 0.5;
-        TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
-        TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
-        ADD_COMPONENT(eq, Rendering);
-        RENDERING(eq)->color = Color::random();
-        RENDERING(eq)->show = true;
-        RENDERING(eq)->cameraBitMask = 0xffff;
-        ADD_COMPONENT(eq, Physics);
-        PHYSICS(eq)->mass = 1;
-        PHYSICS(eq)->gravity = glm::vec2(0, -1);
-
-		ADD_COMPONENT(eq, AutoDestroy);
-        AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
-        AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
-        AUTO_DESTROY(eq)->params.area.w = TRANSFORM(camera)->size.x;
-        AUTO_DESTROY(eq)->params.area.h = TRANSFORM(camera)->size.y;
     }
 }
 

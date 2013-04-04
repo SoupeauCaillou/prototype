@@ -44,6 +44,7 @@ class PrototypeGame : public Game {
 		void backPressed();
         void changeState(State::Enum newState);
 
+        Entity camera;
 	private:
         State::Enum currentState, overrideNextState;
         std::map<State::Enum, StateManager*> state2manager;

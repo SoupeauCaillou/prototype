@@ -26,6 +26,7 @@ namespace State {
       Transition,
       Logo,
       Menu,
+      Social,
    };
 }
 
@@ -79,3 +80,4 @@ class TransitionStateManager {
 
 DEF_STATE_MANAGER(Logo)
 DEF_STATE_MANAGER(Menu)
+DEF_STATE_MANAGER(Social)
