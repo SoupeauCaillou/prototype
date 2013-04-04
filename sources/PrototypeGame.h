@@ -35,6 +35,7 @@ class PrototypeGame : public Game {
 	public:
 		PrototypeGame();
 
+        bool wantsAPI(ContextAPI::Enum api) const;
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
         void quickInit();

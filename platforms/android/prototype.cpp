@@ -19,7 +19,7 @@
 
 #include "android/sacjnilib.h"
 #include "../sources/PrototypeGame.h"
-
+/*
 class PrototypeGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
 	public:
 
@@ -33,13 +33,14 @@ class PrototypeGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
 		GameThreadJNIEnvCtx::uninit(pEnv);
     }
 };
-
+*/
 GameHolder* GameHolder::build() {
 	GameHolder* hld = new GameHolder();
 
+/*
 	PrototypeGameThreadJNIEnvCtx* jniCtx = new PrototypeGameThreadJNIEnvCtx();
 	hld->gameThreadJNICtx = jniCtx;
-
+*/
 	hld->game = new PrototypeGame();
 	return hld;
 };

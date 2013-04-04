@@ -30,7 +30,7 @@ public class PrototypeActivity extends SacActivity {
 	static {
         System.loadLibrary("sac");
     }
-	 
+  
 	@Override
 	public boolean canShowAppRater() {
 		return false;
@@ -40,8 +40,8 @@ public class PrototypeActivity extends SacActivity {
 	public int[] getSwarmBoards() {
 		return null;
 	}
-	
-	@Override
+  
+	@Override 
 	public int getSwarmGameID() {
 		return 0;
 	}

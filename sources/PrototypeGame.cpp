@@ -57,6 +57,17 @@ PrototypeGame::PrototypeGame() : Game() {
    state2manager.insert(std::make_pair(State::Social, new SocialStateManager(this)));
 }
 
+bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
+    switch (api) {
+        case ContextAPI::Asset:
+        case ContextAPI::Localize:
+        case ContextAPI::Communication:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void PrototypeGame::sacInit(int windowW, int windowH) {
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
@@ -64,7 +75,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     theRenderingSystem.loadAtlas("font", true);
     // init font
-    loadFont(gameThreadContext->assetAPI, "typo");
+    loadFont(renderThreadContext->assetAPI, "typo");
     std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
     for(auto it=files.begin(); it!=files.end(); ++it)
         std::cout << *it << std::endl;
