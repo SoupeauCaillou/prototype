@@ -21,6 +21,8 @@
 #include <sstream>
 #include <vector>
 
+#include <base/EntityManager.h>
+
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
 #include <systems/RenderingSystem.h>

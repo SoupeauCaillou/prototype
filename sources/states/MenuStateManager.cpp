@@ -22,12 +22,14 @@
 #include <vector>
 #include <iomanip>
 
+#include <base/EntityManager.h>
+
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
 #include <systems/RenderingSystem.h>
 #include <systems/TextRenderingSystem.h>
-#include "systems/AutoDestroySystem.h"
-#include "systems/PhysicsSystem.h"
+#include <systems/AutoDestroySystem.h>
+#include <systems/PhysicsSystem.h>
 
 #include "PrototypeGame.h"
 
