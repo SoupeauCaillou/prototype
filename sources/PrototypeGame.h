@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "base/Game.h"
+#include "base/GameContext.h"
 
 #include "systems/RenderingSystem.h"
 
