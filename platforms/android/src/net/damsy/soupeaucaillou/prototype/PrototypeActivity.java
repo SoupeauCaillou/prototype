@@ -19,87 +19,34 @@
 package net.damsy.soupeaucaillou.prototype;
 
 import net.damsy.soupeaucaillou.SacActivity;
-import android.content.SharedPreferences;
+import net.damsy.soupeaucaillou.api.AssetAPI;
+import net.damsy.soupeaucaillou.api.LocalizeAPI;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
 public class PrototypeActivity extends SacActivity {
 	static {
         System.loadLibrary("sac");
     }
-  
-	@Override
-	public boolean canShowAppRater() {
-		return false;
-	}
-	
-	@Override
-	public int[] getSwarmBoards() {
-		return null;
-	}
-  
-	@Override 
-	public int getSwarmGameID() {
-		return 0;
-	}
-	
-	@Override
-	public String getSwarmGameKey() {
-		return null;
-	}
-	
-	@Override
-	public String getBundleKey() {
-		return PROTOTYPE_BUNDLE_KEY;
-	}
 
     public int getLayoutId() {
         return R.layout.main;
     }
-	public int getParentViewId() {
-        return R.id.parent_frame;
-    }
-    public String getCharboostAppId() {
-        return null;
-    }
-    public String getRevMobAppId() {
-        return null;
-    }
-	public String getCharboostAppSignature() {
-        return null;
-    }
-    public View getNameInputView() {
-        return null;
-    }
-	public EditText getNameInputEdit() {
-        return null;
-    }
-	public Button getNameInputButton() {
-        return null;
-    }
-	public boolean giftizEnabled() {
-		return false;
-	}
-	
-	static public final String Tag = "Prototype";
-	static final String PROTOTYPE_BUNDLE_KEY = "plop";
-	static public final String PROTOTYPE_SHARED_PREF = "PrototypePref";
-	
-	byte[] renderingSystemState;
-	
-	static public View playerNameInputView;
-	static public EditText nameEdit;
-	static public String playerName;
 
-	public SharedPreferences preferences;
-	static public Button[] oldName;
+	public int getParentViewId() {
+        return R.id.parent_frame; 
+    }
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
-		Log.i(PrototypeActivity.Tag, "-> onCreate [" + savedInstanceState);
+		SacActivity.LogI("-> onCreate [" + savedInstanceState);
         super.onCreate(savedInstanceState);
+        
+        // Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
+	
+	@Override
+	public void initRequiredAPI() {
+		AssetAPI.Instance().init(getAssets());
+		LocalizeAPI.Instance().init(this.getResources(), this.getPackageName());
+	}
 }
