@@ -52,9 +52,9 @@
 
 
 PrototypeGame::PrototypeGame() : Game() {
-   state2manager.insert(std::make_pair(State::Logo, new LogoStateManager(this)));
-   state2manager.insert(std::make_pair(State::Menu, new MenuStateManager(this)));
-   state2manager.insert(std::make_pair(State::Social, new SocialStateManager(this)));
+   state2manager.insert(std::make_pair(State::Logo, new LogoState(this)));
+   state2manager.insert(std::make_pair(State::Menu, new MenuState(this)));
+   state2manager.insert(std::make_pair(State::SocialCenter, new SocialCenterState(this)));
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {

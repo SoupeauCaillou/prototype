@@ -26,7 +26,7 @@ namespace State {
       Transition,
       Logo,
       Menu,
-      Social,
+      SocialCenter,
    };
 }
 
@@ -50,11 +50,11 @@ class StateManager {
         PrototypeGame* game;
 };
 
-#define DEF_STATE_MANAGER(state) \
-    class state##StateManager : public StateManager {\
+#define DEF_NEW_STATE(state) \
+    class state##State : public StateManager {\
         public:\
-            state##StateManager(PrototypeGame* _game);\
-            ~state##StateManager();\
+            state##State(PrototypeGame* _game);\
+            ~state##State();\
             void setup();\
             void willEnter(State::Enum from);\
             void enter(State::Enum from);\
@@ -65,8 +65,8 @@ class StateManager {
             bool transitionCanExit(State::Enum from);\
             bool transitionCanEnter(State::Enum to);\
         private:\
-            struct state##StateManagerDatas;\
-            state##StateManagerDatas* datas;\
+            struct state##StateDatas;\
+            state##StateDatas* datas;\
     };\
 
 class TransitionStateManager {
@@ -78,6 +78,6 @@ class TransitionStateManager {
         StateManager* from, *to;
 };
 
-DEF_STATE_MANAGER(Logo)
-DEF_STATE_MANAGER(Menu)
-DEF_STATE_MANAGER(Social)
+DEF_NEW_STATE(Logo)
+DEF_NEW_STATE(Menu)
+DEF_NEW_STATE(SocialCenter)

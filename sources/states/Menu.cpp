@@ -33,19 +33,19 @@
 
 #include "PrototypeGame.h"
 
-struct MenuStateManager::MenuStateManagerDatas {
+struct MenuState::MenuStateDatas {
     Entity socialBtn, timer;
 };
 
-MenuStateManager::MenuStateManager(PrototypeGame* game) : StateManager(State::Menu, game) {
-    datas = new MenuStateManagerDatas;
+MenuState::MenuState(PrototypeGame* game) : StateManager(State::Menu, game) {
+    datas = new MenuStateDatas;
 }
 
-MenuStateManager::~MenuStateManager() {
+MenuState::~MenuState() {
     delete datas;
 }
 
-void MenuStateManager::setup() {
+void MenuState::setup() {
     Entity socialBtn = datas->socialBtn = theEntityManager.CreateEntity("socialBtn");
     ADD_COMPONENT(socialBtn, Transformation);
     TRANSFORM(socialBtn)->z = .9;
@@ -73,16 +73,16 @@ void MenuStateManager::setup() {
 ///----------------------------------------------------------------------------//
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
-void MenuStateManager::willEnter(State::Enum) {
+void MenuState::willEnter(State::Enum) {
 
 }
 
-bool MenuStateManager::transitionCanEnter(State::Enum) {
+bool MenuState::transitionCanEnter(State::Enum) {
     return true;
 }
 
 
-void MenuStateManager::enter(State::Enum) {
+void MenuState::enter(State::Enum) {
     TEXT_RENDERING(datas->timer)->show =
     BUTTON(datas->socialBtn)->enabled =
     RENDERING(datas->socialBtn)->show = true;
@@ -92,10 +92,10 @@ void MenuStateManager::enter(State::Enum) {
 ///----------------------------------------------------------------------------//
 ///--------------------- UPDATE SECTION ---------------------------------------//
 ///----------------------------------------------------------------------------//
-void MenuStateManager::backgroundUpdate(float) {
+void MenuState::backgroundUpdate(float) {
 }
 
-State::Enum MenuStateManager::update(float dt) {
+State::Enum MenuState::update(float dt) {
     //update the timer
     {
     static float timeElapsed = 0.f;
@@ -133,7 +133,7 @@ State::Enum MenuStateManager::update(float dt) {
     }
 
    if (BUTTON(datas->socialBtn)->clicked)
-        return State::Social;
+        return State::SocialCenter;
 
     return State::Menu;
 }
@@ -142,14 +142,14 @@ State::Enum MenuStateManager::update(float dt) {
 ///----------------------------------------------------------------------------//
 ///--------------------- EXIT SECTION -----------------------------------------//
 ///----------------------------------------------------------------------------//
-void MenuStateManager::willExit(State::Enum) {
+void MenuState::willExit(State::Enum) {
 }
 
-bool MenuStateManager::transitionCanExit(State::Enum) {
+bool MenuState::transitionCanExit(State::Enum) {
     return true;
 }
 
-void MenuStateManager::exit(State::Enum) {
+void MenuState::exit(State::Enum) {
     TEXT_RENDERING(datas->timer)->show =
     BUTTON(datas->socialBtn)->enabled =
     RENDERING(datas->socialBtn)->show = false;

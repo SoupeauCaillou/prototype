@@ -30,19 +30,19 @@
 #include "PrototypeGame.h"
 #include <api/CommunicationAPI.h>
 
-struct SocialStateManager::SocialStateManagerDatas {
+struct SocialCenterState::SocialCenterStateDatas {
     Entity menuBtn;
 };
 
-SocialStateManager::SocialStateManager(PrototypeGame* game) : StateManager(State::Social, game) {
-    datas = new SocialStateManagerDatas;
+SocialCenterState::SocialCenterState(PrototypeGame* game) : StateManager(State::SocialCenter, game) {
+    datas = new SocialCenterStateDatas;
 }
 
-SocialStateManager::~SocialStateManager() {
+SocialCenterState::~SocialCenterState() {
     delete datas;
 }
 
-void SocialStateManager::setup() {
+void SocialCenterState::setup() {
     Entity menuBtn = datas->menuBtn = theEntityManager.CreateEntity("menuBtn");
     ADD_COMPONENT(menuBtn, Transformation);
     TRANSFORM(menuBtn)->z = .9;
@@ -57,7 +57,7 @@ void SocialStateManager::setup() {
 ///----------------------------------------------------------------------------//
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
-void SocialStateManager::willEnter(State::Enum) {
+void SocialCenterState::willEnter(State::Enum) {
     if (game->gameThreadContext->communicationAPI != 0) {
         for (Score::Struct score : game->gameThreadContext->communicationAPI->getScores(0, Score::ALL, 1, 10)) {
             LOGI(score);
@@ -65,12 +65,12 @@ void SocialStateManager::willEnter(State::Enum) {
     }
 }
 
-bool SocialStateManager::transitionCanEnter(State::Enum) {
+bool SocialCenterState::transitionCanEnter(State::Enum) {
     return true;
 }
 
 
-void SocialStateManager::enter(State::Enum) {
+void SocialCenterState::enter(State::Enum) {
     BUTTON(datas->menuBtn)->enabled =
     RENDERING(datas->menuBtn)->show = true;
 }
@@ -79,28 +79,28 @@ void SocialStateManager::enter(State::Enum) {
 ///----------------------------------------------------------------------------//
 ///--------------------- UPDATE SECTION ---------------------------------------//
 ///----------------------------------------------------------------------------//
-void SocialStateManager::backgroundUpdate(float) {
+void SocialCenterState::backgroundUpdate(float) {
 }
 
-State::Enum SocialStateManager::update(float) {
+State::Enum SocialCenterState::update(float) {
     if (BUTTON(datas->menuBtn)->clicked)
         return State::Menu;
-    return State::Social;
+    return State::SocialCenter;
 }
 
 
 ///----------------------------------------------------------------------------//
 ///--------------------- EXIT SECTION -----------------------------------------//
 ///----------------------------------------------------------------------------//
-void SocialStateManager::willExit(State::Enum) {
+void SocialCenterState::willExit(State::Enum) {
 
 }
 
-bool SocialStateManager::transitionCanExit(State::Enum) {
+bool SocialCenterState::transitionCanExit(State::Enum) {
     return true;
 }
 
-void SocialStateManager::exit(State::Enum) {
+void SocialCenterState::exit(State::Enum) {
     BUTTON(datas->menuBtn)->enabled =
     RENDERING(datas->menuBtn)->show = false;
 }

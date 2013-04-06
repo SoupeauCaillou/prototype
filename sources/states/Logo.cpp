@@ -36,22 +36,22 @@ enum LogoStep {
     LogoStep6,
 };
 
-struct LogoStateManager::LogoStateManagerDatas {
+struct LogoState::LogoStateDatas {
     Entity logo, animLogo, logobg, logofade;
     float duration;
 
     LogoStep step;
 };
 
-LogoStateManager::LogoStateManager(PrototypeGame* game) : StateManager(State::Logo, game) {
-    datas = new LogoStateManagerDatas();
+LogoState::LogoState(PrototypeGame* game) : StateManager(State::Logo, game) {
+    datas = new LogoStateDatas();
 }
 
-LogoStateManager::~LogoStateManager() {
+LogoState::~LogoState() {
     delete datas;
 }
 
-void LogoStateManager::setup() {
+void LogoState::setup() {
     Entity logo = datas->logo = theEntityManager.CreateEntity("logo");
     Entity logobg = datas->logobg = theEntityManager.CreateEntity("logobg");
     Entity logofade = datas->logofade = theEntityManager.CreateEntity("logofade");
@@ -94,16 +94,16 @@ void LogoStateManager::setup() {
 ///----------------------------------------------------------------------------//
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
-void LogoStateManager::willEnter(State::Enum) {
+void LogoState::willEnter(State::Enum) {
 }
 
-bool LogoStateManager::transitionCanEnter(State::Enum) {
+bool LogoState::transitionCanEnter(State::Enum) {
     return true;
 }
 
 const float FADE = 0.5;
 
-void LogoStateManager::enter(State::Enum) {
+void LogoState::enter(State::Enum) {
     datas->duration = 0;
     RENDERING(datas->logo)->show = RENDERING(datas->logobg)->show = RENDERING(datas->logofade)->show = true;
     datas->step = LogoStep0;
@@ -113,7 +113,7 @@ void LogoStateManager::enter(State::Enum) {
 ///----------------------------------------------------------------------------//
 ///--------------------- UPDATE SECTION ---------------------------------------//
 ///----------------------------------------------------------------------------//
-State::Enum LogoStateManager::update(float dt) {
+State::Enum LogoState::update(float dt) {
     float& duration = (datas->duration += dt);
 
     switch (datas->step) {
@@ -170,7 +170,7 @@ State::Enum LogoStateManager::update(float dt) {
     return State::Logo;
 }
 
-void LogoStateManager::backgroundUpdate(float) {
+void LogoState::backgroundUpdate(float) {
 
 }
 
@@ -178,7 +178,7 @@ void LogoStateManager::backgroundUpdate(float) {
 ///----------------------------------------------------------------------------//
 ///--------------------- EXIT SECTION -----------------------------------------//
 ///----------------------------------------------------------------------------//
-void LogoStateManager::willExit(State::Enum) {
+void LogoState::willExit(State::Enum) {
     theEntityManager.DeleteEntity(datas->logo);
     theEntityManager.DeleteEntity(datas->logobg);
     theEntityManager.DeleteEntity(datas->animLogo);
@@ -186,11 +186,11 @@ void LogoStateManager::willExit(State::Enum) {
     //-theRenderingSystem.unloadAtlas("logo");
 }
 
-bool LogoStateManager::transitionCanExit(State::Enum) {
+bool LogoState::transitionCanExit(State::Enum) {
     return true;
 }
 
-void LogoStateManager::exit(State::Enum) {
+void LogoState::exit(State::Enum) {
 
 }
 
