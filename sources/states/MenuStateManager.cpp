@@ -110,7 +110,7 @@ State::Enum MenuStateManager::update(float dt) {
 
     {
         //static int i=0;
-        //std::cout << "Nombre d'entité = " << ++i << std::endl;
+        //LOGV(1, "Nombre d'entité = " << ++i);
 
         Entity eq = theEntityManager.CreateEntity();
         ADD_COMPONENT(eq, Transformation);
