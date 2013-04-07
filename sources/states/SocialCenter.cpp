@@ -1,4 +1,4 @@
-/*
+    /*
     This file is part of RecursiveRunner.
 
     @author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
@@ -58,11 +58,11 @@ void SocialCenterState::setup() {
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
 void SocialCenterState::willEnter(State::Enum) {
-    if (game->gameThreadContext->communicationAPI != 0) {
-        for (Score::Struct score : game->gameThreadContext->communicationAPI->getScores(0, Score::ALL, 1, 10)) {
+    /*if (game->gameThreadContext->communicationAPI != 0) {
+       for (Score::Struct score : game->gameThreadContext->communicationAPI->getScores(0, Score::ALL, 1, 10)) {
             LOGI(score);
         }
-    }
+    }*/
 }
 
 bool SocialCenterState::transitionCanEnter(State::Enum) {
