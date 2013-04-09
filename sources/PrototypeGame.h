@@ -20,8 +20,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
-#include <map>
 
 #include "base/Game.h"
 #include "base/GameContext.h"
@@ -31,7 +29,8 @@
 #include "api/LocalizeAPI.h"
 #include "api/AdAPI.h"
 #include "api/NameInputAPI.h"
-#include "util/ImageLoader.h"
+
+#include "states/StateManager.h"
 
 #include "PixelManager.h"
 
@@ -54,4 +53,6 @@ class PrototypeGame : public Game {
         State::Enum currentState, overrideNextState;
         std::map<State::Enum, StateManager*> state2manager;
         TransitionStateManager transitionManager;
+
+        PixelManager *pixelManager;
 };

@@ -1,20 +1,20 @@
 /*
-	This file is part of Heriswap.
+    This file is part of Heriswap.
 
-	@author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
-	@author Soupe au Caillou - Gautier Pelloux-Prayer
+    @author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
+    @author Soupe au Caillou - Gautier Pelloux-Prayer
 
-	Heriswap is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3.
+    Heriswap is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, version 3.
 
-	Heriswap is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Heriswap is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PrototypeGame.h"
 #include <sstream>
@@ -26,7 +26,6 @@
 #include <base/TimeUtil.h>
 #include <base/PlacementHelper.h>
 #include "util/IntersectionUtil.h"
-#include "api/AssetAPI.h"
 
 #include "api/NameInputAPI.h"
 
@@ -48,13 +47,10 @@
 #include "systems/GraphSystem.h"
 #include "api/NetworkAPI.h"
 
-
 #define ZOOM 1
 
+
 PrototypeGame::PrototypeGame() : Game() {
-   state2manager.insert(std::make_pair(State::Logo, new LogoState(this)));
-   state2manager.insert(std::make_pair(State::Menu, new MenuState(this)));
-   state2manager.insert(std::make_pair(State::SocialCenter, new SocialCenterState(this)));
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -69,7 +65,6 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
-    LOGI("SAC engine initialisation begins...")
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
@@ -77,21 +72,9 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     theRenderingSystem.loadAtlas("font", true);
     // init font
     loadFont(renderThreadContext->assetAPI, "typo");
-    std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
-    for(auto it=files.begin(); it!=files.end(); ++it)
-        std::cout << *it << std::endl;
-    LOGI("SAC engine initialisation done.")
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
-    LOGI("PrototypeGame initialisation begins...")
-    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
-        it->second->setup();
-    }
-
-    overrideNextState = State::Invalid;
-    currentState = State::Menu;
-
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
@@ -105,43 +88,31 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
 
     quickInit();
-    LOGI("PrototypeGame initialisation done.")
+
+    pixelManager = new PixelManager("1.png", gameThreadContext->assetAPI);
+}
+
+void PrototypeGame::quickInit() {
 }
 
 void PrototypeGame::changeState(State::Enum newState) {
-    if (newState == currentState)
-        return;
-
-    state2manager[currentState]->willExit(newState);
-    state2manager[currentState]->exit(newState);
-    state2manager[newState]->willEnter(currentState);
-    state2manager[newState]->enter(currentState);
-    currentState = newState;
 }
 
 void PrototypeGame::backPressed() {
 }
 
 void PrototypeGame::togglePause(bool) {
+
 }
 
 void PrototypeGame::tick(float dt) {
-    if (currentState != State::Transition) {
-        State::Enum newState = state2manager[currentState]->update(dt);
-
-        if (newState != currentState) {
-            state2manager[currentState]->willExit(newState);
-            transitionManager.enter(state2manager[currentState], state2manager[newState]);
-            currentState = State::Transition;
-        }
-    } else if (transitionManager.transitionFinished(&currentState)) {
-        transitionManager.exit();
-        state2manager[currentState]->enter(transitionManager.from->state);
+    if (theTouchInputManager.wasTouched(0) && !theTouchInputManager.isTouched(0))
+    {
+        glm::vec2 p = theTouchInputManager.getTouchLastPosition(0);
+        pixelManager->clickedOn(p);
     }
 
-    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
-        it->second->backgroundUpdate(dt);
-    }
+    pixelManager->updatePixel();
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
