@@ -13,7 +13,7 @@
     </Compiler>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <OutputPath>bin\Debug</OutputPath>
     <DefineSymbols>DEBUG MONODEVELOP</DefineSymbols>
     <SourceDirectory>.</SourceDirectory>
@@ -29,7 +29,6 @@
     <CompileTarget>Bin</CompileTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="sources\DepthLayer.h" />
     <Compile Include="sources\PrototypeGame.h" />
     <Compile Include="android\prototype.cpp" />
     <Compile Include="sources\PixelManager.cpp" />
@@ -47,4 +46,19 @@
     <None Include="android\Application.mk" />
     <None Include="sources\PixelManager.h" />
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <MonoDevelop.Autotools.MakefileInfo IntegrationEnabled="True" RelativeMakefileName="build/Makefile">
+          <BuildFilesVar />
+          <DeployFilesVar />
+          <ResourcesVar />
+          <OthersVar />
+          <GacRefVar />
+          <AsmRefVar />
+          <ProjectRefVar />
+        </MonoDevelop.Autotools.MakefileInfo>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

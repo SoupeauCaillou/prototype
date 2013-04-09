@@ -18,10 +18,10 @@
 */
 #include "PrototypeGame.h"
 #include <sstream>
-
-#include <base/Log.h>
+#include <iomanip>
+#include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 #include <base/TouchInputManager.h>
-#include <base/MathUtil.h>
 #include <base/EntityManager.h>
 #include <base/TimeUtil.h>
 #include <base/PlacementHelper.h>
@@ -32,6 +32,7 @@
 
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/AnimationSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/ADSRSystem.h"
 #include "systems/TextRenderingSystem.h"
@@ -39,38 +40,83 @@
 #include "systems/TaskAISystem.h"
 #include "systems/MusicSystem.h"
 #include "systems/ContainerSystem.h"
-#include "systems/PhysicsSystem.h"
 #include "systems/ParticuleSystem.h"
 #include "systems/ScrollingSystem.h"
 #include "systems/MorphingSystem.h"
+#include "systems/CameraSystem.h"
+#include "systems/NetworkSystem.h"
+#include "systems/GraphSystem.h"
+#include "api/NetworkAPI.h"
 
-#include <cmath>
 
-PrototypeGame::PrototypeGame(AssetAPI* ast) : Game() {
-    asset = ast;
+#define ZOOM 1
+
+PrototypeGame::PrototypeGame() : Game() {
+   state2manager.insert(std::make_pair(State::Logo, new LogoState(this)));
+   state2manager.insert(std::make_pair(State::Menu, new MenuState(this)));
+   state2manager.insert(std::make_pair(State::SocialCenter, new SocialCenterState(this)));
+}
+
+bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
+    switch (api) {
+        case ContextAPI::Asset:
+        case ContextAPI::Localize:
+        case ContextAPI::Communication:
+            return true;
+        default:
+            return false;
+    }
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
+    LOGI("SAC engine initialisation begins...")
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
-    theRenderingSystem.loadAtlas("alphabet", true);
-    //-theRenderingSystem.loadAtlas("logo", false);
-
+    theRenderingSystem.loadAtlas("font", true);
     // init font
-    loadFont(asset, "typo");
+    loadFont(renderThreadContext->assetAPI, "typo");
+    std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
+    for(auto it=files.begin(); it!=files.end(); ++it)
+        std::cout << *it << std::endl;
+    LOGI("SAC engine initialisation done.")
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
-    quickInit();
+    LOGI("PrototypeGame initialisation begins...")
+    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
+        it->second->setup();
+    }
 
-    std::stringstream s;
-    s << MathUtil::RandomIntInRange(1, 3) << ".png";
-    thePixelManager = new PixelManager(s.str(), asset);
+    overrideNextState = State::Invalid;
+    currentState = State::Menu;
+
+    // default camera
+    camera = theEntityManager.CreateEntity("camera1");
+    ADD_COMPONENT(camera, Transformation);
+    TRANSFORM(camera)->size = glm::vec2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
+    TRANSFORM(camera)->position = glm::vec2(0, 0);
+    TRANSFORM(camera)->z = 1;
+    ADD_COMPONENT(camera, Camera);
+    CAMERA(camera)->enable = true;
+    CAMERA(camera)->order = 2;
+    CAMERA(camera)->id = 0;
+    CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+    quickInit();
+    LOGI("PrototypeGame initialisation done.")
 }
 
-void PrototypeGame::quickInit() {
+void PrototypeGame::changeState(State::Enum newState) {
+    if (newState == currentState)
+        return;
+
+    state2manager[currentState]->willExit(newState);
+    state2manager[currentState]->exit(newState);
+    state2manager[newState]->willEnter(currentState);
+    state2manager[newState]->enter(currentState);
+    currentState = newState;
 }
 
 void PrototypeGame::backPressed() {
@@ -80,24 +126,22 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
-    Vector2 p = Vector2(-999, -999);
+    if (currentState != State::Transition) {
+        State::Enum newState = state2manager[currentState]->update(dt);
 
-    if (theTouchInputManager.isTouched(0))
-    {
-        p = theTouchInputManager.getTouchLastPosition(0);
+        if (newState != currentState) {
+            state2manager[currentState]->willExit(newState);
+            transitionManager.enter(state2manager[currentState], state2manager[newState]);
+            currentState = State::Transition;
+        }
+    } else if (transitionManager.transitionFinished(&currentState)) {
+        transitionManager.exit();
+        state2manager[currentState]->enter(transitionManager.from->state);
     }
 
-    if (theTouchInputManager.wasTouched(0) && !theTouchInputManager.isTouched(0) && p != Vector2(-999, -999))
-    {
-        thePixelManager->clickedOn(p);
+    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
+        it->second->backgroundUpdate(dt);
     }
-
-    thePixelManager->updatePixel();
-    thePixelManager->updatePixel();
-    thePixelManager->updatePixel();
-    thePixelManager->updatePixel();
-    thePixelManager->updatePixel();
-    thePixelManager->updatePixel();
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

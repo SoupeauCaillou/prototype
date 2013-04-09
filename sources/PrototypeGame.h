@@ -23,8 +23,8 @@
 #include <list>
 #include <map>
 
-#include "base/MathUtil.h"
 #include "base/Game.h"
+#include "base/GameContext.h"
 
 #include "systems/RenderingSystem.h"
 
@@ -37,8 +37,9 @@
 
 class PrototypeGame : public Game {
 	public:
-		PrototypeGame(AssetAPI* asset);
+		PrototypeGame();
 
+        bool wantsAPI(ContextAPI::Enum api) const;
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
         void quickInit();
@@ -46,9 +47,11 @@ class PrototypeGame : public Game {
 		void togglePause(bool activate);
         bool willConsumeBackEvent();
 		void backPressed();
-        
-	private:
-		AssetAPI* asset;
+        void changeState(State::Enum newState);
 
-        PixelManager *thePixelManager;
+        Entity camera;
+	private:
+        State::Enum currentState, overrideNextState;
+        std::map<State::Enum, StateManager*> state2manager;
+        TransitionStateManager transitionManager;
 };
