@@ -69,6 +69,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
+    LOGI("SAC engine initialisation begins...")
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
@@ -79,9 +80,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
     for(auto it=files.begin(); it!=files.end(); ++it)
         std::cout << *it << std::endl;
+    LOGI("SAC engine initialisation done.")
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
+    LOGI("PrototypeGame initialisation begins...")
     for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
         it->second->setup();
     }
@@ -102,6 +105,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
 
     quickInit();
+    LOGI("PrototypeGame initialisation done.")
 }
 
 void PrototypeGame::quickInit() {
