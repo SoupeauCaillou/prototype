@@ -1,7 +1,5 @@
 #include "ScoreStorageProxy.h"
 
-#include "util/StorageProxy.h"
-
 #include <base/Log.h>
 
 #include <algorithm>

@@ -18,25 +18,43 @@
 */
 #pragma once
 
+#include "util/StorageProxy.h"
+
 #include <list>
 #include <queue>
 #include <string>
 #include <map>
 
+#include <ostream>
 //to be moved
 struct Score {
     int points;
     int coins;
     std::string name;
+
+    friend bool operator==(const Score & s1, const Score & s2) {
+        return (s1.points == s2.points
+            && s1.coins == s2.coins
+            && s1.name == s2.name);
+    }
+
+    friend std::ostream & operator<<(std::ostream & o, const Score & s) {
+        return o << s.name << "|" << s.points << "|" << s.coins;
+    }
+
 };
 
-class ScoreStorageProxy {
+class ScoreStorageProxy : StorageProxy {
     public:
         ScoreStorageProxy();
 
         std::string getValue(const std::string& columnName);
 
         void setValue(const std::string& columnName, const std::string& value);
+
+        void pushAnElement() {
+            _queue.push(Score());
+        }
 
     public:
         std::queue<Score> _queue;
