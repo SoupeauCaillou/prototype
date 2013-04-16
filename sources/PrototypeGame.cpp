@@ -25,9 +25,12 @@
 #include <base/EntityManager.h>
 #include <base/TimeUtil.h>
 #include <base/PlacementHelper.h>
+
 #include "util/IntersectionUtil.h"
+#include "util/ScoreStorageProxy.h"
 
 #include "api/NameInputAPI.h"
+#include "api/StorageAPI.h"
 
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
@@ -62,6 +65,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Asset:
         case ContextAPI::Localize:
         case ContextAPI::Communication:
+        case ContextAPI::Storage:
             return true;
         default:
             return false;
@@ -73,6 +77,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
+
+    gameThreadContext->storageAPI->init("Prototype");
+    ScoreStorageProxy ssp;
+    gameThreadContext->storageAPI->createTable((StorageProxy*)&ssp);
+
 
     theRenderingSystem.loadAtlas("font", true);
     // init font

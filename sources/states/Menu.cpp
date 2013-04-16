@@ -31,10 +31,14 @@
 #include <systems/AutoDestroySystem.h>
 #include <systems/PhysicsSystem.h>
 
+#include "api/StorageAPI.h"
+#include "util/ScoreStorageProxy.h"
+
 #include "PrototypeGame.h"
 
 struct MenuState::MenuStateDatas {
     Entity socialBtn, timer;
+    float timeElapsed;
 };
 
 MenuState::MenuState(PrototypeGame* game) : StateManager(State::Menu, game) {
@@ -46,6 +50,8 @@ MenuState::~MenuState() {
 }
 
 void MenuState::setup() {
+    datas->timeElapsed = 0.f;
+
     Entity socialBtn = datas->socialBtn = theEntityManager.CreateEntity("socialBtn");
     ADD_COMPONENT(socialBtn, Transformation);
     TRANSFORM(socialBtn)->z = .9;
@@ -74,7 +80,6 @@ void MenuState::setup() {
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
 void MenuState::willEnter(State::Enum) {
-
 }
 
 bool MenuState::transitionCanEnter(State::Enum) {
@@ -98,7 +103,8 @@ void MenuState::backgroundUpdate(float) {
 State::Enum MenuState::update(float dt) {
     //update the timer
     {
-    static float timeElapsed = 0.f;
+    float & timeElapsed = datas->timeElapsed;
+
     timeElapsed += dt;
 
     //update the text from the entity
@@ -143,6 +149,11 @@ State::Enum MenuState::update(float dt) {
 ///--------------------- EXIT SECTION -----------------------------------------//
 ///----------------------------------------------------------------------------//
 void MenuState::willExit(State::Enum) {
+    ScoreStorageProxy ssp;
+    Score s;
+    s.points = datas->timeElapsed;
+    ssp._queue.push(s);
+    game->gameThreadContext->storageAPI->saveEntries((StorageProxy*)&ssp);
 }
 
 bool MenuState::transitionCanExit(State::Enum) {

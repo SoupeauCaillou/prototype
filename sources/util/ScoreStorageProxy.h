@@ -28,18 +28,16 @@
 #include <ostream>
 //to be moved
 struct Score {
-    int points;
-    int coins;
+    float points;
     std::string name;
 
     friend bool operator==(const Score & s1, const Score & s2) {
-        return (s1.points == s2.points
-            && s1.coins == s2.coins
+        return ((s1.points - s2.points) < 0.01f
             && s1.name == s2.name);
     }
 
     friend std::ostream & operator<<(std::ostream & o, const Score & s) {
-        return o << s.name << "|" << s.points << "|" << s.coins;
+        return o << s.name << "|" << s.points;
     }
 
 };
@@ -55,9 +53,24 @@ class ScoreStorageProxy : StorageProxy {
         void pushAnElement() {
             _queue.push(Score());
         }
+        bool popAnElement() {
+            _queue.pop();
+
+            return (! _queue.empty());
+        }
+
+        const std::string & getTableName() {
+            return _tableName;
+        }
+
+        const std::map<std::string, std::string> & getColumnsNameAndType() {
+            return _columnsNameAndType;
+        }
 
     public:
         std::queue<Score> _queue;
+
+    private:
         std::string _tableName;
         std::map<std::string, std::string> _columnsNameAndType;
 };
