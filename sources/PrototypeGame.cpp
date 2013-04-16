@@ -78,7 +78,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
-    gameThreadContext->storageAPI->init("Prototype");
+    gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
     ScoreStorageProxy ssp;
     gameThreadContext->storageAPI->createTable((StorageProxy*)&ssp);
 
