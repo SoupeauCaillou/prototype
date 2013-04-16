@@ -30,16 +30,6 @@
 struct Score {
     float points;
     std::string name;
-
-    friend bool operator==(const Score & s1, const Score & s2) {
-        return ((s1.points - s2.points) < 0.01f
-            && s1.name == s2.name);
-    }
-
-    friend std::ostream & operator<<(std::ostream & o, const Score & s) {
-        return o << s.name << "|" << s.points;
-    }
-
 };
 
 class ScoreStorageProxy : public StorageProxy<Score> {
