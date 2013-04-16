@@ -42,35 +42,11 @@ struct Score {
 
 };
 
-class ScoreStorageProxy : StorageProxy {
+class ScoreStorageProxy : public StorageProxy<Score> {
     public:
         ScoreStorageProxy();
 
         std::string getValue(const std::string& columnName);
 
         void setValue(const std::string& columnName, const std::string& value);
-
-        void pushAnElement() {
-            _queue.push(Score());
-        }
-        bool popAnElement() {
-            _queue.pop();
-
-            return (! _queue.empty());
-        }
-
-        const std::string & getTableName() {
-            return _tableName;
-        }
-
-        const std::map<std::string, std::string> & getColumnsNameAndType() {
-            return _columnsNameAndType;
-        }
-
-    public:
-        std::queue<Score> _queue;
-
-    private:
-        std::string _tableName;
-        std::map<std::string, std::string> _columnsNameAndType;
 };

@@ -80,7 +80,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
     ScoreStorageProxy ssp;
-    gameThreadContext->storageAPI->createTable((StorageProxy*)&ssp);
+    gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
 
     theRenderingSystem.loadAtlas("font", true);

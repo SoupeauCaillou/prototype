@@ -153,7 +153,7 @@ void MenuState::willExit(State::Enum) {
     Score s;
     s.points = datas->timeElapsed;
     ssp._queue.push(s);
-    game->gameThreadContext->storageAPI->saveEntries((StorageProxy*)&ssp);
+    game->gameThreadContext->storageAPI->saveEntries((IStorageProxy*)&ssp);
 }
 
 bool MenuState::transitionCanExit(State::Enum) {

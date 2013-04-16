@@ -1,8 +1,7 @@
 #include "ScoreStorageProxy.h"
 
-#include <base/Log.h>
-
-#include <algorithm>
+#include "base/Log.h"
+#include "base/ObjectSerializer.h"
 
 ScoreStorageProxy::ScoreStorageProxy() {
     _tableName = "Score";
@@ -12,7 +11,7 @@ ScoreStorageProxy::ScoreStorageProxy() {
 
 std::string ScoreStorageProxy::getValue(const std::string& columnName) {
     if (columnName == "points") {
-        return StorageProxy::float2sql(_queue.back().points);
+        return ObjectSerializer<float>::object2string(_queue.back().points);
     } else if (columnName == "name") {
         return _queue.back().name;
     } else {
@@ -23,7 +22,7 @@ std::string ScoreStorageProxy::getValue(const std::string& columnName) {
 
 void ScoreStorageProxy::setValue(const std::string& columnName, const std::string& value) {
     if (columnName == "points") {
-        _queue.back().points = StorageProxy::sql2float(value);
+        _queue.back().points =  ObjectSerializer<float>::string2object(value);
     } else if (columnName == "name") {
         _queue.back().name = value;
     } else {
