@@ -15,7 +15,7 @@ std::string ScoreStorageProxy::getValue(const std::string& columnName) {
     } else if (columnName == "name") {
         return _queue.back().name;
     } else {
-        LOGW("No such table name: " << columnName);
+        LOGW("No such column name: " << columnName);
     }
     return "";
 }
@@ -26,6 +26,6 @@ void ScoreStorageProxy::setValue(const std::string& columnName, const std::strin
     } else if (columnName == "name") {
         _queue.back().name = value;
     } else {
-        LOGW("No such table name: " << columnName);
+        LOGW("No such column name: " << columnName);
     }
 }

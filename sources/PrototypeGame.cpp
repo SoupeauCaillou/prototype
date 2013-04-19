@@ -29,7 +29,6 @@
 #include "util/IntersectionUtil.h"
 #include "util/ScoreStorageProxy.h"
 
-#include "api/NameInputAPI.h"
 #include "api/StorageAPI.h"
 
 #include "systems/TransformationSystem.h"

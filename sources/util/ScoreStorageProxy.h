@@ -25,7 +25,6 @@
 #include <string>
 #include <map>
 
-#include <ostream>
 //to be moved
 struct Score {
     float points;
