@@ -49,6 +49,9 @@
 #include "systems/NetworkSystem.h"
 #include "systems/GraphSystem.h"
 
+#if SAC_INGAME_EDITORS
+#include "util/PrototypeDebugConsole.h"
+#endif
 
 #define ZOOM 1
 
@@ -111,6 +114,10 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+#if SAC_INGAME_EDITORS
+    PrototypeDebugConsole::init();
+#endif
 
     quickInit();
     LOGI("PrototypeGame initialisation done.")
