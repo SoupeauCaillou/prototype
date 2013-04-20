@@ -23,12 +23,18 @@
 #include "systems/TransformationSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/TextRenderingSystem.h"
+#include "systems/GraphSystem.h"
 
 #include "PrototypeGame.h"
 #include "api/CommunicationAPI.h"
 #include "api/StorageAPI.h"
 
+#include "util/ScoreStorageProxy.h"
+
 struct SocialCenterState::SocialCenterStateDatas {
+    Entity graph;
+
     Entity menuBtn;
 };
 
@@ -41,13 +47,29 @@ SocialCenterState::~SocialCenterState() {
 }
 
 void SocialCenterState::setup() {
-    Entity menuBtn = datas->menuBtn = theEntityManager.CreateEntity("menuBtn");
+    Entity menuBtn = datas->menuBtn = theEntityManager.CreateEntity("social_menuBtn");
     ADD_COMPONENT(menuBtn, Transformation);
     TRANSFORM(menuBtn)->z = .9;
     TRANSFORM(menuBtn)->position = glm::vec2(9., -5);
     ADD_COMPONENT(menuBtn, Button);
     ADD_COMPONENT(menuBtn, Rendering);
     RENDERING(menuBtn)->color = Color::random();
+
+    Entity graph = datas->graph = theEntityManager.CreateEntity("social_graph");
+    ADD_COMPONENT(graph, Transformation);
+    TRANSFORM(graph)->z = .9;
+    TRANSFORM(graph)->position = glm::vec2(0., 0);
+
+    ADD_COMPONENT(graph, TextRendering);
+    TEXT_RENDERING(graph)->positioning = TextRenderingComponent::LEFT;
+    TEXT_RENDERING(graph)->maxCharHeight = 0.4;
+    TEXT_RENDERING(graph)->text = "Scores graphic";
+
+    ADD_COMPONENT(graph, Graph);
+    GRAPH(graph)->textureName = theRenderingSystem.loadTextureFile("__scores_graph");
+    GRAPH(graph)->minY = 0;
+    GRAPH(graph)->maxY = 10;
+    GRAPH(graph)->lineColor = Color(1., 0., 0.);
 }
 
 
@@ -56,11 +78,17 @@ void SocialCenterState::setup() {
 ///--------------------- ENTER SECTION ----------------------------------------//
 ///----------------------------------------------------------------------------//
 void SocialCenterState::willEnter(State::Enum) {
-    /*if (game->gameThreadContext->communicationAPI != 0) {
-       for (Score::Struct score : game->gameThreadContext->communicationAPI->getScores(0, Score::ALL, 1, 10)) {
-            LOGI(score);
-        }
-    }*/
+    ScoreStorageProxy ssp;
+    game->gameThreadContext->storageAPI->loadEntries(&ssp, "*", "");
+    int count = -1;
+
+    while (! ssp.isEmpty()) {
+        Score score = ssp._queue.front();
+        LOGI("one more score: " << score.points);
+        GRAPH(datas->graph)->pointsList.push_back(std::pair<int, float>(++count, score.points));
+        ssp.popAnElement();
+    }
+    GRAPH(datas->graph)->reloadTexture = true;
 }
 
 bool SocialCenterState::transitionCanEnter(State::Enum) {
@@ -70,6 +98,7 @@ bool SocialCenterState::transitionCanEnter(State::Enum) {
 
 void SocialCenterState::enter(State::Enum) {
     BUTTON(datas->menuBtn)->enabled =
+    TEXT_RENDERING(datas->graph)->show =
     RENDERING(datas->menuBtn)->show = true;
 }
 
@@ -100,5 +129,6 @@ bool SocialCenterState::transitionCanExit(State::Enum) {
 
 void SocialCenterState::exit(State::Enum) {
     BUTTON(datas->menuBtn)->enabled =
+    TEXT_RENDERING(datas->graph)->show =
     RENDERING(datas->menuBtn)->show = false;
 }
