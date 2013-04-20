@@ -85,6 +85,9 @@ void SocialCenterState::willEnter(State::Enum) {
     game->gameThreadContext->storageAPI->loadEntries(&ssp, "*", "");
     int count = -1;
 
+    //clear the graph before redrawing
+    GRAPH(datas->graph)->pointsList.clear();
+
     while (! ssp.isEmpty()) {
         Score score = ssp._queue.front();
         LOGI("one more score: " << score.points);
