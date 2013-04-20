@@ -17,8 +17,7 @@
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PrototypeGame.h"
-#include <sstream>
-#include <iomanip>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 

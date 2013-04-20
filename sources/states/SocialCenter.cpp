@@ -18,9 +18,6 @@
 */
 #include "StateManager.h"
 
-#include <sstream>
-#include <vector>
-
 #include "base/EntityManager.h"
 
 #include "systems/TransformationSystem.h"
