@@ -58,7 +58,10 @@ void SocialCenterState::setup() {
     Entity graph = datas->graph = theEntityManager.CreateEntity("social_graph");
     ADD_COMPONENT(graph, Transformation);
     TRANSFORM(graph)->z = .9;
+    TRANSFORM(graph)->size = glm::vec2(10,10);
     TRANSFORM(graph)->position = glm::vec2(0., 0);
+
+    ADD_COMPONENT(graph, Rendering);
 
     ADD_COMPONENT(graph, TextRendering);
     TEXT_RENDERING(graph)->positioning = TextRenderingComponent::LEFT;
@@ -66,9 +69,9 @@ void SocialCenterState::setup() {
     TEXT_RENDERING(graph)->text = "Scores graphic";
 
     ADD_COMPONENT(graph, Graph);
-    GRAPH(graph)->textureName = theRenderingSystem.loadTextureFile("__scores_graph");
-    GRAPH(graph)->minY = 0;
-    GRAPH(graph)->maxY = 10;
+    RENDERING(graph)->texture = theRenderingSystem.loadTextureFile("__scores_graph");
+
+    GRAPH(graph)->textureName = "__scores_graph";
     GRAPH(graph)->lineColor = Color(1., 0., 0.);
 }
 
@@ -99,6 +102,7 @@ bool SocialCenterState::transitionCanEnter(State::Enum) {
 void SocialCenterState::enter(State::Enum) {
     BUTTON(datas->menuBtn)->enabled =
     TEXT_RENDERING(datas->graph)->show =
+    RENDERING(datas->graph)->show =
     RENDERING(datas->menuBtn)->show = true;
 }
 
@@ -130,5 +134,6 @@ bool SocialCenterState::transitionCanExit(State::Enum) {
 void SocialCenterState::exit(State::Enum) {
     BUTTON(datas->menuBtn)->enabled =
     TEXT_RENDERING(datas->graph)->show =
+    RENDERING(datas->graph)->show =
     RENDERING(datas->menuBtn)->show = false;
 }
