@@ -5,17 +5,23 @@
 
 #include "base/Log.h"
 
-static void submitRandomScore(void* args) {
+int PrototypeDebugConsole::test = 0;
+
+static void submitRandomScore(void* arg) {
     LOGI("clicked!");
-    /*std::list<std::string> list = (std::list<std::string>)args;
-    for (std::string arg : args) {
-        LOGI(arg);
-    }*/
+
+    if (arg) {
+        LOGI("arg: " << *((int*)arg));
+    }
 }
 
 void PrototypeDebugConsole::init() {
-        DebugConsole::Instance().registerMethod("submitRandomScore", &submitRandomScore);
-        DebugConsole::Instance().registerMethod("random1", &submitRandomScore);
-        DebugConsole::Instance().registerMethod("random29191", &submitRandomScore);
+        TwEnumVal submitRandomScoreModes[] = {
+            {1, "1"},
+            {10, "10"}
+        };
+        TwType type = TwDefineEnum("Argument", submitRandomScoreModes, 2);
+
+        DebugConsole::Instance().registerMethod("submitRandomScore", &submitRandomScore, type, &PrototypeDebugConsole::test);
 }
 #endif

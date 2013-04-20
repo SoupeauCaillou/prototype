@@ -3,6 +3,8 @@
 class PrototypeDebugConsole {
     public:
         static void init();
+
+        static int test;
 };
 
 #endif
