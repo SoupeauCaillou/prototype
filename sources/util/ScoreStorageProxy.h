@@ -37,5 +37,5 @@ class ScoreStorageProxy : public StorageProxy<Score> {
 
         std::string getValue(const std::string& columnName);
 
-        void setValue(const std::string& columnName, const std::string& value);
+        void setValue(const std::string& columnName, const std::string& value, bool pushNewElement = true);
 };

@@ -22,7 +22,8 @@
 #include <vector>
 #include <iomanip>
 
-#include <base/EntityManager.h>
+#include "base/EntityManager.h"
+#include "base/ObjectSerializer.h"
 
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
@@ -30,6 +31,7 @@
 #include <systems/TextRenderingSystem.h>
 #include <systems/AutoDestroySystem.h>
 #include <systems/PhysicsSystem.h>
+
 
 #include "api/StorageAPI.h"
 #include "util/ScoreStorageProxy.h"
@@ -150,9 +152,8 @@ State::Enum MenuState::update(float dt) {
 ///----------------------------------------------------------------------------//
 void MenuState::willExit(State::Enum) {
     ScoreStorageProxy ssp;
-    Score s;
-    s.points = datas->timeElapsed;
-    ssp._queue.push(s);
+    ssp.setValue("points", ObjectSerializer<int>::object2string(datas->timeElapsed), true);
+    datas->timeElapsed = 0.f;
     game->gameThreadContext->storageAPI->saveEntries((IStorageProxy*)&ssp);
 }
 

@@ -21,15 +21,17 @@
 #include <iomanip>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
-#include <base/TouchInputManager.h>
-#include <base/EntityManager.h>
-#include <base/TimeUtil.h>
-#include <base/PlacementHelper.h>
+
+#include "base/TouchInputManager.h"
+#include "base/EntityManager.h"
+#include "base/TimeUtil.h"
+#include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
 #include "util/ScoreStorageProxy.h"
 
 #include "api/StorageAPI.h"
+#include "api/NetworkAPI.h"
 
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
@@ -47,7 +49,6 @@
 #include "systems/CameraSystem.h"
 #include "systems/NetworkSystem.h"
 #include "systems/GraphSystem.h"
-#include "api/NetworkAPI.h"
 
 
 #define ZOOM 1
