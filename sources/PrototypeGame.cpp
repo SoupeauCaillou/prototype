@@ -90,7 +90,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     loadFont(renderThreadContext->assetAPI, "typo");
     std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
     for(auto it=files.begin(); it!=files.end(); ++it)
-        std::cout << *it << std::endl;
+        LOGI("atlas file: " << *it);
+
     LOGI("SAC engine initialisation done.")
 }
 
@@ -116,7 +117,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
 
 #if SAC_INGAME_EDITORS
-    PrototypeDebugConsole::init();
+    PrototypeDebugConsole::init(this);
 #endif
 
     quickInit();

@@ -1,27 +1,34 @@
 #if SAC_INGAME_EDITORS
 
 #include "PrototypeDebugConsole.h"
-#include "util/DebugConsole.h"
 
 #include "base/Log.h"
+#include "base/ObjectSerializer.h"
 
-int PrototypeDebugConsole::test = 0;
+#include "util/ScoreStorageProxy.h"
 
-static void submitRandomScore(void* arg) {
+#include <glm/gtc/random.hpp>
+
+#include "PrototypeGame.h"
+#include "api/StorageAPI.h"
+PrototypeGame* PrototypeDebugConsole::_game = 0;
+
+void PrototypeDebugConsole::callbackSubmitRandomScore(void* arg) {
     LOGI("clicked!");
 
-    if (arg) {
-        LOGI("arg: " << *((int*)arg));
+    int count = *(int*)arg;
+    while (--count > -1) {
+        ScoreStorageProxy ssp;
+        ssp.setValue("name", "random123", true);
+        ssp.setValue("time", ObjectSerializer<float>::object2string(glm::linearRand(0.0f, 100.0f)), false);
+        _game->gameThreadContext->storageAPI->saveEntries(&ssp);
     }
 }
 
-void PrototypeDebugConsole::init() {
-        TwEnumVal submitRandomScoreModes[] = {
-            {1, "1"},
-            {10, "10"}
-        };
-        TwType type = TwDefineEnum("Argument", submitRandomScoreModes, 2);
+void PrototypeDebugConsole::init(PrototypeGame* game) {
+    _game = game;
 
-        DebugConsole::Instance().registerMethod("submitRandomScore", &submitRandomScore, type, &PrototypeDebugConsole::test);
+    TwEnumVal numberToGenerate[] = { {1, "1"}, {10, "10"}, {100, "100"} };
+    REGISTER(SubmitRandomScore, numberToGenerate)
 }
 #endif
