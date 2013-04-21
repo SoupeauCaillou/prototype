@@ -27,7 +27,7 @@
 
 //to be moved
 struct Score {
-    float points;
+    float time;
     std::string name;
 };
 

@@ -90,8 +90,8 @@ void SocialCenterState::willEnter(State::Enum) {
 
     while (! ssp.isEmpty()) {
         Score score = ssp._queue.front();
-        LOGI("one more score: " << score.points);
-        GRAPH(datas->graph)->pointsList.push_back(std::pair<int, float>(++count, score.points));
+        LOGI("one more score: " << score.time);
+        GRAPH(datas->graph)->pointsList.push_back(std::pair<int, float>(++count, score.time));
         ssp.popAnElement();
     }
     GRAPH(datas->graph)->reloadTexture = true;

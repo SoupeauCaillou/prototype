@@ -152,7 +152,7 @@ State::Enum MenuState::update(float dt) {
 ///----------------------------------------------------------------------------//
 void MenuState::willExit(State::Enum) {
     ScoreStorageProxy ssp;
-    ssp.setValue("points", ObjectSerializer<float>::object2string(datas->timeElapsed), true);
+    ssp.setValue("time", ObjectSerializer<float>::object2string(datas->timeElapsed), true);
     datas->timeElapsed = 0.f;
     game->gameThreadContext->storageAPI->saveEntries((IStorageProxy*)&ssp);
 }

@@ -5,13 +5,13 @@
 
 ScoreStorageProxy::ScoreStorageProxy() {
     _tableName = "Score";
-    _columnsNameAndType["points"] = "float";
+    _columnsNameAndType["time"] = "float";
     _columnsNameAndType["name"] = "string";
 }
 
 std::string ScoreStorageProxy::getValue(const std::string& columnName) {
-    if (columnName == "points") {
-        return ObjectSerializer<float>::object2string(_queue.back().points);
+    if (columnName == "time") {
+        return ObjectSerializer<float>::object2string(_queue.back().time);
     } else if (columnName == "name") {
         return _queue.back().name;
     } else {
@@ -25,8 +25,8 @@ void ScoreStorageProxy::setValue(const std::string& columnName, const std::strin
         pushAnElement();
     }
 
-    if (columnName == "points") {
-        _queue.back().points =  ObjectSerializer<float>::string2object(value);
+    if (columnName == "time") {
+        _queue.back().time =  ObjectSerializer<float>::string2object(value);
     } else if (columnName == "name") {
         _queue.back().name = value;
     } else {
