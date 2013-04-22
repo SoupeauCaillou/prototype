@@ -14,8 +14,6 @@
 PrototypeGame* PrototypeDebugConsole::_game = 0;
 
 void PrototypeDebugConsole::callbackSubmitRandomScore(void* arg) {
-    LOGI("clicked!");
-
     int count = *(int*)arg;
     while (--count > -1) {
         ScoreStorageProxy ssp;
@@ -29,6 +27,6 @@ void PrototypeDebugConsole::init(PrototypeGame* game) {
     _game = game;
 
     TwEnumVal numberToGenerate[] = { {1, "1"}, {10, "10"}, {100, "100"} };
-    REGISTER(SubmitRandomScore, numberToGenerate)
+    REGISTER_ONE_ARG(SubmitRandomScore, numberToGenerate)
 }
 #endif
