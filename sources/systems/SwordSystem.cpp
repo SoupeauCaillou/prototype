@@ -21,16 +21,19 @@ void SwordSystem::DoUpdate(float dt) {
     	const TransformationComponent* ptc = TRANSFORM(tc->parent);
     	glm::vec2 diff(glm::rotate(swc->target, ptc->worldRotation) - ptc->worldPosition);
     	float angle = glm::atan2(diff.y, diff.x);
-    	// angle is inside [-pi, pi], we wand [-pi/2, 3pi/2]
+    	// angle is inside [-pi, pi], we want [-pi/2, 3pi/2]
     	if (angle < -glm::half_pi<float>())
     		angle += 2 * glm::pi<float>();
-    	LOGW_EVERY_N(101, angle)
     	angle = glm::clamp(angle, swc->ellipseAngleRange.x, swc->ellipseAngleRange.y);
-    	// angle = tc->rotation - glm::half_pi<float>() - angle;
 
-    	tc->rotation = angle;
-    	tc->position.x = swc->ellipseParam.x * glm::cos(angle);
-    	tc->position.y = swc->ellipseParam.y * glm::sin(angle);
+        float diffAngle = tc->rotation - angle;
+        if (diffAngle > glm::pi<float>())
+            diffAngle = 2 * glm::pi<float>() - diffAngle;
+    	tc->rotation +=
+            glm::sign(diffAngle) * glm::min(swc->maxAngularSpeed * dt, glm::abs(diffAngle));
+
+    	tc->position.x = swc->ellipseParam.x * glm::cos(tc->rotation);
+    	tc->position.y = swc->ellipseParam.y * glm::sin(tc->rotation);
     }
 }
 
