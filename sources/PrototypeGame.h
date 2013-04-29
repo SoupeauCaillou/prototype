@@ -20,6 +20,8 @@
 
 #include <string>
 #include <vector>
+#include "base/StateMachine.h"
+#include "states/Scenes.h"
 
 #include "base/Game.h"
 #include "base/GameContext.h"
@@ -28,8 +30,6 @@
 
 #include "api/LocalizeAPI.h"
 #include "api/AdAPI.h"
-
-#include "states/StateManager.h"
 
 class PrototypeGame : public Game {
 	public:
@@ -43,11 +43,8 @@ class PrototypeGame : public Game {
 		void togglePause(bool activate);
         bool willConsumeBackEvent();
 		void backPressed();
-        void changeState(State::Enum newState);
 
         Entity camera;
-	private:
-        State::Enum currentState, overrideNextState;
-        std::map<State::Enum, StateManager*> state2manager;
-        TransitionStateManager transitionManager;
+    private:
+        StateMachine<Scene::Enum> sceneStateMachine;
 };

@@ -16,24 +16,21 @@
 	You should have received a copy of the GNU General Public License
 	along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "StateManager.h"
+#pragma once
 
-void TransitionStateManager::enter(StateManager* _from, StateManager* _to) {
-    from = _from;
-    to = _to;
-    to->willEnter(_from->state);
+class PrototypeGame;
+
+namespace Scene {
+   enum Enum {
+      Logo,
+      Menu,
+      SocialCenter,
+   };
+
+#define DECLARE_SCENE_HANDLER_FACTORY(name) \
+  StateHandler<Scene::Enum>* Create##name##SceneHandler(PrototypeGame* game);
+
+  DECLARE_SCENE_HANDLER_FACTORY(Logo)
+  DECLARE_SCENE_HANDLER_FACTORY(Menu)
+  DECLARE_SCENE_HANDLER_FACTORY(SocialCenter)
 }
-
-bool TransitionStateManager::transitionFinished(State::Enum* nextState) {
-    if (from->transitionCanExit(to->state) &&
-        to->transitionCanEnter(from->state)) {
-        *nextState = to->state;
-        return true;
-    }
-    return false;
-}
-
-void TransitionStateManager::exit() {
-    from->exit(to->state);
-}
-

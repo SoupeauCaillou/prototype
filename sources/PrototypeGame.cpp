@@ -17,7 +17,6 @@
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PrototypeGame.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 
@@ -57,9 +56,9 @@
 
 
 PrototypeGame::PrototypeGame() : Game() {
-   state2manager.insert(std::make_pair(State::Logo, new LogoState(this)));
-   state2manager.insert(std::make_pair(State::Menu, new MenuState(this)));
-   state2manager.insert(std::make_pair(State::SocialCenter, new SocialCenterState(this)));
+    sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
+    sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -85,6 +84,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
 
+    theRenderingSystem.loadAtlas("logo", true);
     theRenderingSystem.loadAtlas("font", true);
     // init font
     loadFont(renderThreadContext->assetAPI, "typo");
@@ -97,12 +97,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...")
-    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
-        it->second->setup();
-    }
-
-    overrideNextState = State::Invalid;
-    currentState = State::Menu;
+    sceneStateMachine.setup(Scene::Menu);
+    sceneStateMachine.reEnterCurrentState();
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
@@ -125,19 +121,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 }
 
 void PrototypeGame::quickInit() {
-    state2manager[currentState]->willEnter(State::Invalid);
-    state2manager[currentState]->enter(State::Invalid);
-}
-
-void PrototypeGame::changeState(State::Enum newState) {
-    if (newState == currentState)
-        return;
-
-    state2manager[currentState]->willExit(newState);
-    state2manager[currentState]->exit(newState);
-    state2manager[newState]->willEnter(currentState);
-    state2manager[newState]->enter(currentState);
-    currentState = newState;
+    sceneStateMachine.reEnterCurrentState();
 }
 
 void PrototypeGame::backPressed() {
@@ -148,22 +132,7 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
-    if (currentState != State::Transition) {
-        State::Enum newState = state2manager[currentState]->update(dt);
-
-        if (newState != currentState) {
-            state2manager[currentState]->willExit(newState);
-            transitionManager.enter(state2manager[currentState], state2manager[newState]);
-            currentState = State::Transition;
-        }
-    } else if (transitionManager.transitionFinished(&currentState)) {
-        transitionManager.exit();
-        state2manager[currentState]->enter(transitionManager.from->state);
-    }
-
-    for(std::map<State::Enum, StateManager*>::iterator it=state2manager.begin(); it!=state2manager.end(); ++it) {
-        it->second->backgroundUpdate(dt);
-    }
+    sceneStateMachine.update(dt);
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
