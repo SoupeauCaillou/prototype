@@ -1,0 +1,10 @@
+[Transformation]
+position = 0,0
+size%screen = 1,1
+z = 1
+
+[Camera]
+enable = 1
+order = 1
+id= 0
+clear_color = 0.9,0.8,0.6,1

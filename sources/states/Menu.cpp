@@ -89,6 +89,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        return Scene::ArenaFight;
+
         //update the timer
         {
         timeElapsed += dt;
