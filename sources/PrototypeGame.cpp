@@ -98,12 +98,13 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...")
-    sceneStateMachine.setup(Scene::Menu);
-    sceneStateMachine.reEnterCurrentState();
-
     // default camera
     camera = theEntityManager.CreateEntity("camera",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("camera"));
+
+
+    sceneStateMachine.setup(Scene::Menu);
+    sceneStateMachine.reEnterCurrentState();
 
 #if SAC_INGAME_EDITORS
     PrototypeDebugConsole::init(this);
