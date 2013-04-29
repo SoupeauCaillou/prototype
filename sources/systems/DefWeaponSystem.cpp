@@ -1,21 +1,21 @@
-#include "SwordSystem.h"
+#include "DefWeaponSystem.h"
 
 #include "base/Log.h"
 #include "systems/TransformationSystem.h"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/compatibility.hpp>
 
-INSTANCE_IMPL(SwordSystem);
+INSTANCE_IMPL(DefWeaponSystem);
 
-SwordSystem::SwordSystem() : ComponentSystemImpl<SwordComponent>("Sword") {
-    SwordComponent tc;
+DefWeaponSystem::DefWeaponSystem() : ComponentSystemImpl<DefWeaponComponent>("DefWeapon") {
+    DefWeaponComponent tc;
     componentSerializer.add(new Property<glm::vec2>("ellipse_param", OFFSET(ellipseParam, tc), glm::vec2(0.001, 0)));
     componentSerializer.add(new Property<glm::vec2>("ellipse_angle_range", OFFSET(ellipseAngleRange, tc), glm::vec2(0.001, 0)));
     componentSerializer.add(new Property<float>("max_angular_speed", OFFSET(maxAngularSpeed, tc), 0.001));
 }
 
-void SwordSystem::DoUpdate(float dt) {
-    FOR_EACH_ENTITY_COMPONENT(Sword, a, swc)
+void DefWeaponSystem::DoUpdate(float dt) {
+    FOR_EACH_ENTITY_COMPONENT(DefWeapon, a, swc)
     	TransformationComponent* tc = TRANSFORM(a);
     	// compute angle between 'target' and parent worldPos
     	const TransformationComponent* ptc = TRANSFORM(tc->parent);
@@ -38,15 +38,15 @@ void SwordSystem::DoUpdate(float dt) {
 }
 
 #if SAC_INGAME_EDITORS
-void SwordSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
-    SwordComponent* tc = Get(entity, false);
+void DefWeaponSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
+    DefWeaponComponent* tc = Get(entity, false);
     if (!tc) return;
-    TwAddVarRW(bar, "ellipse a", TW_TYPE_FLOAT, &tc->ellipseParam.x, "group=Sword");
-    TwAddVarRW(bar, "ellipse b", TW_TYPE_FLOAT, &tc->ellipseParam.y, "group=Sword");
-    TwAddVarRW(bar, "ellipse min angle", TW_TYPE_FLOAT, &tc->ellipseAngleRange.x, "group=Sword");
-    TwAddVarRW(bar, "ellipse max angle", TW_TYPE_FLOAT, &tc->ellipseAngleRange.y, "group=Sword");
-    TwAddVarRW(bar, "max angular speed", TW_TYPE_FLOAT, &tc->maxAngularSpeed, "group=Sword");
-    TwAddVarRW(bar, "sword target_x", TW_TYPE_FLOAT, &tc->target.x, "group=Sword");
-    TwAddVarRW(bar, "sword target_y", TW_TYPE_FLOAT, &tc->target.y, "group=Sword");
+    TwAddVarRW(bar, "ellipse a", TW_TYPE_FLOAT, &tc->ellipseParam.x, "group=DefWeapon");
+    TwAddVarRW(bar, "ellipse b", TW_TYPE_FLOAT, &tc->ellipseParam.y, "group=DefWeapon");
+    TwAddVarRW(bar, "ellipse min angle", TW_TYPE_FLOAT, &tc->ellipseAngleRange.x, "group=DefWeapon");
+    TwAddVarRW(bar, "ellipse max angle", TW_TYPE_FLOAT, &tc->ellipseAngleRange.y, "group=DefWeapon");
+    TwAddVarRW(bar, "max angular speed", TW_TYPE_FLOAT, &tc->maxAngularSpeed, "group=DefWeapon");
+    TwAddVarRW(bar, "DefWeapon target_x", TW_TYPE_FLOAT, &tc->target.x, "group=DefWeapon");
+    TwAddVarRW(bar, "DefWeapon target_y", TW_TYPE_FLOAT, &tc->target.y, "group=DefWeapon");
 }
 #endif

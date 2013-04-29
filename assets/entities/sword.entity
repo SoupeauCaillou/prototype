@@ -8,7 +8,7 @@ rotation = 3
 color = 0.7, 0.7, 0.7, 1
 show = 1
 
-[Sword]
+[DefWeapon]
 ellipse_param=1.5, 1
 ellipse_angle_range=0.1,3.7
 max_angular_speed=8

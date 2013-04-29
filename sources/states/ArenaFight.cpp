@@ -27,7 +27,7 @@
 #include "base/TouchInputManager.h"
 
 #include <systems/TransformationSystem.h>
-#include "systems/SwordSystem.h"
+#include "systems/DefWeaponSystem.h"
 #include <glm/gtx/compatibility.hpp>
 #include "PrototypeGame.h"
 
@@ -58,8 +58,8 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("sword"));
         TRANSFORM(swords[0])->parent = TRANSFORM(swords[1])->parent = fighter;
         TRANSFORM(swords[0])->position.x = -TRANSFORM(swords[0])->position.x;
-        SWORD(swords[0])->ellipseAngleRange.x = glm::pi<float>() - SWORD(swords[1])->ellipseAngleRange.y;
-        SWORD(swords[0])->ellipseAngleRange.y = glm::pi<float>() - SWORD(swords[1])->ellipseAngleRange.x;
+        DEF_WEAPON(swords[0])->ellipseAngleRange.x = glm::pi<float>() - DEF_WEAPON(swords[1])->ellipseAngleRange.y;
+        DEF_WEAPON(swords[0])->ellipseAngleRange.y = glm::pi<float>() - DEF_WEAPON(swords[1])->ellipseAngleRange.x;
    }
 
     ///----------------------------------------------------------------------------//
@@ -67,7 +67,7 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
         for (int i=0; i<2; i++)
-            SWORD(swords[i])->target = theTouchInputManager.getTouchLastPosition(i);
+            DEF_WEAPON(swords[i])->target = theTouchInputManager.getTouchLastPosition(i);
 
         return Scene::ArenaFight;
     }
