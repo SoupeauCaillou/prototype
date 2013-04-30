@@ -56,16 +56,20 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
         fighter = theEntityManager.CreateEntity("fighter",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("fighter"));
 
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress('Z',
+        //to be fixed properly..
+        char keys[4] = { 'Z', 'S', 'Q', 'D' };
+        //char keys[4] = { '/', 'U', 'A', 'I' };
+
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[0],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(0., 1.)); }
         );
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress('S',
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[1],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(0., -1.)); }
         );
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress('Q',
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[2],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(-1., 0)); }
         );
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress('D',
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[3],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(1., 0)); }
         );
 
