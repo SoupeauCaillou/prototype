@@ -8,5 +8,5 @@ color = 0, 0, 0, 1
 show = 1
 
 [ZSQD]
-maxSpeed = 10
-frictionCoeff=0
+max_speed = 10
+friction_ceff=0

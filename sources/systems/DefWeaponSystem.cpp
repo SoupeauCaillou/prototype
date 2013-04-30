@@ -2,6 +2,7 @@
 
 #include "base/Log.h"
 #include "systems/TransformationSystem.h"
+#include "systems/ADSRSystem.h"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/compatibility.hpp>
 
@@ -13,12 +14,30 @@ DefWeaponSystem::DefWeaponSystem() : ComponentSystemImpl<DefWeaponComponent>("De
     componentSerializer.add(new Property<glm::vec2>("ellipse_angle_range", OFFSET(ellipseAngleRange, tc), glm::vec2(0.001, 0)));
     componentSerializer.add(new Property<glm::vec2>("attack_mode_offset", OFFSET(attackModeOffset, tc), glm::vec2(0.001, 0)));
     componentSerializer.add(new Property<float>("max_angular_speed", OFFSET(maxAngularSpeed, tc), 0.001));
+    componentSerializer.add(new Property<float>("mode_transition_duration", OFFSET(modeTransitionDuration, tc), 0.001));
 }
+
+static Entity createTransitionEntity(DefWeaponComponent* dfc);
 
 void DefWeaponSystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(DefWeapon, a, swc)
-        if (!swc->active)
+        ADSRComponent* trans = 0;
+        auto tranIt = transition.find(a);
+        if (tranIt == transition.end()) {
+            Entity transitionEntity = createTransitionEntity(swc);
+            transition.insert(std::make_pair(a, transitionEntity));
+            trans = ADSR(transitionEntity);
+        } else {
+            trans = ADSR(tranIt->second);
+        }
+
+        if (!swc->active) {
+            trans->active = false;
             continue;
+        } else {
+            trans->active = swc->attack;
+        }
+
     	TransformationComponent* tc = TRANSFORM(a);
     	// compute angle between 'target' and parent worldPos
     	const TransformationComponent* ptc = TRANSFORM(tc->parent);
@@ -29,8 +48,7 @@ void DefWeaponSystem::DoUpdate(float dt) {
     		angle += 2 * glm::pi<float>();
     	angle = glm::clamp(angle, swc->ellipseAngleRange.x, swc->ellipseAngleRange.y);
 
-        // LOGI(angle-tc->rotation << ", " << glm::floor((angle - tc->rotation) / (2 * glm::pi<float>())))
-        float positiveDiff = glm::mod(angle - swc->angle /*tc->rotation*/, 2 * glm::pi<float>());
+        float positiveDiff = glm::mod(angle - swc->angle, 2 * glm::pi<float>());
         // consider both rotations
         float negativeDiff = - 2 * glm::pi<float>() + positiveDiff;
 
@@ -45,13 +63,11 @@ void DefWeaponSystem::DoUpdate(float dt) {
     	tc->position.x = swc->ellipseParam.x * glm::cos(swc->angle);
     	tc->position.y = swc->ellipseParam.y * glm::sin(swc->angle);
 
-        if (swc->attack) {
-            tc->rotation = glm::half_pi<float>() + swc->angle;
-            tc->position += glm::rotate(swc->attackModeOffset, tc->rotation);
-        } else {
-            tc->rotation = swc->angle;
-        }
+        tc->rotation = trans->value * glm::half_pi<float>() + swc->angle;
+        tc->position += glm::rotate(trans->value * swc->attackModeOffset, tc->rotation);
     }
+
+    // TODO remove useless transitionEntity
 }
 
 #if SAC_INGAME_EDITORS
@@ -67,3 +83,13 @@ void DefWeaponSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
     TwAddVarRW(bar, "DefWeapon target_y", TW_TYPE_FLOAT, &tc->target.y, "group=DefWeapon");
 }
 #endif
+
+static Entity createTransitionEntity(DefWeaponComponent* dfc) {
+    Entity e = theEntityManager.CreateEntity("def_transition");
+    ADD_COMPONENT(e, ADSR);
+    ADSR(e)->idleValue = 0;
+    ADSR(e)->attackValue = ADSR(e)->sustainValue = 1;
+    ADSR(e)->attackTiming = ADSR(e)->releaseTiming = dfc->modeTransitionDuration;
+    ADSR(e)->decayTiming = 0;
+    return e;
+}
