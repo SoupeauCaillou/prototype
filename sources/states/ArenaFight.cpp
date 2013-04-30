@@ -26,13 +26,9 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
-<<<<<<< HEAD
-#include "systems/TransformationSystem.h"
 #include "systems/ZSQDSystem.h"
-=======
-#include <systems/AnimationSystem.h>
-#include <systems/TransformationSystem.h>
->>>>>>> 26bc34e... Move attack handling to DefWeapon system
+#include "systems/AnimationSystem.h"
+#include "systems/TransformationSystem.h"
 #include "systems/DefWeaponSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
