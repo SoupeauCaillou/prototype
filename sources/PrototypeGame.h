@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 #include "base/StateMachine.h"
-#include "states/Scenes.h"
+#include "scenes/Scenes.h"
 
 #include "base/Game.h"
 #include "base/GameContext.h"

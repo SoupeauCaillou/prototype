@@ -88,7 +88,7 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
         DEF_WEAPON(swords[0])->active = true;
         DEF_WEAPON(swords[0])->attack = theTouchInputManager.isTouched(1);
         DEF_WEAPON(swords[0])->target = theTouchInputManager.getTouchLastPosition(0);
