@@ -71,6 +71,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Localize:
         case ContextAPI::Communication:
         case ContextAPI::Storage:
+        case ContextAPI::KeyboardInputHandler:
             return true;
         default:
             return false;

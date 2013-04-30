@@ -6,3 +6,7 @@ z = 0.5
 [Rendering]
 color = 0, 0, 0, 1
 show = 1
+
+[ZSQD]
+maxSpeed = 10
+frictionCoeff=0

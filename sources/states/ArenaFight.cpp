@@ -26,9 +26,14 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
-#include <systems/TransformationSystem.h>
+#include "systems/TransformationSystem.h"
+#include "systems/ZSQDSystem.h"
 #include "systems/DefWeaponSystem.h"
 #include <glm/gtx/compatibility.hpp>
+
+
+#include "api/KeyboardInputHandlerAPI.h"
+
 #include "PrototypeGame.h"
 
 struct ArenaFightScene : public StateHandler<Scene::Enum> {
@@ -40,7 +45,6 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
-
     }
 
 
@@ -52,6 +56,21 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         fighter = theEntityManager.CreateEntity("fighter",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("fighter"));
+
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKey('Z',
+            [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(0., 1.)); }
+        );
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKey('S',
+            [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(0., -1.)); }
+        );
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKey('Q',
+            [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(-1., 0)); }
+        );
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKey('D',
+            [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(1., 0)); }
+        );
+
+
         swords[0] = theEntityManager.CreateEntity("sword_l",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("sword"));
         swords[1] = theEntityManager.CreateEntity("sword_r",
@@ -65,7 +84,7 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
         for (int i=0; i<2; i++)
             DEF_WEAPON(swords[i])->target = theTouchInputManager.getTouchLastPosition(i);
 
