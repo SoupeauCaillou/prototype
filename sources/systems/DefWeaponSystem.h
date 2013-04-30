@@ -6,12 +6,14 @@
 
 
 struct DefWeaponComponent {
-	DefWeaponComponent(): ellipseParam(1.0f), ellipseAngleRange(0) {}
+	DefWeaponComponent(): active(false), ellipseParam(1.0f), ellipseAngleRange(0) {}
 
+    bool active, attack;
 	glm::vec2 target;
 	unsigned action;
-	glm::vec2 ellipseParam, ellipseAngleRange;
+	glm::vec2 ellipseParam, ellipseAngleRange, attackModeOffset;
 	float maxAngularSpeed;
+    float angle;
 };
 
 #define theDefWeaponSystem DefWeaponSystem::GetInstance()

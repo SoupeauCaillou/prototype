@@ -11,4 +11,5 @@ show = 1
 [DefWeapon]
 ellipse_param=1.5, 1
 ellipse_angle_range=0.1,3.7
-max_angular_speed=8
+max_angular_speed=20
+attack_mode_offset=0,-0.8

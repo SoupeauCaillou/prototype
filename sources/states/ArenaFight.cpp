@@ -26,8 +26,13 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
+<<<<<<< HEAD
 #include "systems/TransformationSystem.h"
 #include "systems/ZSQDSystem.h"
+=======
+#include <systems/AnimationSystem.h>
+#include <systems/TransformationSystem.h>
+>>>>>>> 26bc34e... Move attack handling to DefWeapon system
 #include "systems/DefWeaponSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
@@ -44,10 +49,8 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
         this->game = game;
     }
 
-    void setup() {
+    void setup() override {
     }
-
-
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
@@ -79,14 +82,16 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
         TRANSFORM(swords[0])->position.x = -TRANSFORM(swords[0])->position.x;
         DEF_WEAPON(swords[0])->ellipseAngleRange.x = glm::pi<float>() - DEF_WEAPON(swords[1])->ellipseAngleRange.y;
         DEF_WEAPON(swords[0])->ellipseAngleRange.y = glm::pi<float>() - DEF_WEAPON(swords[1])->ellipseAngleRange.x;
+        RENDERING(swords[0])->color.r = 0;
    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
-        for (int i=0; i<2; i++)
-            DEF_WEAPON(swords[i])->target = theTouchInputManager.getTouchLastPosition(i);
+    Scene::Enum update(float dt) override {
+        DEF_WEAPON(swords[0])->active = true;
+        DEF_WEAPON(swords[0])->attack = theTouchInputManager.isTouched(1);
+        DEF_WEAPON(swords[0])->target = theTouchInputManager.getTouchLastPosition(0);
 
         return Scene::ArenaFight;
     }
