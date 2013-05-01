@@ -1,6 +1,7 @@
 #include "DefWeaponSystem.h"
 
 #include "base/Log.h"
+#include "base/EntityManager.h"
 #include "systems/TransformationSystem.h"
 #include "systems/ADSRSystem.h"
 #include <glm/gtx/rotate_vector.hpp>
