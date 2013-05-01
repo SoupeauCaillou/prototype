@@ -1,0 +1,19 @@
+[Transformation]
+position = 0, 0
+size = 2, 1.2
+z = 0.4
+
+[Rendering]
+color = 1, 0, 0, 1
+show = 1
+
+[Physics]
+mass = 1
+
+[AutonomousAgent]
+wander_weight = 10
+wander_radius = 7
+wander_distance = 1
+wander_jitter = 5
+max_speed = 5
+max_force = 3

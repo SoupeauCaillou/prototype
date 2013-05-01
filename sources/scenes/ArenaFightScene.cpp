@@ -30,6 +30,7 @@
 #include "systems/AnimationSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/DefWeaponSystem.h"
+#include "systems/AutonomousAgentSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
 
@@ -40,6 +41,8 @@
 struct ArenaFightScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity fighter, swords[2];
+
+    std::list<Entity> enemy;
 
     ArenaFightScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -88,10 +91,17 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
         DEF_WEAPON(swords[0])->active = true;
         DEF_WEAPON(swords[0])->attack = theTouchInputManager.isTouched(1);
         DEF_WEAPON(swords[0])->target = theTouchInputManager.getTouchLastPosition(0);
+
+        if (glm::linearRand(0.0f, 1.0f) < 1 * dt) {
+            Entity e = theEntityManager.CreateEntity("enemy",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("fighter_autonomous"));
+
+            enemy.push_front(e);
+        }
 
         return Scene::ArenaFight;
     }
