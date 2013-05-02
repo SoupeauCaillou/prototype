@@ -1,6 +1,6 @@
 [Transformation]
 position = 0, 0
-size = 2, 1.2
+size = 1.6, 1.
 z = 0.4
 
 [Rendering]
@@ -17,3 +17,13 @@ wander_distance = 1
 wander_jitter = 5
 max_speed = 5
 max_force = 3
+
+[SwordMan]
+left_hand%template = sword
+
+[left_hand#Rendering]
+color = 1, 1, 0, 1
+[left_hand#Transformation]
+position = -1.2, 0.5
+[left_hand#DefWeapon]
+ellipse_angle_range=-0.1,3.04

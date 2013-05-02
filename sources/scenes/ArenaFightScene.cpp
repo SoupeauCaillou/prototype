@@ -86,7 +86,7 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
         DEF_WEAPON(swmc->hands[0])->attack = theTouchInputManager.isTouched(1);
         DEF_WEAPON(swmc->hands[0])->target = theTouchInputManager.getTouchLastPosition(0);
 
-        if (0 && glm::linearRand(0.0f, 1.0f) < 1 * dt) {
+        if (glm::linearRand(0.0f, 1.0f) < 1 * dt) {
             Entity e = theEntityManager.CreateEntity("enemy",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("fighter_autonomous"));
 
