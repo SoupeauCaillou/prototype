@@ -16,4 +16,10 @@ struct PlaneComponent {
 
 UPDATABLE_SYSTEM(Plane)
 
+	public:
+		void setWorldSize(const glm::vec2 ws);
+
+	private:
+		glm::vec2 worldSize;
+
 };
