@@ -8,6 +8,6 @@ color = 0, 0, 0,1
 show = 1
 
 [DCA]
-fire_rate = 10
-puissance = 100
+fire_rate = 5
+puissance = 50
 dispersion = 0.3

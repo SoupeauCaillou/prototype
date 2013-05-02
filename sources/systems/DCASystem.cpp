@@ -29,7 +29,7 @@ void DCASystem::DoUpdate(float dt) {
             //add a random dispersion
             float randAngleDispersion = glm::gaussRand(0.f, dc->dispersion);
             glm::vec2 randDispersedDirection = glm::rotate(dc->direction, randAngleDispersion);
-            PHYSICS(bullet)->addForce(dc->puissance * randDispersedDirection, glm::vec2(0, 0), dt);
+            PHYSICS(bullet)->addForce(dc->puissance * randDispersedDirection, glm::vec2(0, 0), 1/60.);
             --dc->fireRate.accum;
         }
 	}
