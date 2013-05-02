@@ -81,7 +81,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
             BUTTON(paratrooper)->enabled = true;
             RENDERING(paratrooper)->show = true;
             TRANSFORM(paratrooper)->position = TRANSFORM(plane)->position;
-
+            
             // ADD_COMPONENT(paratrooper, AutoDestroy);
             // AUTO_DESTROY(paratrooper)->type = AutoDestroyComponent::OUT_OF_AREA;
             // AUTO_DESTROY(paratrooper)->params.area.x = AUTO_DESTROY(paratrooper)->params.area.y = 0;
@@ -93,12 +93,11 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         for (auto& p : paratroopers) {
             if (BUTTON(p)->clicked) {
-                std::cout << "OUAIS" << std::endl;
+                PARACHUTE(p)->frottement = 1;
                 PARACHUTE(p)->enable = true;
                 RENDERING(p)->color = Color(1, 1, 1, 1);
             }    
         }
-        
 
         return Scene::Test;
     }
