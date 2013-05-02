@@ -26,6 +26,7 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
+#include "systems/SwordManSystem.h"
 #include "systems/ZSQDSystem.h"
 #include "systems/AnimationSystem.h"
 #include "systems/TransformationSystem.h"
@@ -74,28 +75,18 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
         game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPressPerScancode(keys[3],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(1., 0)); }
         );
-
-
-        swords[0] = theEntityManager.CreateEntity("sword_l",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("sword"));
-        swords[1] = theEntityManager.CreateEntity("sword_r",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("sword"));
-        TRANSFORM(swords[0])->parent = TRANSFORM(swords[1])->parent = fighter;
-        TRANSFORM(swords[0])->position.x = -TRANSFORM(swords[0])->position.x;
-        DEF_WEAPON(swords[0])->ellipseAngleRange.x = glm::pi<float>() - DEF_WEAPON(swords[1])->ellipseAngleRange.y;
-        DEF_WEAPON(swords[0])->ellipseAngleRange.y = glm::pi<float>() - DEF_WEAPON(swords[1])->ellipseAngleRange.x;
-        RENDERING(swords[0])->color.r = 0;
    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        DEF_WEAPON(swords[0])->active = true;
-        DEF_WEAPON(swords[0])->attack = theTouchInputManager.isTouched(1);
-        DEF_WEAPON(swords[0])->target = theTouchInputManager.getTouchLastPosition(0);
+        SwordManComponent* swmc = SWORD_MAN(fighter);
+        DEF_WEAPON(swmc->hands[0])->active = true;
+        DEF_WEAPON(swmc->hands[0])->attack = theTouchInputManager.isTouched(1);
+        DEF_WEAPON(swmc->hands[0])->target = theTouchInputManager.getTouchLastPosition(0);
 
-        if (glm::linearRand(0.0f, 1.0f) < 1 * dt) {
+        if (0 && glm::linearRand(0.0f, 1.0f) < 1 * dt) {
             Entity e = theEntityManager.CreateEntity("enemy",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("fighter_autonomous"));
 

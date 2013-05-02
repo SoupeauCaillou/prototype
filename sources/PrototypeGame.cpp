@@ -48,6 +48,7 @@
 #include "systems/NetworkSystem.h"
 #include "systems/GraphSystem.h"
 #include "systems/DefWeaponSystem.h"
+#include "systems/SwordManSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -58,6 +59,7 @@
 
 PrototypeGame::PrototypeGame() : Game() {
     DefWeaponSystem::CreateInstance();
+    SwordManSystem::CreateInstance();
 
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
@@ -132,6 +134,7 @@ void PrototypeGame::togglePause(bool) {
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
     theDefWeaponSystem.Update(dt);
+    theSwordManSystem.Update(dt);
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
