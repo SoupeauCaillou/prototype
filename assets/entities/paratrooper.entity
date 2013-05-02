@@ -1,0 +1,22 @@
+[Transformation]
+position = 0, 0
+size%screen_h = 0.05, 0.05
+z = 1
+
+[Rendering]
+color = 0, 0, 0,1
+show = 1
+
+[Paratrooper]
+weight = 1
+
+[Parachute]
+frottement = 10
+enable = 0
+
+[Physics]
+mass = 1
+gravity = 0, -0.98
+
+[Button]
+enabled = 1

@@ -104,30 +104,30 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             //static int i=0;
             //LOGV(1, "Nombre d'entité = " << ++i);
 
-            Entity eq = theEntityManager.CreateEntity();
-            ADD_COMPONENT(eq, Transformation);
-            TRANSFORM(eq)->z = 0.5;
-            TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
-            TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
-            ADD_COMPONENT(eq, Rendering);
-            RENDERING(eq)->color = Color::random();
-            RENDERING(eq)->show = true;
-            RENDERING(eq)->cameraBitMask = 0xffff;
-            ADD_COMPONENT(eq, Physics);
-            PHYSICS(eq)->mass = 1;
-            PHYSICS(eq)->gravity = glm::vec2(0, -1);
+            // Entity eq = theEntityManager.CreateEntity();
+            // ADD_COMPONENT(eq, Transformation);
+            // TRANSFORM(eq)->z = 0.5;
+            // TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
+            // TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
+            // ADD_COMPONENT(eq, Rendering);
+            // RENDERING(eq)->color = Color::random();
+            // RENDERING(eq)->show = true;
+            // RENDERING(eq)->cameraBitMask = 0xffff;
+            // ADD_COMPONENT(eq, Physics);
+            // PHYSICS(eq)->mass = 1;
+            // PHYSICS(eq)->gravity = glm::vec2(0, -1);
 
-            ADD_COMPONENT(eq, AutoDestroy);
-            AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
-            AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
-            AUTO_DESTROY(eq)->params.area.w = TRANSFORM(game->camera)->size.x;
-            AUTO_DESTROY(eq)->params.area.h = TRANSFORM(game->camera)->size.y;
+            // ADD_COMPONENT(eq, AutoDestroy);
+            // AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
+            // AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
+            // AUTO_DESTROY(eq)->params.area.w = TRANSFORM(game->camera)->size.x;
+            // AUTO_DESTROY(eq)->params.area.h = TRANSFORM(game->camera)->size.y;
         }
 
        if (BUTTON(socialBtn)->clicked)
             return Scene::SocialCenter;
 
-        return Scene::Menu;
+        return Scene::Test;
     }
 
 

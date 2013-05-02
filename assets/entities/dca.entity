@@ -1,0 +1,11 @@
+[Transformation]
+position = -2, -2
+size%screen_h = 0.1, 0.1
+z = 1
+
+[Rendering]
+color = 0, 0, 0,1
+show = 1
+
+[Dca]
+fireRate = 1

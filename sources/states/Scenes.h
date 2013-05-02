@@ -25,6 +25,7 @@ namespace Scene {
       Logo,
       Menu,
       SocialCenter,
+      Test,
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \
@@ -33,4 +34,5 @@ namespace Scene {
   DECLARE_SCENE_HANDLER_FACTORY(Logo)
   DECLARE_SCENE_HANDLER_FACTORY(Menu)
   DECLARE_SCENE_HANDLER_FACTORY(SocialCenter)
+  DECLARE_SCENE_HANDLER_FACTORY(Test)
 }

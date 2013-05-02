@@ -17,6 +17,12 @@
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PrototypeGame.h"
+
+#include "systems/planesystem.h"
+#include "systems/parachutesystem.h"
+#include "systems/paratroopersystem.h"
+#include "systems/dcasystem.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 
@@ -59,6 +65,7 @@ PrototypeGame::PrototypeGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
+    sceneStateMachine.registerState(Scene::Test, Scene::CreateTestSceneHandler(this), "Scene::Test");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -97,9 +104,12 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...")
-    sceneStateMachine.setup(Scene::Menu);
-    sceneStateMachine.reEnterCurrentState();
-
+    // sceneStateMachine.setup(Scene::Menu);
+    // sceneStateMachine.reEnterCurrentState();
+    PlaneSystem::CreateInstance();
+    ParatrooperSystem::CreateInstance();
+    ParachuteSystem::CreateInstance();
+    DcaSystem::CreateInstance();
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
@@ -111,6 +121,9 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+    sceneStateMachine.setup(Scene::Menu);
+    sceneStateMachine.reEnterCurrentState();
 
 #if SAC_INGAME_EDITORS
     PrototypeDebugConsole::init(this);
@@ -132,7 +145,14 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
-    sceneStateMachine.update(dt);
+    if (dt > 0) {
+        
+        sceneStateMachine.update(dt);
+        thePlaneSystem.Update(dt);
+        theDcaSystem.Update(dt);
+        theParatrooperSystem.Update(dt);
+        theParachuteSystem.Update(dt);
+    }
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
