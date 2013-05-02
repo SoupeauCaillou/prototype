@@ -11,3 +11,4 @@ show = 1
 fire_rate = 5
 puissance = 50
 dispersion = 0.5
+maximal_distance_for_activation = 5

@@ -86,7 +86,8 @@ struct TestScene : public StateHandler<Scene::Enum> {
             paratroopers.push_back(paratrooper);
         }
 
-        DCA(dca)->direction = theTouchInputManager.getTouchLastPosition();
+        DCA(dca)->targetPoint = theTouchInputManager.getTouchLastPosition();
+
         for (auto& p : paratroopers) {
             if (BUTTON(p)->clicked) {
                 PARACHUTE(p)->frottement = 1;

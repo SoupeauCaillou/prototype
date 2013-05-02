@@ -7,10 +7,10 @@
 #include <glm/glm.hpp>
 
 struct DCAComponent {
-    DCAComponent() : direction(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f), puissance(100.f) {}
+    DCAComponent() : targetPoint(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f), puissance(100.f), maximalDistanceForActivation(5) {}
 
-    //direction, length doesn't matter (will be normalized)
-	glm::vec2 direction;
+    //point where the DCA should aim
+	glm::vec2 targetPoint;
 
     // in [0; +oo[, number of bullets per sec
 	Frequency<float> fireRate;
@@ -20,6 +20,9 @@ struct DCAComponent {
 
     // in [0; +oo[, ejection speed of the bullets
     float puissance;
+
+    // in [0; +oo[, maximal distance to activate the DCA with click
+    float maximalDistanceForActivation;
 };
 
 #define theDCASystem DCASystem::GetInstance()
