@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 struct DCAComponent {
-    DCAComponent() : direction(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(0.f), puissance(100.f) {}
+    DCAComponent() : direction(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f), puissance(100.f) {}
 
     //direction, length doesn't matter (will be normalized)
 	glm::vec2 direction;

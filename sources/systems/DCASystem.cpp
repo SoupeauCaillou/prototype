@@ -3,6 +3,9 @@
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
 
+#include "glm/gtc/random.hpp"
+#include "glm/gtx/rotate_vector.hpp"
+
 INSTANCE_IMPL(DCASystem);
 
 DCASystem::DCASystem() : ComponentSystemImpl <DCAComponent>("DCA") {
@@ -15,14 +18,19 @@ DCASystem::DCASystem() : ComponentSystemImpl <DCAComponent>("DCA") {
 
 void DCASystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(DCA, e, dc)
-        dc->fireRate.accum += dt;
-        while (dc->fireRate.accum > 1.f / dc->fireRate.value) {
+        dc->direction = glm::normalize(dc->direction);
+        dc->fireRate.accum += dt * dc->fireRate.value;
+        while (dc->fireRate.accum > 1.f) {
             Entity bullet = theEntityManager.CreateEntity("bullet",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("bullet"));
 
             TRANSFORM(bullet)->position = TRANSFORM(e)->position;
-            PHYSICS(bullet)->addForce(dc->puissance * glm::normalize(dc->direction), glm::vec2(0, 0), dt);
-            dc->fireRate.accum -= 1 / dc->fireRate.value;
+
+            //add a random dispersion
+            float randAngleDispersion = glm::gaussRand(0.f, dc->dispersion);
+            glm::vec2 randDispersedDirection = glm::rotate(dc->direction, randAngleDispersion);
+            PHYSICS(bullet)->addForce(dc->puissance * randDispersedDirection, glm::vec2(0, 0), dt);
+            --dc->fireRate.accum;
         }
 	}
 }
