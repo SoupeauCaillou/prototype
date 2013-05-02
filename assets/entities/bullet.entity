@@ -1,0 +1,10 @@
+[Transformation]
+size = 0.1, 0.1
+z = 1
+
+[Rendering]
+color = 1, 0, 0,1
+show = 1
+
+[Physics]
+mass = 0.1

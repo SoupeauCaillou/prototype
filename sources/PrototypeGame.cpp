@@ -21,7 +21,7 @@
 #include "systems/planesystem.h"
 #include "systems/parachutesystem.h"
 #include "systems/paratroopersystem.h"
-#include "systems/dcasystem.h"
+#include "systems/DCASystem.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
@@ -109,7 +109,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     PlaneSystem::CreateInstance();
     ParatrooperSystem::CreateInstance();
     ParachuteSystem::CreateInstance();
-    DcaSystem::CreateInstance();
+    DCASystem::CreateInstance();
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
     ADD_COMPONENT(camera, Transformation);
@@ -148,10 +148,9 @@ void PrototypeGame::togglePause(bool) {
 
 void PrototypeGame::tick(float dt) {
     if (dt > 0) {
-        
         sceneStateMachine.update(dt);
         thePlaneSystem.Update(dt);
-        theDcaSystem.Update(dt);
+        theDCASystem.Update(dt);
         theParatrooperSystem.Update(dt);
         theParachuteSystem.Update(dt);
     }

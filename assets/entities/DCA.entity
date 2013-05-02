@@ -7,5 +7,6 @@ z = 1
 color = 0, 0, 0,1
 show = 1
 
-[Dca]
-fireRate = 1
+[DCA]
+fire_rate = 10
+puissance = 100

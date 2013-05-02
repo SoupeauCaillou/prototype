@@ -20,7 +20,7 @@
 
 #include "PrototypeGame.h"
 
-#include "systems/dcasystem.h"
+#include "systems/DCASystem.h"
 #include "systems/parachutesystem.h"
 #include "systems/planesystem.h"
 #include "systems/paratroopersystem.h"
@@ -63,11 +63,8 @@ struct TestScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         plane = theEntityManager.CreateEntity("plane",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane"));
-        BUTTON(plane)->enabled = true;
-        RENDERING(plane)->show = true;
         dca = theEntityManager.CreateEntity("dca",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("dca"));
-        RENDERING(dca)->show = true;
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA"));
     }
 
     ///----------------------------------------------------------------------------//
@@ -78,10 +75,8 @@ struct TestScene : public StateHandler<Scene::Enum> {
         {
             Entity paratrooper = theEntityManager.CreateEntity("paratrooper",
                 EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("paratrooper"));
-            BUTTON(paratrooper)->enabled = true;
-            RENDERING(paratrooper)->show = true;
             TRANSFORM(paratrooper)->position = TRANSFORM(plane)->position;
-            
+
             // ADD_COMPONENT(paratrooper, AutoDestroy);
             // AUTO_DESTROY(paratrooper)->type = AutoDestroyComponent::OUT_OF_AREA;
             // AUTO_DESTROY(paratrooper)->params.area.x = AUTO_DESTROY(paratrooper)->params.area.y = 0;
@@ -91,12 +86,13 @@ struct TestScene : public StateHandler<Scene::Enum> {
             paratroopers.push_back(paratrooper);
         }
 
+        DCA(dca)->direction = theTouchInputManager.getTouchLastPosition();
         for (auto& p : paratroopers) {
             if (BUTTON(p)->clicked) {
                 PARACHUTE(p)->frottement = 1;
                 PARACHUTE(p)->enable = true;
                 RENDERING(p)->color = Color(1, 1, 1, 1);
-            }    
+            }
         }
 
         return Scene::Test;
