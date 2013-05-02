@@ -10,4 +10,4 @@ show = 1
 [DCA]
 fire_rate = 5
 puissance = 50
-dispersion = 0.3
+dispersion = 0.5

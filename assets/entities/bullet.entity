@@ -8,3 +8,4 @@ show = 1
 
 [Physics]
 mass = 0.1
+gravity = 0, -1
