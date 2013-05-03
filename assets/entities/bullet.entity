@@ -8,4 +8,13 @@ show = 1
 
 [Physics]
 mass = 0.1
-gravity = 0, -1
+gravity = 0, -2
+
+[AutoDestroy]
+type = 1
+params.lifetime.value = 2
+
+#params.area.x = 1
+#params.area.y = 0
+#params.area.w = 10
+#params.area.h = 10
