@@ -35,7 +35,10 @@
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
 
+#include "util/IntersectionUtil.h"
+
 #include <glm/gtx/compatibility.hpp>
+#include "glm/gtx/norm.hpp"
 
 #include "Scenes.h"
 
@@ -70,29 +73,25 @@ struct TestScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
-        if (BUTTON(plane)->clicked)
-        {
-            Entity paratrooper = theEntityManager.CreateEntity("paratrooper",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("paratrooper"));
-            TRANSFORM(paratrooper)->position = TRANSFORM(plane)->position;
+    Scene::Enum update(float) override {
 
-            // ADD_COMPONENT(paratrooper, AutoDestroy);
-            // AUTO_DESTROY(paratrooper)->type = AutoDestroyComponent::OUT_OF_AREA;
-            // AUTO_DESTROY(paratrooper)->params.area.x = AUTO_DESTROY(paratrooper)->params.area.y = 0;
-            // AUTO_DESTROY(paratrooper)->params.area.w = TRANSFORM(game->camera)->size.x;
-            // AUTO_DESTROY(paratrooper)->params.area.h = TRANSFORM(game->camera)->size.y;
+        if (theTouchInputManager.isTouched()) {
+            glm::vec2 point = theTouchInputManager.getTouchLastPosition();
+            DCA(dca)->targetPoint = point;
 
-            paratroopers.push_back(paratrooper);
-        }
+            TransformationComponent *ptc = TRANSFORM(plane);
+            if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {
+                Entity paratrooper = thePlaneSystem.paratrooperJump(plane);
+                if (paratrooper)
+                    paratroopers.push_back(paratrooper);
+            }
 
-        DCA(dca)->targetPoint = theTouchInputManager.getTouchLastPosition();
-
-        for (auto& p : paratroopers) {
-            if (BUTTON(p)->clicked) {
-                PARACHUTE(p)->frottement = 1;
-                PARACHUTE(p)->enable = true;
-                RENDERING(p)->color = Color(1, 1, 1, 1);
+            for (auto& p : paratroopers) {
+                if (IntersectionUtil::pointRectangle(point, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
+                    PARACHUTE(p)->frottement = 1;
+                    PARACHUTE(p)->enable = true;
+                    RENDERING(p)->color = Color(1, 1, 1, 1);
+                }
             }
         }
 
