@@ -54,6 +54,8 @@
 #include "systems/NetworkSystem.h"
 #include "systems/GraphSystem.h"
 
+#include "systems/BulletSystem.h"
+
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
 #endif
@@ -107,6 +109,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     // sceneStateMachine.setup(Scene::Menu);
     // sceneStateMachine.reEnterCurrentState();
     PlaneSystem::CreateInstance();
+    BulletSystem::CreateInstance();
     ParatrooperSystem::CreateInstance();
     ParachuteSystem::CreateInstance();
     DCASystem::CreateInstance();
@@ -151,6 +154,7 @@ void PrototypeGame::tick(float dt) {
         sceneStateMachine.update(dt);
         thePlaneSystem.Update(dt);
         theDCASystem.Update(dt);
+        theBulletSystem.Update(dt);
         theParatrooperSystem.Update(dt);
         theParachuteSystem.Update(dt);
     }

@@ -8,7 +8,7 @@ color = 0, 0, 0,1
 show = 1
 
 [DCA]
-fire_rate = 5
+fire_rate = 1
 puissance = 50
 dispersion = 0.5
 maximal_distance_for_activation = 5
