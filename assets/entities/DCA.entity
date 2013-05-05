@@ -12,3 +12,5 @@ fire_rate = 10
 puissance = 50
 dispersion = 0.5
 maximal_distance_for_activation = 5
+fire_mode = 1
+burst_rest_time = 5

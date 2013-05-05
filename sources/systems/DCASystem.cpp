@@ -17,6 +17,9 @@ DCASystem::DCASystem() : ComponentSystemImpl <DCAComponent>("DCA") {
     componentSerializer.add(new Property<float>("fire_rate", OFFSET(fireRate.value, dc), 0.001));
     componentSerializer.add(new Property<float>("puissance", OFFSET(puissance, dc), 0.001));
     componentSerializer.add(new Property<float>("dispersion", OFFSET(dispersion, dc), 0.001));
+    componentSerializer.add(new Property<int>("fire_mode", OFFSET(fireMode, dc), 0));
+    componentSerializer.add(new Property<float>("burst_rest_time", OFFSET(burstRestTime, dc), 0.001));
+
 }
 
 void DCASystem::DoUpdate(float dt) {
@@ -46,7 +49,17 @@ void DCASystem::DoUpdate(float dt) {
             float randAngleDispersion = glm::gaussRand(0.f, dc->dispersion / 3.f);
             glm::vec2 randDispersedDirection = glm::rotate(fireDirection, randAngleDispersion);
             PHYSICS(bullet)->addForce(dc->puissance * randDispersedDirection, glm::vec2(0, 0), 1/60.);
+
+
             --dc->fireRate.accum;
+            if (dc->fireMode == DCAComponent::EFireMode::BURST) {
+                ++dc->burstBulletCount;
+
+                if (dc->burstBulletCount == 3) {
+                    dc->fireRate.accum = - dc->burstRestTime;
+                    dc->burstBulletCount = 0;
+                }
+            }
         }
 	}
 }

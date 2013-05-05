@@ -7,7 +7,8 @@
 #include <glm/glm.hpp>
 
 struct DCAComponent {
-    DCAComponent() : targetPoint(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f), puissance(100.f), maximalDistanceForActivation(5) {}
+    DCAComponent() : targetPoint(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f),
+     puissance(100.f), maximalDistanceForActivation(5), fireMode(EFireMode::FULL_AUTO), burstBulletCount(0), burstRestTime(1.f) {}
 
     //point where the DCA should aim
 	glm::vec2 targetPoint;
@@ -24,6 +25,19 @@ struct DCAComponent {
 
     // in [0; +oo[, maximal distance to activate the DCA with click
     float maximalDistanceForActivation;
+
+    enum EFireMode {
+        FULL_AUTO,
+        BURST
+    };
+
+    EFireMode fireMode;
+
+    // --ONLY BURST FIREMODE-- number of bullets fired for the current burst
+    int burstBulletCount;
+    // --ONLY BURST FIREMODE-- time between 2 consecutives burst /!\ it depends on the firerate of course
+    // this value will represent real time when the firerate will be set to 1
+    float burstRestTime;
 };
 
 #define theDCASystem DCASystem::GetInstance()
