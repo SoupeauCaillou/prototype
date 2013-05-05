@@ -49,7 +49,7 @@
 
 struct TestScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity plane, dca;
+    Entity plane, dca1, dca2;
     std::list<Entity> paratroopers;
 
     TestScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
@@ -66,8 +66,10 @@ struct TestScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         plane = theEntityManager.CreateEntity("plane",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane"));
-        dca = theEntityManager.CreateEntity("dca",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA"));
+        dca1 = theEntityManager.CreateEntity("dca_player1",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player1"));
+        dca2 = theEntityManager.CreateEntity("dca_player2",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player2"));
     }
 
     ///----------------------------------------------------------------------------//
@@ -77,7 +79,8 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         if (theTouchInputManager.isTouched()) {
             glm::vec2 point = theTouchInputManager.getTouchLastPosition();
-            DCA(dca)->targetPoint = point;
+            DCA(dca1)->targetPoint = point;
+            DCA(dca2)->targetPoint = point;
 
             TransformationComponent *ptc = TRANSFORM(plane);
             if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {

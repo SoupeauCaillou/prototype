@@ -1,0 +1,16 @@
+[Transformation]
+position%screen_w = -.45, -0.3
+size%screen_w = 0.1, 0.1
+z = 1
+
+[Rendering]
+color = 1, 0, 0, 1
+show = 1
+
+[DCA]
+fire_rate = 10
+puissance = 100
+dispersion = 0.5
+maximal_distance_for_activation = 5
+fire_mode = 1
+burst_rest_time = 5
