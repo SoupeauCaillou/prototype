@@ -18,9 +18,9 @@
 */
 #include "PrototypeGame.h"
 
-#include "systems/planesystem.h"
-#include "systems/parachutesystem.h"
-#include "systems/paratroopersystem.h"
+#include "systems/PlaneSystem.h"
+#include "systems/ParachuteSystem.h"
+#include "systems/ParatrooperSystem.h"
 #include "systems/DCASystem.h"
 
 #include <glm/glm.hpp>

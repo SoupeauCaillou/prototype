@@ -1,4 +1,4 @@
-#include "paratroopersystem.h"
+#include "ParatrooperSystem.h"
 
 INSTANCE_IMPL(ParatrooperSystem);
 
@@ -8,7 +8,7 @@ ParatrooperSystem::ParatrooperSystem() : ComponentSystemImpl <ParatrooperCompone
 
 void ParatrooperSystem::DoUpdate(float dt) {
 	//FOR_EACH_ENTITY_COMPONENT(Paratroopera, e, pc)
-	//	
+	//
 	//}
 }
 

@@ -1,6 +1,6 @@
 #include "BulletSystem.h"
 
-#include "systems/ParticuleSystem.h"
+#include "systems/ParatrooperSystem.h"
 
 INSTANCE_IMPL(BulletSystem);
 
@@ -9,9 +9,10 @@ BulletSystem::BulletSystem() : ComponentSystemImpl <BulletComponent>("Bullet") {
 }
 
 void BulletSystem::DoUpdate(float dt) {
-    FOR_EACH_ENTITY_COMPONENT(Bullet, e, dc)
-        LOGI_EVERY_N(100, components.size() << ": " <<  PARTICULE(e)->forceAmplitude.t1 << " and " << PARTICULE(e)->forceAmplitude.t2);
-        break;
+    FOR_EACH_ENTITY_COMPONENT(Bullet, e, bc)
+        FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, pc)
+
+        }
 	}
 }
 

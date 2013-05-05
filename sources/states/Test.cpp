@@ -21,9 +21,9 @@
 #include "PrototypeGame.h"
 
 #include "systems/DCASystem.h"
-#include "systems/parachutesystem.h"
-#include "systems/planesystem.h"
-#include "systems/paratroopersystem.h"
+#include "systems/ParachuteSystem.h"
+#include "systems/PlaneSystem.h"
+#include "systems/ParatrooperSystem.h"
 
 #include "base/EntityManager.h"
 #include "base/StateMachine.h"

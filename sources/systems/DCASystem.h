@@ -15,7 +15,8 @@ struct DCAComponent {
     // in [0; +oo[, number of bullets per sec
 	Frequency<float> fireRate;
 
-    // in radians (R), dispersion angle from the direction axis. Bullets will be in [- angle/2 ; +angle/2]
+    // in radians (R), dispersion angle from the direction axis. Bullets will be in [- angle ; +angle]
+    // using gaussian distribution (deviation = this / 3)
     float dispersion;
 
     // in [0; +oo[, ejection speed of the bullets
