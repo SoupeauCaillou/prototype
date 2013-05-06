@@ -1,5 +1,7 @@
 #include "PlaneSystem.h"
 
+#include "systems/ParatrooperSystem.h"
+
 #include "base/PlacementHelper.h"
 
 #include "systems/PhysicsSystem.h"

@@ -3,8 +3,7 @@
 #include "systems/System.h"
 
 struct ParatrooperComponent {
-	ParatrooperComponent():weight(1), landed(false) {};
-	float weight;
+	ParatrooperComponent():landed(false) {};
 	bool landed;
 };
 

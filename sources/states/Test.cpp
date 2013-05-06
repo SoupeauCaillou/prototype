@@ -49,8 +49,7 @@
 
 struct TestScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity plane, dca1, dca2;
-    // std::list<Entity> paratroopers;
+    Entity plane1, plane2, dca1, dca2;
 
     TestScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -64,8 +63,10 @@ struct TestScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        plane = theEntityManager.CreateEntity("plane",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane"));
+        plane1 = theEntityManager.CreateEntity("plane1",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane1"));
+        plane2 = theEntityManager.CreateEntity("plane2",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane2"));
         dca1 = theEntityManager.CreateEntity("dca_player1",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player1"));
         dca2 = theEntityManager.CreateEntity("dca_player2",
@@ -82,15 +83,20 @@ struct TestScene : public StateHandler<Scene::Enum> {
             DCA(dca1)->targetPoint = point;
             DCA(dca2)->targetPoint = point;
 
-            TransformationComponent *ptc = TRANSFORM(plane);
+            TransformationComponent *ptc = TRANSFORM(plane1);
             if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {
-                PLANE(plane)->dropOne = true;
+                PLANE(plane1)->dropOne = true;
+            }
+
+            ptc = TRANSFORM(plane2);
+            if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {
+                PLANE(plane2)->dropOne = true;
             }
 
             std::vector<Entity> paratroopers = theParatrooperSystem.RetrieveAllEntityWithComponent();
             for (auto& p : paratroopers) {
                 if (IntersectionUtil::pointRectangle(point, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
-                    PARACHUTE(p)->frottement = 1;
+                    // PARACHUTE(p)->frottement = 1;
                     PARACHUTE(p)->enable = true;
                     RENDERING(p)->color = Color(1, 1, 1, 1);
                 }

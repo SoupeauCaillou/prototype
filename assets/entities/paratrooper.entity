@@ -8,14 +8,12 @@ color = 0, 0, 0,1
 show = 1
 
 [Paratrooper]
-weight = 1
 
 [Parachute]
-frottement = 1
-enable = 0
+frottement = 1, 2
 
 [Physics]
-mass = 1
+mass = 1, 10
 gravity = 0, -0.98
 
 [Button]
