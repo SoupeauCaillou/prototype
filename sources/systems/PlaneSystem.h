@@ -7,9 +7,12 @@
 #include <glm/glm.hpp>
 
 struct PlaneComponent {
-	PlaneComponent():paratrooper(1), timeBetweenJumps(1.f){};
+	PlaneComponent():paratrooperAvailable(1), paratrooperLimit(1), dropOne(false), timeBetweenJumps(1.f){};
 	glm::vec2 speed;
-	int paratrooper;
+	int paratrooperAvailable, paratrooperLimit;
+
+	bool dropOne;
+
 	Frequency<float> timeBetweenJumps;
 };
 
@@ -17,11 +20,4 @@ struct PlaneComponent {
 #define PLANE(e) thePlaneSystem.Get(e)
 
 UPDATABLE_SYSTEM(Plane)
-
-	public:
-		void setWorldSize(const glm::vec2 ws);
-		Entity paratrooperJump(Entity& plane);
-
-	private:
-		glm::vec2 worldSize;
 };

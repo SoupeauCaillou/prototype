@@ -12,12 +12,12 @@ gravity = 0, -2
 
 [AutoDestroy]
 type = 1
-params.lifetime.value = 2
+params.lifetime.value = 1
 
-#params.area.x = 1
+#params.area.x = 0
 #params.area.y = 0
-#params.area.w = 10
-#params.area.h = 10
+#params.area.w = 12
+#params.area.h = 12
 
 [Bullet]
 

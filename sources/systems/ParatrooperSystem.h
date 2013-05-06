@@ -3,7 +3,9 @@
 #include "systems/System.h"
 
 struct ParatrooperComponent {
-	float weight;	
+	ParatrooperComponent():weight(1), landed(false) {};
+	float weight;
+	bool landed;
 };
 
 #define theParatrooperSystem ParatrooperSystem::GetInstance()

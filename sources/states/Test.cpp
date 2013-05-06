@@ -50,7 +50,7 @@
 struct TestScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity plane, dca1, dca2;
-    std::list<Entity> paratroopers;
+    // std::list<Entity> paratroopers;
 
     TestScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -84,11 +84,10 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
             TransformationComponent *ptc = TRANSFORM(plane);
             if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {
-                Entity paratrooper = thePlaneSystem.paratrooperJump(plane);
-                if (paratrooper)
-                    paratroopers.push_back(paratrooper);
+                PLANE(plane)->dropOne = true;
             }
 
+            std::vector<Entity> paratroopers = theParatrooperSystem.RetrieveAllEntityWithComponent();
             for (auto& p : paratroopers) {
                 if (IntersectionUtil::pointRectangle(point, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
                     PARACHUTE(p)->frottement = 1;

@@ -1,5 +1,15 @@
 #include "ParatrooperSystem.h"
 
+#include "base/PlacementHelper.h"
+
+#include "systems/RenderingSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/PhysicsSystem.h"
+
+#include "util/IntersectionUtil.h"
+
+#include <glm/glm.hpp>
+
 INSTANCE_IMPL(ParatrooperSystem);
 
 ParatrooperSystem::ParatrooperSystem() : ComponentSystemImpl <ParatrooperComponent>("Paratrooper") {
@@ -7,9 +17,13 @@ ParatrooperSystem::ParatrooperSystem() : ComponentSystemImpl <ParatrooperCompone
 }
 
 void ParatrooperSystem::DoUpdate(float) {
-	//FOR_EACH_ENTITY_COMPONENT(Paratroopera, e, pc)
-	//
-	//}
+	FOR_EACH_ENTITY_COMPONENT(Paratrooper, e, pc)
+		if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->position.x, -PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->position, TRANSFORM(e)->size)) {
+			pc->landed = true;
+			PHYSICS(e)->linearVelocity = glm::vec2(0.f);
+			RENDERING(e)->color = Color(0, 1, 0);
+		}
+	}
 }
 
 #if SAC_INGAME_EDITORS

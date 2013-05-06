@@ -125,8 +125,6 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
 
-    thePlaneSystem.setWorldSize(TRANSFORM(camera)->size);
-
     sceneStateMachine.setup(Scene::Menu);
     sceneStateMachine.reEnterCurrentState();
 
