@@ -9,7 +9,7 @@ show = 1
 
 [Plane]
 speed = 1, 0
-paratrooper = 1
+paratrooperLimit = 10
 timeBetweenJumps = 1
 debug = 1
 

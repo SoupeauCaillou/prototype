@@ -10,7 +10,7 @@ show = 1
 [Paratrooper]
 
 [Parachute]
-frottement = 1, 2
+frottement = 1, 10
 
 [Physics]
 mass = 1, 10
@@ -18,3 +18,10 @@ gravity = 0, -0.98
 
 [Button]
 enabled = 1
+
+[AutoDestroy]
+type = 0
+params.area.x = 0
+params.area.y = 0
+params.area.w = 20
+params.area.h = 14

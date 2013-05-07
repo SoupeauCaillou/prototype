@@ -2,6 +2,7 @@
 
 #include "base/PlacementHelper.h"
 
+#include "systems/AutoDestroySystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
@@ -22,16 +23,20 @@ void ParatrooperSystem::DoUpdate(float) {
 				if (glm::abs(PHYSICS(e)->linearVelocity.y) > 1.5f){
 					LOGW("Soldier "<< e << " crashed");
 					RENDERING(e)->color = Color(1, 0, 0);
+					PHYSICS(e)->mass = 0;
+					AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
+					AUTO_DESTROY(e)->params.lifetime.value = 1;
 				}
 				else {
 					LOGW("Soldier "<< e << " landed");
 					RENDERING(e)->color = Color(0, 1, 0);
+					PHYSICS(e)->linearVelocity.y = 0;
 				}
 				pc->landed = true;
-				std::cout << PHYSICS(e)->linearVelocity.x << " " << PHYSICS(e)->linearVelocity << std::endl;
-				PHYSICS(e)->linearVelocity = glm::vec2(0.f);
-				PHYSICS(e)->mass = 0;
 			}
+		}
+		else {
+			TRANSFORM(e)->position.y = (TRANSFORM(e)->size.y-PlacementHelper::ScreenHeight)/2.f;
 		}
 	}
 }

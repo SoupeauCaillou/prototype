@@ -37,10 +37,12 @@ void PlaneSystem::DoUpdate(float dt) {
 		        TRANSFORM(paratrooper)->position = TRANSFORM(e)->position;
 		        PHYSICS(paratrooper)->linearVelocity.x = PHYSICS(e)->linearVelocity.x;
 		        --pc->paratrooperAvailable;
-
-		        -- pc->timeBetweenJumps.accum;
 			}
 			pc->dropOne = false;
+		}
+
+		if (pc->timeBetweenJumps.accum > 1.f) {
+			-- pc->timeBetweenJumps.accum;
 		}
 
 		pc->timeBetweenJumps.accum += dt * pc->timeBetweenJumps.value;

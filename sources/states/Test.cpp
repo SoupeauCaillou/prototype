@@ -95,8 +95,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
             std::vector<Entity> paratroopers = theParatrooperSystem.RetrieveAllEntityWithComponent();
             for (auto& p : paratroopers) {
-                if (IntersectionUtil::pointRectangle(point, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
-                    // PARACHUTE(p)->frottement = 1;
+                if (IntersectionUtil::pointRectangle(point, TRANSFORM(p)->position, TRANSFORM(p)->size*2.f)) {
                     PARACHUTE(p)->enable = true;
                     RENDERING(p)->color = Color(1, 1, 1, 1);
                 }
