@@ -79,26 +79,36 @@ struct TestScene : public StateHandler<Scene::Enum> {
     Scene::Enum update(float) override {
 
         if (theTouchInputManager.isTouched()) {
-            glm::vec2 point = theTouchInputManager.getTouchLastPosition();
-            DCA(dca1)->targetPoint = point;
-            DCA(dca2)->targetPoint = point;
+            glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition();
+            DCA(dca1)->targetPoint = cursorPosition;
+            DCA(dca2)->targetPoint = cursorPosition;
+        }
 
-            TransformationComponent *ptc = TRANSFORM(plane1);
-            if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {
-                PLANE(plane1)->dropOne = true;
+        FOR_EACH_ENTITY_COMPONENT(Plane, p, pc)
+            //clicking on a plane
+            if (BUTTON(p)->clicked) {
+                pc->dropOne = true;
             }
+        }
 
-            ptc = TRANSFORM(plane2);
-            if (IntersectionUtil::pointRectangle(point, ptc->position, ptc->size)) {
-                PLANE(plane2)->dropOne = true;
-            }
+        FOR_EACH_ENTITY(Paratrooper, p)
+            //already got a parachute. Oust!
+            if (TRANSFORM(p)->parent)
+                continue;
 
-            std::vector<Entity> paratroopers = theParatrooperSystem.RetrieveAllEntityWithComponent();
-            for (auto& p : paratroopers) {
-                if (IntersectionUtil::pointRectangle(point, TRANSFORM(p)->position, TRANSFORM(p)->size*2.f)) {
-                    PARACHUTE(p)->enable = true;
-                    RENDERING(p)->color = Color(1, 1, 1, 1);
-                }
+            //clicking on a paratrooper
+            if (BUTTON(p)->clicked ) {
+                //create a parachute
+                Entity parachute = theEntityManager.CreateEntity("parachute",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
+                TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, TRANSFORM(p)->size.y);
+                TRANSFORM(p)->parent = parachute;
+                TRANSFORM(p)->position = -glm::vec2(0.f, TRANSFORM(p)->size.y);
+                TRANSFORM(p)->z = 0;
+
+                //should be better done than that..
+                PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
+                RENDERING(p)->color = Color(1, 1, 1, 1);
             }
         }
 

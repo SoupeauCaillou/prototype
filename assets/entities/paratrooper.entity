@@ -1,6 +1,6 @@
 [Transformation]
 position = 0, 0
-size%screen_h = 0.01, 0.02
+size%screen_h = 0.05, 0.1
 z = 1
 
 [Rendering]
@@ -9,15 +9,12 @@ show = 1
 
 [Paratrooper]
 
-[Parachute]
-frottement = 1, 10
-
 [Physics]
 mass = 1, 10
 gravity = 0, -0.98
 
 [Button]
-enabled = 1
+enabled = 0
 
 [AutoDestroy]
 type = 0

@@ -3,9 +3,8 @@
 #include "systems/System.h"
 
 struct ParachuteComponent {
-	ParachuteComponent():frottement(1.f), enable(false){};
+	ParachuteComponent(): frottement(1.f) {};
 	float frottement;
-	bool enable;
 };
 
 #define theParachuteSystem ParachuteSystem::GetInstance()

@@ -5,6 +5,7 @@
 #include "base/PlacementHelper.h"
 
 #include "systems/PhysicsSystem.h"
+#include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
 
 #include "util/IntersectionUtil.h"
@@ -31,11 +32,16 @@ void PlaneSystem::DoUpdate(float dt) {
 		}
 
 		if (pc->dropOne) {
+            //if one guy is available and there was some time since the last drop...
 			if (pc->paratrooperAvailable && pc->timeBetweenJumps.accum > 1.f) {
 				Entity paratrooper = theEntityManager.CreateEntity("paratrooper",
 	                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("paratrooper"));
 		        TRANSFORM(paratrooper)->position = TRANSFORM(e)->position;
 		        PHYSICS(paratrooper)->linearVelocity.x = PHYSICS(e)->linearVelocity.x;
+
+                //activate 'BUTTON'
+                BUTTON(paratrooper)->enabled = true;
+
 		        --pc->paratrooperAvailable;
 		        pc->timeBetweenJumps.accum = 0;
 			}
