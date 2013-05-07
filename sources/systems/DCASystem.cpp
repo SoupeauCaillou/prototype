@@ -32,7 +32,7 @@ void DCASystem::DoUpdate(float dt) {
 
         //too far away! skip it
         if ( glm::length2(fireDirection) > dc->maximalDistanceForActivation * dc->maximalDistanceForActivation) {
-            LOGW_EVERY_N(180, "can't shoot! too far away dude");
+            //LOGW_EVERY_N(180, "can't shoot! too far away dude");
             continue;
         }
         fireDirection = glm::normalize(fireDirection);
