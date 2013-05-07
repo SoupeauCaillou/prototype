@@ -21,7 +21,5 @@ enabled = 1
 
 [AutoDestroy]
 type = 0
-params.area.x = 0
-params.area.y = 0
-params.area.w = 20
-params.area.h = 14
+params.area.position = 0, 0
+params.area.size%screen = 1, 1

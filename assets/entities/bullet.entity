@@ -11,13 +11,11 @@ mass = 0.1
 gravity = 0, -2
 
 [AutoDestroy]
-type = 1
+type = 0
 params.lifetime.value = 1
 
-#params.area.x = 0
-#params.area.y = 0
-#params.area.w = 12
-#params.area.h = 12
+params.area.position = 0, 0
+params.area.size%screen = 1, 1
 
 [Bullet]
 

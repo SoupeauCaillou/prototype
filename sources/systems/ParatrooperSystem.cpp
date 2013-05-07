@@ -25,7 +25,7 @@ void ParatrooperSystem::DoUpdate(float) {
 					RENDERING(e)->color = Color(1, 0, 0);
 					PHYSICS(e)->mass = 0;
 					AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
-					AUTO_DESTROY(e)->params.lifetime.value = 1;
+					AUTO_DESTROY(e)->params.lifetime.freq.value = 1;
 				}
 				else {
 					LOGW("Soldier "<< e << " landed");
