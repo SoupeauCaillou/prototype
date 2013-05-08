@@ -98,14 +98,15 @@ struct TestScene : public StateHandler<Scene::Enum> {
             glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition();
             DCA(dca1)->targetPoint = cursorPosition;
             DCA(dca2)->targetPoint = cursorPosition;
-        }
-
-        FOR_EACH_ENTITY_COMPONENT(Plane, p, pc)
-            //clicking on a plane
-            if (BUTTON(p)->clicked) {
-                pc->dropOne = true;
+            FOR_EACH_ENTITY_COMPONENT(Plane, p, pc)
+                //clicking on a plane
+                if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
+                    pc->dropOne = true;
+                }
             }
-        }
+       }
+
+
 
         FOR_EACH_ENTITY(Paratrooper, p)
             //already got a parachute. Oust!
