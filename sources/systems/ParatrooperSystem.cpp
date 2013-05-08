@@ -25,7 +25,7 @@ void ParatrooperSystem::DoUpdate(float) {
 			if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->worldPosition.x,
 				-PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->worldPosition, TRANSFORM(e)->size)) {
 				RENDERING(e)->color = PLAYER(pc->owner)->playerColor;
-				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 1.5f){
+				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 3.f){
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' crashed at speed " << glm::abs(PHYSICS(e)->linearVelocity.y));
 					pc->dead = true;
 					PHYSICS(e)->mass = 0;
@@ -37,7 +37,7 @@ void ParatrooperSystem::DoUpdate(float) {
 					PHYSICS(e)->linearVelocity.y = 0;
 				}
 				PHYSICS(e)->gravity = glm::vec2(0.f);
-				
+
 				//delete the parachute if any
                 Entity parent = TRANSFORM(e)->parent;
                 if (parent) {

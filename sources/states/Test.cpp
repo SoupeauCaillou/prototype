@@ -74,10 +74,10 @@ struct TestScene : public StateHandler<Scene::Enum> {
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane1"));
         plane2 = theEntityManager.CreateEntity("plane2",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane2"));
-        dca1 = theEntityManager.CreateEntity("dca_player1",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player1"));
-        dca2 = theEntityManager.CreateEntity("dca_player2",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player2"));
+        dca1 = theEntityManager.CreateEntity("dca1",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA1"));
+        dca2 = theEntityManager.CreateEntity("dca2",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA2"));
 
         PLANE(plane1)->owner = player1;
         DCA(dca1)->owner = player1;
