@@ -44,17 +44,15 @@ void ParachuteSystem::DoUpdate(float dt) {
         if (pc->destroyedLeft && pc->destroyedRight) {
             destroyParachute(e);
         } else {
-//            glm::vec2 offset = glm::vec2(TRANSFORM(e)->size.x / 2.f, 0.f);
-            glm::vec2 offset = glm::vec2(100, 0.f);
+            glm::vec2 applicationPoint = glm::vec2(TRANSFORM(e)->size.x / 2.f, 0.f);
+            glm::vec2 force = glm::vec2(0.f, 0.5f * pc->frottement * phc->linearVelocity.y * phc->linearVelocity.y);
             //add air resistance force on the right of the parachute(drag)
             if (! pc->destroyedLeft) {
-        		float force = 0.5f * pc->frottement * phc->linearVelocity.y * phc->linearVelocity.y;
-        		phc->addForce(glm::vec2(0.f, force), -offset, dt);
+        		phc->addForce(force, -applicationPoint, dt);
             }
             //add air resistance force on the left of the parachute(drag)
             if (! pc->destroyedRight) {
-                float force = 0.5f * pc->frottement * phc->linearVelocity.y * phc->linearVelocity.y;
-                phc->addForce(glm::vec2(0.f, force), offset, dt);
+                phc->addForce(force, applicationPoint, dt);
             }
         }
 	}
