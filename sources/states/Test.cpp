@@ -117,9 +117,9 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 //create a parachute
                 Entity parachute = theEntityManager.CreateEntity("parachute",
                 EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
-                TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, TRANSFORM(p)->size.y);
+                TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
                 TRANSFORM(p)->parent = parachute;
-                TRANSFORM(p)->position = -glm::vec2(0.f, TRANSFORM(p)->size.y);
+                TRANSFORM(p)->position = -glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
                 TRANSFORM(p)->z = 0;
 
                 //should be better done than that..

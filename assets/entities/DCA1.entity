@@ -4,13 +4,13 @@ size%screen_w = 0.04, 0.04
 z = 1
 
 [Rendering]
-color = 1, 0, 0, 1
+color = 0, 1, 0, 1
 show = 1
 
 [DCA]
-fire_rate = 10
+fire_rate = 1
 puissance = 100
 dispersion = 0.5
 maximal_distance_for_activation = 5
 fire_mode = 1
-burst_rest_time = 5
+burst_rest_time = 1
