@@ -16,12 +16,12 @@
 	You should have received a copy of the GNU General Public License
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
-package net.damsy.soupeaucaillou.prototype;
+package net.damsy.soupeaucaillou.paratroopers;
 
 import android.app.Application;
 
 
-public class PrototypeApplication extends Application {
+public class ParatroopersApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();

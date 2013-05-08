@@ -18,7 +18,7 @@
 */
 
 
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 
 #include "systems/DCASystem.h"
 #include "systems/ParachuteSystem.h"
@@ -49,11 +49,11 @@
 #include <iomanip>
 
 struct TestScene : public StateHandler<Scene::Enum> {
-    PrototypeGame* game;
+    ParatroopersGame* game;
     Entity plane1, plane2, dca1, dca2;
     Entity player1, player2;
 
-    TestScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    TestScene(ParatroopersGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
@@ -142,7 +142,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateTestSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateTestSceneHandler(ParatroopersGame* game) {
         return new TestScene(game);
     }
 }

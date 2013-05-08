@@ -28,20 +28,20 @@
 #include "systems/TextRenderingSystem.h"
 #include "systems/GraphSystem.h"
 
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 #include "api/CommunicationAPI.h"
 #include "api/StorageAPI.h"
 
 #include "util/ScoreStorageProxy.h"
 
 struct SocialCenterScene : public StateHandler<Scene::Enum> {
-    PrototypeGame* game;
+    ParatroopersGame* game;
 
     Entity graph;
 
     Entity menuBtn;
 
-    SocialCenterScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    SocialCenterScene(ParatroopersGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
@@ -127,7 +127,7 @@ struct SocialCenterScene : public StateHandler<Scene::Enum> {
 
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateSocialCenterSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateSocialCenterSceneHandler(ParatroopersGame* game) {
         return new SocialCenterScene(game);
     }
 }

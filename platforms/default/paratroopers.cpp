@@ -16,13 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 #include "app/AppSetup.h"
 
 int main(int argc, char** argv) {
-    if (initGame("Prototype", glm::ivec2(900, 625))) {
+    if (initGame("Paratroopers", glm::ivec2(900, 625))) {
         LOGE("Failed to initialize");
         return 1;
     }
-    return launchGame(new PrototypeGame(), argc, argv);
+    return launchGame(new ParatroopersGame(), argc, argv);
 }

@@ -28,7 +28,7 @@
 #include "systems/RenderingSystem.h"
 #include "systems/SoundSystem.h"
 
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 
 enum LogoStep {
     LogoStep0,
@@ -63,13 +63,13 @@ struct LogoTimeBasedStateHandler : public StateHandler<LogoStep> {
 };
 
 class LogoScene : public StateHandler<Scene::Enum> {
-    PrototypeGame* game;
+    ParatroopersGame* game;
     Entity logo, animLogo, logobg, logofade;
     StateMachine<LogoStep>* logoSM;
 
 public:
 
-    LogoScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    LogoScene(ParatroopersGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
@@ -181,7 +181,7 @@ public:
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateLogoSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateLogoSceneHandler(ParatroopersGame* game) {
         return new LogoScene(game);
     }
 }

@@ -1,6 +1,6 @@
 #if SAC_INGAME_EDITORS
 
-#include "PrototypeDebugConsole.h"
+#include "ParatroopersDebugConsole.h"
 
 #include "base/Log.h"
 #include "base/ObjectSerializer.h"
@@ -9,11 +9,11 @@
 
 #include <glm/gtc/random.hpp>
 
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 #include "api/StorageAPI.h"
-PrototypeGame* PrototypeDebugConsole::_game = 0;
+ParatroopersGame* ParatroopersDebugConsole::_game = 0;
 
-void PrototypeDebugConsole::callbackSubmitRandomScore(void* arg) {
+void ParatroopersDebugConsole::callbackSubmitRandomScore(void* arg) {
     int count = *(int*)arg;
     while (--count > -1) {
         ScoreStorageProxy ssp;
@@ -23,7 +23,7 @@ void PrototypeDebugConsole::callbackSubmitRandomScore(void* arg) {
     }
 }
 
-void PrototypeDebugConsole::init(PrototypeGame* game) {
+void ParatroopersDebugConsole::init(ParatroopersGame* game) {
     _game = game;
 
     TwEnumVal numberToGenerate[] = { {1, "1"}, {10, "10"}, {100, "100"} };

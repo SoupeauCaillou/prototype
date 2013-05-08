@@ -2,16 +2,16 @@
 
 #include "util/DebugConsole.h"
 
-class PrototypeGame;
+class ParatroopersGame;
 
-class PrototypeDebugConsole {
+class ParatroopersDebugConsole {
     public:
-        static void init(PrototypeGame* game);
+        static void init(ParatroopersGame* game);
         static void callbackSubmitRandomScore(void* arg);
 
     private:
         //to interact with the game
-        static PrototypeGame* _game;
+        static ParatroopersGame* _game;
 };
 
 #endif

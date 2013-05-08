@@ -37,14 +37,14 @@
 #include "api/StorageAPI.h"
 #include "util/ScoreStorageProxy.h"
 
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
-    PrototypeGame* game;
+    ParatroopersGame* game;
     Entity socialBtn, timer;
     float timeElapsed;
 
-    MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    MenuScene(ParatroopersGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
         timeElapsed = 0.f;
     }
@@ -149,7 +149,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateMenuSceneHandler(ParatroopersGame* game) {
         return new MenuScene(game);
     }
 }

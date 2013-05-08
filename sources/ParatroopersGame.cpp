@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU General Public License
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PrototypeGame.h"
+#include "ParatroopersGame.h"
 
 #include "systems/PlaneSystem.h"
 #include "systems/PlayerSystem.h"
@@ -58,20 +58,20 @@
 #include "systems/BulletSystem.h"
 
 #if SAC_INGAME_EDITORS
-#include "util/PrototypeDebugConsole.h"
+#include "util/ParatroopersDebugConsole.h"
 #endif
 
 #define ZOOM 1
 
 
-PrototypeGame::PrototypeGame() : Game() {
+ParatroopersGame::ParatroopersGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
     sceneStateMachine.registerState(Scene::Test, Scene::CreateTestSceneHandler(this), "Scene::Test");
 }
 
-bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
+bool ParatroopersGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
         case ContextAPI::Localize:
@@ -83,13 +83,13 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     }
 }
 
-void PrototypeGame::sacInit(int windowW, int windowH) {
+void ParatroopersGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...")
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
-    gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
+    gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Paratroopers");
     ScoreStorageProxy ssp;
     gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
@@ -105,8 +105,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation done.")
 }
 
-void PrototypeGame::init(const uint8_t*, int) {
-    LOGI("PrototypeGame initialisation begins...")
+void ParatroopersGame::init(const uint8_t*, int) {
+    LOGI("ParatroopersGame initialisation begins...")
     // sceneStateMachine.setup(Scene::Menu);
     // sceneStateMachine.reEnterCurrentState();
     PlaneSystem::CreateInstance();
@@ -131,25 +131,25 @@ void PrototypeGame::init(const uint8_t*, int) {
     sceneStateMachine.reEnterCurrentState();
 
 #if SAC_INGAME_EDITORS
-    PrototypeDebugConsole::init(this);
+    ParatroopersDebugConsole::init(this);
 #endif
 
     quickInit();
-    LOGI("PrototypeGame initialisation done.")
+    LOGI("ParatroopersGame initialisation done.")
 }
 
-void PrototypeGame::quickInit() {
+void ParatroopersGame::quickInit() {
     sceneStateMachine.reEnterCurrentState();
 }
 
-void PrototypeGame::backPressed() {
+void ParatroopersGame::backPressed() {
 }
 
-void PrototypeGame::togglePause(bool) {
+void ParatroopersGame::togglePause(bool) {
 
 }
 
-void PrototypeGame::tick(float dt) {
+void ParatroopersGame::tick(float dt) {
     if (dt > 0) {
         sceneStateMachine.update(dt);
         thePlaneSystem.Update(dt);
@@ -160,6 +160,6 @@ void PrototypeGame::tick(float dt) {
     }
 }
 
-bool PrototypeGame::willConsumeBackEvent() {
+bool ParatroopersGame::willConsumeBackEvent() {
     return false;
 }

@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 APP_DIR := $(LOCAL_PATH)
 
-LOCAL_MODULE := prototype
+LOCAL_MODULE := paratroopers
 
 LOCAL_CFLAGS := -DANDROID_NDK \
                 -DDISABLE_IMPORTGL \
@@ -19,8 +19,8 @@ LOCAL_CXXFLAGS := -DANDROID_NDK \
 				-I$(LOCAL_PATH)/../sac/libs/
 
 LOCAL_SRC_FILES := \
-    prototype.cpp \
-    ../sources/PrototypeGame.cpp \
+    paratroopers.cpp \
+    ../sources/ParatroopersGame.cpp \
     ../sources/states/LogoStateManager.cpp \
     ../sources/states/MenuStateManager.cpp \
     ../sources/states/TransitionStateManager.cpp \

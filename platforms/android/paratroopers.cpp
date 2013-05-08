@@ -16,35 +16,31 @@
 	You should have received a copy of the GNU General Public License
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
-#pragma once
 
-#include <string>
-#include <vector>
-#include "base/StateMachine.h"
-#include "states/Scenes.h"
-
-#include "base/Game.h"
-#include "base/GameContext.h"
-
-#include "systems/RenderingSystem.h"
-
-#include "api/LocalizeAPI.h"
-#include "api/AdAPI.h"
-
-class PrototypeGame : public Game {
+#include "android/sacjnilib.h"
+#include "../sources/ParatroopersGame.h"
+/*
+class ParatroopersGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
 	public:
-		PrototypeGame();
 
-        bool wantsAPI(ContextAPI::Enum api) const;
-        void sacInit(int windowW, int windowH);
-        void init(const uint8_t* in = 0, int size = 0);
-        void quickInit();
-        void tick(float dt);
-		void togglePause(bool activate);
-        bool willConsumeBackEvent();
-		void backPressed();
+    void init(JNIEnv* pEnv, jobject assetMgr) {
+	    GameThreadJNIEnvCtx::init(pEnv, assetMgr);
+    }
 
-        Entity camera;
-    private:
-        StateMachine<Scene::Enum> sceneStateMachine;
+    void uninit(JNIEnv* pEnv) {
+		if (env == pEnv) {
+		}
+		GameThreadJNIEnvCtx::uninit(pEnv);
+    }
+};
+*/
+GameHolder* GameHolder::build() {
+	GameHolder* hld = new GameHolder();
+
+/*
+	ParatroopersGameThreadJNIEnvCtx* jniCtx = new ParatroopersGameThreadJNIEnvCtx();
+	hld->gameThreadJNICtx = jniCtx;
+*/
+	hld->game = new ParatroopersGame();
+	return hld;
 };

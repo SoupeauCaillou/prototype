@@ -18,7 +18,7 @@
 */
 #pragma once
 
-class PrototypeGame;
+class ParatroopersGame;
 
 namespace Scene {
    enum Enum {
@@ -29,7 +29,7 @@ namespace Scene {
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \
-  StateHandler<Scene::Enum>* Create##name##SceneHandler(PrototypeGame* game);
+  StateHandler<Scene::Enum>* Create##name##SceneHandler(ParatroopersGame* game);
 
   DECLARE_SCENE_HANDLER_FACTORY(Logo)
   DECLARE_SCENE_HANDLER_FACTORY(Menu)
