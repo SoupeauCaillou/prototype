@@ -3,8 +3,10 @@
 #include "systems/System.h"
 
 struct ParatrooperComponent {
-	ParatrooperComponent():landed(false) {};
+	ParatrooperComponent():landed(false), dead(false), owner(0) {};
 	bool landed;
+	bool dead;
+	Entity owner;
 };
 
 #define theParatrooperSystem ParatrooperSystem::GetInstance()

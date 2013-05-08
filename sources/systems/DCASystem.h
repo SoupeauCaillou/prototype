@@ -8,7 +8,8 @@
 
 struct DCAComponent {
     DCAComponent() : targetPoint(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f),
-     puissance(100.f), maximalDistanceForActivation(5), fireMode(EFireMode::FULL_AUTO), burstBulletCount(0), burstRestTime(1.f) {}
+     puissance(100.f), maximalDistanceForActivation(5), fireMode(EFireMode::FULL_AUTO), burstBulletCount(0), burstRestTime(1.f),
+     owner(0) {}
 
     //point where the DCA should aim
 	glm::vec2 targetPoint;
@@ -38,6 +39,9 @@ struct DCAComponent {
     // --ONLY BURST FIREMODE-- time between 2 consecutives burst /!\ it depends on the firerate of course
     // this value will represent real time when the firerate will be set to 1
     float burstRestTime;
+
+    // who is the owner of this cannon ?
+    Entity owner;
 };
 
 #define theDCASystem DCASystem::GetInstance()

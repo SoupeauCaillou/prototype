@@ -1,5 +1,7 @@
 #include "ParatrooperSystem.h"
 
+#include "systems/PlayerSystem.h"
+
 #include "base/PlacementHelper.h"
 
 #include "systems/AutoDestroySystem.h"
@@ -19,23 +21,24 @@ ParatrooperSystem::ParatrooperSystem() : ComponentSystemImpl <ParatrooperCompone
 void ParatrooperSystem::DoUpdate(float) {
 	FOR_EACH_ENTITY_COMPONENT(Paratrooper, e, pc)
 		if (!pc->landed) {
-            //touching the ground (landing)
+			//touching the ground (landing)
 			if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->worldPosition.x,
-             -PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->worldPosition, TRANSFORM(e)->size)) {
-				if (glm::abs(PHYSICS(e)->linearVelocity.y) > 3.f){
+				-PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->worldPosition, TRANSFORM(e)->size)) {
+				RENDERING(e)->color = PLAYER(pc->owner)->playerColor;
+				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 1.5f){
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' crashed at speed " << glm::abs(PHYSICS(e)->linearVelocity.y));
-					RENDERING(e)->color = Color(1, 0, 0);
+					pc->dead = true;
 					PHYSICS(e)->mass = 0;
 					AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
-					AUTO_DESTROY(e)->params.lifetime.freq.value = 1;
-				} else {
+					AUTO_DESTROY(e)->params.lifetime.value = 1;
+				}
+				else {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' landed");
-					RENDERING(e)->color = Color(0, 1, 0);
 					PHYSICS(e)->linearVelocity.y = 0;
 				}
-                PHYSICS(e)->gravity = glm::vec2(0.f);
-
-                //delete the parachute if any
+				PHYSICS(e)->gravity = glm::vec2(0.f);
+				
+				//delete the parachute if any
                 Entity parent = TRANSFORM(e)->parent;
                 if (parent) {
                     TRANSFORM(e)->z = TRANSFORM(parent)->z;
@@ -46,6 +49,17 @@ void ParatrooperSystem::DoUpdate(float) {
 
 				pc->landed = true;
 			}
+		}
+		else {
+            std::vector<Entity> players = thePlayerSystem.RetrieveAllEntityWithComponent();
+            for (auto p: players) {
+	            if (pc->owner == p)
+	                continue;
+	            if (!pc->dead && IntersectionUtil::pointRectangle(TRANSFORM(e)->position, TRANSFORM(p)->position, TRANSFORM(p)->size))
+	                ++PLAYER(pc->owner)->score;
+	            AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
+	            AUTO_DESTROY(e)->params.lifetime.value = 0;
+	        }
 		}
 	}
 }

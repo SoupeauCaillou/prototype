@@ -19,6 +19,7 @@
 #include "PrototypeGame.h"
 
 #include "systems/PlaneSystem.h"
+#include "systems/PlayerSystem.h"
 #include "systems/ParachuteSystem.h"
 #include "systems/ParatrooperSystem.h"
 #include "systems/DCASystem.h"
@@ -109,6 +110,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     // sceneStateMachine.setup(Scene::Menu);
     // sceneStateMachine.reEnterCurrentState();
     PlaneSystem::CreateInstance();
+    PlayerSystem::CreateInstance();
     BulletSystem::CreateInstance();
     ParatrooperSystem::CreateInstance();
     ParachuteSystem::CreateInstance();

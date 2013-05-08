@@ -1,11 +1,14 @@
 #include "PlaneSystem.h"
 
+#include "systems/PlayerSystem.h"
 #include "systems/ParatrooperSystem.h"
 
 #include "base/PlacementHelper.h"
 
-#include "systems/PhysicsSystem.h"
+
 #include "systems/ButtonSystem.h"
+#include "systems/PhysicsSystem.h"
+#include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 
 #include "util/IntersectionUtil.h"
@@ -36,7 +39,9 @@ void PlaneSystem::DoUpdate(float dt) {
 			if (pc->paratrooperAvailable && pc->timeBetweenJumps.accum > 1.f) {
 				Entity paratrooper = theEntityManager.CreateEntity("paratrooper",
 	                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("paratrooper"));
+		        PARATROOPER(paratrooper)->owner = pc->owner;
 		        TRANSFORM(paratrooper)->position = TRANSFORM(e)->position;
+		        RENDERING(paratrooper)->color = PLAYER(pc->owner)->playerColor;
 		        PHYSICS(paratrooper)->linearVelocity.x = PHYSICS(e)->linearVelocity.x;
 
                 //activate 'BUTTON'

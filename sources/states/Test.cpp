@@ -22,8 +22,9 @@
 
 #include "systems/DCASystem.h"
 #include "systems/ParachuteSystem.h"
-#include "systems/PlaneSystem.h"
 #include "systems/ParatrooperSystem.h"
+#include "systems/PlaneSystem.h"
+#include "systems/PlayerSystem.h"
 
 #include "base/EntityManager.h"
 #include "base/StateMachine.h"
@@ -50,6 +51,7 @@
 struct TestScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity plane1, plane2, dca1, dca2;
+    Entity player1, player2;
 
     TestScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -63,6 +65,11 @@ struct TestScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        player1 = theEntityManager.CreateEntity("player1",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("player1"));
+        player2 = theEntityManager.CreateEntity("player2",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("player2"));
+
         plane1 = theEntityManager.CreateEntity("plane1",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane1"));
         plane2 = theEntityManager.CreateEntity("plane2",
@@ -71,6 +78,15 @@ struct TestScene : public StateHandler<Scene::Enum> {
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player1"));
         dca2 = theEntityManager.CreateEntity("dca_player2",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA_player2"));
+
+        PLANE(plane1)->owner = player1;
+        DCA(dca1)->owner = player1;
+        std::cout << PLAYER(player1)->playerColor << std::endl;
+        RENDERING(plane1)->color = RENDERING(dca1)->color = PLAYER(player1)->playerColor;
+
+        PLANE(plane2)->owner = player2;
+        DCA(dca2)->owner = player2;
+        RENDERING(plane2)->color = RENDERING(dca2)->color = PLAYER(player2)->playerColor;
     }
 
     ///----------------------------------------------------------------------------//
@@ -111,6 +127,9 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 RENDERING(p)->color = Color(1, 1, 1, 1);
             }
         }
+
+        LOGW_EVERY_N(500, "player 1 : " << PLAYER(player1)->score);
+        LOGW_EVERY_N(500, "player 2 : " << PLAYER(player2)->score);
 
         return Scene::Test;
     }

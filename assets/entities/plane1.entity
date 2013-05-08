@@ -4,7 +4,6 @@ size%screen_h = 0.2, 0.06
 z = 1
 
 [Rendering]
-color = 0, 0, 0,1
 show = 1
 
 [Plane]
