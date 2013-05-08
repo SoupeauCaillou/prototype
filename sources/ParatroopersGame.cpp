@@ -93,9 +93,10 @@ void ParatroopersGame::sacInit(int windowW, int windowH) {
     ScoreStorageProxy ssp;
     gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
-
     theRenderingSystem.loadAtlas("logo", true);
     theRenderingSystem.loadAtlas("font", true);
+    theRenderingSystem.loadAtlas("graph", false);
+
     // init font
     loadFont(renderThreadContext->assetAPI, "typo");
     std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
