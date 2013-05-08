@@ -124,7 +124,6 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
                 //should be better done than that..
                 PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
-                RENDERING(p)->color = Color(1, 1, 1, 1);
             }
         }
 

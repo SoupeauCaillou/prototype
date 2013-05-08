@@ -30,7 +30,7 @@ void ParatrooperSystem::DoUpdate(float) {
 					pc->dead = true;
 					PHYSICS(e)->mass = 0;
 					AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
-					AUTO_DESTROY(e)->params.lifetime.value = 1;
+					AUTO_DESTROY(e)->params.lifetime.freq.value = 1;
 				}
 				else {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' landed");
@@ -58,7 +58,7 @@ void ParatrooperSystem::DoUpdate(float) {
 	            if (!pc->dead && IntersectionUtil::pointRectangle(TRANSFORM(e)->position, TRANSFORM(p)->position, TRANSFORM(p)->size))
 	                ++PLAYER(pc->owner)->score;
 	            AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
-	            AUTO_DESTROY(e)->params.lifetime.value = 0;
+	            AUTO_DESTROY(e)->params.lifetime.freq.value = 0;
 	        }
 		}
 	}

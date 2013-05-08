@@ -14,6 +14,3 @@ debug = 0
 
 [Physics]
 mass = 1
-
-[Button]
-enabled = 1
