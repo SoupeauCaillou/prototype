@@ -12,3 +12,8 @@ frottement = 1, 10
 [Physics]
 mass = 1, 10
 gravity = 0, -0.98
+
+[AutoDestroy]
+type = 0
+params.area.position = 0, 0
+params.area.size%screen = 1, 1

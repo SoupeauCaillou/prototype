@@ -1,12 +1,39 @@
 #include "ParachuteSystem.h"
 
 #include "systems/PhysicsSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/ParatrooperSystem.h"
 
 INSTANCE_IMPL(ParachuteSystem);
 
 ParachuteSystem::ParachuteSystem() : ComponentSystemImpl <ParachuteComponent>("Parachute") {
 	ParachuteComponent pc;
     componentSerializer.add(new Property<float>("frottement", OFFSET(frottement, pc), 0.001));
+}
+
+void ParachuteSystem::destroyParachute(Entity parachute) {
+    //find the paratrooper associated to the parachute
+    Entity paratrooper = 0;
+    FOR_EACH_ENTITY(Paratrooper, p)
+        if (TRANSFORM(p)->parent == parachute) {
+            paratrooper = p;
+            break;
+        }
+    }
+
+    if (! paratrooper) {
+        LOGE("No paratrooper associated to parachute " << parachute)
+        return;
+    }
+
+    TRANSFORM(paratrooper)->position = TRANSFORM(paratrooper)->worldPosition;
+    TRANSFORM(paratrooper)->z = TRANSFORM(paratrooper)->worldZ;
+    TRANSFORM(paratrooper)->parent = 0;
+
+    //should be better done than that..
+    PHYSICS(paratrooper)->linearVelocity = PHYSICS(parachute)->linearVelocity;
+
+    theEntityManager.DeleteEntity(parachute);
 }
 
 void ParachuteSystem::DoUpdate(float dt) {

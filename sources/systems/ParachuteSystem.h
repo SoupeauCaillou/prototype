@@ -11,4 +11,7 @@ struct ParachuteComponent {
 #define PARACHUTE(e) theParachuteSystem.Get(e)
 
 UPDATABLE_SYSTEM(Parachute)
+
+public:
+    void destroyParachute(Entity parachute);
 };

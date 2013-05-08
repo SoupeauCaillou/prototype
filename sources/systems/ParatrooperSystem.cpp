@@ -51,8 +51,7 @@ void ParatrooperSystem::DoUpdate(float) {
 			}
 		}
 		else {
-            std::vector<Entity> players = thePlayerSystem.RetrieveAllEntityWithComponent();
-            for (auto p: players) {
+            FOR_EACH_ENTITY(Player, p)
 	            if (pc->owner == p)
 	                continue;
 	            if (!pc->dead && IntersectionUtil::pointRectangle(TRANSFORM(e)->position, TRANSFORM(p)->position, TRANSFORM(p)->size))
