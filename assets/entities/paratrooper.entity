@@ -19,4 +19,13 @@ enabled = 0
 [AutoDestroy]
 type = 0
 params.area.position = 0, 0
-params.area.size%screen = 1, 1
+params.area.size%screen = 2, 2
+
+[Particule]
+emission_rate = 0
+duration = 10
+initial_color = 1,0,0,1, 1,0,0,1
+final_color = 0,0,0,0
+lifetime = 3
+initial_size = .05, .05
+final_size = 0, 0

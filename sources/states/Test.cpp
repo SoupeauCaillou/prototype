@@ -103,38 +103,46 @@ struct TestScene : public StateHandler<Scene::Enum> {
                     pc->dropOne = true;
                 }
             }
-       }
-
-        FOR_EACH_ENTITY_COMPONENT(Parachute, p, pc)
-            //add damage to the desired position
-            if (BUTTON(p)->clicked) {
-                glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition(0);
-                LOGI("adding damage for " << theEntityManager.entityName(p) << p
-                    << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(p)->size
-                    << "cursor: " << cursorPosition
-                    << " at " << cursorPosition - TRANSFORM(p)->worldPosition + TRANSFORM(p)->worldPosition / 2.f);
-                pc->damages.push_back(cursorPosition - TRANSFORM(p)->worldPosition + TRANSFORM(p)->size / 2.f);
-            }
         }
-
+       
 
         FOR_EACH_ENTITY(Paratrooper, p)
+            if (theTouchInputManager.isTouched(1)) {
+                glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition(1);
+                if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
+                    LOGW("Soldier '" << theEntityManager.entityName(p) << p << "' is dead");
+                    PARATROOPER(p)->dead = true;
+                }
+                if (TRANSFORM(p)->parent) {
+                    Entity parent = TRANSFORM(p)->parent;
+                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parent)->position, TRANSFORM(parent)->size)) {
+                        LOGI("adding damage for " << theEntityManager.entityName(parent) << parent
+                            << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(parent)->size
+                            << "cursor: " << cursorPosition
+                            << " at " << cursorPosition - TRANSFORM(parent)->worldPosition + TRANSFORM(parent)->worldPosition / 2.f);
+                        PARACHUTE(parent)->damages.push_back(cursorPosition - TRANSFORM(parent)->worldPosition + TRANSFORM(parent)->size / 2.f);
+                    }
+                }
+            }
             //already got a parachute. Oust!
             if (TRANSFORM(p)->parent)
                 continue;
 
             //clicking on a paratrooper
-            if (BUTTON(p)->clicked ) {
-                //create a parachute
-                Entity parachute = theEntityManager.CreateEntity("parachute",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
-                TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
-                TRANSFORM(p)->parent = parachute;
-                TRANSFORM(p)->position = -glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
-                TRANSFORM(p)->z = 0;
+            if (theTouchInputManager.isTouched()) {
+                glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition();
+                if (!PARATROOPER(p)->dead &&  IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
+                    //create a parachute
+                    Entity parachute = theEntityManager.CreateEntity("parachute",
+                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
+                    TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
+                    TRANSFORM(p)->parent = parachute;
+                    TRANSFORM(p)->position = -glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
+                    TRANSFORM(p)->z = 0;
 
-                //should be better done than that..
-                PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
+                    //should be better done than that..
+                    PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
+                }
             }
         }
 

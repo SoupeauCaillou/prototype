@@ -5,9 +5,10 @@
 #include "base/PlacementHelper.h"
 
 #include "systems/AutoDestroySystem.h"
+#include "systems/ParticuleSystem.h"
+#include "systems/PhysicsSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
-#include "systems/PhysicsSystem.h"
 
 #include "util/IntersectionUtil.h"
 
@@ -24,8 +25,9 @@ void ParatrooperSystem::DoUpdate(float) {
 			//touching the ground (landing)
 			if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->worldPosition.x,
 				-PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->worldPosition, TRANSFORM(e)->size)) {
+				
 				RENDERING(e)->color = PLAYER(pc->owner)->playerColor;
-				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 3.f){
+				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 3.f) {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' crashed at speed " << glm::abs(PHYSICS(e)->linearVelocity.y));
 					pc->dead = true;
 					PHYSICS(e)->mass = 0;
@@ -59,6 +61,10 @@ void ParatrooperSystem::DoUpdate(float) {
 	            AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
 	            AUTO_DESTROY(e)->params.lifetime.freq.value = 0;
 	        }
+	    }
+
+		if (pc->dead) {
+			PARTICULE(e)->emissionRate = 10;
 		}
 	}
 }
