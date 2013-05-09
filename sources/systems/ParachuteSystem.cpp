@@ -91,7 +91,7 @@ void ParachuteSystem::DoUpdate(float dt) {
 
 
         //LOGI_EVERY_N(60, pc->damages.size() << ": damage x average position: " << xMaxDamaged << "|" << glm::cos(TRANSFORM(e)->worldRotation))
-        glm::vec2 applicationPoint = glm::vec2(TRANSFORM(e)->size.x / 2.f, 0.f);
+        glm::vec2 applicationPoint = glm::rotate(glm::vec2(TRANSFORM(e)->size.x / 2.f, 0.f), TRANSFORM(e)->worldRotation);
 
         glm::vec2 axe(TRANSFORM(e)->worldPosition-TRANSFORM(paratrooper)->worldPosition);
         axe = glm::normalize(axe);

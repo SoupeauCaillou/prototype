@@ -10,7 +10,7 @@ show = 1
 frottement = 100
 
 [Physics]
-mass = 100
+mass = 5
 gravity = 0, -0.98
 
 [AutoDestroy]
