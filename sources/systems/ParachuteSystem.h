@@ -15,5 +15,5 @@ struct ParachuteComponent {
 UPDATABLE_SYSTEM(Parachute)
 
 public:
-    void destroyParachute(Entity parachute);
+    static void destroyParachute(Entity parachute);
 };

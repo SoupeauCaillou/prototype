@@ -104,7 +104,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 }
             }
         }
-       
+
 
         FOR_EACH_ENTITY(Paratrooper, p)
             if (theTouchInputManager.isTouched(1)) {
@@ -129,20 +129,20 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 continue;
 
             //clicking on a paratrooper
-            if (theTouchInputManager.isTouched()) {
-                glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition();
-                if (!PARATROOPER(p)->dead &&  IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
-                    //create a parachute
-                    Entity parachute = theEntityManager.CreateEntity("parachute",
-                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
-                    TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
-                    TRANSFORM(p)->parent = parachute;
-                    TRANSFORM(p)->position = -glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
-                    TRANSFORM(p)->z = 0;
+            if (BUTTON(p)->clicked ) {
+                //create a parachute
+                Entity parachute = theEntityManager.CreateEntity("parachute",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
+                TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
+                TRANSFORM(p)->parent = parachute;
+                TRANSFORM(p)->position = -glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
+                TRANSFORM(p)->z = 0;
 
-                    //should be better done than that..
-                    PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
-                }
+                AUTO_DESTROY(p)->onDeletionCall = [] (Entity e) { TRANSFORM(e)->parent = 0; };
+                AUTO_DESTROY(parachute)->onDeletionCall = theParachuteSystem.destroyParachute;
+
+                //should be better done than that..
+                PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
             }
         }
 
