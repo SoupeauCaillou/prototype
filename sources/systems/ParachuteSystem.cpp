@@ -33,11 +33,8 @@ void ParachuteSystem::destroyParachute(Entity parachute) {
 
     //should be better done than that..
     PHYSICS(paratrooper)->linearVelocity = PHYSICS(parachute)->linearVelocity;
-/*
-    theEntityManager.DeleteEntity(PARACHUTE(parachute)->vect[0]);
-    theEntityManager.DeleteEntity(PARACHUTE(parachute)->vect[1]);
-    theEntityManager.DeleteEntity(PARACHUTE(parachute)->vect[2]);
-  */  theEntityManager.DeleteEntity(parachute);
+
+    theEntityManager.DeleteEntity(parachute);
 }
 
 void ParachuteSystem::DoUpdate(float dt) {
@@ -86,7 +83,7 @@ void ParachuteSystem::DoUpdate(float dt) {
             if (! paratrooper) theEntityManager.DeleteEntity(e);
             glm::vec2 direction(TRANSFORM(e)->worldPosition-TRANSFORM(paratrooper)->worldPosition);
 
-            LOGI("adding force " << PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity << " to" << -direction);
+            //LOGI("adding force " << PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity << " to" << -direction);
             phc->addForce(PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity,
                 -direction, dt);
 
@@ -99,32 +96,11 @@ void ParachuteSystem::DoUpdate(float dt) {
             float amplitude = - dot * 0.5f * pc->frottement;
 
             glm::vec2 force( amplitude * direction);
-/*
-             if (glm::cos(TRANSFORM(e)->worldRotation) < 0.5f) {
-                int side = (glm::sin(TRANSFORM(e)->worldRotation) > 0.f) ? 1 : -1;
-                phc->addForce(side* 100.f * direction , -applicationPoint, dt);
-                phc->addForce(-side * 100.f * direction, applicationPoint, dt);
-            } else */
-                {
-                LOGI_EVERY_N(60, "direction" << direction << " | dot " << dot << " amplitude " << amplitude << " force " << force);
-                //add air resistance force on the right/left of the parachute(drag)
-            	phc->addForce(force * (1 - xMaxDamaged), -applicationPoint, dt);
-                phc->addForce(force * xMaxDamaged, applicationPoint, dt);
 
-            }/*
-            TRANSFORM(pc->vect[0])->position = TRANSFORM(e)->worldPosition - applicationPoint;
-            TRANSFORM(pc->vect[0])->rotation = TRANSFORM(e)->worldRotation;
-            TRANSFORM(pc->vect[0])->size.y =  force.y * (1 - xMaxDamaged);
-            RENDERING(pc->vect[0])->color.r = (force.y > 0) ? 1.f : 0.f;
-            TRANSFORM(pc->vect[1])->position = TRANSFORM(e)->worldPosition + applicationPoint;
-            TRANSFORM(pc->vect[1])->rotation = TRANSFORM(e)->worldRotation;
-            TRANSFORM(pc->vect[1])->size.y =  force.y * (xMaxDamaged);
-            RENDERING(pc->vect[1])->color.r = (force.y > 0) ? 1.f : 0.f;
-
-            TRANSFORM(pc->vect[2])->position = TRANSFORM(e)->worldPosition;
-            TRANSFORM(pc->vect[2])->size.y =  PHYSICS(e)->linearVelocity.y;
-            RENDERING(pc->vect[2])->color.g = (PHYSICS(e)->linearVelocity.y > 0) ? 1.f : 0.f;
-            RENDERING(pc->vect[2])->color.r = RENDERING(pc->vect[2])->color.b = 0.5f;*/
+            //LOGI_EVERY_N(60, "direction" << direction << " | dot " << dot << " amplitude " << amplitude << " force " << force);
+            //add air resistance force on the right/left of the parachute(drag)
+        	phc->addForce(force * (1 - xMaxDamaged), -applicationPoint, dt);
+            phc->addForce(force * xMaxDamaged, applicationPoint, dt);
         }
 	}
 }

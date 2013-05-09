@@ -15,3 +15,8 @@ gravity = 0, -0.98
 
 [Button]
 enabled = 0
+
+[AutoDestroy]
+type = 0
+params.area.position = 0, 0
+params.area.size%screen = 1, 1

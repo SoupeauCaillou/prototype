@@ -7,7 +7,7 @@ color = 0.5, 0.5, 0.5,1
 show = 1
 
 [Parachute]
-frottement = 1, 10
+frottement = 100
 
 [Physics]
 mass = 1, 10
