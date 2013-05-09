@@ -93,19 +93,29 @@ struct TestScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-
         if (theTouchInputManager.isTouched()) {
             glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition();
             DCA(dca1)->targetPoint = cursorPosition;
             DCA(dca2)->targetPoint = cursorPosition;
             FOR_EACH_ENTITY_COMPONENT(Plane, p, pc)
                 //clicking on a plane
-                if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
+                if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
                     pc->dropOne = true;
                 }
             }
        }
 
+        FOR_EACH_ENTITY_COMPONENT(Parachute, p, pc)
+            //add damage to the desired position
+            if (BUTTON(p)->clicked) {
+                glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition(0);
+                LOGI("adding damage for " << theEntityManager.entityName(p) << p
+                    << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(p)->size
+                    << "cursor: " << cursorPosition
+                    << " at " << cursorPosition - TRANSFORM(p)->worldPosition + TRANSFORM(p)->worldPosition / 2.f);
+                pc->damages.push_back(cursorPosition - TRANSFORM(p)->worldPosition + TRANSFORM(p)->size / 2.f);
+            }
+        }
 
 
         FOR_EACH_ENTITY(Paratrooper, p)

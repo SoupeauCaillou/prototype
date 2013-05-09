@@ -1,7 +1,7 @@
 [Transformation]
 position = 0, 0
 size%screen_h = 0.05, 0.1
-z = 1
+z = 0.7
 
 [Rendering]
 color = 0, 0, 0,1
@@ -10,13 +10,8 @@ show = 1
 [Paratrooper]
 
 [Physics]
-mass = 1, 10
+mass = 10
 gravity = 0, -0.98
 
 [Button]
 enabled = 0
-
-[AutoDestroy]
-type = 0
-params.area.position = 0, 0
-params.area.size%screen = 1, 1

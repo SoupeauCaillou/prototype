@@ -1,6 +1,6 @@
 [Transformation]
 size%screen_h = 0.2, 0.1
-z = 1
+z = 0.8
 
 [Rendering]
 color = 0.5, 0.5, 0.5,1
@@ -17,3 +17,6 @@ gravity = 0, -0.98
 type = 0
 params.area.position = 0, 0
 params.area.size%screen = 1, 1
+
+[Button]
+enabled = 1
