@@ -42,6 +42,7 @@ void ParachuteSystem::destroyParachute(Entity parachute) {
 }
 
 void ParachuteSystem::DoUpdate(float dt) {
+
     static std::vector<Entity> vectorList;
     std::for_each(vectorList.begin(), vectorList.end(), [](Entity e){
         theEntityManager.DeleteEntity(e);
@@ -102,9 +103,24 @@ void ParachuteSystem::DoUpdate(float dt) {
         phc->addForce(PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity,
             -axe, dt);
 
+
         //if the paratrooper is upon the parachute, don't add any force
         if (axe.y < 0) {
             continue;
+
+        // Entity hole = theEntityManager.CreateEntity("hole");
+        // ADD_COMPONENT(hole, Transformation);
+        // ADD_COMPONENT(hole, Rendering);
+        // ADD_COMPONENT(hole, AutoDestroy);
+        // TRANSFORM(hole)->position = TRANSFORM(parent)->worldPosition - cursorPosition;
+        // TRANSFORM(hole)->parent = parent;
+        // TRANSFORM(hole)->z = 0.1;
+        // TRANSFORM(hole)->size = glm::vec2(0.5f);
+        // RENDERING(hole)->show = true;
+        // RENDERING(hole)->zPrePass = true;
+        // AUTO_DESTROY(hole)->type = AutoDestroyComponent::OUT_OF_AREA;
+        // AUTO_DESTROY(hole)->params.area.position = glm::vec2(0.f);
+        // AUTO_DESTROY(hole)->params.area.size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
         }
 
         float dot = glm::dot(phc->linearVelocity, axe);

@@ -27,6 +27,7 @@
 #include "systems/PlayerSystem.h"
 
 #include "base/EntityManager.h"
+#include "base/PlacementHelper.h"
 #include "base/StateMachine.h"
 #include "base/TouchInputManager.h"
 
