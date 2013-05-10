@@ -1,0 +1,4 @@
+extends = paratrooper
+
+[Rendering]
+texture = soldier_g

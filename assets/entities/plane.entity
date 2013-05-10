@@ -1,0 +1,15 @@
+[Transformation]
+position = 0, 6
+size%texture_ratio,screen_h = 0.1
+z = 1
+
+[Rendering]
+show = 1
+
+[Plane]
+paratrooperLimit = 10
+timeBetweenJumps = 1
+debug = 1
+
+[Physics]
+mass = 1

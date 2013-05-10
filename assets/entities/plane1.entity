@@ -1,17 +1,7 @@
-[Transformation]
-position = 0, 6
-size%texture_ratio,screen_h = 0.2
-z = 1
+extends = plane
 
 [Rendering]
 texture = plane_g
-show = 1
 
 [Plane]
 speed = 1, 0
-paratrooperLimit = 10
-timeBetweenJumps = 1
-debug = 1
-
-[Physics]
-mass = 1

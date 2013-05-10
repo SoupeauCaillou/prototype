@@ -3,8 +3,9 @@
 #include "systems/System.h"
 
 struct PlayerComponent {
-	PlayerComponent():score(0){};
+	PlayerComponent():id(-1),score(0){};
 
+    int id;
 	int score;
 	Color playerColor;
 };

@@ -4,7 +4,7 @@ INSTANCE_IMPL(PlayerSystem);
 
 PlayerSystem::PlayerSystem() : ComponentSystemImpl <PlayerComponent>("Player") {
 	PlayerComponent pc;
-	componentSerializer.add(new Property<Color>("player_color", OFFSET(playerColor, pc)));
+	componentSerializer.add(new Property<int>("id", OFFSET(id, pc)));
 }
 
 void PlayerSystem::DoUpdate(float) {

@@ -131,8 +131,9 @@ void ParachuteSystem::DoUpdate(float dt) {
         //LOGI_EVERY_N(60, "axe" << axe << " | dot " << dot << " amplitude " << amplitude <<
         //    " force1 " << force * (1 - xMaxDamaged) << " and force 2 " << force * xMaxDamaged);
         //add air resistance force on the right/left of the parachute(drag)
-    	phc->addForce(force * (1 - xMaxDamaged), -applicationPoint, dt);
-        phc->addForce(force * xMaxDamaged, applicationPoint, dt);
+        LOGF_IF(xMaxDamaged < 0 || xMaxDamaged > 1, "ARG: " << xMaxDamaged)
+    	phc->addForce(force * (1 - xMaxDamaged), applicationPoint, dt);
+        phc->addForce(force * xMaxDamaged, -applicationPoint, dt);
 
         float max = glm::length(PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity);
         max = glm::max(max, glm::length(force));

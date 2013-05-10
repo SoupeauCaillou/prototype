@@ -82,12 +82,9 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         PLANE(plane1)->owner = player1;
         DCA(dca1)->owner = player1;
-        std::cout << PLAYER(player1)->playerColor << std::endl;
-        RENDERING(plane1)->color = RENDERING(dca1)->color = PLAYER(player1)->playerColor;
 
         PLANE(plane2)->owner = player2;
         DCA(dca2)->owner = player2;
-        RENDERING(plane2)->color = RENDERING(dca2)->color = PLAYER(player2)->playerColor;
     }
 
     ///----------------------------------------------------------------------------//

@@ -8,4 +8,4 @@ color = 1, 0, 0, 0.5
 show = 1
 
 [Player]
-player_color = 1, 0, 0, 1
+id = 1

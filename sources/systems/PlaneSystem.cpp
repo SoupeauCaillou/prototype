@@ -37,11 +37,11 @@ void PlaneSystem::DoUpdate(float dt) {
 		if (pc->dropOne) {
             //if one guy is available and there was some time since the last drop...
 			if (pc->paratrooperAvailable && pc->timeBetweenJumps.accum > 1.f) {
-				Entity paratrooper = theEntityManager.CreateEntity("paratrooper",
-	                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("paratrooper"));
+                const std::string para = PLAYER(pc->owner)->id == 0 ? "paratrooper_g" : "paratrooper_b";
+				Entity paratrooper = theEntityManager.CreateEntity(para,
+	                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(para));
 		        PARATROOPER(paratrooper)->owner = pc->owner;
 		        TRANSFORM(paratrooper)->position = TRANSFORM(e)->position;
-		        RENDERING(paratrooper)->color = PLAYER(pc->owner)->playerColor;
 		        PHYSICS(paratrooper)->linearVelocity.x = PHYSICS(e)->linearVelocity.x;
 
                 //activate 'BUTTON'
