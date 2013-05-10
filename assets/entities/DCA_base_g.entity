@@ -1,0 +1,9 @@
+[Transformation]
+positionSW%screen = -0.5, -0.5
+size%texture_ratio,screen_h = 0.06
+z = 0.8
+
+[Rendering]
+texture = canon_base_g
+show = 1
+z = .8

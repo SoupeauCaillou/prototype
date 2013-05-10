@@ -1,0 +1,8 @@
+[Transformation]
+size%texture_ratio,screen_h = 0.03
+z = 0.01
+
+[Rendering]
+texture = canon_rot_b
+show = 1
+

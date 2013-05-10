@@ -41,7 +41,7 @@ struct DCAComponent {
     float burstRestTime;
 
     // who is the owner of this cannon ?
-    Entity owner;
+    Entity owner, turret;
 };
 
 #define theDCASystem DCASystem::GetInstance()

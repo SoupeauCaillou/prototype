@@ -1,11 +1,4 @@
-[Transformation]
-position%screen_w = .48, -0.33
-size%screen_w = 0.04, 0.04
-z = 1
-
-[Rendering]
-color = 0, 1, 0, 1
-show = 1
+extends = DCA_base_b
 
 [DCA]
 fire_rate = 5
@@ -13,3 +6,8 @@ puissance = 50
 dispersion = 0.5
 maximal_distance_for_activation = 5
 fire_mode = 0
+turret%template = turret
+
+[turret#Rendering]
+texture = canon_rot_b
+
