@@ -22,9 +22,13 @@ params.area.size%screen = 2, 2
 
 [Particule]
 emission_rate = 0
-duration = 10
 initial_color = 1,0,0,1, 1,0,0,1
-final_color = 0,0,0,0
-lifetime = 3
-initial_size = .05, .05
+final_color = 1,0,0,0
+lifetime = 0.5
+initial_size = .08, .05
 final_size = 0, 0
+force_direction = 0, 6.28
+force_amplitude = 10
+moment = 0, 6.28
+gravity = 0, -10
+mass = 0.1

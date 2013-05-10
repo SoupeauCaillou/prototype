@@ -111,14 +111,14 @@ struct TestScene : public StateHandler<Scene::Enum> {
                     LOGW("Soldier '" << theEntityManager.entityName(p) << p << "' is dead");
                     PARATROOPER(p)->dead = true;
                 }
-                if (TRANSFORM(p)->parent) {
-                    Entity parent = TRANSFORM(p)->parent;
-                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parent)->position, TRANSFORM(parent)->size)) {
-                        LOGI("adding damage for " << theEntityManager.entityName(parent) << parent
-                            << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(parent)->size
+                if (PARATROOPER(p)->parachute) {
+                    Entity parachute = PARATROOPER(p)->parachute;
+                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parachute)->worldPosition, TRANSFORM(parachute)->size)) {
+                        LOGI("adding damage for " << theEntityManager.entityName(parachute) << parachute
+                            << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(parachute)->size
                             << "cursor: " << cursorPosition
-                            << " at " << cursorPosition - TRANSFORM(parent)->worldPosition + TRANSFORM(parent)->worldPosition / 2.f);
-                        PARACHUTE(parent)->damages.push_back(cursorPosition - TRANSFORM(parent)->worldPosition + TRANSFORM(parent)->size / 2.f);
+                            << " at " << cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->worldPosition / 2.f);
+                        PARACHUTE(parachute)->damages.push_back(cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->size / 2.f);
                     }
                 }
             }

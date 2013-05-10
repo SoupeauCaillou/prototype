@@ -10,11 +10,6 @@ show = 1
 frottement = 20
 fils%template = fils
 
-[AutoDestroy]
-type = 0
-params.area.position = 0, 0
-params.area.size%screen = 1, 1
-
 [Button]
 enabled = 1
 

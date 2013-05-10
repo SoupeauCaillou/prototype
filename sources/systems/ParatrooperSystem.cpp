@@ -25,7 +25,7 @@ void ParatrooperSystem::DoUpdate(float) {
 			//touching the ground (landing)
 			if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->worldPosition.x,
 				-PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->worldPosition, TRANSFORM(e)->size)) {
-				
+
 				RENDERING(e)->color = PLAYER(pc->owner)->playerColor;
 				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 3.f) {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' crashed at speed " << glm::abs(PHYSICS(e)->linearVelocity.y));
@@ -64,7 +64,7 @@ void ParatrooperSystem::DoUpdate(float) {
 	    }
 
 		if (pc->dead) {
-			PARTICULE(e)->emissionRate = 10;
+			PARTICULE(e)->emissionRate = 100;
 		}
 	}
 }
