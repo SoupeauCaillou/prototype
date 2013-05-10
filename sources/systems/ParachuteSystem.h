@@ -8,6 +8,7 @@ struct ParachuteComponent {
 
     Entity fils;
     std::vector<glm::vec2> damages;
+    std::vector<Entity> holes;
 };
 
 #define theParachuteSystem ParachuteSystem::GetInstance()

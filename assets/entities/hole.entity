@@ -1,0 +1,7 @@
+[Transformation]
+size%screen_h = 0.01, 0.01
+z = 0.01
+
+[Rendering]
+show = 1
+z_pre_pass = 1

@@ -41,6 +41,7 @@
 
 #include <glm/gtx/compatibility.hpp>
 #include "glm/gtx/norm.hpp"
+#include <glm/gtx/rotate_vector.hpp>
 
 #include "Scenes.h"
 
@@ -123,6 +124,13 @@ struct TestScene : public StateHandler<Scene::Enum> {
                                 << " at " << cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->worldPosition / 2.f);
                             PARACHUTE(parachute)->damages.push_back(cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->size / 2.f);
                         }
+
+                        Entity hole = theEntityManager.CreateEntity("hole", EntityType::Volatile,
+                             theEntityManager.entityTemplateLibrary.load("hole"));
+                        PARACHUTE(parachute)->holes.push_back(hole);
+                        TRANSFORM(hole)->parent = parachute;
+                        TRANSFORM(hole)->position = glm::rotate(cursorPosition - TRANSFORM(parachute)->worldPosition,
+                            -TRANSFORM(parachute)->worldRotation);
                     }
                     lastTouch = ti;
                 }
@@ -142,6 +150,9 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
                 AUTO_DESTROY(p)->onDeletionCall = [parachute] (Entity e) {
                     theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
+                    for(auto it: PARACHUTE(parachute)->holes) {
+                        theEntityManager.DeleteEntity(it);
+                    }
                     theEntityManager.DeleteEntity(parachute);
                 };
             }
