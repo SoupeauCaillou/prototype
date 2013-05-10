@@ -44,24 +44,18 @@ void ParachuteSystem::DoUpdate(float dt) {
 
         //calculate the X damage average position. Two force will be applied
         //one on the left, the other on the right, depending on the most damaged position
-        // xMaxDamaged = middle -> 50% left, 50% right
-        // xMaXDamaged = left-middle -> 25% left, 75% right
-        float xMaxDamaged = 0.f;
+        float coeff[2] = {0.5, 0.5};
 
         if (pc->damages.size() > 0) {
             std::for_each(pc->damages.begin(), pc->damages.end(), [&](const glm::vec2 & n){
-                xMaxDamaged += n.x;
+                if (n.x < 0.5)
+                    coeff[0] -= 0.001;
+                else
+                    coeff[1] -= 0.001;
             });
-
-            xMaxDamaged /= pc->damages.size();
-
-            //set in [0; 1] scale
-            xMaxDamaged /= tc->size.x;
         } else {
             // if the parachute is okay, forces are equals
-            xMaxDamaged = glm::linearRand(0.49, 0.51);//0.5f;
         }
-
 
         //LOGI_EVERY_N(60, pc->damages.size() << ": damage x average position: " << xMaxDamaged << "|" << glm::cos(TRANSFORM(e)->worldRotation))
         glm::vec2 applicationPoint = glm::rotate(glm::vec2(tc->size.x / 2.f, 0.f), tc->worldRotation);
@@ -98,18 +92,17 @@ void ParachuteSystem::DoUpdate(float dt) {
         //LOGI_EVERY_N(60, "axe" << axe << " | dot " << dot << " amplitude " << amplitude <<
         //    " force1 " << force * (1 - xMaxDamaged) << " and force 2 " << force * xMaxDamaged);
         //add air resistance force on the right/left of the parachute(drag)
-        LOGF_IF(xMaxDamaged < 0 || xMaxDamaged > 1, "ARG: " << xMaxDamaged)
-    	phc->addForce(force * (1 - xMaxDamaged), applicationPoint, dt);
-        phc->addForce(force * xMaxDamaged, -applicationPoint, dt);
+    	phc->addForce(force * coeff[0], -applicationPoint, dt);
+        phc->addForce(force * coeff[1], applicationPoint, dt);
 
         float max = glm::length(phc->mass * phc->gravity);
         max = glm::max(max, glm::length(force));
         vectorList.push_back(drawVector(TRANSFORM(paratrooper)->worldPosition,
             phc->mass / max * phc->gravity));
         vectorList.push_back(drawVector(tc->worldPosition - applicationPoint,
-            force * (1 - xMaxDamaged) / max));
+            force * coeff[0] / max));
         vectorList.push_back(drawVector(tc->worldPosition + applicationPoint,
-            force * xMaxDamaged / max));
+            force * coeff[1] / max));
 	}
 }
 

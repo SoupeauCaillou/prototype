@@ -106,20 +106,25 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         FOR_EACH_ENTITY(Paratrooper, p)
             if (theTouchInputManager.isTouched(1)) {
-                glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition(1);
-                if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
-                    LOGW("Soldier '" << theEntityManager.entityName(p) << p << "' is dead");
-                    PARATROOPER(p)->dead = true;
-                }
-                if (PARATROOPER(p)->parachute) {
-                    Entity parachute = PARATROOPER(p)->parachute;
-                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parachute)->worldPosition, TRANSFORM(parachute)->size)) {
-                        LOGI("adding damage for " << theEntityManager.entityName(parachute) << parachute
-                            << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(parachute)->size
-                            << "cursor: " << cursorPosition
-                            << " at " << cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->worldPosition / 2.f);
-                        PARACHUTE(parachute)->damages.push_back(cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->size / 2.f);
+                static float lastTouch = 0;
+                float ti = TimeUtil::GetTime();
+                if (ti - lastTouch > 1) {
+                    glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition(1);
+                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
+                        LOGW("Soldier '" << theEntityManager.entityName(p) << p << "' is dead");
+                        PARATROOPER(p)->dead = true;
                     }
+                    if (PARATROOPER(p)->parachute) {
+                        Entity parachute = PARATROOPER(p)->parachute;
+                        if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parachute)->worldPosition, TRANSFORM(parachute)->size)) {
+                            LOGI("adding damage for " << theEntityManager.entityName(parachute) << parachute
+                                << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(parachute)->size
+                                << "cursor: " << cursorPosition
+                                << " at " << cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->worldPosition / 2.f);
+                            PARACHUTE(parachute)->damages.push_back(cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->size / 2.f);
+                        }
+                    }
+                    lastTouch = ti;
                 }
             }
             //already got a parachute. Oust!
