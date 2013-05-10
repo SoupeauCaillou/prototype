@@ -123,24 +123,22 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 }
             }
             //already got a parachute. Oust!
-            if (TRANSFORM(p)->parent)
+            if (PARATROOPER(p)->parachute)
                 continue;
 
             //clicking on a paratrooper
-            if (BUTTON(p)->clicked ) {
+            if (BUTTON(p)->mouseOver ) {
+                const std::string name = PLAYER(PARATROOPER(p)->owner)->id == 0 ? "parachute_g" : "parachute_b";
                 //create a parachute
-                Entity parachute = theEntityManager.CreateEntity("parachute",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("parachute"));
-                TRANSFORM(parachute)->position = TRANSFORM(p)->worldPosition + glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
-                TRANSFORM(p)->parent = parachute;
-                TRANSFORM(p)->position = -glm::vec2(0.f, .5 * (TRANSFORM(parachute)->size.y + TRANSFORM(p)->size.y));
-                TRANSFORM(p)->z = 0;
+                Entity parachute = theEntityManager.CreateEntity(name,
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(name));
+                TRANSFORM(parachute)->parent = p;
+                PARATROOPER(p)->parachute = parachute;
 
-                AUTO_DESTROY(p)->onDeletionCall = [] (Entity e) { TRANSFORM(e)->parent = 0; };
-                AUTO_DESTROY(parachute)->onDeletionCall = theParachuteSystem.destroyParachute;
-
-                //should be better done than that..
-                PHYSICS(parachute)->linearVelocity = PHYSICS(p)->linearVelocity;
+                AUTO_DESTROY(p)->onDeletionCall = [parachute] (Entity e) {
+                    theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
+                    theEntityManager.DeleteEntity(parachute);
+                };
             }
         }
 

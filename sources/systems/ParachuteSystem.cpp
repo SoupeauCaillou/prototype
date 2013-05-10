@@ -17,33 +17,7 @@ ParachuteSystem::ParachuteSystem() : ComponentSystemImpl <ParachuteComponent>("P
     componentSerializer.add(new EntityProperty("fils", OFFSET(fils, pc)));
 }
 
-void ParachuteSystem::destroyParachute(Entity parachute) {
-    //find the paratrooper associated to the parachute
-    Entity paratrooper = 0;
-    FOR_EACH_ENTITY(Paratrooper, p)
-        if (TRANSFORM(p)->parent == parachute) {
-            paratrooper = p;
-            break;
-        }
-    }
-
-    if (! paratrooper) {
-        LOGE("No paratrooper associated to parachute " << parachute)
-        return;
-    }
-
-    TRANSFORM(paratrooper)->position = TRANSFORM(paratrooper)->worldPosition;
-    TRANSFORM(paratrooper)->z = TRANSFORM(paratrooper)->worldZ;
-    TRANSFORM(paratrooper)->parent = 0;
-
-    //should be better done than that..
-    PHYSICS(paratrooper)->linearVelocity = PHYSICS(parachute)->linearVelocity;
-
-    theEntityManager.DeleteEntity(parachute);
-}
-
 void ParachuteSystem::DoUpdate(float dt) {
-
     static std::vector<Entity> vectorList;
     std::for_each(vectorList.begin(), vectorList.end(), [](Entity e){
         theEntityManager.DeleteEntity(e);
@@ -52,13 +26,9 @@ void ParachuteSystem::DoUpdate(float dt) {
 
     FOR_EACH_ENTITY_COMPONENT(Parachute, e, pc)
         //find the paratrooper associated to the parachute
-        Entity paratrooper = 0;
-        FOR_EACH_ENTITY(Paratrooper, p)
-            if (TRANSFORM(p)->parent == e) {
-                paratrooper = p;
-                break;
-            }
-        }
+        const TransformationComponent* tc = TRANSFORM(e);
+        const Entity paratrooper = tc->parent;
+
         //the parachute hasn't any passenger? then destroy it
         if (! paratrooper) {
             theEntityManager.DeleteEntity(e);
@@ -68,7 +38,7 @@ void ParachuteSystem::DoUpdate(float dt) {
         //has been totally damaged
         if (pc->damages.size() > 10) {
             theEntityManager.DeleteEntity(pc->fils);
-            destroyParachute(e);
+            theEntityManager.DeleteEntity(e);
             continue;
         }
 
@@ -86,7 +56,7 @@ void ParachuteSystem::DoUpdate(float dt) {
             xMaxDamaged /= pc->damages.size();
 
             //set in [0; 1] scale
-            xMaxDamaged /= TRANSFORM(e)->size.x;
+            xMaxDamaged /= tc->size.x;
         } else {
             // if the parachute is okay, forces are equals
             xMaxDamaged = 0.5f;
@@ -94,19 +64,12 @@ void ParachuteSystem::DoUpdate(float dt) {
 
 
         //LOGI_EVERY_N(60, pc->damages.size() << ": damage x average position: " << xMaxDamaged << "|" << glm::cos(TRANSFORM(e)->worldRotation))
-        glm::vec2 applicationPoint = glm::rotate(glm::vec2(TRANSFORM(e)->size.x / 2.f, 0.f), TRANSFORM(e)->worldRotation);
+        glm::vec2 applicationPoint = glm::rotate(glm::vec2(tc->size.x / 2.f, 0.f), tc->worldRotation);
 
-        glm::vec2 axe(TRANSFORM(e)->worldPosition-TRANSFORM(paratrooper)->worldPosition);
+        glm::vec2 axe(tc->worldPosition - TRANSFORM(paratrooper)->worldPosition);
         axe = glm::normalize(axe);
 
-        PhysicsComponent *phc = PHYSICS(e);
-
-        //ading the mass of the paratrooper!
-        phc->addForce(PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity,
-            -axe, dt);
-
-
-        //if the paratrooper is upon the parachute, don't add any force
+        //if the paratrooper is over the parachute, don't add any force
         if (axe.y < 0) {
             continue;
 
@@ -125,6 +88,8 @@ void ParachuteSystem::DoUpdate(float dt) {
         // AUTO_DESTROY(hole)->params.area.size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
         }
 
+        PhysicsComponent *phc = PHYSICS(paratrooper);
+
         float dot = glm::dot(phc->linearVelocity, axe);
         float amplitude = - dot * 0.5f * pc->frottement;
 
@@ -137,15 +102,13 @@ void ParachuteSystem::DoUpdate(float dt) {
     	phc->addForce(force * (1 - xMaxDamaged), applicationPoint, dt);
         phc->addForce(force * xMaxDamaged, -applicationPoint, dt);
 
-        float max = glm::length(PHYSICS(paratrooper)->mass * PHYSICS(paratrooper)->gravity);
+        float max = glm::length(phc->mass * phc->gravity);
         max = glm::max(max, glm::length(force));
-        vectorList.push_back(drawVector(TRANSFORM(e)->worldPosition,
-            PHYSICS(e)->mass / max * PHYSICS(e)->gravity));
         vectorList.push_back(drawVector(TRANSFORM(paratrooper)->worldPosition,
-            PHYSICS(paratrooper)->mass / max * PHYSICS(paratrooper)->gravity));
-        vectorList.push_back(drawVector(TRANSFORM(e)->worldPosition - applicationPoint,
+            phc->mass / max * phc->gravity));
+        vectorList.push_back(drawVector(tc->worldPosition - applicationPoint,
             force * (1 - xMaxDamaged) / max));
-        vectorList.push_back(drawVector(TRANSFORM(e)->worldPosition + applicationPoint,
+        vectorList.push_back(drawVector(tc->worldPosition + applicationPoint,
             force * xMaxDamaged / max));
 	}
 }

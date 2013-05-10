@@ -42,7 +42,7 @@ void PlaneSystem::DoUpdate(float dt) {
 	                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(para));
 		        PARATROOPER(paratrooper)->owner = pc->owner;
 		        TRANSFORM(paratrooper)->position = TRANSFORM(e)->position;
-		        PHYSICS(paratrooper)->linearVelocity.x = PHYSICS(e)->linearVelocity.x;
+		        //PHYSICS(paratrooper)->linearVelocity.x = PHYSICS(e)->linearVelocity.x;
 
                 //activate 'BUTTON'
                 BUTTON(paratrooper)->enabled = true;

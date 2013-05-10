@@ -1,18 +1,14 @@
 [Transformation]
 size%texture_ratio,screen_h = 0.055
-z = 0.8
+z = 0.
+position = 0,1
 
 [Rendering]
 show = 1
-texture = parach_b
 
 [Parachute]
-frottement = 100
+frottement = 20
 fils%template = fils
-
-[Physics]
-mass = 5
-gravity = 0, -0.98
 
 [AutoDestroy]
 type = 0
