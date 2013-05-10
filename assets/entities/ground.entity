@@ -1,0 +1,8 @@
+[Transformation]
+size%screen = 1.1,0.01
+positionS%screen = 0,-0.5
+z = 0.1
+
+[Rendering]
+show = 1
+texture = base

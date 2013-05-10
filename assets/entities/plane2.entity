@@ -5,6 +5,8 @@ z = 1
 
 [Rendering]
 show = 1
+texture = plane_b
+mirror_h = 1
 
 [Plane]
 speed = -1, 0

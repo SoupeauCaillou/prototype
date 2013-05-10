@@ -117,19 +117,14 @@ void ParatroopersGame::init(const uint8_t*, int) {
     ParachuteSystem::CreateInstance();
     DCASystem::CreateInstance();
     // default camera
-    camera = theEntityManager.CreateEntity("camera1");
-    ADD_COMPONENT(camera, Transformation);
-    TRANSFORM(camera)->size = glm::vec2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
-    TRANSFORM(camera)->position = glm::vec2(0, 0);
-    TRANSFORM(camera)->z = 1;
-    ADD_COMPONENT(camera, Camera);
-    CAMERA(camera)->enable = true;
-    CAMERA(camera)->order = 2;
-    CAMERA(camera)->id = 0;
-    CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+    camera = theEntityManager.CreateEntity("camera",
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("camera"));
 
     sceneStateMachine.setup(Scene::Menu);
     sceneStateMachine.reEnterCurrentState();
+
+    Entity ground = theEntityManager.CreateEntity("ground",
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ground"));
 
 #if SAC_INGAME_EDITORS
     ParatroopersDebugConsole::init(this);
