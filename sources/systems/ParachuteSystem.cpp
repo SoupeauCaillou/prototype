@@ -59,7 +59,7 @@ void ParachuteSystem::DoUpdate(float dt) {
             xMaxDamaged /= tc->size.x;
         } else {
             // if the parachute is okay, forces are equals
-            xMaxDamaged = 0.5f;
+            xMaxDamaged = glm::linearRand(0.49, 0.51);//0.5f;
         }
 
 
