@@ -1,13 +1,14 @@
 [Transformation]
-size%screen_h = 0.2, 0.1
+size%texture_ratio,screen_h = 0.055
 z = 0.8
 
 [Rendering]
-color = 0.5, 0.5, 0.5,1
 show = 1
+texture = parach_b
 
 [Parachute]
 frottement = 100
+fils%template = fils
 
 [Physics]
 mass = 5
@@ -20,3 +21,4 @@ params.area.size%screen = 1, 1
 
 [Button]
 enabled = 1
+

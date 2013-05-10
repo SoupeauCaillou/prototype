@@ -6,6 +6,7 @@ struct ParachuteComponent {
 	ParachuteComponent(): frottement(1.f) {}
 	float frottement;
 
+    Entity fils;
     std::vector<glm::vec2> damages;
 };
 

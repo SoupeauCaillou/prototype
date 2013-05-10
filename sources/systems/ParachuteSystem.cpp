@@ -14,6 +14,7 @@ INSTANCE_IMPL(ParachuteSystem);
 ParachuteSystem::ParachuteSystem() : ComponentSystemImpl <ParachuteComponent>("Parachute") {
 	ParachuteComponent pc;
     componentSerializer.add(new Property<float>("frottement", OFFSET(frottement, pc), 0.001));
+    componentSerializer.add(new EntityProperty("fils", OFFSET(fils, pc)));
 }
 
 void ParachuteSystem::destroyParachute(Entity parachute) {
@@ -66,6 +67,7 @@ void ParachuteSystem::DoUpdate(float dt) {
 
         //has been totally damaged
         if (pc->damages.size() > 10) {
+            theEntityManager.DeleteEntity(pc->fils);
             destroyParachute(e);
             continue;
         }
