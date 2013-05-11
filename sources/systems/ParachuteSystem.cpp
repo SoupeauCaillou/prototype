@@ -7,6 +7,8 @@
 #include "systems/DebuggingSystem.h"
 #include "systems/RenderingSystem.h"
 
+#include <glm/gtx/vector_angle.hpp>
+#include <glm/gtx/norm.hpp>
 #include "util/drawVector.h"
 
 INSTANCE_IMPL(ParachuteSystem);
@@ -94,15 +96,6 @@ void ParachuteSystem::DoUpdate(float dt) {
         //add air resistance force on the right/left of the parachute(drag)
     	phc->addForce(force * coeff[0], -applicationPoint, dt);
         phc->addForce(force * coeff[1], applicationPoint, dt);
-
-        float max = glm::length(phc->mass * phc->gravity);
-        max = glm::max(max, glm::length(force));
-        vectorList.push_back(drawVector(TRANSFORM(paratrooper)->worldPosition,
-            phc->mass / max * phc->gravity));
-        vectorList.push_back(drawVector(tc->worldPosition - applicationPoint,
-            force * coeff[0] / max));
-        vectorList.push_back(drawVector(tc->worldPosition + applicationPoint,
-            force * coeff[1] / max));
 	}
 }
 

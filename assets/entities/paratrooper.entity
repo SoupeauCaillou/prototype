@@ -9,8 +9,9 @@ show = 1
 [Paratrooper]
 
 [Physics]
-mass = 10
+mass = 10.f
 gravity = 0, -0.98
+frottement = 10.
 
 [Button]
 enabled = 0
