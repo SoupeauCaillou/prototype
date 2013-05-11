@@ -94,8 +94,8 @@ void ParachuteSystem::DoUpdate(float dt) {
         //LOGI_EVERY_N(60, "axe" << axe << " | dot " << dot << " amplitude " << amplitude <<
         //    " force1 " << force * (1 - xMaxDamaged) << " and force 2 " << force * xMaxDamaged);
         //add air resistance force on the right/left of the parachute(drag)
-    	phc->addForce(force * coeff[0], -applicationPoint, dt);
-        phc->addForce(force * coeff[1], applicationPoint, dt);
+    	phc->addForce(- applicationPoint, force * coeff[0], dt);
+        phc->addForce(applicationPoint, force * coeff[1], dt);
 	}
 }
 
