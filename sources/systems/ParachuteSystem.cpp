@@ -39,6 +39,7 @@ void ParachuteSystem::DoUpdate(float dt) {
 
         //has been totally damaged
         if (pc->damages.size() > 10) {
+            PARATROOPER(paratrooper)->parachute = 0;
             theEntityManager.DeleteEntity(pc->fils);
             theEntityManager.DeleteEntity(e);
             continue;

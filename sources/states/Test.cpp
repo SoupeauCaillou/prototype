@@ -148,12 +148,16 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 TRANSFORM(parachute)->parent = p;
                 PARATROOPER(p)->parachute = parachute;
 
-                AUTO_DESTROY(p)->onDeletionCall = [parachute] (Entity) {
-                    theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
-                    for(auto it: PARACHUTE(parachute)->holes) {
-                        theEntityManager.DeleteEntity(it);
+                AUTO_DESTROY(p)->onDeletionCall = [] (Entity p) {
+                    Entity parachute = PARATROOPER(p)->parachute;
+                    if (parachute) {
+                        //TRANSFORM(p)->parent = 0;
+                        theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
+                        for(auto it: PARACHUTE(parachute)->holes) {
+                            theEntityManager.DeleteEntity(it);
+                        }
+                        theEntityManager.DeleteEntity(parachute);
                     }
-                    theEntityManager.DeleteEntity(parachute);
                 };
             }
         }

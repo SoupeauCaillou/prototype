@@ -7,6 +7,7 @@
 #include "systems/AutoDestroySystem.h"
 #include "systems/ParticuleSystem.h"
 #include "systems/PhysicsSystem.h"
+#include "systems/ParachuteSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 
@@ -41,12 +42,13 @@ void ParatrooperSystem::DoUpdate(float) {
 				PHYSICS(e)->gravity = glm::vec2(0.f);
 
 				//delete the parachute if any
-                Entity parent = TRANSFORM(e)->parent;
-                if (parent) {
-                    TRANSFORM(e)->z = TRANSFORM(parent)->z;
-                    TRANSFORM(e)->position = TRANSFORM(e)->worldPosition;
-                    TRANSFORM(e)->parent = 0;
-                    theEntityManager.DeleteEntity(parent);
+                if (pc->parachute) {
+                    theEntityManager.DeleteEntity(PARACHUTE(pc->parachute)->fils);
+                    for(auto it: PARACHUTE(pc->parachute)->holes) {
+                        theEntityManager.DeleteEntity(it);
+                    }
+                    theEntityManager.DeleteEntity(pc->parachute);
+                    pc->parachute = 0;
                 }
 
 				pc->landed = true;
