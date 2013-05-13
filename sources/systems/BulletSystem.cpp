@@ -6,6 +6,7 @@
 #include "systems/ParachuteSystem.h"
 
 #include "util/IntersectionUtil.h"
+#include <glm/gtx/rotate_vector.hpp>
 
 INSTANCE_IMPL(BulletSystem);
 
@@ -27,9 +28,20 @@ void BulletSystem::DoUpdate(float) {
             }
         }
 
-        FOR_EACH_ENTITY_COMPONENT(Parachute, para, pc)
-            if (IntersectionUtil::rectangleRectangle(tc, TRANSFORM(para))) {
-                pc->damages.push_back(tc->worldPosition - TRANSFORM(para)->worldPosition + TRANSFORM(para)->size / 2.f);
+        FOR_EACH_ENTITY_COMPONENT(Parachute, parachute, pc)
+            const auto transf = TRANSFORM(parachute);
+            if (IntersectionUtil::rectangleRectangle(tc, transf)) {
+
+                glm::vec2 pos = glm::rotate(tc->worldPosition - transf->worldPosition,
+                    - transf->worldRotation);
+                pc->damages.push_back(pos);
+
+                Entity hole = theEntityManager.CreateEntity("hole", EntityType::Volatile,
+                    theEntityManager.entityTemplateLibrary.load("hole"));
+                PARACHUTE(parachute)->holes.push_back(hole);
+                TRANSFORM(hole)->parent = parachute;
+                TRANSFORM(hole)->position = pos;
+
                 theEntityManager.DeleteEntity(e);
             }
         }
