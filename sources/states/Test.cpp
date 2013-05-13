@@ -108,7 +108,6 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
                 ic->action = Action::Spawn;
                 ic->SpawnParams.plane = plane;
-                LOGI("Spawn Paratrooper")
                 return;
             }
         }
@@ -125,7 +124,6 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
                     ic->action = Action::OpenParachute;
                     ic->OpenParachuteParams.paratrooper = para;
-                    LOGI("Open parachute")
                     return;
                 }
             }
@@ -140,7 +138,6 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 ic->action = Action::Fire;
                 ic->FireParams.aim = touchPos;
                 ic->FireParams.dca = dca;
-                LOGI_EVERY_N(150, "Fire DCA")
                 return;
             }
         }

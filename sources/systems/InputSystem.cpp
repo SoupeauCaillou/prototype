@@ -15,7 +15,7 @@ INSTANCE_IMPL(InputSystem);
 
 InputSystem::InputSystem() : ComponentSystemImpl <InputComponent>("Input") {
 	InputComponent pc;
-	
+
 }
 
 void InputSystem::DoUpdate(float) {
@@ -28,12 +28,15 @@ void InputSystem::DoUpdate(float) {
 				break;
 			case Action::OpenParachute: {
 				Entity p = ic->OpenParachuteParams.paratrooper;
+                if (PARATROOPER(p)->parachuteOpened)
+                    break;
 				const std::string name = PLAYER(entity)->id == 0 ? "parachute_g" : "parachute_b";
                 //create a parachute
                 Entity parachute = theEntityManager.CreateEntity(name,
                 EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(name));
                 TRANSFORM(parachute)->parent = p;
                 PARATROOPER(p)->parachute = parachute;
+                PARATROOPER(p)->parachuteOpened = true;
 
                 AUTO_DESTROY(p)->onDeletionCall = [] (Entity p) {
                     Entity parachute = PARATROOPER(p)->parachute;
@@ -46,7 +49,7 @@ void InputSystem::DoUpdate(float) {
                         theEntityManager.DeleteEntity(parachute);
                     }
                 };
-                break;             
+                break;
             }
             case Action::Fire: {
             	DCA(ic->FireParams.dca)->shoot = true;

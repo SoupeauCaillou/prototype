@@ -18,6 +18,7 @@
 */
 #include "ParatroopersGame.h"
 
+#include "systems/AISystem.h"
 #include "systems/PlaneSystem.h"
 #include "systems/PlayerSystem.h"
 #include "systems/ParachuteSystem.h"
@@ -118,6 +119,8 @@ void ParatroopersGame::init(const uint8_t*, int) {
     ParachuteSystem::CreateInstance();
     DCASystem::CreateInstance();
     InputSystem::CreateInstance();
+    AISystem::CreateInstance();
+
     // default camera
     camera = theEntityManager.CreateEntity("camera",
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("camera"));
@@ -150,6 +153,7 @@ void ParatroopersGame::togglePause(bool) {
 void ParatroopersGame::tick(float dt) {
     if (dt > 0) {
         sceneStateMachine.update(dt);
+        theAISystem.Update(dt);
         theInputSystem.Update(dt);
         thePlaneSystem.Update(dt);
         theDCASystem.Update(dt);

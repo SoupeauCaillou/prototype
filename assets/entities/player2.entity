@@ -1,2 +1,8 @@
 [Player]
 id = 1
+
+[Input]
+
+[AI]
+aiming_noise = 1
+decision_per_second = 1
