@@ -67,6 +67,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Localize:
         case ContextAPI::Communication:
         case ContextAPI::Storage:
+        case ContextAPI::Sound:
             return true;
         default:
             return false;
@@ -97,7 +98,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...")
-    sceneStateMachine.setup(Scene::Menu);
+    sceneStateMachine.setup(Scene::Logo);
     sceneStateMachine.reEnterCurrentState();
 
     // default camera
