@@ -3,7 +3,7 @@
 #include "systems/System.h"
 
 struct ParachuteComponent {
-	ParachuteComponent(): frottement(1.f) {}
+	ParachuteComponent(): frottement(1.f), fils(0) {}
 	float frottement;
 
     Entity fils;

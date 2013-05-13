@@ -12,7 +12,9 @@ namespace Action {
 }
 
 struct InputComponent {
-	InputComponent() {}
+	InputComponent() : action(Action::None) {
+        memset(&FireParams, 0, sizeof(FireParams));
+    }
 
 	Action::Enum action;
 	union {

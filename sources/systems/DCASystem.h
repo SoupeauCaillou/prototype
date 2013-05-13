@@ -9,7 +9,7 @@
 struct DCAComponent {
     DCAComponent() : shoot(false), targetPoint(glm::vec2(1.f, 0.f)), fireRate(1.), dispersion(1.f),
      puissance(100.f), maximalDistanceForActivation(5), fireMode(EFireMode::FULL_AUTO), burstBulletCount(0), burstRestTime(1.f),
-     owner(0) {}
+     owner(0), turret(0) {}
 
      bool shoot;
 
