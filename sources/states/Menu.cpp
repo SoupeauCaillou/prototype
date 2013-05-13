@@ -119,9 +119,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
             ADD_COMPONENT(eq, AutoDestroy);
             AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
-            AUTO_DESTROY(eq)->params.area.x = AUTO_DESTROY(eq)->params.area.y = 0;
-            AUTO_DESTROY(eq)->params.area.w = TRANSFORM(game->camera)->size.x;
-            AUTO_DESTROY(eq)->params.area.h = TRANSFORM(game->camera)->size.y;
+            AUTO_DESTROY(eq)->params.area.position = glm::vec2(0.f);
+            AUTO_DESTROY(eq)->params.area.size = TRANSFORM(game->camera)->size;
         }
 
        if (BUTTON(socialBtn)->clicked)
