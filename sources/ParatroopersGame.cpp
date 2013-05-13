@@ -56,6 +56,7 @@
 #include "systems/GraphSystem.h"
 
 #include "systems/BulletSystem.h"
+#include "systems/InputSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/ParatroopersDebugConsole.h"
@@ -116,6 +117,7 @@ void ParatroopersGame::init(const uint8_t*, int) {
     ParatrooperSystem::CreateInstance();
     ParachuteSystem::CreateInstance();
     DCASystem::CreateInstance();
+    InputSystem::CreateInstance();
     // default camera
     camera = theEntityManager.CreateEntity("camera",
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("camera"));
@@ -148,6 +150,7 @@ void ParatroopersGame::togglePause(bool) {
 void ParatroopersGame::tick(float dt) {
     if (dt > 0) {
         sceneStateMachine.update(dt);
+        theInputSystem.Update(dt);
         thePlaneSystem.Update(dt);
         theDCASystem.Update(dt);
         theBulletSystem.Update(dt);

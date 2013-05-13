@@ -9,3 +9,5 @@ show = 1
 
 [Player]
 id = 0
+
+[Input]

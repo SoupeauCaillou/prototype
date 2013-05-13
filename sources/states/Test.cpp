@@ -1,26 +1,27 @@
 /*
-	This file is part of RecursiveRunner.
+    This file is part of RecursiveRunner.
 
-	@author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
-	@author Soupe au Caillou - Gautier Pelloux-Prayer
+    @author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
+    @author Soupe au Caillou - Gautier Pelloux-Prayer
 
-	RecursiveRunner is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3.
+    RecursiveRunner is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, version 3.
 
-	RecursiveRunner is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    RecursiveRunner is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
 #include "ParatroopersGame.h"
 
 #include "systems/DCASystem.h"
+#include "systems/InputSystem.h"
 #include "systems/ParachuteSystem.h"
 #include "systems/ParatrooperSystem.h"
 #include "systems/PlaneSystem.h"
@@ -88,25 +89,71 @@ struct TestScene : public StateHandler<Scene::Enum> {
         DCA(dca2)->owner = player2;
     }
 
-    ///----------------------------------------------------------------------------//
-    ///--------------------- UPDATE SECTION ---------------------------------------//
-    ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
-        if (theTouchInputManager.isTouched()) {
-            glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition();
-            DCA(dca1)->targetPoint = cursorPosition;
-            DCA(dca2)->targetPoint = cursorPosition;
-            FOR_EACH_ENTITY_COMPONENT(Plane, p, pc)
-                //clicking on a plane
-                if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
-                    pc->dropOne = true;
+    void updateInput(Entity entity, InputComponent* ic) {
+        const glm::vec2& touchPos = theTouchInputManager.getTouchLastPosition(0);
+
+        // touched a plane -> spawn new paratrooper
+        FOR_EACH_ENTITY_COMPONENT(Plane, plane, planeC)
+            if (planeC->owner == entity &&
+                IntersectionUtil::pointRectangle(touchPos,
+                    TRANSFORM(plane)->worldPosition,
+                    TRANSFORM(plane)->size)) {
+
+                ic->action = Action::Spawn;
+                ic->SpawnParams.plane = plane;
+                LOGI("Spawn Paratrooper")
+                return;
+            }
+        }
+
+        // touched a guy -> open parachute
+        FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, paraC)
+            if (paraC->owner == entity &&
+                !paraC->dead &&
+                !paraC->parachute) {
+
+                if (IntersectionUtil::pointRectangle(touchPos,
+                    TRANSFORM(para)->worldPosition,
+                    TRANSFORM(para)->size)) {
+
+                    ic->action = Action::OpenParachute;
+                    ic->OpenParachuteParams.paratrooper = para;
+                    LOGI("Open parachute")
+                    return;
                 }
             }
         }
 
 
-        FOR_EACH_ENTITY(Paratrooper, p)
-            if (theTouchInputManager.isTouched(1)) {
+        // touched in DCA area -> fire
+        FOR_EACH_ENTITY_COMPONENT(DCA, dca, dcaC)
+            if (dcaC->owner == entity &&
+                glm::distance2(touchPos, TRANSFORM(dca)->worldPosition) <= glm::pow(dcaC->maximalDistanceForActivation, 2.0f)) {
+
+                ic->action = Action::Fire;
+                ic->FireParams.aim = touchPos;
+                ic->FireParams.dca = dca;
+                LOGI_EVERY_N(150, "Fire DCA")
+                return;
+            }
+        }
+    }
+
+    ///----------------------------------------------------------------------------//
+    ///--------------------- UPDATE SECTION ---------------------------------------//
+    ///----------------------------------------------------------------------------//
+    Scene::Enum update(float) override {
+        bool touching = theTouchInputManager.isTouched(0);
+        InputComponent* ic = INPUT(player1);
+        ic->action = Action::None;
+
+        if (touching) {
+            updateInput(player1, ic);
+        }
+
+        // debug
+        if (theTouchInputManager.isTouched(1)) {
+            FOR_EACH_ENTITY(Paratrooper, p)
                 static float lastTouch = 0;
                 float ti = TimeUtil::GetTime();
                 if (ti - lastTouch > 1) {
@@ -134,31 +181,6 @@ struct TestScene : public StateHandler<Scene::Enum> {
                     }
                     lastTouch = ti;
                 }
-            }
-            //already got a parachute. Oust!
-            if (PARATROOPER(p)->parachute)
-                continue;
-
-            //clicking on a paratrooper
-            if (BUTTON(p)->mouseOver ) {
-                const std::string name = PLAYER(PARATROOPER(p)->owner)->id == 0 ? "parachute_g" : "parachute_b";
-                //create a parachute
-                Entity parachute = theEntityManager.CreateEntity(name,
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(name));
-                TRANSFORM(parachute)->parent = p;
-                PARATROOPER(p)->parachute = parachute;
-
-                AUTO_DESTROY(p)->onDeletionCall = [] (Entity p) {
-                    Entity parachute = PARATROOPER(p)->parachute;
-                    if (parachute) {
-                        //TRANSFORM(p)->parent = 0;
-                        theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
-                        for(auto it: PARACHUTE(parachute)->holes) {
-                            theEntityManager.DeleteEntity(it);
-                        }
-                        theEntityManager.DeleteEntity(parachute);
-                    }
-                };
             }
         }
 

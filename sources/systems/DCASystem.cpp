@@ -13,7 +13,7 @@ INSTANCE_IMPL(DCASystem);
 
 DCASystem::DCASystem() : ComponentSystemImpl <DCAComponent>("DCA") {
     DCAComponent dc;
-    componentSerializer.add(new Property<glm::vec2>("targetPoint", OFFSET(targetPoint, dc), glm::vec2(0.001, 0)));
+    componentSerializer.add(new Property<float>("maximal_distance_for_activation", OFFSET(maximalDistanceForActivation, dc), 0.001));
     componentSerializer.add(new Property<float>("fire_rate", OFFSET(fireRate.value, dc), 0.001));
     componentSerializer.add(new Property<float>("puissance", OFFSET(puissance, dc), 0.001));
     componentSerializer.add(new Property<float>("dispersion", OFFSET(dispersion, dc), 0.001));
@@ -25,20 +25,24 @@ DCASystem::DCASystem() : ComponentSystemImpl <DCAComponent>("DCA") {
 
 void DCASystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(DCA, e, dc)
-        //only at start - fuck, it remains one bullet... touchInput initialized too late?
-        if (dc->targetPoint == glm::vec2(0.f, 0.f))
+        dc->fireRate.accum += dt * dc->fireRate.value;
+
+        if (!dc->shoot) {
+            dc->fireRate.accum = glm::min(1.0f, dc->fireRate.accum);
+            dc->burstBulletCount = 0;
             continue;
+        }
 
         glm::vec2 fireDirection = dc->targetPoint - TRANSFORM(e)->position;
 
         //too far away! skip it
         if ( glm::length2(fireDirection) > dc->maximalDistanceForActivation * dc->maximalDistanceForActivation) {
-            //LOGW_EVERY_N(180, "can't shoot! too far away dude");
+            LOGW_EVERY_N(180, "can't shoot! too far away dude");
             continue;
         }
         fireDirection = glm::normalize(fireDirection);
 
-        dc->fireRate.accum += dt * dc->fireRate.value;
+
         while (dc->fireRate.accum > 1.f) {
             Entity bullet = theEntityManager.CreateEntity("bullet",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("bullet"));
@@ -62,6 +66,7 @@ void DCASystem::DoUpdate(float dt) {
                 }
             }
         }
+        dc->shoot = false;
 	}
 }
 
