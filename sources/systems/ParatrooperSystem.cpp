@@ -37,7 +37,8 @@ void ParatrooperSystem::DoUpdate(float) {
 				}
 				else {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' landed");
-					PHYSICS(e)->linearVelocity.y = 0;
+					PHYSICS(e)->mass = 0;
+                    ++PLAYER(pc->owner)->score;
 				}
 				PHYSICS(e)->gravity = glm::vec2(0.f);
 
@@ -54,16 +55,6 @@ void ParatrooperSystem::DoUpdate(float) {
 				pc->landed = true;
 			}
 		}
-		else {
-            FOR_EACH_ENTITY(Player, p)
-	            if (pc->owner == p)
-	                continue;
-	            if (!pc->dead && IntersectionUtil::pointRectangle(TRANSFORM(e)->position, TRANSFORM(p)->position, TRANSFORM(p)->size))
-	                ++PLAYER(pc->owner)->score;
-	            AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
-	            AUTO_DESTROY(e)->params.lifetime.freq.value = 0;
-	        }
-	    }
 
 		if (pc->dead) {
 			PARTICULE(e)->emissionRate = 100;

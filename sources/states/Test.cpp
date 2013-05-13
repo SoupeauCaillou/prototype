@@ -37,6 +37,7 @@
 #include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
+#include "systems/TextRenderingSystem.h"
 
 #include "util/IntersectionUtil.h"
 
@@ -55,6 +56,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
     ParatroopersGame* game;
     Entity plane1, plane2, dca1, dca2;
     Entity player1, player2;
+    Entity score1, score2;
 
     TestScene(ParatroopersGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -72,6 +74,11 @@ struct TestScene : public StateHandler<Scene::Enum> {
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("player1"));
         player2 = theEntityManager.CreateEntity("player2",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("player2"));
+
+        score1 = theEntityManager.CreateEntity("score_g",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("score1"));
+        score2 = theEntityManager.CreateEntity("score_b",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("score2"));
 
         plane1 = theEntityManager.CreateEntity("plane1",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane1"));
@@ -184,8 +191,17 @@ struct TestScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        LOGW_EVERY_N(500, "player 1 : " << PLAYER(player1)->score);
-        LOGW_EVERY_N(500, "player 2 : " << PLAYER(player2)->score);
+        // update score
+        {
+        std::stringstream ss;
+        ss << "Score: " << PLAYER(player1)->score;
+        TEXT_RENDERING(score1)->text = ss.str();
+        }
+        {
+        std::stringstream ss;
+        ss << "Score: " << PLAYER(player2)->score;
+        TEXT_RENDERING(score2)->text = ss.str();
+        }
 
         return Scene::Test;
     }

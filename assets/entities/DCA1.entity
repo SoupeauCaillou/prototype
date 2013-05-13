@@ -10,4 +10,4 @@ burst_rest_time = 1
 turret%template = turret
 
 [turret#Rendering]
-texture = canon_rot_b
+texture = canon_rot_g
