@@ -40,8 +40,7 @@ void ParachuteSystem::DoUpdate(float dt) {
         //has been totally damaged
         if (pc->damages.size() > 10) {
             PARATROOPER(paratrooper)->parachute = 0;
-            theEntityManager.DeleteEntity(pc->fils);
-            theEntityManager.DeleteEntity(e);
+            ParachuteSystem::DeleteParachute(e);
             continue;
         }
 
@@ -107,3 +106,11 @@ void ParachuteSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
 	TwAddVarRW(bar, "frottement", TW_TYPE_FLOAT, &pc->frottement, "group=Parachute precision=2 step=0,01");
 }
 #endif
+
+void ParachuteSystem::DeleteParachute(Entity parachute) {
+    theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
+    for(auto it: PARACHUTE(parachute)->holes) {
+        theEntityManager.DeleteEntity(it);
+    }
+    theEntityManager.DeleteEntity(parachute);
+}

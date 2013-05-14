@@ -41,12 +41,7 @@ void InputSystem::DoUpdate(float) {
                 AUTO_DESTROY(p)->onDeletionCall = [] (Entity p) {
                     Entity parachute = PARATROOPER(p)->parachute;
                     if (parachute) {
-                        //TRANSFORM(p)->parent = 0;
-                        theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);
-                        for(auto it: PARACHUTE(parachute)->holes) {
-                            theEntityManager.DeleteEntity(it);
-                        }
-                        theEntityManager.DeleteEntity(parachute);
+                        ParachuteSystem::DeleteParachute(parachute);
                     }
                 };
                 break;

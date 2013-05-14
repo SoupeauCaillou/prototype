@@ -44,11 +44,7 @@ void ParatrooperSystem::DoUpdate(float) {
 
 				//delete the parachute if any
                 if (pc->parachute) {
-                    theEntityManager.DeleteEntity(PARACHUTE(pc->parachute)->fils);
-                    for(auto it: PARACHUTE(pc->parachute)->holes) {
-                        theEntityManager.DeleteEntity(it);
-                    }
-                    theEntityManager.DeleteEntity(pc->parachute);
+                    ParachuteSystem::DeleteParachute(pc->parachute);
                     pc->parachute = 0;
                 }
 
