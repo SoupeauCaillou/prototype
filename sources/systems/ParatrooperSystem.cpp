@@ -43,6 +43,7 @@ void ParatrooperSystem::DoUpdate(float) {
 				else {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' landed");
 					PHYSICS(e)->mass = 0;
+                    TRANSFORM(e)->rotation = 0;
                     ++PLAYER(pc->owner)->score;
 				}
 				PHYSICS(e)->gravity = glm::vec2(0.f);
