@@ -3,7 +3,7 @@ size = 0.1, 0.1
 z = 1
 
 [Rendering]
-color = 1,0,0,1 0,0,1,1
+color = 1,0,0,1, 1,1,0,1
 show = 1
 
 [Physics]
@@ -24,6 +24,7 @@ emission_rate = 10
 duration = 10
 initial_color = 1,.5,0,1, 1,.5,0,1
 final_color = 0,0,0,0
-lifetime = 3
+lifetime = 1
 initial_size = .05, .05
 final_size = 0, 0
+
