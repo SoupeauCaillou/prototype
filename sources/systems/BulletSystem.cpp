@@ -43,6 +43,7 @@ void BulletSystem::DoUpdate(float) {
                 TRANSFORM(hole)->position = pos;
 
                 theEntityManager.DeleteEntity(e);
+                break;
             }
         }
 	}
