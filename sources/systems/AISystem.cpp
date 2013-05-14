@@ -64,10 +64,9 @@ Entity myLowestAltitudeNotDeadNoParachuteGuy(Entity entity) {
 
 void AISystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(AI, entity, aiC)
+        InputComponent* ic = INPUT(entity);
         aiC->accum += dt * aiC->decisionPerSecond;
         if (aiC->accum >= 1) {
-            InputComponent* ic = INPUT(entity);
-
             // Determine potential actions
             std::vector<Action::Enum> potentialActions;
             // 1. look up an enemy
@@ -111,6 +110,8 @@ void AISystem::DoUpdate(float dt) {
                     LOGE("Errr, weird action choice: " << ic->action)
             }
             aiC->accum = 0;
+        } else {
+            ic->action = Action::None;
         }
     }
 }
