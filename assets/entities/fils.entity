@@ -1,7 +1,7 @@
 [Transformation]
-size%texture_ratio,screen_h = 0.035
+size%texture_ratio,screen_h = 0.025
 z = 0.
-position = 0, -0.52
+position = 0, -0.48
 
 [Rendering]
 show = 1

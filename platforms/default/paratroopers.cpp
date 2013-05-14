@@ -20,7 +20,7 @@
 #include "app/AppSetup.h"
 
 int main(int argc, char** argv) {
-    if (initGame("Paratroopers", glm::ivec2(900, 625))) {
+    if (initGame("Paratroopers", glm::ivec2(900, 900))) {
         LOGE("Failed to initialize");
         return 1;
     }
