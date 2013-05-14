@@ -20,13 +20,23 @@ void BulletSystem::DoUpdate(float) {
 
         auto tc = TRANSFORM(e);
 
+        bool deleted = false;
+
         FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, pc)
+            //don't shot landed guys
+            if (PARATROOPER(para)->landed)
+                continue;
+
             //kill the guy
             if (IntersectionUtil::rectangleRectangle(tc, TRANSFORM(para))) {
                 pc->dead = true;
+                deleted = true;
                 theEntityManager.DeleteEntity(e);
+                break;
             }
         }
+        if (deleted)
+            continue;
 
         FOR_EACH_ENTITY_COMPONENT(Parachute, parachute, pc)
             const auto transf = TRANSFORM(parachute);
