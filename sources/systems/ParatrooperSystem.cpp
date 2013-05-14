@@ -32,8 +32,13 @@ void ParatrooperSystem::DoUpdate(float) {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' crashed at speed " << glm::abs(PHYSICS(e)->linearVelocity.y));
 					pc->dead = true;
 					PHYSICS(e)->mass = 0;
+                    PARTICULE(e)->emissionRate *= 2;
+                    PARTICULE(e)->duration = 0.3;
+                    PARTICULE(e)->initialSize.t1 *= 2;
+                    PARTICULE(e)->forceAmplitude.t1 *= 3;
 					AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
-					AUTO_DESTROY(e)->params.lifetime.freq.value = 1;
+					AUTO_DESTROY(e)->params.lifetime.freq.value = 0.2;
+                    AUTO_DESTROY(e)->params.lifetime.map2AlphaRendering = true;
 				}
 				else {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' landed");
