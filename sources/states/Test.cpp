@@ -20,6 +20,7 @@
 
 #include "ParatroopersGame.h"
 
+#include "systems/AISystem.h"
 #include "systems/DCASystem.h"
 #include "systems/InputSystem.h"
 #include "systems/ParachuteSystem.h"
@@ -38,7 +39,9 @@
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/TextRenderingSystem.h"
+#include "systems/NetworkSystem.h"
 
+#include "api/linux/NetworkAPILinuxImpl.h"
 #include "util/IntersectionUtil.h"
 
 #include <glm/gtx/compatibility.hpp>
@@ -54,46 +57,65 @@
 
 struct TestScene : public StateHandler<Scene::Enum> {
     ParatroopersGame* game;
-    Entity plane1, plane2, dca1, dca2;
-    Entity player1, player2;
-    Entity score1, score2;
+
+    Entity scores[2];
 
     TestScene(ParatroopersGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() override {
+        if (game->networkMode)
+            game->gameThreadContext->networkAPI->connectToLobby(game->networkNickname, "127.0.0.1");
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
+    bool updatePreEnter(Scene::Enum, float) override {
+        if (game->networkMode)
+            return game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer();
+        else
+            return true;
+    }
 
     void onEnter(Scene::Enum) override {
-        player1 = theEntityManager.CreateEntity("player1",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("player1"));
-        player2 = theEntityManager.CreateEntity("player2",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("player2"));
-
-        score1 = theEntityManager.CreateEntity("score_g",
+        // purely local entities first
+        scores[0] = theEntityManager.CreateEntity("score_g",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("score1"));
-        score2 = theEntityManager.CreateEntity("score_b",
+        scores[1] = theEntityManager.CreateEntity("score_b",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("score2"));
 
-        plane1 = theEntityManager.CreateEntity("plane1",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane1"));
-        plane2 = theEntityManager.CreateEntity("plane2",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("plane2"));
-        dca1 = theEntityManager.CreateEntity("dca1",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA1"));
-        dca2 = theEntityManager.CreateEntity("dca2",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("DCA2"));
+        // then, gameplay (shared) entities
+        if (game->networkMode) {
+            if (!game->gameThreadContext->networkAPI->amIGameMaster())
+                return;
+        }
 
-        PLANE(plane1)->owner = player1;
-        DCA(dca1)->owner = player1;
+        for (int i=0; i<2; i++) {
+            #define __(b) (std::string(b) + (i ? "2" : "1"))
 
-        PLANE(plane2)->owner = player2;
-        DCA(dca2)->owner = player2;
+            Entity player = theEntityManager.CreateEntity(__("player"),
+                EntityType::Persistent,
+                theEntityManager.entityTemplateLibrary.load(__("player")));
+
+            Entity plane = theEntityManager.CreateEntity(__("plane"),
+                EntityType::Persistent,
+                theEntityManager.entityTemplateLibrary.load(__("plane")));
+
+            Entity dca = theEntityManager.CreateEntity(__("dca"),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(__("DCA")));
+
+            PLANE(plane)->owner = player;
+            DCA(dca)->owner = player;
+
+            if (game->networkMode && i == 1) {
+                // remove AI from player2
+                theAISystem.Delete(player);
+                NETWORK(player)->newOwnerShipRequest = 1;
+            }
+            #undef __
+        }
     }
 
     void updateInput(Entity entity, InputComponent* ic) {
@@ -147,12 +169,28 @@ struct TestScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        // Retrieve all players
+        std::vector<Entity> players = thePlayerSystem.RetrieveAllEntityWithComponent();
+        Entity myPlayer = 0;
+
+        // Pick mine
+        bool gameMaster = (!game->networkMode || game->gameThreadContext->networkAPI->amIGameMaster());
+
+        for_each(players.begin(), players.end(), [&myPlayer, gameMaster] (Entity e) -> void {
+            if (PLAYER(e)->id == (gameMaster ? 0 : 1)) myPlayer = e;
+        });
+        LOGW_IF(myPlayer == 0, "Cannot find my player :'( (" << players.size())
+        if (myPlayer == 0)
+            return Scene::Test;
+
+        LOGI_EVERY_N(100, "Found my player. Entity: " << myPlayer)
+
         bool touching = theTouchInputManager.isTouched(0);
-        InputComponent* ic = INPUT(player1);
+        InputComponent* ic = INPUT(myPlayer);
         ic->action = Action::None;
 
         if (touching) {
-            updateInput(player1, ic);
+            updateInput(myPlayer, ic);
         }
 
         // debug
@@ -189,15 +227,12 @@ struct TestScene : public StateHandler<Scene::Enum> {
         }
 
         // update score
-        {
-        std::stringstream ss;
-        ss << "Score: " << PLAYER(player1)->score;
-        TEXT_RENDERING(score1)->text = ss.str();
-        }
-        {
-        std::stringstream ss;
-        ss << "Score: " << PLAYER(player2)->score;
-        TEXT_RENDERING(score2)->text = ss.str();
+        LOGW_IF(2 != players.size(), "Scores count: " << 2 <<
+            "different from players count : " << players.size() << ".")
+        for (unsigned i=0; i<players.size() && i<2; i++) {
+            std::stringstream ss;
+            ss << "Score: " << PLAYER(players[i])->score;
+            TEXT_RENDERING(scores[i])->text = ss.str();
         }
 
         return Scene::Test;

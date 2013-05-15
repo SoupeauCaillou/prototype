@@ -13,3 +13,5 @@ fils%template = fils
 [Button]
 enabled = 1
 
+[Network]
+sync = Rendering, Transformation, Parachute

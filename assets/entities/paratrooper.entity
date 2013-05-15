@@ -32,3 +32,6 @@ force_amplitude = 10
 moment = 0, 6.28
 gravity = 0, -10
 mass = 0.1
+
+[Network]
+sync = Rendering, Transformation, Paratrooper

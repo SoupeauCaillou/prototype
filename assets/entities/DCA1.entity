@@ -1,12 +1,12 @@
 extends = DCA_base_g
 
 [DCA]
-fire_rate = 10
-puissance = 100
+fire_rate = 1
+puissance = 35
 dispersion = 0.2
 maximal_distance_for_activation = 5
 fire_mode = 0
-burst_rest_time = 1
+burst_rest_time = 2
 turret%template = turret
 
 [turret#Rendering]

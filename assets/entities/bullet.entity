@@ -8,7 +8,7 @@ show = 1
 
 [Physics]
 mass = 0.1
-gravity = 0, -2
+gravity = 0, -0.002
 
 [AutoDestroy]
 type = 0
@@ -20,7 +20,7 @@ params.area.size%screen = 1, 1
 [Bullet]
 
 [Particule]
-emission_rate = 10
+emission_rate = 0
 duration = 10
 initial_color = 1,.5,0,1, 1,.5,0,1
 final_color = 0,0,0,0
@@ -28,3 +28,5 @@ lifetime = 1
 initial_size = .05, .05
 final_size = 0, 0
 
+[Network]
+sync = Rendering, Transformation

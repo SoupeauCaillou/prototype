@@ -33,7 +33,7 @@
 
 class ParatroopersGame : public Game {
 	public:
-		ParatroopersGame();
+		ParatroopersGame(int argc, char** argv);
 
         bool wantsAPI(ContextAPI::Enum api) const;
         void sacInit(int windowW, int windowH);
@@ -45,6 +45,8 @@ class ParatroopersGame : public Game {
 		void backPressed();
 
         Entity camera;
+        bool networkMode;
+        std::string networkNickname;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

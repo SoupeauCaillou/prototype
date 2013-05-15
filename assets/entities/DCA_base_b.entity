@@ -6,5 +6,7 @@ z = 0.8
 [Rendering]
 texture = canon_base_b
 show = 1
-z = .8
 mirror_h = 1
+
+[Network]
+sync = Rendering, Transformation, DCA

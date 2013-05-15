@@ -6,3 +6,6 @@ id = 1
 [AI]
 aiming_noise = 1
 decision_per_second = 1
+
+[Network]
+sync = Player, Input

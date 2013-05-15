@@ -2,3 +2,6 @@
 id = 0
 
 [Input]
+
+[Network]
+sync = Player

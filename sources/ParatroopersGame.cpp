@@ -66,7 +66,14 @@
 #define ZOOM 1
 
 
-ParatroopersGame::ParatroopersGame() : Game() {
+ParatroopersGame::ParatroopersGame(int argc, char** argv) : Game() {
+    networkMode = false;
+    for (int i=1; i<argc; i++) {
+        if (argv[i][0] != '-') {
+            networkNickname = argv[i];
+            networkMode = true;
+        }
+    }
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
@@ -80,6 +87,8 @@ bool ParatroopersGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Communication:
         case ContextAPI::Storage:
             return true;
+        case ContextAPI::Network:
+            return networkMode;
         default:
             return false;
     }
@@ -126,7 +135,6 @@ void ParatroopersGame::init(const uint8_t*, int) {
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("camera"));
 
     sceneStateMachine.setup(Scene::Menu);
-    sceneStateMachine.reEnterCurrentState();
 
     Entity ground = theEntityManager.CreateEntity("ground",
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ground"));
@@ -151,15 +159,19 @@ void ParatroopersGame::togglePause(bool) {
 }
 
 void ParatroopersGame::tick(float dt) {
+    bool gameMaster = (!networkMode || gameThreadContext->networkAPI->amIGameMaster());
     if (dt > 0) {
         sceneStateMachine.update(dt);
-        theAISystem.Update(dt);
-        theInputSystem.Update(dt);
-        thePlaneSystem.Update(dt);
-        theDCASystem.Update(dt);
-        theBulletSystem.Update(dt);
-        theParatrooperSystem.Update(dt);
-        theParachuteSystem.Update(dt);
+
+        if (gameMaster) {
+            theAISystem.Update(dt);
+            theInputSystem.Update(dt);
+            thePlaneSystem.Update(dt);
+            theDCASystem.Update(dt);
+            theBulletSystem.Update(dt);
+            theParatrooperSystem.Update(dt);
+            theParachuteSystem.Update(dt);
+        }
     }
 }
 
