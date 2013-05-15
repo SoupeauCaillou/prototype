@@ -18,6 +18,11 @@
 INSTANCE_IMPL(ParatrooperSystem);
 
 ParatrooperSystem::ParatrooperSystem() : ComponentSystemImpl <ParatrooperComponent>("Paratrooper") {
+    ParatrooperComponent tc;
+    componentSerializer.add(new EntityProperty("owner", OFFSET(owner, tc)));
+    componentSerializer.add(new Property<bool>("landed", OFFSET(landed, tc)));
+    componentSerializer.add(new Property<bool>("parachuteOpened", OFFSET(parachuteOpened, tc)));
+    componentSerializer.add(new Property<bool>("dead", OFFSET(dead, tc)));
 }
 
 void ParatrooperSystem::DoUpdate(float) {

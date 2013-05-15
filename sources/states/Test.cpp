@@ -123,30 +123,35 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         // touched a plane -> spawn new paratrooper
         FOR_EACH_ENTITY_COMPONENT(Plane, plane, planeC)
-            if (planeC->owner == entity &&
-                IntersectionUtil::pointRectangle(touchPos,
+            if (IntersectionUtil::pointRectangle(touchPos,
                     TRANSFORM(plane)->worldPosition,
                     TRANSFORM(plane)->size)) {
-
-                ic->action = Action::Spawn;
-                ic->SpawnParams.plane = plane;
-                return;
+                if (planeC->owner == entity) {
+                    ic->action = Action::Spawn;
+                    ic->SpawnParams.plane = plane;
+                    return;
+                } else {
+                    LOGI("Clicked on a plane that is not mine: " << planeC->owner)
+                }
             }
         }
 
         // touched a guy -> open parachute
         FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, paraC)
-            if (paraC->owner == entity &&
-                !paraC->dead &&
+            if (!paraC->dead &&
                 !paraC->parachute) {
 
                 if (IntersectionUtil::pointRectangle(touchPos,
                     TRANSFORM(para)->worldPosition,
                     TRANSFORM(para)->size)) {
 
-                    ic->action = Action::OpenParachute;
-                    ic->OpenParachuteParams.paratrooper = para;
-                    return;
+                    if (paraC->owner == entity) {
+                        ic->action = Action::OpenParachute;
+                        ic->OpenParachuteParams.paratrooper = para;
+                        return;
+                    } else {
+                        LOGI("Tried to open a parachute of the other team: " << paraC->owner)
+                    }
                 }
             }
         }
@@ -154,13 +159,17 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         // touched in DCA area -> fire
         FOR_EACH_ENTITY_COMPONENT(DCA, dca, dcaC)
-            if (dcaC->owner == entity &&
-                glm::distance2(touchPos, TRANSFORM(dca)->worldPosition) <= glm::pow(dcaC->maximalDistanceForActivation, 2.0f)) {
+            if (glm::distance2(touchPos, TRANSFORM(dca)->worldPosition) <= glm::pow(dcaC->maximalDistanceForActivation, 2.0f)) {
 
-                ic->action = Action::Fire;
-                ic->FireParams.aim = touchPos;
-                ic->FireParams.dca = dca;
-                return;
+                if (dcaC->owner == entity) {
+                    ic->action = Action::Fire;
+                    ic->FireParams.aim = touchPos;
+                    ic->FireParams.dca = dca;
+                    return;
+                } else {
+                    LOGI("Tried to use other team's DCA: " << dcaC->owner)
+                    PLAYER(entity)->score ++;
+                }
             }
         }
     }

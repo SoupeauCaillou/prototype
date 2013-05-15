@@ -6,3 +6,5 @@ z = 0.01
 texture = canon_rot_b
 show = 1
 
+[Network]
+sync = Transformation, Rendering

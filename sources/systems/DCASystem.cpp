@@ -20,7 +20,7 @@ DCASystem::DCASystem() : ComponentSystemImpl <DCAComponent>("DCA") {
     componentSerializer.add(new Property<int>("fire_mode", OFFSET(fireMode, dc), 0));
     componentSerializer.add(new Property<float>("burst_rest_time", OFFSET(burstRestTime, dc), 0.001));
     componentSerializer.add(new EntityProperty("turret", OFFSET(turret, dc)));
-
+    componentSerializer.add(new EntityProperty("owner", OFFSET(owner, dc)));
 }
 
 void DCASystem::DoUpdate(float dt) {

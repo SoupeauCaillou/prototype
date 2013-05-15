@@ -17,6 +17,7 @@ INSTANCE_IMPL(PlaneSystem);
 
 PlaneSystem::PlaneSystem() : ComponentSystemImpl <PlaneComponent>("Plane") {
 	PlaneComponent pc;
+    componentSerializer.add(new EntityProperty("owner", OFFSET(owner, pc)));
     componentSerializer.add(new Property<glm::vec2>("speed", OFFSET(speed, pc), glm::vec2(0.001f, 0.f)));
     componentSerializer.add(new Property<int>("paratrooperLimit", OFFSET(paratrooperLimit, pc), 1));
     componentSerializer.add(new Property<int>("paratrooperAvailable", OFFSET(paratrooperAvailable, pc), 1));

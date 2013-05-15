@@ -14,7 +14,12 @@
 INSTANCE_IMPL(InputSystem);
 
 InputSystem::InputSystem() : ComponentSystemImpl <InputComponent>("Input") {
-	InputComponent pc;
+	InputComponent tc;
+    componentSerializer.add(new Property<int>("action", OFFSET(action, tc), 0));
+    componentSerializer.add(new EntityProperty("plane", OFFSET(SpawnParams.plane, tc)));
+    componentSerializer.add(new EntityProperty("paratrooper", OFFSET(OpenParachuteParams.paratrooper, tc)));
+    componentSerializer.add(new EntityProperty("dca", OFFSET(FireParams.dca, tc)));
+    componentSerializer.add(new Property<glm::vec2>("aim", OFFSET(FireParams.aim, tc), glm::vec2(0.001f)));
 
 }
 

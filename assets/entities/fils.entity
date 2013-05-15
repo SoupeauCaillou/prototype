@@ -6,3 +6,6 @@ position = 0, -0.48
 [Rendering]
 show = 1
 texture = fils
+
+[Network]
+sync = Transformation, Rendering
