@@ -33,6 +33,7 @@
 #include "base/StateMachine.h"
 #include "base/TouchInputManager.h"
 
+#include "systems/AnchorSystem.h"
 #include "systems/AutoDestroySystem.h"
 #include "systems/AnimationSystem.h"
 #include "systems/ButtonSystem.h"
@@ -124,7 +125,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
         // touched a plane -> spawn new paratrooper
         FOR_EACH_ENTITY_COMPONENT(Plane, plane, planeC)
             if (IntersectionUtil::pointRectangle(touchPos,
-                    TRANSFORM(plane)->worldPosition,
+                    TRANSFORM(plane)->position,
                     TRANSFORM(plane)->size)) {
                 if (planeC->owner == entity) {
                     ic->action = Action::Spawn;
@@ -142,7 +143,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 !paraC->parachute) {
 
                 if (IntersectionUtil::pointRectangle(touchPos,
-                    TRANSFORM(para)->worldPosition,
+                    TRANSFORM(para)->position,
                     TRANSFORM(para)->size)) {
 
                     if (paraC->owner == entity) {
@@ -159,7 +160,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         // touched in DCA area -> fire
         FOR_EACH_ENTITY_COMPONENT(DCA, dca, dcaC)
-            if (glm::distance2(touchPos, TRANSFORM(dca)->worldPosition) <= glm::pow(dcaC->maximalDistanceForActivation, 2.0f)) {
+            if (glm::distance2(touchPos, TRANSFORM(dca)->position) <= glm::pow(dcaC->maximalDistanceForActivation, 2.0f)) {
 
                 if (dcaC->owner == entity) {
                     ic->action = Action::Fire;
@@ -209,26 +210,26 @@ struct TestScene : public StateHandler<Scene::Enum> {
                 float ti = TimeUtil::GetTime();
                 if (ti - lastTouch > 1) {
                     glm::vec2 cursorPosition = theTouchInputManager.getTouchLastPosition(1);
-                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->worldPosition, TRANSFORM(p)->size)) {
+                    if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(p)->position, TRANSFORM(p)->size)) {
                         LOGW("Soldier '" << theEntityManager.entityName(p) << p << "' is dead");
                         PARATROOPER(p)->dead = true;
                     }
                     if (PARATROOPER(p)->parachute) {
                         Entity parachute = PARATROOPER(p)->parachute;
-                        if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parachute)->worldPosition, TRANSFORM(parachute)->size)) {
+                        if (IntersectionUtil::pointRectangle(cursorPosition, TRANSFORM(parachute)->position, TRANSFORM(parachute)->size)) {
                             LOGI("adding damage for " << theEntityManager.entityName(parachute) << parachute
-                                << "pos: " << TRANSFORM(p)->worldPosition << " size:" << TRANSFORM(parachute)->size
+                                << "pos: " << TRANSFORM(p)->position << " size:" << TRANSFORM(parachute)->size
                                 << "cursor: " << cursorPosition
-                                << " at " << cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->worldPosition / 2.f);
-                            PARACHUTE(parachute)->damages.push_back(cursorPosition - TRANSFORM(parachute)->worldPosition + TRANSFORM(parachute)->size / 2.f);
+                                << " at " << cursorPosition - TRANSFORM(parachute)->position + TRANSFORM(parachute)->position / 2.f);
+                            PARACHUTE(parachute)->damages.push_back(cursorPosition - TRANSFORM(parachute)->position + TRANSFORM(parachute)->size / 2.f);
                         }
 
                         Entity hole = theEntityManager.CreateEntity("hole", EntityType::Volatile,
                              theEntityManager.entityTemplateLibrary.load("hole"));
                         PARACHUTE(parachute)->holes.push_back(hole);
-                        TRANSFORM(hole)->parent = parachute;
-                        TRANSFORM(hole)->position = glm::rotate(cursorPosition - TRANSFORM(parachute)->worldPosition,
-                            -TRANSFORM(parachute)->worldRotation);
+                        ANCHOR(hole)->parent = parachute;
+                        ANCHOR(hole)->position = glm::rotate(cursorPosition - TRANSFORM(parachute)->position,
+                            -TRANSFORM(parachute)->rotation);
                     }
                     lastTouch = ti;
                 }

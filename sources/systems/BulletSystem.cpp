@@ -5,6 +5,7 @@
 #include "systems/ParatrooperSystem.h"
 #include "systems/ParachuteSystem.h"
 
+#include "systems/AnchorSystem.h"
 #include "util/IntersectionUtil.h"
 #include <glm/gtx/rotate_vector.hpp>
 
@@ -42,15 +43,15 @@ void BulletSystem::DoUpdate(float) {
             const auto transf = TRANSFORM(parachute);
             if (IntersectionUtil::rectangleRectangle(tc, transf)) {
 
-                glm::vec2 pos = glm::rotate(tc->worldPosition - transf->worldPosition,
-                    - transf->worldRotation);
+                glm::vec2 pos = glm::rotate(tc->position - transf->position,
+                    - transf->rotation);
                 pc->damages.push_back(pos);
 
                 Entity hole = theEntityManager.CreateEntity("hole", EntityType::Volatile,
                     theEntityManager.entityTemplateLibrary.load("hole"));
                 PARACHUTE(parachute)->holes.push_back(hole);
-                TRANSFORM(hole)->parent = parachute;
-                TRANSFORM(hole)->position = pos;
+                ANCHOR(hole)->parent = parachute;
+                ANCHOR(hole)->position = pos;
 
                 theEntityManager.DeleteEntity(e);
                 break;

@@ -1,6 +1,9 @@
 [Transformation]
 size%texture_ratio,screen_h = 0.02
+
+[Anchor]
 z = 0.01
+anchor = -0.4, 0
 
 [Rendering]
 texture = canon_rot_b

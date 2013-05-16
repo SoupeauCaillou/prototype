@@ -29,8 +29,8 @@ void ParatrooperSystem::DoUpdate(float) {
 	FOR_EACH_ENTITY_COMPONENT(Paratrooper, e, pc)
 		if (!pc->landed) {
 			//touching the ground (landing)
-			if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->worldPosition.x,
-				-PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->worldPosition, TRANSFORM(e)->size)) {
+			if (IntersectionUtil::pointRectangle(glm::vec2(TRANSFORM(e)->position.x,
+				-PlacementHelper::ScreenHeight/2.f), TRANSFORM(e)->position, TRANSFORM(e)->size)) {
 
 				RENDERING(e)->color = PLAYER(pc->owner)->playerColor;
 				if (pc->dead || glm::abs(PHYSICS(e)->linearVelocity.y) > 3.f) {

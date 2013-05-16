@@ -1,4 +1,4 @@
 extends = paratrooper
 
 [Rendering]
-texture = soldier_g
+texture = soldier_fall_g

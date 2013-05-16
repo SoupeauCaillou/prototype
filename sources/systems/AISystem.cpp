@@ -39,8 +39,8 @@ Entity myLowestAltitudeNotDeadEnemy(Entity entity) {
     Entity best = 0;
     FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, paraC)
         if (paraC->owner != entity && !paraC->dead) {
-            if (TRANSFORM(para)->worldPosition.y < min) {
-                min = TRANSFORM(para)->worldPosition.y;
+            if (TRANSFORM(para)->position.y < min) {
+                min = TRANSFORM(para)->position.y;
                 best = para;
             }
         }
@@ -53,8 +53,8 @@ Entity myLowestAltitudeNotDeadNoParachuteGuy(Entity entity) {
     Entity best = 0;
     FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, paraC)
         if (paraC->owner == entity && !paraC->dead && !paraC->parachuteOpened) {
-            if (TRANSFORM(para)->worldPosition.y < min) {
-                min = TRANSFORM(para)->worldPosition.y;
+            if (TRANSFORM(para)->position.y < min) {
+                min = TRANSFORM(para)->position.y;
                 best = para;
             }
         }
@@ -92,9 +92,9 @@ void AISystem::DoUpdate(float dt) {
                     float noiseX = glm::linearRand(-aiC->aimingNoise * 0.5, aiC->aimingNoise * 0.5);
                     float noiseY = glm::linearRand(-aiC->aimingNoise * 0.5, aiC->aimingNoise * 0.5);
                     ic->FireParams.aim =
-                        TRANSFORM(ic->FireParams.dca)->worldPosition +
-                        glm::normalize(TRANSFORM(enemy)->worldPosition + glm::vec2(noiseX, noiseY)
-                            - TRANSFORM(ic->FireParams.dca)->worldPosition)
+                        TRANSFORM(ic->FireParams.dca)->position +
+                        glm::normalize(TRANSFORM(enemy)->position + glm::vec2(noiseX, noiseY)
+                            - TRANSFORM(ic->FireParams.dca)->position)
                         * (DCA(ic->FireParams.dca)->maximalDistanceForActivation * 0.8f);
                     break;
                 }

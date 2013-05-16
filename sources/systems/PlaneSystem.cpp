@@ -29,7 +29,7 @@ void PlaneSystem::DoUpdate(float dt) {
 		PHYSICS(e)->linearVelocity = pc->speed;
 
 		TransformationComponent *tc = TRANSFORM(e);
-		if (!IntersectionUtil::rectangleRectangle(tc->worldPosition, tc->size, tc->worldRotation,
+		if (!IntersectionUtil::rectangleRectangle(tc->position, tc->size, tc->rotation,
         	glm::vec2(0.f), glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight), 0)) {
 			tc->position.x = -tc->position.x;
 			pc->paratrooperAvailable = pc->paratrooperLimit;

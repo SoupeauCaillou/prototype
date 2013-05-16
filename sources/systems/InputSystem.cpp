@@ -7,9 +7,13 @@
 #include "systems/PlayerSystem.h"
 #include "systems/ParatrooperSystem.h"
 #include "systems/DCASystem.h"
+
+#include "systems/AnchorSystem.h"
+#include "systems/RenderingSystem.h"
 #include "util/IntersectionUtil.h"
 
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/compatibility.hpp>
 
 INSTANCE_IMPL(InputSystem);
 
@@ -35,13 +39,15 @@ void InputSystem::DoUpdate(float) {
 				Entity p = ic->OpenParachuteParams.paratrooper;
                 if (PARATROOPER(p)->parachuteOpened)
                     break;
+                const std::string soldier = PLAYER(entity)->id == 0 ? "soldier_g" : "soldier_b";
 				const std::string name = PLAYER(entity)->id == 0 ? "parachute_g" : "parachute_b";
                 //create a parachute
                 Entity parachute = theEntityManager.CreateEntity(name,
                 EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(name));
-                TRANSFORM(parachute)->parent = p;
+                ANCHOR(parachute)->parent = p;
                 PARATROOPER(p)->parachute = parachute;
                 PARATROOPER(p)->parachuteOpened = true;
+                RENDERING(p)->texture = theRenderingSystem.loadTextureFile(soldier);
 
                 AUTO_DESTROY(p)->onDeletionCall = [] (Entity p) {
                     Entity parachute = PARATROOPER(p)->parachute;
@@ -52,6 +58,9 @@ void InputSystem::DoUpdate(float) {
                 break;
             }
             case Action::Fire: {
+                Entity turret = DCA(ic->FireParams.dca)->turret;
+                glm::vec2 d = glm::normalize(ic->FireParams.aim - TRANSFORM(turret)->position);
+                ANCHOR(turret)->rotation = glm::atan2(d.y, d.x);
             	DCA(ic->FireParams.dca)->shoot = true;
             	DCA(ic->FireParams.dca)->targetPoint = ic->FireParams.aim;
             	break;

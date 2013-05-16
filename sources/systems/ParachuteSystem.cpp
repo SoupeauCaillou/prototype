@@ -1,5 +1,6 @@
 #include "ParachuteSystem.h"
 
+#include "systems/AnchorSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/ParatrooperSystem.h"
@@ -29,7 +30,7 @@ void ParachuteSystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(Parachute, e, pc)
         //find the paratrooper associated to the parachute
         const TransformationComponent* tc = TRANSFORM(e);
-        const Entity paratrooper = tc->parent;
+        const Entity paratrooper = ANCHOR(e)->parent;
 
         //the parachute hasn't any passenger? then destroy it
         if (! paratrooper) {
@@ -59,10 +60,10 @@ void ParachuteSystem::DoUpdate(float dt) {
             // if the parachute is okay, forces are equals
         }
 
-        //LOGI_EVERY_N(60, pc->damages.size() << ": damage x average position: " << xMaxDamaged << "|" << glm::cos(TRANSFORM(e)->worldRotation))
-        glm::vec2 applicationPoint = glm::rotate(glm::vec2(tc->size.x / 2.f, 0.f), tc->worldRotation);
+        //LOGI_EVERY_N(60, pc->damages.size() << ": damage x average position: " << xMaxDamaged << "|" << glm::cos(TRANSFORM(e)->rotation))
+        glm::vec2 applicationPoint = glm::rotate(glm::vec2(tc->size.x / 2.f, 0.f), tc->rotation);
 
-        glm::vec2 axe(tc->worldPosition - TRANSFORM(paratrooper)->worldPosition);
+        glm::vec2 axe(tc->position - TRANSFORM(paratrooper)->position);
         axe = glm::normalize(axe);
 
         //if the paratrooper is over the parachute, don't add any force
@@ -73,7 +74,7 @@ void ParachuteSystem::DoUpdate(float dt) {
         // ADD_COMPONENT(hole, Transformation);
         // ADD_COMPONENT(hole, Rendering);
         // ADD_COMPONENT(hole, AutoDestroy);
-        // TRANSFORM(hole)->position = TRANSFORM(parent)->worldPosition - cursorPosition;
+        // TRANSFORM(hole)->position = TRANSFORM(parent)->position - cursorPosition;
         // TRANSFORM(hole)->parent = parent;
         // TRANSFORM(hole)->z = 0.1;
         // TRANSFORM(hole)->size = glm::vec2(0.5f);
