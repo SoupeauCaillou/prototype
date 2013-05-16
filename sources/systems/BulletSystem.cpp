@@ -25,7 +25,7 @@ void BulletSystem::DoUpdate(float) {
 
         FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, pc)
             //don't shot landed guys
-            if (PARATROOPER(para)->landed)
+            if (pc->landed)
                 continue;
 
             //kill the guy
