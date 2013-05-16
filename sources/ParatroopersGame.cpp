@@ -68,10 +68,18 @@
 
 ParatroopersGame::ParatroopersGame(int argc, char** argv) : Game() {
     networkMode = false;
+    lobbyAddress = "127.0.0.1";
     for (int i=1; i<argc; i++) {
         if (argv[i][0] != '-') {
             networkNickname = argv[i];
             networkMode = true;
+        } else {
+            if (strcmp(argv[i], "-server") == 0) {
+                LOGF_IF(argc < (i+1), "Missing param to -server arg")
+                lobbyAddress = argv[i + 1];
+                LOGI("Using lobby at: '" << lobbyAddress << "'")
+                i++;
+            }
         }
     }
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");

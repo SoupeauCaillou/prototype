@@ -46,7 +46,7 @@ class ParatroopersGame : public Game {
 
         Entity camera;
         bool networkMode;
-        std::string networkNickname;
+        std::string networkNickname, lobbyAddress;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

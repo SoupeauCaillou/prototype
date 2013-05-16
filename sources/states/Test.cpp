@@ -67,7 +67,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
     void setup() override {
         if (game->networkMode)
-            game->gameThreadContext->networkAPI->connectToLobby(game->networkNickname, "127.0.0.1");
+            game->gameThreadContext->networkAPI->connectToLobby(game->networkNickname, game->lobbyAddress.c_str());
     }
 
     ///----------------------------------------------------------------------------//
