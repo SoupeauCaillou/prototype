@@ -1,7 +1,7 @@
 extends = DCA_base_b
 
 [DCA]
-fire_rate = 1
+fire_rate = 3
 puissance = 100
 dispersion = 0.5
 maximal_distance_for_activation = 5

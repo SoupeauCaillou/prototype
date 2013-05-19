@@ -23,6 +23,7 @@ void BulletSystem::DoUpdate(float) {
 
         bool deleted = false;
 
+        // hit some human ?
         FOR_EACH_ENTITY_COMPONENT(Paratrooper, para, pc)
             //don't shot landed guys
             if (pc->landed)
@@ -30,7 +31,7 @@ void BulletSystem::DoUpdate(float) {
 
             //kill the guy
             if (IntersectionUtil::rectangleRectangle(tc, TRANSFORM(para))) {
-                pc->dead = true;
+                pc->hit = true;
                 deleted = true;
                 theEntityManager.DeleteEntity(e);
                 break;
@@ -39,6 +40,7 @@ void BulletSystem::DoUpdate(float) {
         if (deleted)
             continue;
 
+        // or some parachute ?
         FOR_EACH_ENTITY_COMPONENT(Parachute, parachute, pc)
             const auto transf = TRANSFORM(parachute);
             if (IntersectionUtil::rectangleRectangle(tc, transf)) {

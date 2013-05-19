@@ -3,8 +3,9 @@
 #include "systems/System.h"
 
 struct ParatrooperComponent {
-	ParatrooperComponent():landed(false), parachuteOpened(false), dead(false), owner(0), parachute(0) {};
+	ParatrooperComponent():landed(false), parachuteOpened(false), hit(false), dead(false), owner(0), parachute(0) {};
 	bool landed, parachuteOpened;
+    bool hit;
 	bool dead;
 	Entity owner, parachute;
 };

@@ -42,6 +42,8 @@
 #include "systems/TextRenderingSystem.h"
 #include "systems/NetworkSystem.h"
 
+#include "api/KeyboardInputHandlerAPI.h"
+
 #include "api/linux/NetworkAPILinuxImpl.h"
 #include "util/IntersectionUtil.h"
 
@@ -124,9 +126,13 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         // touched a plane -> spawn new paratrooper
         FOR_EACH_ENTITY_COMPONENT(Plane, plane, planeC)
+#if SAC_MOBILE
             if (IntersectionUtil::pointRectangle(touchPos,
                     TRANSFORM(plane)->position,
                     TRANSFORM(plane)->size)) {
+#else
+            if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_a)) {
+#endif
                 if (planeC->owner == entity) {
                     ic->action = Action::Spawn;
                     ic->SpawnParams.plane = plane;
@@ -195,7 +201,12 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         LOGI_EVERY_N(100, "Found my player. Entity: " << myPlayer)
 
+#if SAC_MOBILE
         bool touching = theTouchInputManager.isTouched(0);
+#else
+        bool touching = theTouchInputManager.isTouched(0) || game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_a);
+#endif
+
         InputComponent* ic = INPUT(myPlayer);
         ic->action = Action::None;
 

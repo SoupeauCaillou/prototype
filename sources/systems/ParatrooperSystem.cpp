@@ -37,7 +37,7 @@ void ParatrooperSystem::DoUpdate(float) {
 					LOGW("Soldier '" << theEntityManager.entityName(e) << e << "' crashed at speed " << glm::abs(PHYSICS(e)->linearVelocity.y));
 					pc->dead = true;
 					PHYSICS(e)->mass = 0;
-                    PARTICULE(e)->emissionRate *= 2;
+                    PARTICULE(e)->emissionRate = 200;
                     PARTICULE(e)->duration = 0.3;
                     PARTICULE(e)->initialSize.t1 *= 2;
                     PARTICULE(e)->forceAmplitude.t1 *= 3;
@@ -63,8 +63,12 @@ void ParatrooperSystem::DoUpdate(float) {
 			}
 		}
 
-		if (pc->dead) {
-			PARTICULE(e)->emissionRate = 100;
+        //reset the blood animation
+		if (pc->hit) {
+            PARTICULE(e)->duration = .5;
+            PARTICULE(e)->emissionRate = 100;
+            pc->dead = true;
+            pc->hit = false;
 		}
 	}
 }

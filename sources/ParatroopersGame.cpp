@@ -94,6 +94,9 @@ bool ParatroopersGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Localize:
         case ContextAPI::Communication:
         case ContextAPI::Storage:
+#if ! SAC_MOBILE
+        case ContextAPI::KeyboardInputHandler:
+#endif
             return true;
         case ContextAPI::Network:
             return networkMode;
