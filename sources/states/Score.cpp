@@ -74,7 +74,7 @@ struct ScoreScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override { 
         if (BUTTON(replayButton)->clicked)
-            return Scene::Launch;
+            return Scene::Loading;
         if (BUTTON(back2Menu)->clicked)
             return Scene::Menu;
         return Scene::Score;
