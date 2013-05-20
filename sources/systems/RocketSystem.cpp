@@ -20,6 +20,9 @@
 #include "RocketSystem.h"
 
 #include "systems/PhysicsSystem.h"
+#include "systems/TransformationSystem.h"
+
+#include "util/drawVector.h"
 
 INSTANCE_IMPL(RocketSystem);
 
@@ -34,13 +37,17 @@ RocketSystem::RocketSystem() : ComponentSystemImpl<RocketComponent>("Rocket") {
 }
 
 void RocketSystem::DoUpdate(float dt) {
+    static Entity v = 0;
     FOR_EACH_ENTITY_COMPONENT(Rocket, e, rc)
         if (rc->tankOccupied > 0) {
             rc->tankOccupied -= rc->engineConsumption * dt;
             if (rc->tankOccupied < 0)
                 rc->tankOccupied = 0;
+            if (v)
+                theEntityManager.DeleteEntity(v);
+            v = drawVector(TRANSFORM(e)->position, glm::vec2(0.f, rc->pushingForce));
             PhysicsComponent *phc = PHYSICS(e);
-            phc->addForce(Force(glm::vec2(0.f,0.f),  glm::vec2(0.f, rc->pushingForce)), dt);
+            phc->addForce(glm::vec2(0.f, rc->pushingForce), glm::vec2(0.f,0.f), dt);
             phc->mass = rc->gasolineWeight * rc->tankOccupied + rc->rocketWeight;
         }
     }
