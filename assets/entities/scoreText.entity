@@ -1,0 +1,6 @@
+[Transformation]
+position = 0,0
+z = 1
+
+[TextRendering]
+text = "2"

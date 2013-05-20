@@ -1,20 +1,20 @@
 /*
-	This file is part of RecursiveRunner.
+    This file is part of RecursiveRunner.
 
-	@author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
-	@author Soupe au Caillou - Gautier Pelloux-Prayer
+    @author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
+    @author Soupe au Caillou - Gautier Pelloux-Prayer
 
-	RecursiveRunner is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3.
+    RecursiveRunner is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, version 3.
 
-	RecursiveRunner is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    RecursiveRunner is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "base/StateMachine.h"
 
@@ -41,7 +41,7 @@
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity socialBtn, timer;
+    Entity socialBtn, timer, playButton;
     float timeElapsed;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
@@ -70,6 +70,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(timer)->cameraBitMask = 0xffff;
         TEXT_RENDERING(timer)->positioning = TextRenderingComponent::RIGHT;
 
+         playButton = theEntityManager.CreateEntity("playButton",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playButton"));
+
     }
 
 
@@ -82,6 +85,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(timer)->show =
         BUTTON(socialBtn)->enabled =
         RENDERING(socialBtn)->show = true;
+
+        BUTTON(playButton)->enabled =
+            RENDERING(playButton)-> show = true;
     }
 
 
@@ -104,27 +110,30 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             //static int i=0;
             //LOGV(1, "Nombre d'entité = " << ++i);
 
-            Entity eq = theEntityManager.CreateEntity();
-            ADD_COMPONENT(eq, Transformation);
-            TRANSFORM(eq)->z = 0.5;
-            TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
-            TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
-            ADD_COMPONENT(eq, Rendering);
-            RENDERING(eq)->color = Color::random();
-            RENDERING(eq)->show = true;
-            RENDERING(eq)->cameraBitMask = 0xffff;
-            ADD_COMPONENT(eq, Physics);
-            PHYSICS(eq)->mass = 1;
-            PHYSICS(eq)->gravity = glm::vec2(0, -1);
+            // Entity eq = theEntityManager.CreateEntity();
+            // ADD_COMPONENT(eq, Transformation);
+            // TRANSFORM(eq)->z = 0.5;
+            // TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
+            // TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
+            // ADD_COMPONENT(eq, Rendering);
+            // RENDERING(eq)->color = Color::random();
+            // RENDERING(eq)->show = true;
+            // RENDERING(eq)->cameraBitMask = 0xffff;
+            // ADD_COMPONENT(eq, Physics);
+            // PHYSICS(eq)->mass = 1;
+            // PHYSICS(eq)->gravity = glm::vec2(0, -1);
 
-            ADD_COMPONENT(eq, AutoDestroy);
-            AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
-            AUTO_DESTROY(eq)->params.area.position = glm::vec2(0.f);
-            AUTO_DESTROY(eq)->params.area.size = TRANSFORM(game->camera)->size;
+            // ADD_COMPONENT(eq, AutoDestroy);
+            // AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
+            // AUTO_DESTROY(eq)->params.area.position = glm::vec2(0.f);
+            // AUTO_DESTROY(eq)->params.area.size = TRANSFORM(game->camera)->size;
         }
 
-       if (BUTTON(socialBtn)->clicked)
+        if (BUTTON(socialBtn)->clicked)
             return Scene::SocialCenter;
+
+        if (BUTTON(playButton)->clicked)
+            return Scene::Loading;
 
         return Scene::Menu;
     }
@@ -144,6 +153,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(timer)->show =
         BUTTON(socialBtn)->enabled =
         RENDERING(socialBtn)->show = false;
+        BUTTON(playButton)->enabled =
+            RENDERING(playButton)-> show = false;
     }
 };
 

@@ -1,0 +1,9 @@
+[Transformation]
+position = 0, 0
+size = 2, 1
+z = 1
+
+[Rendering]
+color = 1, 0, 0, 1
+
+[Button]

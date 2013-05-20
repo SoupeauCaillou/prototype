@@ -1,0 +1,9 @@
+[Transformation]
+positionSW%screen_h = -0.5, -0.5
+size = 0.5, 0.5
+z = 1
+
+[Rendering]
+color = 1, 0, 0, 1
+
+[Button]

@@ -1,0 +1,18 @@
+[Transformation]
+positionS%screen_h = 0, -0.5
+size%texture_ratio,screen_h  = 0.5
+z = 1
+
+[Rendering]
+texture = fusee
+show = 1
+
+[Rocket]
+tank_max = 1
+rocket_weight = 1
+pushing_force = 1
+engine_consumption = 0.1
+gasoline_weight = 0.5
+
+[Physics]
+mass = 1

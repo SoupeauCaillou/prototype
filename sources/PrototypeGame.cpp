@@ -20,6 +20,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 
+#include "systems/RocketSystem.h"
+
 #include "base/TouchInputManager.h"
 #include "base/EntityManager.h"
 #include "base/TimeUtil.h"
@@ -58,6 +60,9 @@
 PrototypeGame::PrototypeGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::Loading, Scene::CreateLoadingSceneHandler(this), "Scene::Loading");
+    sceneStateMachine.registerState(Scene::Launch, Scene::CreateLaunchSceneHandler(this), "Scene::Launch");
+    sceneStateMachine.registerState(Scene::Score, Scene::CreateScoreSceneHandler(this), "Scene::Score");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
 }
 
@@ -87,6 +92,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     theRenderingSystem.loadAtlas("logo", true);
     theRenderingSystem.loadAtlas("font", true);
+    theRenderingSystem.loadAtlas("fusee", true);
     // init font
     loadFont(renderThreadContext->assetAPI, "typo");
     std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
@@ -100,6 +106,8 @@ void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...")
     sceneStateMachine.setup(Scene::Logo);
     sceneStateMachine.reEnterCurrentState();
+
+    RocketSystem::CreateInstance();
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
