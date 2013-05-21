@@ -23,6 +23,7 @@
 
 #include "systems/RocketSystem.h"
 
+#include "systems/ParticuleSystem.h"
 #include "systems/PhysicsSystem.h"
 
 #include "glm/glm.hpp"
@@ -31,7 +32,6 @@ struct LaunchScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
     // Scene variables
-    float s;
 
     LaunchScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -49,26 +49,23 @@ struct LaunchScene : public StateHandler<Scene::Enum> {
     void onPreEnter(Scene::Enum) {}
     bool updatePreEnter(Scene::Enum, float) override {return true;}
     void onEnter(Scene::Enum) override {
-        FOR_EACH_ENTITY(Rocket, e) 
-            //PHYSICS(e)->gravity =  glm::vec2(0.f, -0.981f);
+        FOR_EACH_ENTITY_COMPONENT(Rocket, e, rc) 
+            PARTICULE(e)->emissionRate = 100;
+            PHYSICS(e)->gravity =  glm::vec2(0.f, -0.981f);
         }
-        s = 0;
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        s += dt;
     	theRocketSystem.Update(dt);
     	FOR_EACH_ENTITY_COMPONENT(Rocket, e, rc) 
-            if (s > 1)
-                PHYSICS(e)->gravity =  glm::vec2(0.f, -0.981f);
     		if (rc->tankOccupied == 0 && PHYSICS(e)->linearVelocity.y < 0) {
+                PARTICULE(e)->emissionRate = 0;
     			return Scene::Score;
     		}
     	}
-    	
         return Scene::Launch;
     }
 

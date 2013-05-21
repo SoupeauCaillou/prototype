@@ -45,6 +45,7 @@ class PrototypeGame : public Game {
 		void backPressed();
 
         Entity camera;
+        Entity ground;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

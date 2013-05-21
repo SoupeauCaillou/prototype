@@ -64,7 +64,7 @@ struct LoadingScene : public StateHandler<Scene::Enum> {
         }
         rocket = theEntityManager.CreateEntity("rocket",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("rocket"));
-        RENDERING(rocket)->texture = theRenderingSystem.loadTextureFile("fusee");
+        //RENDERING(rocket)->texture = theRenderingSystem.loadTextureFile("fusee");
         RENDERING(rocket)->show =
             RENDERING(launchButton)->show = true;
     }

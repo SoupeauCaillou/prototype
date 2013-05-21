@@ -62,11 +62,13 @@ struct ScoreScene : public StateHandler<Scene::Enum> {
             TEXT_RENDERING(scoreText)->show = true;
         BUTTON(replayButton)->enabled =
             BUTTON(back2Menu)->enabled = true;
-        std::stringstream a;
+        
         FOR_EACH_ENTITY(Rocket, e)
+            std::stringstream a;
             a << TRANSFORM(e)->position.y;
+            TEXT_RENDERING(scoreText)->text = a.str();
         }
-        TEXT_RENDERING(scoreText)->text = a.str();
+        
     }
 
     ///----------------------------------------------------------------------------//

@@ -1,6 +1,6 @@
 [Transformation]
 position = 0,0
-z = 1
+z = 0.9
 
 [TextRendering]
-text = "2"
+char_height = 2

@@ -89,15 +89,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     ScoreStorageProxy ssp;
     gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
-
     theRenderingSystem.loadAtlas("logo", true);
     theRenderingSystem.loadAtlas("font", true);
-    theRenderingSystem.loadAtlas("fusee", true);
+    theRenderingSystem.loadAtlas("rocket", true);
     // init font
     loadFont(renderThreadContext->assetAPI, "typo");
-    std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
-    for(auto it=files.begin(); it!=files.end(); ++it)
-        LOGI("atlas file: " << *it);
 
     LOGI("SAC engine initialisation done.")
 }
@@ -110,16 +106,22 @@ void PrototypeGame::init(const uint8_t*, int) {
     RocketSystem::CreateInstance();
 
     // default camera
-    camera = theEntityManager.CreateEntity("camera1");
-    ADD_COMPONENT(camera, Transformation);
-    TRANSFORM(camera)->size = glm::vec2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
-    TRANSFORM(camera)->position = glm::vec2(0, 0);
-    TRANSFORM(camera)->z = 1;
-    ADD_COMPONENT(camera, Camera);
-    CAMERA(camera)->enable = true;
-    CAMERA(camera)->order = 2;
-    CAMERA(camera)->id = 0;
-    CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+    // camera = theEntityManager.CreateEntity("camera1");
+    // ADD_COMPONENT(camera, Transformation);
+    // TRANSFORM(camera)->size = glm::vec2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
+    // TRANSFORM(camera)->position = glm::vec2(0, 0);
+    // TRANSFORM(camera)->z = 1;
+    // ADD_COMPONENT(camera, Camera);
+    // CAMERA(camera)->enable = true;
+    // CAMERA(camera)->order = 2;
+    // CAMERA(camera)->id = 0;
+    // CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+    camera =  theEntityManager.CreateEntity("camera1",
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("camera"));
+
+    // ground = theEntityManager.CreateEntity("ground",
+    //     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ground"));
 
 #if SAC_INGAME_EDITORS
     PrototypeDebugConsole::init(this);
