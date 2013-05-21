@@ -75,9 +75,9 @@ ParatroopersGame::ParatroopersGame(int argc, char** argv) : Game() {
             networkMode = true;
         } else {
             if (strcmp(argv[i], "-server") == 0) {
-                LOGF_IF(argc < (i+1), "Missing param to -server arg")
+                LOGF_IF(argc < (i+1), "Missing param to -server arg");
                 lobbyAddress = argv[i + 1];
-                LOGI("Using lobby at: '" << lobbyAddress << "'")
+                LOGI("Using lobby at: '" << lobbyAddress << "'");
                 i++;
             }
         }
@@ -106,7 +106,7 @@ bool ParatroopersGame::wantsAPI(ContextAPI::Enum api) const {
 }
 
 void ParatroopersGame::sacInit(int windowW, int windowH) {
-    LOGI("SAC engine initialisation begins...")
+    LOGI("SAC engine initialisation begins...");
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
@@ -125,11 +125,11 @@ void ParatroopersGame::sacInit(int windowW, int windowH) {
     for(auto it=files.begin(); it!=files.end(); ++it)
         LOGI("atlas file: " << *it);
 
-    LOGI("SAC engine initialisation done.")
+    LOGI("SAC engine initialisation done.");
 }
 
 void ParatroopersGame::init(const uint8_t*, int) {
-    LOGI("ParatroopersGame initialisation begins...")
+    LOGI("ParatroopersGame initialisation begins...");
     // sceneStateMachine.setup(Scene::Menu);
     // sceneStateMachine.reEnterCurrentState();
     PlaneSystem::CreateInstance();
@@ -155,7 +155,7 @@ void ParatroopersGame::init(const uint8_t*, int) {
 #endif
 
     quickInit();
-    LOGI("ParatroopersGame initialisation done.")
+    LOGI("ParatroopersGame initialisation done.");
 }
 
 void ParatroopersGame::quickInit() {

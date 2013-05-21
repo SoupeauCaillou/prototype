@@ -138,7 +138,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
                     ic->SpawnParams.plane = plane;
                     return;
                 } else {
-                    LOGI("Clicked on a plane that is not mine: " << planeC->owner)
+                    LOGI("Clicked on a plane that is not mine: " << planeC->owner);
                 }
             }
         }
@@ -157,7 +157,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
                         ic->OpenParachuteParams.paratrooper = para;
                         return;
                     } else {
-                        LOGI("Tried to open a parachute of the other team: " << paraC->owner)
+                        LOGI("Tried to open a parachute of the other team: " << paraC->owner);
                     }
                 }
             }
@@ -174,7 +174,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
                     ic->FireParams.dca = dca;
                     return;
                 } else {
-                    LOGI("Tried to use other team's DCA: " << dcaC->owner)
+                    LOGI("Tried to use other team's DCA: " << dcaC->owner);
                     PLAYER(entity)->score ++;
                 }
             }
@@ -195,11 +195,11 @@ struct TestScene : public StateHandler<Scene::Enum> {
         for_each(players.begin(), players.end(), [&myPlayer, gameMaster] (Entity e) -> void {
             if (PLAYER(e)->id == (gameMaster ? 0 : 1)) myPlayer = e;
         });
-        LOGW_IF(myPlayer == 0, "Cannot find my player :'( (" << players.size())
+        LOGW_IF(myPlayer == 0, "Cannot find my player :'( (" << players.size());
         if (myPlayer == 0)
             return Scene::Test;
 
-        LOGI_EVERY_N(100, "Found my player. Entity: " << myPlayer)
+        LOGI_EVERY_N(100, "Found my player. Entity: " << myPlayer);
 
 #if SAC_MOBILE
         bool touching = theTouchInputManager.isTouched(0);
@@ -249,7 +249,7 @@ struct TestScene : public StateHandler<Scene::Enum> {
 
         // update score
         LOGW_IF(2 != players.size(), "Scores count: " << 2 <<
-            "different from players count : " << players.size() << ".")
+            "different from players count : " << players.size() << ".");
         for (unsigned i=0; i<players.size() && i<2; i++) {
             std::stringstream ss;
             ss << "Score: " << PLAYER(players[i])->score;

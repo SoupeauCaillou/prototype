@@ -20,7 +20,7 @@ Entity myPlane(Entity entity) {
         if (dcaC->owner == entity)
             return dca;
     }
-    LOGF("Cannot find '" << entity << "' plane")
+    LOGF("Cannot find '" << entity << "' plane");
     return 0;
 }
 
@@ -30,7 +30,7 @@ Entity myDCA(Entity entity) {
         if (dcaC->owner == entity)
             return dca;
     }
-    LOGF("Cannot find '" << entity << "' DCA")
+    LOGF("Cannot find '" << entity << "' DCA");
     return 0;
 }
 
@@ -87,7 +87,7 @@ void AISystem::DoUpdate(float dt) {
 
             switch (ic->action) {
                 case Action::Fire: {
-                    LOGI("AI - open Fire !")
+                    LOGI("AI - open Fire !");
                     ic->FireParams.dca = myDCA(entity);
                     float noiseX = glm::linearRand(-aiC->aimingNoise * 0.5, aiC->aimingNoise * 0.5);
                     float noiseY = glm::linearRand(-aiC->aimingNoise * 0.5, aiC->aimingNoise * 0.5);
@@ -99,15 +99,15 @@ void AISystem::DoUpdate(float dt) {
                     break;
                 }
                 case Action::Spawn:
-                    LOGI("AI - spawn !")
+                    LOGI("AI - spawn !");
                     ic->SpawnParams.plane = myPlane(entity);
                     break;
                 case Action::OpenParachute:
-                    LOGI("AI - open parachute !")
+                    LOGI("AI - open parachute !");
                     ic->OpenParachuteParams.paratrooper = niceGuy;
                     break;
                 default:
-                    LOGE("Errr, weird action choice: " << ic->action)
+                    LOGE("Errr, weird action choice: " << ic->action);
             }
             aiC->accum = 0;
         } else {
