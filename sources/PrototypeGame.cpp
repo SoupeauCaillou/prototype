@@ -75,7 +75,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
-    LOGI("SAC engine initialisation begins...")
+    LOGI("SAC engine initialisation begins...");
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
@@ -93,11 +93,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     for(auto it=files.begin(); it!=files.end(); ++it)
         LOGI("atlas file: " << *it);
 
-    LOGI("SAC engine initialisation done.")
+    LOGI("SAC engine initialisation done.");
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
-    LOGI("PrototypeGame initialisation begins...")
+    LOGI("PrototypeGame initialisation begins...");
     sceneStateMachine.setup(Scene::Logo);
     sceneStateMachine.reEnterCurrentState();
 
@@ -118,7 +118,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 #endif
 
     quickInit();
-    LOGI("PrototypeGame initialisation done.")
+    LOGI("PrototypeGame initialisation done.");
 }
 
 void PrototypeGame::quickInit() {
