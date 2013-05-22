@@ -84,15 +84,6 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     ScoreStorageProxy ssp;
     gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
-
-    theRenderingSystem.loadAtlas("logo", true);
-    theRenderingSystem.loadAtlas("font", true);
-    // init font
-    loadFont(renderThreadContext->assetAPI, "typo");
-    std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
-    for(auto it=files.begin(); it!=files.end(); ++it)
-        LOGI("atlas file: " << *it);
-
     LOGI("SAC engine initialisation done.");
 }
 
