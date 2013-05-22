@@ -1,0 +1,11 @@
+[Transformation]
+size = 40, 40
+position = 0,0
+z = 0.1
+
+[Rendering]
+show = 1
+color%html = 0xFFC800
+# buggy culling
+fast_culling = 1
+opaque_type = 0

@@ -1,0 +1,16 @@
+[Transformation]
+size = 1,0.8
+position = 0,0
+z = 0.3
+
+[Rendering]
+show = 1
+color%html = 0xEE0000
+
+[ZSQD]
+max_speed = 5
+rotation_speed = 3
+friction_coeff = 5
+new_direction_coeff = 6
+
+[Input]

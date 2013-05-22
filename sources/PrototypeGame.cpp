@@ -31,22 +31,7 @@
 #include "api/StorageAPI.h"
 #include "api/NetworkAPI.h"
 
-#include "systems/TransformationSystem.h"
-#include "systems/RenderingSystem.h"
-#include "systems/AnimationSystem.h"
-#include "systems/ButtonSystem.h"
-#include "systems/ADSRSystem.h"
-#include "systems/TextRenderingSystem.h"
-#include "systems/SoundSystem.h"
-#include "systems/TaskAISystem.h"
-#include "systems/MusicSystem.h"
-#include "systems/ContainerSystem.h"
-#include "systems/ParticuleSystem.h"
-#include "systems/ScrollingSystem.h"
-#include "systems/MorphingSystem.h"
-#include "systems/CameraSystem.h"
-#include "systems/NetworkSystem.h"
-#include "systems/GraphSystem.h"
+#include "systems/InputSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -62,6 +47,7 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::Connecting, Scene::CreateConnectingSceneHandler(this), "Scene::Connecting");
+    sceneStateMachine.registerState(Scene::Ingame, Scene::CreateIngameSceneHandler(this), "Scene::Ingame");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
 }
 
@@ -85,6 +71,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
+
+    InputSystem::CreateInstance();
 
     gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
     ScoreStorageProxy ssp;

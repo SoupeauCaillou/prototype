@@ -1,0 +1,8 @@
+[Transformation]
+size = 1.5,2
+position = 0,0
+z = 0.3
+
+[Rendering]
+show = 1
+color%html = 0x000000

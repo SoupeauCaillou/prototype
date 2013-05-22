@@ -78,6 +78,8 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
 
         if (BUTTON(cancelBtn)->clicked)
             return Scene::Menu;
+        if (BUTTON(startBtn)->clicked)
+            return Scene::Ingame;
 
         NetworkStatus::Enum status = game->gameThreadContext->networkAPI->getStatus();
         switch (status) {

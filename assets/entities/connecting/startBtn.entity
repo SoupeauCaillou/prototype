@@ -7,11 +7,9 @@ z = 0.1
 
 [Rendering]
 color = 0, 1, 0, 0.7
-show = 1
 
 [TextRendering]
 text = Start
-show = 1
 color%html= 0xffffff
 font = typo
 char_height = 1.5

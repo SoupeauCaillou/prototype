@@ -8,3 +8,6 @@ enable = 1
 order = 1
 id= 0
 clear_color = 0.9,0.8,0.6,1
+
+[Anchor]
+position%screen = 0, 0.2
