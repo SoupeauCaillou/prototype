@@ -2,6 +2,7 @@
 
 #include "base/Log.h"
 #include "base/EntityManager.h"
+#include "systems/AnchorSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/ADSRSystem.h"
 #include <glm/gtx/rotate_vector.hpp>
@@ -39,10 +40,10 @@ void DefWeaponSystem::DoUpdate(float dt) {
             trans->active = swc->attack;
         }
 
-    	TransformationComponent* tc = TRANSFORM(a);
+    	AnchorComponent* tc = ANCHOR(a);
     	// compute angle between 'target' and parent worldPos
     	const TransformationComponent* ptc = TRANSFORM(tc->parent);
-    	glm::vec2 diff(glm::rotate(swc->target, ptc->worldRotation) - ptc->worldPosition);
+    	glm::vec2 diff(glm::rotate(swc->target, ptc->rotation) - ptc->position);
     	float angle = glm::atan2(diff.y, diff.x);
     	// angle is inside [-pi, pi], we want [-pi/2, 3pi/2]
     	if (angle < -glm::half_pi<float>())
@@ -70,20 +71,6 @@ void DefWeaponSystem::DoUpdate(float dt) {
 
     // TODO remove useless transitionEntity
 }
-
-#if SAC_INGAME_EDITORS
-void DefWeaponSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
-    DefWeaponComponent* tc = Get(entity, false);
-    if (!tc) return;
-    TwAddVarRW(bar, "ellipse a", TW_TYPE_FLOAT, &tc->ellipseParam.x, "group=DefWeapon");
-    TwAddVarRW(bar, "ellipse b", TW_TYPE_FLOAT, &tc->ellipseParam.y, "group=DefWeapon");
-    TwAddVarRW(bar, "ellipse min angle", TW_TYPE_FLOAT, &tc->ellipseAngleRange.x, "group=DefWeapon");
-    TwAddVarRW(bar, "ellipse max angle", TW_TYPE_FLOAT, &tc->ellipseAngleRange.y, "group=DefWeapon");
-    TwAddVarRW(bar, "max angular speed", TW_TYPE_FLOAT, &tc->maxAngularSpeed, "group=DefWeapon");
-    TwAddVarRW(bar, "DefWeapon target_x", TW_TYPE_FLOAT, &tc->target.x, "group=DefWeapon");
-    TwAddVarRW(bar, "DefWeapon target_y", TW_TYPE_FLOAT, &tc->target.y, "group=DefWeapon");
-}
-#endif
 
 static Entity createTransitionEntity(DefWeaponComponent* dfc) {
     Entity e = theEntityManager.CreateEntity("def_transition");

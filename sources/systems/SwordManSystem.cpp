@@ -11,10 +11,3 @@ SwordManSystem::SwordManSystem() : ComponentSystemImpl<SwordManComponent>("Sword
 
 void SwordManSystem::DoUpdate(float ) {
 }
-
-#if SAC_INGAME_EDITORS
-void SwordManSystem::addEntityPropertiesToBar(Entity , TwBar* ) {
-
-}
-#endif
-

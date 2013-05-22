@@ -1,3 +1,5 @@
+[Anchor]
+
 [Transformation]
 size = 0.2, 1.5
 z = 0.5
@@ -9,6 +11,6 @@ show = 1
 
 [DefWeapon]
 ellipse_param=1.5, 1
-max_angular_speed=20
+max_angular_speed=50
 attack_mode_offset=0,-0.8
 mode_transition_duration=0.1

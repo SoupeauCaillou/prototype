@@ -60,19 +60,19 @@ struct ArenaFightScene : public StateHandler<Scene::Enum> {
         fighter = theEntityManager.CreateEntity("fighter",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("fighter"));
 
-        //char keys[4] = { SDLK_z, SDLK_s, SDLK_q, SDLK_d};
+        char keys[4] = { SDLK_z, SDLK_s, SDLK_q, SDLK_d};
         //char keys[4] = { SDLK_SLASH ,SDLK_u, SDLK_a, SDLK_i };
-        char keys[4] = {25, 39, 38, 40 }; //maybe not the best way, but...nothing's better yet!
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPressPerScancode(keys[0],
+        // char keys[4] = {25, 39, 38, 40 }; //maybe not the best way, but...nothing's better yet!
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[0],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(0., 1.)); }
         );
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPressPerScancode(keys[1],
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[1],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(0., -1.)); }
         );
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPressPerScancode(keys[2],
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[2],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(-1., 0)); }
         );
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPressPerScancode(keys[3],
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keys[3],
             [this] () { ZSQD(fighter)->addDirectionVector(glm::vec2(1., 0)); }
         );
    }
