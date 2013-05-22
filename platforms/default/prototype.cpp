@@ -24,5 +24,5 @@ int main(int argc, char** argv) {
         LOGE("Failed to initialize");
         return 1;
     }
-    return launchGame(new PrototypeGame(), argc, argv);
+    return launchGame(new PrototypeGame(argc, argv), argc, argv);
 }

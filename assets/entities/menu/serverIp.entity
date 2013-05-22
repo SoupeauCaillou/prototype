@@ -1,0 +1,13 @@
+[Transformation]
+position%screen = 0, -0.25
+size%screen = 0.5, 0.1
+z = 0.1
+
+[Rendering]
+color = 1, 1, 1, 1
+show = 1
+
+[TextRendering]
+font = typo
+char_height = 1.2
+color = 0,0,0,1

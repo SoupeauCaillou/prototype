@@ -55,7 +55,10 @@
 #define ZOOM 1
 
 
-PrototypeGame::PrototypeGame() : Game() {
+PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
+    nickname = "anonymous";
+    serverIp = "127.0.0.1";
+
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
@@ -68,6 +71,8 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Communication:
         case ContextAPI::Storage:
         case ContextAPI::Sound:
+        case ContextAPI::Network:
+        case ContextAPI::KeyboardInputHandler:
             return true;
         default:
             return false;

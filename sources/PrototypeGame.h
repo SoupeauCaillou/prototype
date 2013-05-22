@@ -33,7 +33,7 @@
 
 class PrototypeGame : public Game {
 	public:
-		PrototypeGame();
+		PrototypeGame(int argc, char** argv);
 
         bool wantsAPI(ContextAPI::Enum api) const;
         void sacInit(int windowW, int windowH);
@@ -45,6 +45,7 @@ class PrototypeGame : public Game {
 		void backPressed();
 
         Entity camera;
+        std::string serverIp, nickname;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };
