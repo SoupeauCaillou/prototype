@@ -74,9 +74,9 @@ public:
     }
 
     void setup() {
-        logo = theEntityManager.CreateEntity("logo", EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("logo"));
-        logobg = theEntityManager.CreateEntity("logo_bg", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo_bg"));
-        logofade = theEntityManager.CreateEntity("logo_fade", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo_fade"));
+        logo = theEntityManager.CreateEntity("logo", EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("logo/logo"));
+        logobg = theEntityManager.CreateEntity("logo_bg", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo/logo_bg"));
+        logofade = theEntityManager.CreateEntity("logo_fade", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo/logo_fade"));
         animLogo = theEntityManager.CreateEntity("logo_anim");
 
         //TRANSFORM(logo)->parent = game->camera;

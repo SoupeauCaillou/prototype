@@ -61,6 +61,7 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
 
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::Connecting, Scene::CreateConnectingSceneHandler(this), "Scene::Connecting");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
 }
 
@@ -98,16 +99,8 @@ void PrototypeGame::init(const uint8_t*, int) {
     sceneStateMachine.reEnterCurrentState();
 
     // default camera
-    camera = theEntityManager.CreateEntity("camera1");
-    ADD_COMPONENT(camera, Transformation);
-    TRANSFORM(camera)->size = glm::vec2(theRenderingSystem.screenW * ZOOM, theRenderingSystem.screenH * ZOOM);
-    TRANSFORM(camera)->position = glm::vec2(0, 0);
-    TRANSFORM(camera)->z = 1;
-    ADD_COMPONENT(camera, Camera);
-    CAMERA(camera)->enable = true;
-    CAMERA(camera)->order = 2;
-    CAMERA(camera)->id = 0;
-    CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+    camera = theEntityManager.CreateEntity("camera",
+        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("camera"));
 
 #if SAC_INGAME_EDITORS
     PrototypeDebugConsole::init(this);
