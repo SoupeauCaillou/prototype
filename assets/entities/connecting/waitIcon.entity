@@ -1,0 +1,7 @@
+[Transformation]
+positionS%screen = 0, 0.25
+size%texture_ratio,screen_h = 0.2
+z = 0.1
+
+[Rendering]
+texture = spin

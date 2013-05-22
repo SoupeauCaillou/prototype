@@ -40,21 +40,21 @@
 
 #include "PrototypeGame.h"
 
-struct MenuScene : public StateHandler<Scene::Enum> {
+struct ConnectingScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity startSolo, startMulti, serverIp;
+    Entity waitIcon, infoText, cancelBtn;
 
-    MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    ConnectingScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
-        startSolo = theEntityManager.CreateEntity("startSolo",
-            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("menu/startSolo"));
-        startMulti = theEntityManager.CreateEntity("startMulti",
-            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("menu/startMulti"));
-        serverIp = theEntityManager.CreateEntity("serverIp",
-            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("menu/serverIp"));
+        waitIcon = theEntityManager.CreateEntity("waitIcon",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("connecting/waitIcon"));
+        infoText = theEntityManager.CreateEntity("infoText",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("connecting/infoText"));
+        cancelBtn = theEntityManager.CreateEntity("cancelBtn",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("connecting/cancelBtn"));
     }
 
 
@@ -64,15 +64,11 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        TEXT_RENDERING(startSolo)->show =
-        TEXT_RENDERING(startMulti)->show =
-        TEXT_RENDERING(serverIp)->show =
-        BUTTON(startSolo)->enabled =
-        BUTTON(startMulti)->enabled =
-        RENDERING(startSolo)->show =
-        RENDERING(startMulti)->show = true;
-
-        game->gameThreadContext->keyboardInputHandlerAPI->getUserInput(game->serverIp, 15);
+        TEXT_RENDERING(infoText)->show =
+        TEXT_RENDERING(cancelBtn)->show =
+        BUTTON(cancelBtn)->enabled =
+        RENDERING(waitIcon)->show =
+        RENDERING(cancelBtn)->show = true;
     }
 
 
@@ -80,15 +76,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        std::string input;
-        game->gameThreadContext->keyboardInputHandlerAPI->done(input);
-        std::stringstream s;
-        s << "Server: " << input;
-        TEXT_RENDERING(serverIp)->text = s.str();
+        TRANSFORM(waitIcon)->rotation += 5 * dt;
 
-        if (BUTTON(startMulti)->clicked)
-            return Scene::Connecting;
-        return Scene::Menu;
+        return Scene::Connecting;
     }
 
 
@@ -96,20 +86,17 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onExit(Scene::Enum) override {
-        TEXT_RENDERING(startSolo)->show =
-        TEXT_RENDERING(startMulti)->show =
-        TEXT_RENDERING(serverIp)->show =
-        BUTTON(startSolo)->enabled =
-        BUTTON(startMulti)->enabled =
-        RENDERING(startSolo)->show =
-        RENDERING(startMulti)->show =
-        RENDERING(serverIp)->show = false;
+        TEXT_RENDERING(infoText)->show =
+        TEXT_RENDERING(cancelBtn)->show =
+        BUTTON(cancelBtn)->enabled =
+        RENDERING(waitIcon)->show =
+        RENDERING(cancelBtn)->show = false;
 
     }
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game) {
-        return new MenuScene(game);
+    StateHandler<Scene::Enum>* CreateConnectingSceneHandler(PrototypeGame* game) {
+        return new ConnectingScene(game);
     }
 }

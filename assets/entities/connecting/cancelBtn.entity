@@ -1,0 +1,15 @@
+[Button]
+
+[Transformation]
+positionS%screen = 0, -0.45
+size%screen = 0.5, 0.1
+z = 0.1
+
+[Rendering]
+color = 1, 0, 0, 0.7
+
+[TextRendering]
+text = Cancel
+color%html= 0xffffff
+font = typo
+char_height = 1.5

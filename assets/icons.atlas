@@ -1,0 +1,9 @@
+atlas_size=1024,128
+[image0]
+name=spin
+original_size=128,128
+position_in_atlas=1,1
+size_in_atlas=123,122
+crop_offset=3,5
+rotated=0
+opaque_rect=52,110,27,3

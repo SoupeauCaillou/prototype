@@ -24,6 +24,7 @@ namespace Scene {
    enum Enum {
       Logo,
       Menu,
+      Connecting,
       SocialCenter,
    };
 
@@ -32,5 +33,6 @@ namespace Scene {
 
   DECLARE_SCENE_HANDLER_FACTORY(Logo)
   DECLARE_SCENE_HANDLER_FACTORY(Menu)
+  DECLARE_SCENE_HANDLER_FACTORY(Connecting)
   DECLARE_SCENE_HANDLER_FACTORY(SocialCenter)
 }
