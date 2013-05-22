@@ -26,6 +26,7 @@
 #include "base/EntityManager.h"
 #include "base/ObjectSerializer.h"
 
+#include <systems/AnchorSystem.h>
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
 #include <systems/RenderingSystem.h>
@@ -116,6 +117,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             ADD_COMPONENT(eq, Physics);
             PHYSICS(eq)->mass = 1;
             PHYSICS(eq)->gravity = glm::vec2(0, -1);
+            ADD_COMPONENT(eq, Anchor);
 
             ADD_COMPONENT(eq, AutoDestroy);
             AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
