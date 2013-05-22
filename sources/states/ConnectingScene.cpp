@@ -31,7 +31,7 @@
 
 struct ConnectingScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity waitIcon, infoText, cancelBtn;
+    Entity waitIcon, infoText, cancelBtn, startBtn;
 
     ConnectingScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -44,6 +44,8 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("connecting/infoText"));
         cancelBtn = theEntityManager.CreateEntity("cancelBtn",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("connecting/cancelBtn"));
+        startBtn = theEntityManager.CreateEntity("startBtn",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("connecting/startBtn"));
     }
 
 
@@ -58,6 +60,9 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
         BUTTON(cancelBtn)->enabled =
         RENDERING(waitIcon)->show =
         RENDERING(cancelBtn)->show = true;
+
+        BUTTON(startBtn)->enabled =
+        RENDERING(startBtn)->show = false;
 
         // Start connection to lobby
         game->gameThreadContext->networkAPI->connectToLobby(game->nickname.c_str(), game->serverIp.c_str());
@@ -95,6 +100,7 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
                 break;
             case NetworkStatus::ConnectedToServer:
                 TEXT_RENDERING(infoText)->text = "Connected to game server !";
+                BUTTON(startBtn)->enabled = RENDERING(startBtn)->show = true;
                 break;
             case NetworkStatus::ConnectionToServerFailed:
                 spin = false;
@@ -116,8 +122,9 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(cancelBtn)->show =
         BUTTON(cancelBtn)->enabled =
         RENDERING(waitIcon)->show =
+        BUTTON(startBtn)->enabled =
+        RENDERING(startBtn)->show =
         RENDERING(cancelBtn)->show = false;
-
     }
 };
 
