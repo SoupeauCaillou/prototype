@@ -19,24 +19,13 @@
 #include "base/StateMachine.h"
 
 #include "Scenes.h"
-#include <sstream>
-#include <vector>
-#include <iomanip>
 
-#include "base/EntityManager.h"
-#include "base/ObjectSerializer.h"
-
-#include <systems/AnchorSystem.h>
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
 #include <systems/RenderingSystem.h>
 #include <systems/TextRenderingSystem.h>
-#include <systems/AutoDestroySystem.h>
-#include <systems/PhysicsSystem.h>
 
-#include "api/KeyboardInputHandlerAPI.h"
-#include "api/StorageAPI.h"
-#include "util/ScoreStorageProxy.h"
+#include "api/NetworkAPI.h"
 
 #include "PrototypeGame.h"
 
@@ -69,6 +58,10 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
         BUTTON(cancelBtn)->enabled =
         RENDERING(waitIcon)->show =
         RENDERING(cancelBtn)->show = true;
+
+        // Start connection to lobby
+        game->gameThreadContext->networkAPI->connectToLobby(game->nickname.c_str(), game->serverIp.c_str());
+        TEXT_RENDERING(infoText)->text = "Connecting to lobby @" + game->serverIp;
     }
 
 
@@ -76,7 +69,40 @@ struct ConnectingScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        TRANSFORM(waitIcon)->rotation += 5 * dt;
+        bool spin = true;
+
+        if (BUTTON(cancelBtn)->clicked)
+            return Scene::Menu;
+
+        NetworkStatus::Enum status = game->gameThreadContext->networkAPI->getStatus();
+        switch (status) {
+            case NetworkStatus::None:
+                TEXT_RENDERING(infoText)->text = "...";
+                break;
+            case NetworkStatus::ConnectingToLobby:
+                TEXT_RENDERING(infoText)->text = "Connecting to lobby @" + game->serverIp;
+                break;
+            case NetworkStatus::ConnectionToLobbyFailed:
+                spin = false;
+                TEXT_RENDERING(infoText)->text = "Failed to connect to lobby @" + game->serverIp;
+                break;
+            case NetworkStatus::ConnectedToLobby:
+                TEXT_RENDERING(infoText)->text = "Connected to lobby @" + game->serverIp;
+                spin = false;
+                break;
+            case NetworkStatus::ConnectingToServer:
+                TEXT_RENDERING(infoText)->text = "Connecting to game server...";
+                break;
+            case NetworkStatus::ConnectedToServer:
+                TEXT_RENDERING(infoText)->text = "Connected to game server !";
+                break;
+            case NetworkStatus::ConnectionToServerFailed:
+                spin = false;
+                TEXT_RENDERING(infoText)->text = "Connected to game server !";
+                break;
+        }
+
+        TRANSFORM(waitIcon)->rotation += spin * 5 * dt;
 
         return Scene::Connecting;
     }

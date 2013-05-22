@@ -1,9 +1,11 @@
 [Transformation]
 position%screen = 0, 0
+size%screen = 0.5,1
 z = 0.1
 
 [TextRendering]
-text = ...
+text = plop
 font = typo
 color = 0,0,0,1
-char_height = 1.5
+char_height = 1.2
+flags = 2
