@@ -26,7 +26,6 @@
 #include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
-#include "util/ScoreStorageProxy.h"
 
 #include "api/StorageAPI.h"
 #include "api/NetworkAPI.h"
@@ -48,25 +47,17 @@
 #include "systems/NetworkSystem.h"
 #include "systems/GraphSystem.h"
 
-#if SAC_INGAME_EDITORS
-#include "util/PrototypeDebugConsole.h"
-#endif
-
 #define ZOOM 1
 
 
 PrototypeGame::PrototypeGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
-    sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
-        case ContextAPI::Localize:
-        case ContextAPI::Communication:
-        case ContextAPI::Storage:
         case ContextAPI::Sound:
             return true;
         default:
@@ -79,18 +70,16 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     Game::sacInit(windowW, windowH);
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
-
-    gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
-    ScoreStorageProxy ssp;
-    gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
-
     LOGI("SAC engine initialisation done.");
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
+#if SAC_DEBUG
+    sceneStateMachine.setup(Scene::Menu);
+#else
     sceneStateMachine.setup(Scene::Logo);
-    sceneStateMachine.reEnterCurrentState();
+#endif
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
@@ -103,10 +92,6 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
-
-#if SAC_INGAME_EDITORS
-    PrototypeDebugConsole::init(this);
-#endif
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");
