@@ -10,7 +10,12 @@ color%html = 0xEE0000
 [ZSQD]
 max_speed = 5
 rotation_speed = 3
+rotation_speed_stopped = 5
 friction_coeff = 5
 new_direction_coeff = 6
 
 [Input]
+
+[Collision]
+group = 2
+collide_with = 1

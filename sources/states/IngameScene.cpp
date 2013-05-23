@@ -19,15 +19,12 @@
 #include "base/StateMachine.h"
 
 #include "Scenes.h"
-#include <sstream>
-#include <vector>
-#include <iomanip>
-
 #include "base/EntityManager.h"
-#include "base/ObjectSerializer.h"
 
 #include "systems/InputSystem.h"
 #include "systems/AnchorSystem.h"
+#include "systems/RenderingSystem.h"
+#include "systems/CollisionSystem.h"
 
 #include "api/KeyboardInputHandlerAPI.h"
 #include "api/StorageAPI.h"
@@ -37,7 +34,7 @@
 
 struct IngameScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity ground, torero;
+    Entity ground, torero, barriers[4];
 
     IngameScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -56,10 +53,25 @@ struct IngameScene : public StateHandler<Scene::Enum> {
         ground = theEntityManager.CreateEntity("ground",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/ground"));
 
+        barriers[0] = theEntityManager.CreateEntity("barrier_n",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/barrier_n"));
+        barriers[1] = theEntityManager.CreateEntity("barrier_s",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/barrier_s"));
+        barriers[2] = theEntityManager.CreateEntity("barrier_e",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/barrier_e"));
+        barriers[3] = theEntityManager.CreateEntity("barrier_w",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/barrier_w"));
+
+
         torero = theEntityManager.CreateEntity("torero",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/torero"));
 
         ANCHOR(game->camera)->parent = torero;
+
+        Entity ball = theEntityManager.CreateEntity("ball",
+                EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("ingame/ball"));
+
+        theCollisionSystem.worldSize = glm::vec2(50);
     }
 
 

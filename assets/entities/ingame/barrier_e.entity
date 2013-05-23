@@ -1,0 +1,11 @@
+[Transformation]
+size = 1, 40
+positionW = 20, 0
+z = 0.1
+
+[Rendering]
+color = 1,0,0,0.5
+show = 1
+
+[Collision]
+group = 1
