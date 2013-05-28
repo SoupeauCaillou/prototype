@@ -72,7 +72,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         RENDERING(startSolo)->show =
         RENDERING(startMulti)->show = true;
 
-        game->gameThreadContext->keyboardInputHandlerAPI->getUserInput(game->serverIp, 15);
+        game->gameThreadContext->keyboardInputHandlerAPI->askUserInput(game->serverIp, 15);
     }
 
 
@@ -105,6 +105,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         RENDERING(startMulti)->show =
         RENDERING(serverIp)->show = false;
 
+        game->gameThreadContext->keyboardInputHandlerAPI->cancelUserInput();
     }
 };
 
