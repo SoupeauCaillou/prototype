@@ -30,6 +30,9 @@
 #include "api/StorageAPI.h"
 #include "api/NetworkAPI.h"
 
+#include "systems/BlockSystem.h"
+#include "systems/LevelSystem.h"
+
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/AnimationSystem.h"
@@ -75,6 +78,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
+
+    LevelSystem::CreateInstance();
+    BlockSystem::CreateInstance();
+
+
 #if SAC_DEBUG
     sceneStateMachine.setup(Scene::Menu);
 #else
@@ -110,6 +118,10 @@ void PrototypeGame::togglePause(bool) {
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
+
+    theLevelSystem.Update(dt);
+    theBlockSystem.Update(dt);
+
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

@@ -23,6 +23,7 @@
 #include "base/EntityManager.h"
 
 #include "systems/LevelSystem.h"
+#include "systems/BlockSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -54,6 +55,11 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+
+        FOR_EACH_ENTITY(Block, e)
+        }
+
+
         return Scene::Menu;
     }
 
