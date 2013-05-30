@@ -115,6 +115,37 @@ struct EnhancedPoint {
     }
 };
 
+// Return minimum distance between line segment vw and point p
+// see http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm::vec2 & p) {
+    const float norm2 = glm::length2(w - v);
+
+    glm::vec2 projectionOnSegment;
+
+    // if v = w, this is not a segment!
+    if (norm2 < 0.0001f) {
+        projectionOnSegment = v;
+    } else {
+        const float t = glm::dot (p - v, w - v) / norm2;
+
+        // Beyond the 'v' end of the segment
+        if ( t < 0.f) {
+            projectionOnSegment = v;
+        // Beyond the 'w' end of the segment
+        } else if (t  > 1.f) {
+            projectionOnSegment = w;
+         // Projection falls on the segment
+        } else {
+            projectionOnSegment = v + t * (w - v);
+        }
+    }
+
+    drawPoint(projectionOnSegment, Color(1., 0., 0.));
+
+    return glm::length(projectionOnSegment - p);
+}
+
+
 void BlockSystem::DoUpdate(float) {
     currentDrawPointIndice = 0;
     currentDrawEdgeIndice = 0;
@@ -187,13 +218,9 @@ void BlockSystem::DoUpdate(float) {
         walls.push_back(std::make_pair(point.position, point.edge2));
 
         walls.sort([] (std::pair<glm::vec2, glm::vec2> & w1, std::pair<glm::vec2, glm::vec2> & w2) {
-            // Le point du segment qui est à la distance minimale de l'origine est : la projection de l'origine sur le segment
-            // (et c'est pas cette formule)
-            // TO BE FIXED
-            float minDistance1 = glm::length2(glm::proj(glm::vec2(0.), (w1.second - w1.first)));
-            float minDistance2 = glm::length2(glm::proj(glm::vec2(0.), (w2.second - w2.first)));
+            const glm::vec2 pointOfView = glm::vec2(0.f, 0.f);
 
-            return minDistance1 < minDistance2;
+            return distancePointToSegment(w1.first, w1.second, pointOfView) < distancePointToSegment(w2.first, w2.second, pointOfView);
         });
 
         // Si on a changé de segment le plus proche, on plot un triangle
