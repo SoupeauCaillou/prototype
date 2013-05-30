@@ -77,7 +77,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         TRANSFORM(e)->size *= screenSize / blockCount;
         TRANSFORM(e)->position = .5f * glm::vec2(-screenSize.x, screenSize.y) + screenSize / blockCount * (.5f + TRANSFORM(e)->position);
     }
-
+/*
     //top wall
     Entity e = theEntityManager.CreateEntity("top wall",
     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
@@ -112,7 +112,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
     TRANSFORM(e)->size.y = screenSize.y - 2 * screenSize.y / blockCount.y;
     TRANSFORM(e)->position = glm::vec2(screenSize.x - TRANSFORM(e)->size.x, 0) / 2.f;
     RENDERING(e)->color = Color(0,0,0);
-    blocks.push_back(e);
+    blocks.push_back(e);*/
 
 
 
