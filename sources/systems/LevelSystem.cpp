@@ -59,10 +59,10 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
             TRANSFORM(e)->size = glm::vec2(1.f);
             switch (line[x]) {
                 case 'x':
-                    RENDERING(e)->color = Color(0.f, 0., 1.);
+                    RENDERING(e)->color = Color(0.f, 1., 1.);
                     break;
                 case 'o':
-                    RENDERING(e)->color = Color(1.f, 0., 0.);
+                    RENDERING(e)->color = Color(1.f, 1., 0.);
                     break;
             }
             blocks.push_back(e);

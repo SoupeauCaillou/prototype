@@ -231,9 +231,9 @@ void BlockSystem::DoUpdate(float) {
             if (newNearestWall || nearestWallEndPointReached) {
                 const glm::vec2 pointOfView = glm::vec2(0.f, 0.f);
 
-                drawEdge(pointOfView, nearestWall.first, Color(1., 0., 0., .8));
-                drawEdge(pointOfView, nearestWall.second, Color(0., 1., 0., .8));
-                drawEdge(nearestWall.first, nearestWall.second, Color(0., 0., 1., .8));
+                // drawEdge(pointOfView, nearestWall.first, Color(1., 0., 0., .8));
+                // drawEdge(pointOfView, point.position, Color(0., 1., 0., .8));
+                drawEdge(nearestWall.first, point.position, Color(0., 0., 1., .8));
 
                 //update nearestwall since it has changed
                 nearestWall = walls.front();
