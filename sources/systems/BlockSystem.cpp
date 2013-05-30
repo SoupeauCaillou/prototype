@@ -22,19 +22,18 @@ BlockSystem::BlockSystem() : ComponentSystemImpl <BlockComponent>("Block") {
 
 
 static int currentDrawPointIndice = 0;
+static std::vector<Entity> drawPointList;
 Entity drawPoint(const glm::vec2& position, const Color & color = Color(0.5, 0.5, 0.5)) {
-    static std::vector<Entity> list;
-
     Entity vector;
 
-    if (currentDrawPointIndice == (int)list.size()) {
+    if (currentDrawPointIndice == (int)drawPointList.size()) {
         vector = theEntityManager.CreateEntity("vector");
         ADD_COMPONENT(vector, Transformation);
         ADD_COMPONENT(vector, Rendering);
 
-        list.push_back(vector);
+        drawPointList.push_back(vector);
     } else {
-        vector = list[currentDrawPointIndice];
+        vector = drawPointList[currentDrawPointIndice];
     }
 
     TRANSFORM(vector)->size = glm::vec2(0.5f);
@@ -50,23 +49,24 @@ Entity drawPoint(const glm::vec2& position, const Color & color = Color(0.5, 0.5
 }
 
 static int currentDrawEdgeIndice = 0;
+static std::vector<Entity> drawEdgeList;
 Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB, const Color & color = Color(0.3, 0.5, 0.8)) {
-    static std::vector<Entity> list;
 
     Entity vector;
 
-    if (currentDrawEdgeIndice == (int)list.size()) {
+    if (currentDrawEdgeIndice == (int)drawEdgeList.size()) {
         vector = theEntityManager.CreateEntity("drawEdge vector");
         ADD_COMPONENT(vector, Transformation);
         ADD_COMPONENT(vector, Rendering);
 
-        list.push_back(vector);
+        drawEdgeList.push_back(vector);
     } else {
-        vector = list[currentDrawEdgeIndice];
+        vector = drawEdgeList[currentDrawEdgeIndice];
     }
 
     drawVector(positionA, positionB - positionA, vector, color);
     RENDERING(vector)->texture = InvalidTextureRef;
+    RENDERING(vector)->show = true;
     ++currentDrawEdgeIndice;
 
     return vector;
@@ -318,21 +318,13 @@ void BlockSystem::DoUpdate(float) {
         }
     }
 
-
-/*
-    for (auto edge : edges) {
-        bool isIntersected = false;
-        FOR_EACH_ENTITY(Block, e)
-            TransformationComponent * tc = TRANSFORM(e);
-            isIntersected = IntersectionUtil::lineRectangle(glm::vec2(0.), edge.first, tc->position, tc->size, tc->rotation)
-            || IntersectionUtil::lineRectangle(glm::vec2(0.), edge.second, tc->position, tc->size, tc->rotation);
-            if (isIntersected)
-                break;
-        }
-
-        if (! isIntersected) {
-//            drawEdge(edge.first, edge.second);
-            drawPoint((edge.first + edge.second) / 2.f) ;
-        }
-    }*/
+    //hide the extra
+    while (currentDrawPointIndice < (int)drawPointList.size()) {
+        RENDERING(drawPointList[currentDrawPointIndice])->show = false;
+        ++currentDrawPointIndice;
+    }
+    while (currentDrawEdgeIndice < (int)drawEdgeList.size()) {
+        RENDERING(drawEdgeList[currentDrawEdgeIndice])->show = false;
+        ++currentDrawEdgeIndice;
+    }
 }
