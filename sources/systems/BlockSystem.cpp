@@ -47,13 +47,13 @@ Entity drawPoint(const glm::vec2& position, const Color & color = Color(0.5, 0.5
 }
 
 static int currentDrawEdgeIndice = 0;
-Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB) {
+Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB, const Color & color = Color(0.3, 0.5, 0.8)) {
     static std::vector<Entity> list;
 
     Entity vector;
 
     if (currentDrawEdgeIndice == (int)list.size()) {
-        vector = theEntityManager.CreateEntity("vector");
+        vector = theEntityManager.CreateEntity("drawEdge vector");
         ADD_COMPONENT(vector, Transformation);
         ADD_COMPONENT(vector, Rendering);
 
@@ -62,39 +62,11 @@ Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB) {
         vector = list[currentDrawEdgeIndice];
     }
 
-    drawVector(positionA, glm::vec2(glm::length(positionB - positionA)), vector);
-
+    drawVector(positionA, positionB - positionA, vector, color);
+    RENDERING(vector)->texture = InvalidTextureRef;
     ++currentDrawEdgeIndice;
 
     return vector;
-}
-
-void splitIntoSegments(const glm::vec2 & pointA, const glm::vec2 & pointB, std::list<std::pair<glm::vec2, glm::vec2>> & edges) {
-    // drawPoint(pointA);
-    // drawPoint(pointB);
-
-    const float minimalDistanceBetweenPoints = .5f;
-
-    float length = glm::length(pointA - pointB);
-    int intermediatePointsCount = length / minimalDistanceBetweenPoints;
-
-    if (intermediatePointsCount > 0) {
-        float step = length / intermediatePointsCount;
-
-        edges.push_back(std::make_pair (pointA, pointA + step));
-        edges.push_back(std::make_pair (pointB, pointB - step));
-
-        for (int i = 1; i <= intermediatePointsCount; ++i)
-        {
-            float current = i * step / length;
-
-            // drawPoint(pointA + (pointB - pointA) * current);
-            edges.push_back(std::make_pair (pointA, pointA + (pointB - pointA) * current));
-        }
-    } else {
-        //add the whole edge if it was too small to be cut
-        edges.push_back(std::make_pair (pointA, pointB));
-    }
 }
 
 struct EnhancedPoint {
@@ -227,6 +199,11 @@ void BlockSystem::DoUpdate(float) {
         if (walls.size() > 2 && glm::length2(walls.front().first - nearestWall.first) &&
             glm::length2(walls.front().second - nearestWall.second)> 0.0001f) {
             LOGI("New nearest wall! Drawing triangle - TODO");
+            const glm::vec2 pointOfView = glm::vec2(0.f, 0.f);
+
+            drawEdge(pointOfView, nearestWall.first, Color(1., 0., 0.));
+            drawEdge(pointOfView, nearestWall.second, Color(0., 1., 0.));
+            drawEdge(nearestWall.first, nearestWall.second, Color(0., 0., 1.));
         }
     }
 /*
