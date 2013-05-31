@@ -21,9 +21,11 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
+#include "base/TouchInputManager.h"
 
 #include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
+#include "systems/TransformationSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -54,9 +56,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
 
-        FOR_EACH_ENTITY(Block, e)
+        glm::vec2 lastPosition;
+        if (theTouchInputManager.wasTouched(1)) {
+            Entity e = theEntityManager.CreateEntity("onClickBlock",
+              EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
+
+            RENDERING(e)->color = Color::random();
+            TRANSFORM(e)->position = theTouchInputManager.getTouchLastPosition(1);
+            TRANSFORM(e)->size = glm::vec2(glm::linearRand(1.f, 3.f));
         }
 
 

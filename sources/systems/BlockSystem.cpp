@@ -72,9 +72,9 @@ Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB, const Co
 }
 
 void drawTriangle(const glm::vec2& pointOfView, const glm::vec2& first, const glm::vec2& second) {
-    LOGI("triangle: " << pointOfView << " x " << first << " x " << second);
-    drawEdge(pointOfView, first, Color(1., 0., 0., 0.8));
-    drawEdge(pointOfView, second, Color(0., 1., 0., 0.8));
+    // LOGI("triangle: " << pointOfView << " x " << first << " x " << second);
+    // drawEdge(pointOfView, first, Color(1., 0., 0., 0.8));
+    // drawEdge(pointOfView, second, Color(0., 1., 0., 0.8));
     drawEdge(first, second, Color(0., 0., 1., 0.8));
 }
 
@@ -129,7 +129,7 @@ float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm
     if (projectionResult) {
         *projectionResult = projectionOnSegment;
     }
-    drawPoint(projectionOnSegment, Color(1., 0., 0.));
+    //drawPoint(projectionOnSegment, Color(1., 0., 0.));
 
     return glm::length(projectionOnSegment - p);
 }
@@ -175,11 +175,11 @@ void BlockSystem::DoUpdate(float) {
     float sy = PlacementHelper::ScreenHeight / 2.;
 
     //add the walls
-    points.push_back(EnhancedPoint(glm::vec2(-sx, -0.1f), glm::vec2(-sx, -sy), glm::vec2(-sx, -sy), "middle left"));
+    points.push_back(EnhancedPoint(glm::vec2(-sx, pointOfView.y -0.1f), glm::vec2(-sx, -sy), glm::vec2(-sx, -sy), "middle left"));
     points.push_back(EnhancedPoint(glm::vec2(-sx, -sy), glm::vec2(sx, -sy), glm::vec2(sx, -sy), "wall bottom left"));
     points.push_back(EnhancedPoint(glm::vec2(sx, -sy), glm::vec2(sx, sy),  glm::vec2(-sx, -sy), "wall bottom right"));
     points.push_back(EnhancedPoint(glm::vec2(sx, sy), glm::vec2(-sx, sy), glm::vec2(sx, -sy), "wall top right"));
-    points.push_back(EnhancedPoint(glm::vec2(-sx, sy), glm::vec2(-sx, -0.1f), glm::vec2(sx, sy), "wall top left"));
+    points.push_back(EnhancedPoint(glm::vec2(-sx, sy), glm::vec2(-sx, pointOfView.y -0.1f), glm::vec2(sx, sy), "wall top left"));
 
     FOR_EACH_ENTITY(Block, e)
         TransformationComponent * tc = TRANSFORM(e);
@@ -239,21 +239,21 @@ void BlockSystem::DoUpdate(float) {
     std::pair<glm::vec2, glm::vec2> nearestWall;
     bool hasNearestWall = false;
 
-    int i = 0;
-    LOGI("\n");
+    // int i = 0;
+    // LOGI("\n");
     for (auto pointIt = points.begin(); pointIt != points.end(); ++pointIt) {
         auto point = *pointIt;
 
-        drawPoint(point.position);
-        LOGI(++i << " " << point.name << " " << glm::degrees(glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position))));
+        // drawPoint(point.position);
+        // LOGI(++i << " " << point.name << " " << glm::degrees(glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position))));
 
         // Sauvegarde du mur le plus proche
         hasNearestWall =  (walls.size() > 0);
         if (hasNearestWall) {
             nearestWall = walls.front();
-            LOGI("\tNearest wall is " << nearestWall.first << " <-> " << nearestWall.second);
+            // LOGI("\tNearest wall is " << nearestWall.first << " <-> " << nearestWall.second);
         } else {
-            LOGI("\tNo nearest wall");
+            // LOGI("\tNo nearest wall");
         }
 
         // On supprime tous les segments qui ont comme fin le point qu'on va rajouter (sinon ils y seront 2 fois)
@@ -264,17 +264,17 @@ void BlockSystem::DoUpdate(float) {
             // LOGI("\t\t\t" << glm::length2(glm::proj(glm::vec2(0.), (it->second - it->first))));
 
             if (glm::length2(it->second - point.position) < 0.0001f) {
-                LOGI("\t\tRemoving point " << it->second << " as end position - erasing it");
+                // LOGI("\t\tRemoving point " << it->second << " as end position - erasing it");
                 walls.erase(it);
             }
         }
 
         if (std::find(points.begin(), pointIt, point.nextEdge1) == pointIt) {
-            LOGI("\t\tAdding1 " << point.position << " <-> " << point.nextEdge1);
+            // LOGI("\t\tAdding1 " << point.position << " <-> " << point.nextEdge1);
             walls.push_back(std::make_pair(point.position, point.nextEdge1));
         }
         if (std::find(points.begin(), pointIt, point.nextEdge2) == pointIt) {
-            LOGI("\t\tAdding2 " << point.position << " <-> " << point.nextEdge2);
+            // LOGI("\t\tAdding2 " << point.position << " <-> " << point.nextEdge2);
             walls.push_back(std::make_pair(point.position, point.nextEdge2));
         }
 
@@ -293,7 +293,7 @@ void BlockSystem::DoUpdate(float) {
 
         auto it = walls.begin();
         for (unsigned i = 0; i < walls.size(); ++i) {
-            LOGI("\t\t" << i << ": " << distancePointToSegment(it->first, it->second, pointOfView));
+            // LOGI("\t\t" << i << ": " << distancePointToSegment(it->first, it->second, pointOfView));
             ++it;
         }
         // Si on a changé de segment le plus proche, on plot un triangle
@@ -310,14 +310,17 @@ void BlockSystem::DoUpdate(float) {
                     break;
                 }
             }
-            if (newNearestWall) {
-                LOGI("New nearest wall! " << walls.front().first << " <-> " << walls.front().second << ": "
-                    << distancePointToSegment(walls.front().first, walls.front().second, pointOfView) <<
-                    " < " << distancePointToSegment(nearestWall.first, nearestWall.second, pointOfView) <<  ". Drawing triangle");
-            } else if (nearestWallEndPointReached) {
-                LOGI("End of nearest wall reached! " << nearestWall.first << " <-> " << nearestWall.second << ". Drawing triangle");
-            } else if (nearestWallEndPointAlreadyVisited) {
-                LOGI("End of nearest wall had already been visited! " << nearestWall.first << " <-> " << nearestWall.second << ". Drawing triangle");
+            // if (newNearestWall) {
+            //     LOGI("New nearest wall! " << walls.front().first << " <-> " << walls.front().second << ": "
+            //         << distancePointToSegment(walls.front().first, walls.front().second, pointOfView) <<
+            //         " < " << distancePointToSegment(nearestWall.first, nearestWall.second, pointOfView) <<  ". Drawing triangle");
+            // } else if (nearestWallEndPointReached) {
+            //     LOGI("End of nearest wall reached! " << nearestWall.first << " <-> " << nearestWall.second << ". Drawing triangle");
+            // } else if (nearestWallEndPointAlreadyVisited) {
+            //     LOGI("End of nearest wall had already been visited! " << nearestWall.first << " <-> " << nearestWall.second << ". Drawing triangle");
+            // }
+
+            if( nearestWallEndPointAlreadyVisited) {
                 walls.pop_front();
             }
 
@@ -341,11 +344,11 @@ void BlockSystem::DoUpdate(float) {
     }
 
 
-    LOGI("Last nearest: " << nearestWall.first << "<->" << nearestWall.second << " and first point was " << points.front().position);
+    // LOGI("Last nearest: " << nearestWall.first << "<->" << nearestWall.second << " and first point was " << points.front().position);
     //draw last triangle if needed
     if (points.size() > 0) {
         if (glm::length2(nearestWall.second - points.front().position) < 0.0001f) {
-            LOGI("Drawing rectangle for last element!");
+            // LOGI("Drawing rectangle for last element!");
             drawTriangle(pointOfView, nearestWall.first, nearestWall.second);
         }
     }
