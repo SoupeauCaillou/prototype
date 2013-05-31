@@ -330,6 +330,8 @@ void BlockSystem::DoUpdate(float) {
                 //update nearestwall since it has changed
                 if (walls.size() > 0) {
                     nearestWall = walls.front();
+
+                     getProjection(pointOfView, point.position, walls.front().first, walls.front().second, &walls.front().first);
                 } else {
                     nearestWall = std::make_pair(point.position, points.front().position);
                 }
