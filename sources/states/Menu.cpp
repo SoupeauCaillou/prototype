@@ -23,6 +23,8 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
+#include "util/IntersectionUtil.h"
+
 #include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/TransformationSystem.h"
@@ -57,9 +59,21 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        static float lastAdd = 0.f;
+        //add a block - right click
+        //delete a block - left click
+        if (theTouchInputManager.wasTouched(0)) {
+            FOR_EACH_ENTITY(Block, e)
+                TransformationComponent * tc = TRANSFORM(e);
+                if (IntersectionUtil::pointRectangle(theTouchInputManager.getTouchLastPosition(0), tc->position, tc->size)) {
+                    theEntityManager.DeleteEntity(e);
+                    break;
+                }
+            }
+        }
+        if (TimeUtil::GetTime() - lastAdd > 1. && theTouchInputManager.wasTouched(1)) {
+            lastAdd = TimeUtil::GetTime();
 
-        glm::vec2 lastPosition;
-        if (theTouchInputManager.wasTouched(1)) {
             Entity e = theEntityManager.CreateEntity("onClickBlock",
               EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
 
@@ -67,6 +81,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             TRANSFORM(e)->position = theTouchInputManager.getTouchLastPosition(1);
             TRANSFORM(e)->size = glm::vec2(glm::linearRand(1.f, 3.f));
         }
+
 
 
         return Scene::Menu;
