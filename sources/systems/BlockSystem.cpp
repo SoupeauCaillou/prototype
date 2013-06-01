@@ -22,11 +22,11 @@ BlockSystem::BlockSystem() : ComponentSystemImpl <BlockComponent>("Block") {
 
 static int currentDrawPointIndice = 0;
 static std::vector<Entity> drawPointList;
-Entity drawPoint(const glm::vec2& position, const Color & color = Color(0.5, 0.5, 0.5)) {
+Entity drawPoint(const glm::vec2& position, const std::string name = "vector", const Color & color = Color(0.5, 0.5, 0.5)) {
     Entity vector;
 
     if (currentDrawPointIndice == (int)drawPointList.size()) {
-        vector = theEntityManager.CreateEntity("vector");
+        vector = theEntityManager.CreateEntity(name);
         ADD_COMPONENT(vector, Transformation);
         ADD_COMPONENT(vector, Rendering);
 
@@ -170,7 +170,9 @@ bool getProjection(const glm::vec2 & pA, const glm::vec2 & pB, const glm::vec2 &
     float ua = nume_a / denom;
     float ub = nume_b / denom;
 
-    if(ub >= 0.0f && ub <= 1.0f)
+    const float eps = 0.0001;
+
+    if(ub > - eps && ub <= 1.0f + eps)
     {
         if (intersectionPoint) {
             // Get the intersection point.
@@ -182,7 +184,6 @@ bool getProjection(const glm::vec2 & pA, const glm::vec2 & pB, const glm::vec2 &
 
     return false;
 }
-
 
 
 // var endpoints;      # list of endpoints, sorted by angle
@@ -204,19 +205,23 @@ void BlockSystem::DoUpdate(float) {
     LOGI("\n");
 
     const glm::vec2 pointOfView = theTouchInputManager.getTouchLastPosition();
-    drawPoint(pointOfView, Color(1., .8, 0));
+    drawPoint(pointOfView, "pointOfView", Color(1., .8, 0));
     std::list<EnhancedPoint> points;
 
     float sx = PlacementHelper::ScreenWidth / 2.;
     float sy = PlacementHelper::ScreenHeight / 2.;
 
     //add the walls
-    glm::vec2 externalWalls[5] = { glm::vec2(-sx, pointOfView.y), glm::vec2(-sx, -sy), glm::vec2(sx, -sy), glm::vec2(sx, sy), glm::vec2(-sx, sy) };
-    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[4], externalWalls[4], "wall middle left"));
-    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], externalWalls[0], "wall bottom left"));
-    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], externalWalls[1], "wall bottom right"));
-    points.push_back(EnhancedPoint(externalWalls[3], externalWalls[4], externalWalls[2], "wall top right"));
-    points.push_back(EnhancedPoint(externalWalls[4], externalWalls[0], externalWalls[3], "wall top left"));
+    glm::vec2 externalWalls[4] = {
+        glm::vec2(-sx, sy), // top left
+        glm::vec2(sx, sy), // top right
+        glm::vec2(sx, -sy), // bottom right
+        glm::vec2(-sx, -sy), // bottom left
+    };
+    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], externalWalls[1], "wall top left"));
+    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], externalWalls[2], "wall top right"));
+    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], externalWalls[3], "wall bottom right"));
+    points.push_back(EnhancedPoint(externalWalls[3], externalWalls[0], externalWalls[0], "wall bottom left"));
 
     FOR_EACH_ENTITY(Block, e)
         TransformationComponent * tc = TRANSFORM(e);
@@ -228,10 +233,49 @@ void BlockSystem::DoUpdate(float) {
             tc->position + tc->size / 2.f, //top right
             tc->position - glm::vec2(tc->size.x, -tc->size.y) / 2.f, //top left
         };
-        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1], theEntityManager.entityName(e) + "- top left"));
-        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2], theEntityManager.entityName(e) + "- top right"));
-        points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3], theEntityManager.entityName(e) + "- bottom left"));
-        points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0], theEntityManager.entityName(e) + "- bottom right"));
+        points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
+            theEntityManager.entityName(e) + "- top left"));
+        points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3],
+            theEntityManager.entityName(e) + "- top right"));
+        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2],
+            theEntityManager.entityName(e) + "- bottom right"));
+        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
+            theEntityManager.entityName(e) + "- bottom left"));
+    }
+
+    std::list<std::pair<glm::vec2, glm::vec2>> walls;
+    for (auto point : points) {
+        if ( glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position)) >
+            glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.nextEdge1)))
+            walls.push_back(std::make_pair( point.position, point.nextEdge1 ));
+        else
+            walls.push_back(std::make_pair( point.nextEdge1, point.position ));
+
+        //il FAUT le 2eme, parce que la caméra peut voir le 1er ou le 2nd selon où elle est
+        if (point.nextEdge1 != point.nextEdge2) {
+            if ( glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position)) >
+                glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.nextEdge2)))
+                walls.push_back(std::make_pair( point.position, point.nextEdge2 ));
+            else
+                walls.push_back(std::make_pair( point.nextEdge2, point.position ));
+        }
+    }
+    walls.sort([pointOfView] (std::pair<glm::vec2, glm::vec2> & w1, std::pair<glm::vec2, glm::vec2> & w2) {
+        float firstDist = distancePointToSegment(w1.first, w1.second, pointOfView);
+        float secondDist = distancePointToSegment(w2.first, w2.second, pointOfView);
+
+        //if the points are the same, compare the distance from the 2 extremity
+        if (firstDist - secondDist < 0.001f) {
+            return glm::length2(pointOfView - w1.first) + glm::length2(pointOfView - w1.second) <
+                glm::length2(pointOfView - w2.first) + glm::length2(pointOfView - w2.second);
+        }
+
+        return firstDist < secondDist;
+    });
+
+    int w = 0;
+    for (auto wall : walls) {
+        LOGI(++w << ". " << wall.first << " <-> " << wall.second);
     }
 
     //order in clockwise mode
@@ -239,208 +283,101 @@ void BlockSystem::DoUpdate(float) {
         return ep2 < ep1;
     });
 
-    //add first point
-    float minWallNorm = 10000.f;
-    EnhancedPoint minWallStartPoint;
-    glm::vec2 endPointPosition;
-
-    for (auto & point : points) {
-        std::list<glm::vec2> pos;
-        pos.push_back(point.nextEdge1);
-        pos.push_back(point.nextEdge2);
-        for (auto endpoint : pos) {
-            float wallNorm = distancePointToSegment(point.position, endpoint, pointOfView);
-
-            glm::vec2 projection(-100.f);
-
-            if (( wallNorm < minWallNorm )
-            && (IntersectionUtil::lineLine(pointOfView, glm::vec2(- PlacementHelper::ScreenWidth,
-                pointOfView.y), point.position, endpoint, &projection))) {
-
-                minWallNorm = wallNorm;
-                minWallStartPoint.position = projection;
-                minWallStartPoint.nextEdge1 = point.position;
-                minWallStartPoint.nextEdge2 = point.position;
-                endPointPosition = endpoint;
-                minWallStartPoint.name = "start point";
-
-                LOGI("new min wall: " << point.name << ": " << point.position << " <-> " << endpoint);
-                LOGI("projection gave " << projection);
-
-            }
-        }
-    }
-
-    if (minWallNorm < glm::abs(pointOfView.x + sx) && minWallNorm < glm::abs(pointOfView.y + sy)) {
-        LOGI("nearest wall is not an external wall (there is a block somewhere right?" << minWallNorm <<" "<<
-            glm::abs(pointOfView.x + sx) <<" "<< glm::abs(pointOfView.y + sy));
-
-        //recalculate the projection of externalWall[0] because it is no more alligned with the pov y
-        auto middleLeftExternalWallPoint = std::find(points.begin(), points.end(), "wall middle left");
-
-        glm::vec2 oldPosition = middleLeftExternalWallPoint->position;
-
-        getProjection(pointOfView, externalWalls[1], externalWalls[4], middleLeftExternalWallPoint->position);
-
-        for (auto & point : points) {
-            if (point.nextEdge1 == oldPosition)
-                point.nextEdge1 = middleLeftExternalWallPoint->position;
-            if (point.nextEdge2 == oldPosition)
-                point.nextEdge2 = middleLeftExternalWallPoint->position;
-
-            if (point.position == minWallStartPoint.nextEdge1) {
-                auto neighboors = &point;
-
-                do {
-                    neighboors->nextEdge2 = neighboors->nextEdge1;
-                    auto it = std::find(points.begin(), points.end(), neighboors->nextEdge1);
-                    neighboors = &(*it);
-                } while (! (*neighboors == point));
-            }
-            if (point.position == endPointPosition  ) {
-                if (point.nextEdge1 == minWallStartPoint.nextEdge1) {
-                    point.nextEdge1 = minWallStartPoint.position;
-                }
-                if (point.nextEdge2 == minWallStartPoint.nextEdge1) {
-                    point.nextEdge2 = minWallStartPoint.position;
-                }
-            } else if (point.position == minWallStartPoint.nextEdge1  ) {
-                if (point.nextEdge2 == endPointPosition) {
-                    point.nextEdge2 = minWallStartPoint.position;
-                }
-                if (point.nextEdge1 == endPointPosition) {
-                    point.nextEdge1 = minWallStartPoint.position;
-                }
-            }
-        }
-        points.push_front(minWallStartPoint);
-    }
-
-    LOGI( "nearest wall is: " << minWallStartPoint.nextEdge1 << " <->" << endPointPosition);
-    LOGI( "Start point will be: " << minWallStartPoint.position);
-    drawPoint(minWallStartPoint.position, Color(.8f, .5f, 0.f));
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-
-    std::list<std::pair<glm::vec2, glm::vec2>> walls;
-
-    std::list<EnhancedPoint> alreadyPassedPoints;
-
-    std::pair<glm::vec2, glm::vec2> nearestWall;
-    bool hasNearestWall = false;
+    glm::vec2 startPoint = points.begin()->position;
 
     int i = 0;
-    for (auto pointIt = points.begin(); pointIt != points.end(); ++pointIt) {
-        auto point = *pointIt;
+    for (auto point : points) {
+        LOGI(++i << ". " << point.name);
+        drawPoint(point.position, point.name);
 
-        drawPoint(point.position);
-        LOGI(++i << ". '" << point.name << "' " << glm::degrees(glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position)))
-            << " " << point.position);
+        glm::vec2 endPoint;
 
-        // Sauvegarde du mur le plus proche
-        hasNearestWall =  (walls.size() > 0);
-        if (hasNearestWall) {
-            nearestWall = walls.front();
-            LOGI("\tNearest wall is " << nearestWall.first << " <-> " << nearestWall.second);
+        std::pair<glm::vec2, glm::vec2> activeWall;
+        for (auto wall : walls) {
+            // getActiveWall(startPoint, point.position);
+            // LOGI("\ttrying wall " << wall.first << " <-> " << wall.second);
+            //le facteur 100 est juste là pour faire une demi droite "infinie"
+            bool firstWall = IntersectionUtil::lineLine(pointOfView, startPoint + 100.f * (startPoint - pointOfView), wall.first, wall.second, 0);
+            bool secondWall = IntersectionUtil::lineLine(pointOfView, point.position + 100.f * (point.position - pointOfView), wall.first, wall.second, 0);
+            if (firstWall && secondWall) {
+                activeWall = wall;
+                LOGI("\tActive wall is " << activeWall.first << "<->" << activeWall.second);
+                break;
+            } else {
+                // if (firstWall) LOGI("\tfound first but not the second");
+                // if (secondWall) LOGI("\tfound second but not the first");
+            }
+        }
+        LOGF_IF(activeWall.first == glm::vec2(0.f) && activeWall.second == glm::vec2(0.f), "active wall not found");
+
+        if (IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second) &&
+            (glm::length2(activeWall.second - point.position) < 0.0001f || glm::length2(activeWall.first - point.position) < 0.0001f)) {
+             LOGI("\tDid the whole wall in a single time (no obstacle)");
+            endPoint = point.position;
         } else {
-            LOGI("\tNo nearest wall");
+            LOGI(IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second));
+            LOGI("\tGoing on a foreign wall! projecting point " << point.position << " into the current active wall..." << activeWall.first << " x " << activeWall.second);
+            getProjection(pointOfView, point.position, activeWall.first, activeWall.second, & endPoint);
         }
 
-        // On supprime tous les segments qui ont comme fin le point qu'on va rajouter (sinon ils y seront 2 fois)
-        for (auto wall = walls.begin(); wall != walls.end();) {
-            auto it = wall;
-            //in case of deletion, avoid problem with iterators
-            ++wall;
-            LOGI("\t\t\tWall distance: " << distancePointToSegment(pointOfView, it->first, it->second, 0) << " for " << it->first << " <-> " << it->second);
+        drawTriangle(pointOfView, startPoint, endPoint);
 
-            if (it->second == point.position) {
-                LOGI("\t\tRemoving point " << it->second << " as end position - erasing it");
-                walls.erase(it);
-            }
-        }
+        //si on a fini notre mur, le point de départ pour le prochain mur c'est le projeté du point final
+        // sur le mur le plus proche
+        if (IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second)
+        && (activeWall.second == point.position)) {
+            LOGI("We ended a wall, searching for startPoint of next wall...");
+            std::pair<glm::vec2, glm::vec2> nextActiveWall;
+            for (auto wall : walls) {
+                    LOGI("trying.." << wall.first << "<->" << wall.second);
 
-        if (std::find(points.begin(), pointIt, point.nextEdge1) == pointIt) {
-            // LOGI("\t\tAdding1 " << point.position << " <-> " << point.nextEdge1);
-            // walls.push_back(std::make_pair(point.position, point.nextEdge1));
-        }
-        if (/*point.nextEdge2 != point.nextEdge1 && */std::find(points.begin(), pointIt, point.nextEdge2) == pointIt) {
-            LOGI("\t\tAdding2 " << point.position << " <-> " << point.nextEdge2);
-            walls.push_back(std::make_pair(point.position, point.nextEdge2));
-        }
+                //next active wall can't be the current one...
+                if ((wall.first == activeWall.first && wall.second == activeWall.second)
+                    || (wall.first == activeWall.second && wall.second == activeWall.first))
+                    continue;
 
-        walls.sort([pointOfView] (std::pair<glm::vec2, glm::vec2> & w1, std::pair<glm::vec2, glm::vec2> & w2) {
-            float firstDist = distancePointToSegment(w1.first, w1.second, pointOfView);
-            float secondDist = distancePointToSegment(w2.first, w2.second, pointOfView);
-
-            //if the points are the same, compare the distance from the 2 extremity
-            if (firstDist - secondDist < 0.001f) {
-                return glm::length2(pointOfView - w1.first) + glm::length2(pointOfView - w1.second) <
-                    glm::length2(pointOfView - w2.first) + glm::length2(pointOfView - w2.second);
-            }
-
-            return firstDist < secondDist;
-        });
-
-        auto it = walls.begin();
-        for (unsigned i = 0; i < walls.size(); ++i) {
-            LOGI("\t\t" << i << ": " << distancePointToSegment(it->first, it->second, pointOfView) << ":" << it->first << " x " << it->second);
-            ++it;
-        }
-        // Si on a changé de segment le plus proche, on plot un triangle
-        // OU si on a atteint le bout du mur le plus proche
-        if (hasNearestWall) {
-            bool newNearestWall = walls.size() > 0 && ((glm::length2(walls.front().first - nearestWall.first) > 0.00001f &&
-            glm::length2(walls.front().second - nearestWall.second)> 0.0001f));
-            bool nearestWallEndPointReached = (glm::length2(nearestWall.second - point.position) < 0.0001f);
-
-            bool nearestWallEndPointAlreadyVisited = false;
-            for (auto it : alreadyPassedPoints) {
-                if (glm::length2(it.position - nearestWall.second) < 0.0001f) {
-                    nearestWallEndPointAlreadyVisited = true;
-                    break;
-                }
-            }
-            if (newNearestWall) {
-                LOGI("New nearest wall! " << walls.front().first << " <-> " << walls.front().second << ": "
-                    << distancePointToSegment(walls.front().first, walls.front().second, pointOfView) <<
-                    " < " << distancePointToSegment(nearestWall.first, nearestWall.second, pointOfView) <<  ". Drawing triangle");
-            } else if (nearestWallEndPointReached) {
-                LOGI("End of nearest wall reached! " << nearestWall.first << " <-> " << nearestWall.second << ". Drawing triangle");
-            } else if (nearestWallEndPointAlreadyVisited) {
-                LOGF("End of nearest wall had already been visited! " << nearestWall.first << " <-> " << nearestWall.second << ". Drawing triangle");
-            }
-
-            glm::vec2 realPointEnd = point.position;
-            getProjection(pointOfView, point.position, nearestWall.first, nearestWall.second, &realPointEnd);
-
-
-            if (newNearestWall || nearestWallEndPointReached || nearestWallEndPointAlreadyVisited) {
-                drawTriangle(pointOfView, nearestWall.first, realPointEnd);
-                //update nearestwall since it has changed
-                if (walls.size() > 0) {
-                    nearestWall = walls.front();
-
-                    getProjection(pointOfView, point.position, walls.front().first, walls.front().second, &walls.front().first);
-                } else {
-                    LOGI(points.front());
-                    nearestWall.second = externalWalls[0];
-                    nearestWall.first = externalWalls[4];
-                    if (point.position != externalWalls[4]) {
-                        if (! getProjection(pointOfView, point.position, externalWalls[1], externalWalls[4], &nearestWall.first))
-                            LOGI("could not project!!!!!!!");
-                        LOGI(nearestWall.first);
+                //nor end at current point
+                if (wall.second != point.position) {
+                //if (wall.second != point.position) {
+                    if (IntersectionUtil::lineLine(pointOfView, point.position + 100.f * (point.position - pointOfView), wall.first, wall.second, &nextActiveWall.first)) {
+                        nextActiveWall.second = wall.second;
+                        LOGI("\tNext active wall is " << nextActiveWall.first << "<->" << nextActiveWall.second << " ( " << wall.first << " <-> " << wall.second << " before proj)");
+                        break;
                     }
                 }
             }
+
+            //means we are on last point
+            if (nextActiveWall.first == glm::vec2(0.f) && nextActiveWall.second == glm::vec2(0.f)) {
+                LOGI( "next active wall not found, meaning we loop is ended");
+                nextActiveWall.first = externalWalls[3];
+                nextActiveWall.second = externalWalls[0];
+            }
+
+            if (! getProjection(pointOfView, point.position, nextActiveWall.first, nextActiveWall.second, & startPoint)) {
+                LOGF("could not project!!");
+            }
+        //si le point qu'on est actuellement dessus est DERRIERE le mur actuellement
+        // actif, le startPoint doit rester sur le mur actif
+        } else {
+            glm::vec2 intersection;
+            bool isIntercepting = IntersectionUtil::lineLine(pointOfView, point.position, activeWall.first, activeWall.second, &intersection);
+            if (isIntercepting && glm::length2(intersection - point.position) > 0.0001f) {
+                LOGI(intersection << " != " << point.position);
+                LOGI("\tCurrent point is behind the activeWall, starting point is activeWall.first");
+                startPoint = activeWall.first;
+            //sinon
+            } else {
+                //sinon c'est simplement le point courant
+                LOGI("Starting point is now this point");
+                startPoint = point.position;
+            }
         }
-        alreadyPassedPoints.push_back(point);
+        LOGI("\tNext startPoint is " << startPoint);
+
     }
-
-
-    LOGI("Last nearest: " << nearestWall.first << "<->" << nearestWall.second << " and first point was " << points.front().position);
-    drawTriangle(pointOfView, nearestWall.first, nearestWall.second);
+    // on affiche le dernier triangle
+    drawTriangle(pointOfView, startPoint, points.front().position);
 
     //hide the extra
     while (currentDrawPointIndice < (int)drawPointList.size()) {
