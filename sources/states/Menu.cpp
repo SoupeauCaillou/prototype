@@ -22,12 +22,14 @@
 
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
+#include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
 
 #include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/TextRenderingSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -50,8 +52,29 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         LevelSystem::LoadFromFile("../../assetspc/level1.map");
-        //currentLevel = theEntityManager.CreateEntity("currentLevel",
-         //   EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("level1"));
+
+        int i = 0;
+        for (; i < PlacementHelper::ScreenHeight + 1; ++i) {
+            Entity e = theEntityManager.CreateEntity("grid_line",
+              EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_line"));
+            TRANSFORM(e)->position.y = -.5 + PlacementHelper::ScreenHeight / 2. - i;
+            TRANSFORM(e)->size.y = 1.;
+        }
+
+        for (int j = - 10; j <= 10; j += 2) {
+            std::stringstream ss;
+            ss << j;
+
+            Entity e = theEntityManager.CreateEntity("grid_number_x " + ss.str(),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+            TEXT_RENDERING(e)->text = ss.str();
+            TRANSFORM(e)->position.x = j;
+
+            e = theEntityManager.CreateEntity("grid_number_y " + ss.str(),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+            TEXT_RENDERING(e)->text = ss.str();
+            TRANSFORM(e)->position.y = j;
+        }
     }
 
 

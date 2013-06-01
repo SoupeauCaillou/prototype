@@ -1,0 +1,9 @@
+atlas_size=1024,64
+[image0]
+name=grid_line
+original_size=721,36
+position_in_atlas=1,1
+size_in_atlas=721,36
+crop_offset=,
+rotated=0
+opaque_rect=0,34,721,2
