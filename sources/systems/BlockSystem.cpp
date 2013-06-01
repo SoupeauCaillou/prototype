@@ -109,6 +109,9 @@ struct EnhancedPoint {
     bool operator== (const glm::vec2 & pos) const {
         return (glm::length2(position - pos) < 0.0001f);
     }
+    bool operator== (const std::string & inName) const {
+        return (name == inName);
+    }
 };
 
 inline std::ostream & operator<<(std::ostream & o, const EnhancedPoint & ep) {
@@ -271,7 +274,20 @@ void BlockSystem::DoUpdate(float) {
     if (minWallNorm < glm::abs(pointOfView.x + sx) && minWallNorm < glm::abs(pointOfView.y + sy)) {
         LOGI("nearest wall is not an external wall (there is a block somewhere right?" << minWallNorm <<" "<<
             glm::abs(pointOfView.x + sx) <<" "<< glm::abs(pointOfView.y + sy));
+
+        //recalculate the projection of externalWall[0] because it is no more alligned with the pov y
+        auto middleLeftExternalWallPoint = std::find(points.begin(), points.end(), "wall middle left");
+
+        glm::vec2 oldPosition = middleLeftExternalWallPoint->position;
+
+        getProjection(pointOfView, externalWalls[1], externalWalls[4], middleLeftExternalWallPoint->position);
+
         for (auto & point : points) {
+            if (point.nextEdge1 == oldPosition)
+                point.nextEdge1 = middleLeftExternalWallPoint->position;
+            if (point.nextEdge2 == oldPosition)
+                point.nextEdge2 = middleLeftExternalWallPoint->position;
+
             if (point.position == minWallStartPoint.nextEdge1) {
                 auto neighboors = &point;
 
