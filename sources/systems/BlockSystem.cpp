@@ -81,7 +81,7 @@ Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB, const Co
 static int currentDrawTriangleColorIndice = 0;
 static std::vector<Color> drawTriangleColorList;
 void drawTriangle(const glm::vec2& pointOfView, const glm::vec2& first, const glm::vec2& second) {
-    LOGI_IF(debugBlockSystem, "triangle: '" << pointOfView << "' x '" << first << "' x '" << second << "'");
+    LOGI_IF(debugBlockSystem, "\tPlotting triangle: '" << pointOfView << "' x '" << first << "' x '" << second << "'");
 
     if (currentDrawTriangleColorIndice == (int)drawTriangleColorList.size()) {
         drawTriangleColorList.push_back(Color::random());
@@ -106,8 +106,9 @@ struct EnhancedPoint {
 
     std::string name; //only debug
     bool operator< (const EnhancedPoint & ep) const {
-        float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(position - theTouchInputManager.getTouchLastPosition()));
-        float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep.position - theTouchInputManager.getTouchLastPosition()));
+        const glm::vec2 touchLastPosition = theTouchInputManager.getTouchLastPosition();
+        float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(position - touchLastPosition));
+        float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep.position - touchLastPosition));
         return (firstAngle < secondAngle);
     }
     bool operator== (const EnhancedPoint & ep) const {
@@ -195,7 +196,7 @@ bool getProjection(const glm::vec2 & pA, const glm::vec2 & pB, const glm::vec2 &
     return false;
 }
 
-// retourne le mur actif entre les 2 points vu de la caméra
+// retourne le mur actif entre les 2 points, vus de la caméra
 std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec2, glm::vec2>> & walls,
     const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) {
 
@@ -210,7 +211,7 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
         bool wallContainsFirstPoint = IntersectionUtil::lineLine(pointOfView, firstPoint + 100.f * (firstPoint - pointOfView), wall.first, wall.second, &firstIntersectionPoint);
         bool wallContainsSecondPoint = IntersectionUtil::lineLine(pointOfView, secondPoint + 100.f * (secondPoint - pointOfView), wall.first, wall.second, &secondIntersectionPoint);
 
-        LOGI_IF(debugBlockSystem, "test current wall: " << wall << " " << wallContainsFirstPoint << "( " << firstPoint << " ) | " << wallContainsSecondPoint << " ( " << secondPoint << " ) " );
+        // LOGI_IF(debugBlockSystem, "test current wall: " << wall << " " << wallContainsFirstPoint << "( " << firstPoint << " ) | " << wallContainsSecondPoint << " ( " << secondPoint << " ) " );
         if (wallContainsFirstPoint && wallContainsSecondPoint) {
             // bool isNearest = false;
             float minDist = glm::min(glm::length2(firstIntersectionPoint - pointOfView), glm::length2(secondIntersectionPoint - pointOfView));
@@ -246,8 +247,7 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
     return nearestWall;
 }
 
-void insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & pointOfView,
-     const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
+void insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & pointOfView, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
 
     float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(firstPoint - pointOfView ));
     float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(secondPoint - pointOfView ));
@@ -331,12 +331,6 @@ void BlockSystem::DoUpdate(float) {
         float firstDist = distancePointToSegment(w1.first, w1.second, pointOfView);
         float secondDist = distancePointToSegment(w2.first, w2.second, pointOfView);
 
-        //if the points are the same, compare the distance from the 2 extremity
-        if (firstDist - secondDist < 0.001f) {
-            return glm::length2(pointOfView - w1.first) + glm::length2(pointOfView - w1.second) <
-                glm::length2(pointOfView - w2.first) + glm::length2(pointOfView - w2.second);
-        }
-
         return firstDist < secondDist;
     });
 
@@ -349,17 +343,19 @@ void BlockSystem::DoUpdate(float) {
     int i = 0;
 
     // le point de départ de l'éclairage
+
+    LOGI_IF(debugBlockSystem, ++i << ". " << points.begin()->name << " (angle="
+        << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(points.begin()->position - pointOfView))
+        << ", position = " << points.begin()->position << ")");
     glm::vec2 startPoint = points.begin()->position;
     auto activeWall = getActiveWall(walls, pointOfView, startPoint, glm::vec2(-sx, pointOfView.y));
     if (! IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second)) {
-        LOGI_IF(debugBlockSystem, "First point ( ) is not on the active wall. There must be a block between it and the camera right? So we'll project\
+        LOGI_IF(debugBlockSystem, "First point ( " << startPoint << " ) is NOT on the active wall. There must be a block between it and the camera right? So we'll project\
             that point on the active wall and take this point as the start point...");
         if (! getProjection(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint))
             LOGF("could not project!!");
     }
-
-
-    LOGI_IF(debugBlockSystem, ++i << ". " << points.begin()->name);
+    LOGI_IF(debugBlockSystem, "Start point is " << startPoint);
 #if SAC_DEBUG
     drawPoint(points.begin()->position, points.begin()->name);
 #endif
@@ -370,7 +366,8 @@ void BlockSystem::DoUpdate(float) {
     for (auto pointIt = ++points.begin(); pointIt != points.end(); ++pointIt) {
         auto point = *pointIt;
 
-        LOGI_IF(debugBlockSystem, ++i << ". " << point.name);
+        LOGI_IF(debugBlockSystem, ++i << ". " << point.name << " (angle=" <<
+            glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position - pointOfView)) << ", position = " << point.position <<  ")");
 #if SAC_DEBUG
         drawPoint(point.position, point.name);
 #endif
@@ -411,22 +408,14 @@ void BlockSystem::DoUpdate(float) {
         // maintenant qu'on a fini le mur, il faut chercher le futur mur actif, et projeter notre point dessus
         if (hasEndedCurrentActiveWall) {
             LOGI_IF(debugBlockSystem, "\tWe ended a wall, searching for startPoint of next wall...");
+            auto nextPointIt = pointIt;
+            ++nextPointIt;
+
             std::pair<glm::vec2, glm::vec2> nextActiveWall;
-            for (auto wall : walls) {
-                LOGI_IF(debugBlockSystem, "trying.." << wall);
-
-                //le mur suivant ne peut pas être l'actuel
-                if (wall.first == activeWall.first && wall.second == activeWall.second)
-                    continue;
-
-                // ni finir au point courant (car on l'a déjà dépassé)
-                if (wall.second != point.position) {
-                    if (IntersectionUtil::lineLine(pointOfView, point.position + 100.f * (point.position - pointOfView), wall.first, wall.second, &nextActiveWall.first)) {
-                        nextActiveWall.second = wall.second;
-                        LOGI_IF(debugBlockSystem, "\tNext active wall is " << nextActiveWall << " ( " << wall << " before proj)");
-                        break;
-                    }
-                }
+            if (nextPointIt != points.end()) {
+                LOGI(nextPointIt->name << " and " << pointIt ->name );
+                glm::vec2 nextPoint = (pointIt == points.end() ? points.front().position : nextPointIt->position);
+                nextActiveWall = getActiveWall(walls, pointOfView, point.position, nextPoint);
             }
 
             // si on est sur le point en bas à gauche du mur extérieur, il n'y a pas de mur actif après (même si y a d'autres blocks)
