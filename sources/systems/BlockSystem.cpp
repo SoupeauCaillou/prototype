@@ -262,23 +262,7 @@ void BlockSystem::DoUpdate(float) {
     drawPoint(pointOfView, "pointOfView", Color(1., .8, 0));
     std::list<EnhancedPoint> points;
 
-
-    //Première étape : on ajoute les points des murs exterieurs
-    float sx = PlacementHelper::ScreenWidth / 2.;
-    float sy = PlacementHelper::ScreenHeight / 2.;
-
-    glm::vec2 externalWalls[4] = {
-        glm::vec2(-sx, sy), // top left
-        glm::vec2(sx, sy), // top right
-        glm::vec2(sx, -sy), // bottom right
-        glm::vec2(-sx, -sy), // bottom left
-    };
-    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], externalWalls[1], "wall top left"));
-    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], externalWalls[2], "wall top right"));
-    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], externalWalls[3], "wall bottom right"));
-    points.push_back(EnhancedPoint(externalWalls[3], externalWalls[0], externalWalls[0], "wall bottom left"));
-
-    // et les points de chaque block
+    //Première étape : on ajoute les points des blocks
     FOR_EACH_ENTITY(Block, e)
         TransformationComponent * tc = TRANSFORM(e);
 
@@ -298,10 +282,30 @@ void BlockSystem::DoUpdate(float) {
         points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
             theEntityManager.entityName(e) + "- bottom left"));
     }
+
+    // et les points des murs extérieurs
+    float sx = PlacementHelper::ScreenWidth / 2.;
+    float sy = PlacementHelper::ScreenHeight / 2.;
+
+    glm::vec2 externalWalls[5] = {
+        glm::vec2(-sx, pointOfView.y), // middle left (FIRST POINT)
+        glm::vec2(-sx, sy), // top left
+        glm::vec2(sx, sy), // top right
+        glm::vec2(sx, -sy), // bottom right
+        glm::vec2(-sx, -sy), // bottom left
+    };
+    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], externalWalls[2], "wall top left"));
+    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], externalWalls[3], "top right"));
+    points.push_back(EnhancedPoint(externalWalls[3], externalWalls[4], externalWalls[4], "wall bottom right"));
+    points.push_back(EnhancedPoint(externalWalls[4], externalWalls[0], externalWalls[0], "wall bottom left"));
+
     // on trie les points par angle, en sens horaire (min = max = (-1, 0))
     points.sort([] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
         return ep2 < ep1;
     });
+
+    //on s'assure que le 1er point qui sera parcouru est le "wall middle left"
+    points.push_front(EnhancedPoint(externalWalls[0], externalWalls[1], externalWalls[1], "wall middle left"));
 
     //on garde la liste de tous les murs disponibles, le 1er point est le premier point que la caméra rencontrera
     std::list<std::pair<glm::vec2, glm::vec2>> walls;
