@@ -326,7 +326,7 @@ void BlockSystem::DoUpdate(float) {
     // du debug
     FOR_EACH_ENTITY(Block, e)
         if (IntersectionUtil::pointRectangle(pointOfView, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
-            LOGI("Point of view is INSIDE the block " << theEntityManager.entityName(e));
+            LOGI_IF(debugBlockSystem, "Point of view is INSIDE the block " << theEntityManager.entityName(e));
         }
     }
     int w = 0;
@@ -458,5 +458,17 @@ void BlockSystem::DoUpdate(float) {
     while (currentDrawEdgeIndice < (int)drawEdgeList.size()) {
         RENDERING(drawEdgeList[currentDrawEdgeIndice])->show = false;
         ++currentDrawEdgeIndice;
+    }
+}
+
+
+void BlockSystem::CleanEntities() {
+    while (drawPointList.begin() != drawPointList.end()) {
+        theEntityManager.DeleteEntity(*--drawPointList.end());
+        drawPointList.pop_back();
+    }
+    while (drawEdgeList.begin() != drawEdgeList.end()) {
+        theEntityManager.DeleteEntity(*--drawEdgeList.end());
+        drawEdgeList.pop_back();
     }
 }

@@ -54,7 +54,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        LevelSystem::LoadFromFile("../../assetspc/level1.map");
+        // LevelSystem::LoadFromFile("../../assetspc/level1.map");
     }
 
 
@@ -65,34 +65,21 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
 
-        static float lastChange = 0.f;
-
         //delete a block - right click over a block
-        //add a block - right click too
-        if (theTouchInputManager.wasTouched(1) && TimeUtil::GetTime() - lastChange > 1.) {
-            lastChange = TimeUtil::GetTime();
-            bool hasDeletedSomeOne = false;
-
+        if (theTouchInputManager.wasTouched(1)) {
             FOR_EACH_ENTITY(Block, e)
                 TransformationComponent * tc = TRANSFORM(e);
                 if (IntersectionUtil::pointRectangle(theTouchInputManager.getTouchLastPosition(1), tc->position, tc->size)) {
                     theEntityManager.DeleteEntity(e);
-                    hasDeletedSomeOne = true;
                     break;
                 }
             }
-
-
-            if (! hasDeletedSomeOne) {
-                Entity e = theEntityManager.CreateEntity("onClickBlock",
-                  EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
-
-                RENDERING(e)->color = Color::random();
-                TRANSFORM(e)->position = theTouchInputManager.getTouchLastPosition(1);
-                TRANSFORM(e)->size = glm::vec2(glm::linearRand(1.f, 3.f));
-            }
         }
 
+        //if there is no block, go back to level editor
+        if (theBlockSystem.getAllComponents().size() == 0) {
+            return Scene::LevelEditor;
+        }
         return Scene::Menu;
     }
 
@@ -101,6 +88,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
+        theBlockSystem.CleanEntities();
     }
 
     void onExit(Scene::Enum) override {

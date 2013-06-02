@@ -9,4 +9,6 @@ struct BlockComponent {
 #define BLOCK(e) theBlockSystem.Get(e)
 
 UPDATABLE_SYSTEM(Block)
+    public:
+        void CleanEntities();
 };
