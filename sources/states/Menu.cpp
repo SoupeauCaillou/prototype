@@ -47,8 +47,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         glm::vec2 pointOfView(0.6222f, 0.0778f);
         // bug dans glm? notre point est à gauche de "l'origine", et un peu plus bas ... donc l'angle devrait etre -179.9 pas 179.9
         LOGF_IF(0.f <  glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView)),
-            "Angle should be negative but was (radians) " << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView))
-            << " ( in degrees : " << glm::degrees(glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView))) << " ) " );
+            "Bug with GLM. You should fix it in glm/gtx/vector_angle.inl:36 -> change epsilon value to 0.00001 ");
     }
 
 
@@ -92,30 +91,34 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
 
-        //add a block - right click
-        //delete a block - left click
-        if (theTouchInputManager.wasTouched(0)) {
+        static float lastAdd = 0.f;
+
+        //delete a block - right click over a block
+        //add a block - right click too
+        if (theTouchInputManager.wasTouched(1)) {
+            bool hasDeletedSomeOne = false;
+
             FOR_EACH_ENTITY(Block, e)
                 TransformationComponent * tc = TRANSFORM(e);
                 if (IntersectionUtil::pointRectangle(theTouchInputManager.getTouchLastPosition(0), tc->position, tc->size)) {
                     theEntityManager.DeleteEntity(e);
+                    hasDeletedSomeOne = true;
                     break;
                 }
             }
+
+
+            if (! hasDeletedSomeOne && TimeUtil::GetTime() - lastAdd > 1.) {
+                lastAdd = TimeUtil::GetTime();
+
+                Entity e = theEntityManager.CreateEntity("onClickBlock",
+                  EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
+
+                RENDERING(e)->color = Color::random();
+                TRANSFORM(e)->position = theTouchInputManager.getTouchLastPosition(1);
+                TRANSFORM(e)->size = glm::vec2(glm::linearRand(1.f, 3.f));
+            }
         }
-        static float lastAdd = 0.f;
-        if (TimeUtil::GetTime() - lastAdd > 1. && theTouchInputManager.wasTouched(1)) {
-            lastAdd = TimeUtil::GetTime();
-
-            Entity e = theEntityManager.CreateEntity("onClickBlock",
-              EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
-
-            RENDERING(e)->color = Color::random();
-            TRANSFORM(e)->position = theTouchInputManager.getTouchLastPosition(1);
-            TRANSFORM(e)->size = glm::vec2(glm::linearRand(1.f, 3.f));
-        }
-
-
 
         return Scene::Menu;
     }
