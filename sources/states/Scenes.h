@@ -26,6 +26,7 @@ namespace Scene {
       Menu,
       Connecting,
       SocialCenter,
+      UserInput,
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \
@@ -35,4 +36,5 @@ namespace Scene {
   DECLARE_SCENE_HANDLER_FACTORY(Menu)
   DECLARE_SCENE_HANDLER_FACTORY(Connecting)
   DECLARE_SCENE_HANDLER_FACTORY(SocialCenter)
+  DECLARE_SCENE_HANDLER_FACTORY(UserInput)
 }

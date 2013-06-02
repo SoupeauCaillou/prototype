@@ -1,0 +1,5 @@
+extends = yellowSoldier
+
+[Transformation]
+position = -2.5, -3
+z = 0.1

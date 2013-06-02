@@ -1,6 +1,7 @@
 [Transformation]
 position = 0,0
-size%screen = 1,1
+size = 40,25
+#size%screen = 1,1 13.889
 z = 0
 
 [Camera]

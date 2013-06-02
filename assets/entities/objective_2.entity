@@ -1,0 +1,4 @@
+extends = objective
+
+[Transformation]
+position = -17, -9.5

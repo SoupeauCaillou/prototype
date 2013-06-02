@@ -40,6 +40,8 @@
 
 #include "PrototypeGame.h"
 
+#include "CameraMoveManager.h"
+
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity startSolo, startMulti, serverIp;
@@ -85,7 +87,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         std::stringstream s;
         s << "Server: " << input;
         TEXT_RENDERING(serverIp)->text = s.str();
-
+        theCameraMoveManager.update(dt, game->camera);
+        if (BUTTON(startSolo)->clicked)
+            return Scene::UserInput;
         if (BUTTON(startMulti)->clicked)
             return Scene::Connecting;
         return Scene::Menu;

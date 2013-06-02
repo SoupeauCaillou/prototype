@@ -1,0 +1,5 @@
+extends = wall
+
+[Transformation]
+position = 4.5, -7
+size = 1, 9

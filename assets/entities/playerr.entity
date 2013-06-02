@@ -1,0 +1,8 @@
+extends = soldier
+
+[Transformation]
+position = 16.5, -9
+#z = 0.1
+
+[Rendering]
+color = 1,0,0,1

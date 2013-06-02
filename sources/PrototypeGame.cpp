@@ -63,6 +63,7 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::Connecting, Scene::CreateConnectingSceneHandler(this), "Scene::Connecting");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
+    sceneStateMachine.registerState(Scene::UserInput, Scene::CreateUserInputSceneHandler(this), "Scene::UserInput");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {

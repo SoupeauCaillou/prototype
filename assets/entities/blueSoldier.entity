@@ -1,0 +1,4 @@
+extends = soldier
+
+[Rendering]
+color = 0,0,1,1
