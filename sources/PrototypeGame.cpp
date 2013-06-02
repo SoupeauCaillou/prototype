@@ -118,10 +118,6 @@ void PrototypeGame::togglePause(bool) {
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
-
-    theLevelSystem.Update(dt);
-    theBlockSystem.Update(dt);
-
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

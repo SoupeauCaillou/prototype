@@ -52,7 +52,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         LevelSystem::LoadFromFile("../../assetspc/level1.map");
-
+#if SAC_DEBUG
         int i = 0;
         for (; i < PlacementHelper::ScreenHeight + 1; ++i) {
             Entity e = theEntityManager.CreateEntity("grid_line",
@@ -75,14 +75,17 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             TEXT_RENDERING(e)->text = ss.str();
             TRANSFORM(e)->position.y = j;
         }
+#endif
     }
 
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
-        static float lastAdd = 0.f;
+    Scene::Enum update(float dt) override {
+        theLevelSystem.Update(dt);
+        theBlockSystem.Update(dt);
+
         //add a block - right click
         //delete a block - left click
         if (theTouchInputManager.wasTouched(0)) {
@@ -94,6 +97,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 }
             }
         }
+        static float lastAdd = 0.f;
         if (TimeUtil::GetTime() - lastAdd > 1. && theTouchInputManager.wasTouched(1)) {
             lastAdd = TimeUtil::GetTime();
 
