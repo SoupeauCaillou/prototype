@@ -215,30 +215,19 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
         if (wallContainsFirstPoint && wallContainsSecondPoint) {
             // bool isNearest = false;
             float minDist = glm::min(glm::length2(firstIntersectionPoint - pointOfView), glm::length2(secondIntersectionPoint - pointOfView));
-                LOGI_IF(debugBlockSystem, "found a candidate wall: " << wall << " for distance: " << minDist
-                    << " points: " << firstIntersectionPoint << " and " << secondIntersectionPoint);
 
-            /*
-            //ça signifie que les 2 murs ont un point en commun
-            if (minDist == nearestWallDistance) {
+            LOGI_IF(debugBlockSystem, "found a candidate wall: " << wall << " for distance: " << minDist
+                << " points: " << firstIntersectionPoint << " and " << secondIntersectionPoint);
 
-            } else*/ if (minDist < nearestWallDistance - 0.00001f) {
+            if (minDist < nearestWallDistance - 0.00001f) {
                 LOGI_IF(debugBlockSystem, "found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
-                //simple vérification: si un des 2 points est plus proche de la caméra que l'ancien mur, alors
-                // le second point doit l'être aussi, sinon ça veut dire que les murs se croisent (pas possible)
-                // par contre on vérifie qu'ils ont pas un point en commun; parce que si c'est le cas le mur le plus
-                // proche est l'un ou l'autre au hasard...
-                // LOGF_IF(! IntersectionUtil::pointLine(firstIntersectionPoint, nearestWall.first, nearestWall.second),
-                 // glm::length2(secondIntersectionPoint) > nearestWallDistance + 1, "Some walls are crossing each other(1)" << nearestWall << " and " << wall);
 
                 nearestWallDistance = minDist;
                 nearestWall = wall;
-            } else {
-                // LOGF_IF(glm::length2(secondIntersectionPoint) < nearestWallDistance - 1, "Some walls are crossing each other(2): " << nearestWall << " and " << wall);
             }
         } else {
-            // if (firstWall) LOGI_IF(debugBlockSystem, "\tfound first but not the second");
-            // if (secondWall) LOGI_IF(debugBlockSystem, "\tfound second but not the first");
+            if (wallContainsFirstPoint) LOGI_IF(debugBlockSystem, "\tfound first but not the second");
+            if (wallContainsSecondPoint) LOGI_IF(debugBlockSystem, "\tfound second but not the first");
         }
     }
     LOGF_IF(debugBlockSystem && nearestWallDistance == 100000.f, "Couldn't find a wall between points " << firstPoint << " and " << secondPoint);
@@ -335,6 +324,11 @@ void BlockSystem::DoUpdate(float) {
     });
 
     // du debug
+    FOR_EACH_ENTITY(Block, e)
+        if (IntersectionUtil::pointRectangle(pointOfView, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
+            LOGI("Point of view is INSIDE the block " << theEntityManager.entityName(e));
+        }
+    }
     int w = 0;
     for (auto wall : walls) {
         LOGI_IF(debugBlockSystem, ++w << ". " << wall);

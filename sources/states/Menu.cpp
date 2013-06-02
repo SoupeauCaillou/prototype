@@ -91,16 +91,17 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
 
-        static float lastAdd = 0.f;
+        static float lastChange = 0.f;
 
         //delete a block - right click over a block
         //add a block - right click too
-        if (theTouchInputManager.wasTouched(1)) {
+        if (theTouchInputManager.wasTouched(1) && TimeUtil::GetTime() - lastChange > 1.) {
+            lastChange = TimeUtil::GetTime();
             bool hasDeletedSomeOne = false;
 
             FOR_EACH_ENTITY(Block, e)
                 TransformationComponent * tc = TRANSFORM(e);
-                if (IntersectionUtil::pointRectangle(theTouchInputManager.getTouchLastPosition(0), tc->position, tc->size)) {
+                if (IntersectionUtil::pointRectangle(theTouchInputManager.getTouchLastPosition(1), tc->position, tc->size)) {
                     theEntityManager.DeleteEntity(e);
                     hasDeletedSomeOne = true;
                     break;
@@ -108,9 +109,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             }
 
 
-            if (! hasDeletedSomeOne && TimeUtil::GetTime() - lastAdd > 1.) {
-                lastAdd = TimeUtil::GetTime();
-
+            if (! hasDeletedSomeOne) {
                 Entity e = theEntityManager.CreateEntity("onClickBlock",
                   EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
 
