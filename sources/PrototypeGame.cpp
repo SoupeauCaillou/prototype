@@ -56,6 +56,7 @@
 PrototypeGame::PrototypeGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::LevelEditor, Scene::CreateMenuSceneHandler(this), "Scene::LevelEditor");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -100,6 +101,32 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+#if SAC_DEBUG
+    //create a grid
+    int i = 0;
+    for (; i < PlacementHelper::ScreenHeight + 1; ++i) {
+        Entity e = theEntityManager.CreateEntity("grid_line",
+          EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_line"));
+        TRANSFORM(e)->position.y = -.5 + PlacementHelper::ScreenHeight / 2. - i;
+        TRANSFORM(e)->size.y = 1.;
+    }
+
+    for (int j = - 10; j <= 10; j += 2) {
+        std::stringstream ss;
+        ss << j;
+
+        Entity e = theEntityManager.CreateEntity("grid_number_x " + ss.str(),
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+        TEXT_RENDERING(e)->text = ss.str();
+        TRANSFORM(e)->position.x = j;
+
+        e = theEntityManager.CreateEntity("grid_number_y " + ss.str(),
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+        TEXT_RENDERING(e)->text = ss.str();
+        TRANSFORM(e)->position.y = j;
+    }
+#endif
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");

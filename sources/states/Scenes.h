@@ -24,7 +24,7 @@ namespace Scene {
    enum Enum {
       Logo,
       Menu,
-      SocialCenter,
+      LevelEditor,
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \
