@@ -33,6 +33,8 @@
 
 #include "PrototypeGame.h"
 
+#include <glm/gtx/vector_angle.hpp>
+
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity currentLevel;
@@ -42,8 +44,12 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
+        glm::vec2 pointOfView(0.6222f, 0.0778f);
+        // bug dans glm? notre point est à gauche de "l'origine", et un peu plus bas ... donc l'angle devrait etre -179.9 pas 179.9
+        LOGF_IF(0.f <  glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView)),
+            "Angle should be negative but was (radians) " << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView))
+            << " ( in degrees : " << glm::degrees(glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView))) << " ) " );
     }
-
 
 
     ///----------------------------------------------------------------------------//
