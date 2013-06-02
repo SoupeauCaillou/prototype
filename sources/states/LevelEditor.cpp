@@ -50,7 +50,6 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-
         return Scene::LevelEditor;
     }
 

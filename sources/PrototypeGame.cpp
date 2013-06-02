@@ -56,7 +56,7 @@
 PrototypeGame::PrototypeGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
-    sceneStateMachine.registerState(Scene::LevelEditor, Scene::CreateMenuSceneHandler(this), "Scene::LevelEditor");
+    sceneStateMachine.registerState(Scene::LevelEditor, Scene::CreateLevelEditorSceneHandler(this), "Scene::LevelEditor");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -85,7 +85,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
 
 #if SAC_DEBUG
-    sceneStateMachine.setup(Scene::Menu);
+    sceneStateMachine.setup(Scene::LevelEditor);
 #else
     sceneStateMachine.setup(Scene::Logo);
 #endif

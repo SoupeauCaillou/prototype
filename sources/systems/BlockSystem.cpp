@@ -407,7 +407,6 @@ void BlockSystem::DoUpdate(float) {
 
             std::pair<glm::vec2, glm::vec2> nextActiveWall;
             if (nextPointIt != points.end()) {
-                LOGI(nextPointIt->name << " and " << pointIt ->name );
                 glm::vec2 nextPoint = (pointIt == points.end() ? points.front().position : nextPointIt->position);
                 nextActiveWall = getActiveWall(walls, pointOfView, point.position, nextPoint);
             }
