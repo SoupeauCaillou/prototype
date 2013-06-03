@@ -269,7 +269,7 @@ void BlockSystem::DoUpdate(float) {
         glm::vec2 rectanglePoints[4] = {
             tc->position - offset, //bottom left
             // tc->position + glm::vec2(offset.x, -offset.y) / 2.f, //bottom right
-            tc->position + offset / 2.f, //top right
+            tc->position + offset, //top right
             // tc->position - glm::vec2(offset.x, -offset.y) / 2.f, //top left
         };
         points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1], rectanglePoints[1],

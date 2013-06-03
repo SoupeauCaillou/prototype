@@ -55,7 +55,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
         TRANSFORM(e)->position = (secondPoint + firstPoint) / 2.f;
         TRANSFORM(e)->size.x = glm::length(secondPoint - firstPoint);
-        TRANSFORM(e)->size.y = 0;
+        TRANSFORM(e)->size.y = 0.1;
         TRANSFORM(e)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize( secondPoint - firstPoint));
 
         LOGI(TRANSFORM(e)->position << " " << TRANSFORM(e)->size << " " << TRANSFORM(e)->rotation);
