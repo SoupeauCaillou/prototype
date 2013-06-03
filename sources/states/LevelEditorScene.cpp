@@ -23,6 +23,7 @@
 #include "systems/ButtonSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
 
 #include "util/IntersectionUtil.h"
@@ -74,19 +75,7 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         if (BUTTON(saveButton)->clicked || BUTTON(goTryLevelButton)->clicked) {
-             const auto filename = "/tmp/level_editor.map";
-            //save in file each walls
-            std::ofstream myfile (filename);
-            LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
-
-            for (auto wall : drawVectorList) {
-                TransformationComponent * tc = TRANSFORM(wall);
-
-                glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
-                myfile << tc->position - offset << " | " << tc->position + offset << "\n";
-            }
-            myfile.close();
-
+            theLevelSystem.SaveInFile("/tmp/level_editor.map", drawVectorList);
 
             if (BUTTON(goTryLevelButton)->clicked) {
                 return Scene::Menu;
