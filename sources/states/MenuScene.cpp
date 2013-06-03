@@ -33,6 +33,8 @@
 
 #include <glm/gtx/vector_angle.hpp>
 
+
+
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity currentLevel;
@@ -55,6 +57,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         // LevelSystem::LoadFromFile("../../assetspc/level1.map");
+        LevelSystem::LoadFromFile("/tmp/level_editor.map");
     }
 
 
@@ -65,19 +68,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
 
-        //delete a block - right click over a block
+        //go back to leveleditor - right click
         if (theTouchInputManager.wasTouched(1)) {
-            FOR_EACH_ENTITY(Block, e)
-                TransformationComponent * tc = TRANSFORM(e);
-                if (IntersectionUtil::pointRectangle(theTouchInputManager.getTouchLastPosition(1), tc->position, tc->size)) {
-                    theEntityManager.DeleteEntity(e);
-                    break;
-                }
-            }
-        }
-
-        //if there is no block, go back to level editor
-        if (theBlockSystem.getAllComponents().size() == 0) {
             return Scene::LevelEditor;
         }
         return Scene::Menu;
@@ -89,6 +81,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
         theBlockSystem.CleanEntities();
+
+        FOR_EACH_ENTITY(Block, e)
+            theEntityManager.DeleteEntity(e);
+        }
     }
 
     void onExit(Scene::Enum) override {

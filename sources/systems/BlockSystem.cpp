@@ -17,7 +17,7 @@
 
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
-static bool debugBlockSystem = true;
+static bool debugBlockSystem = !true;
 #else
 static bool debugBlockSystem = false;
 #endif
@@ -264,21 +264,27 @@ void BlockSystem::DoUpdate(float) {
     FOR_EACH_ENTITY(Block, e)
         TransformationComponent * tc = TRANSFORM(e);
 
-        // warning: rotation not handled yet
+        glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
+
         glm::vec2 rectanglePoints[4] = {
-            tc->position - tc->size / 2.f, //bottom left
-            tc->position + glm::vec2(tc->size.x, -tc->size.y) / 2.f, //bottom right
-            tc->position + tc->size / 2.f, //top right
-            tc->position - glm::vec2(tc->size.x, -tc->size.y) / 2.f, //top left
+            tc->position - offset, //bottom left
+            // tc->position + glm::vec2(offset.x, -offset.y) / 2.f, //bottom right
+            tc->position + offset / 2.f, //top right
+            // tc->position - glm::vec2(offset.x, -offset.y) / 2.f, //top left
         };
-        points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
-            theEntityManager.entityName(e) + "- top left"));
-        points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3],
-            theEntityManager.entityName(e) + "- top right"));
-        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2],
-            theEntityManager.entityName(e) + "- bottom right"));
-        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
-            theEntityManager.entityName(e) + "- bottom left"));
+        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1], rectanglePoints[1],
+            theEntityManager.entityName(e) + "- first point"));
+        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[0],
+            theEntityManager.entityName(e) + "- second point"));
+
+        // points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
+        //     theEntityManager.entityName(e) + "- top left"));
+        // points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3],
+        //     theEntityManager.entityName(e) + "- top right"));
+        // points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2],
+        //     theEntityManager.entityName(e) + "- bottom right"));
+        // points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
+        //     theEntityManager.entityName(e) + "- bottom left"));
     }
 
     // et les points des murs extérieurs

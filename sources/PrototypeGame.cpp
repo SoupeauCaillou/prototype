@@ -85,7 +85,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
 
 #if SAC_DEBUG
-    sceneStateMachine.setup(Scene::LevelEditor);
+    sceneStateMachine.setup(Scene::Menu);
 #else
     sceneStateMachine.setup(Scene::Logo);
 #endif
