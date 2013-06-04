@@ -3,6 +3,10 @@
 #include "systems/System.h"
 
 struct BlockComponent {
+    BlockComponent() : doubleFace(false) {}
+
+    // is the wall visible from the 2 sides?
+    bool doubleFace;
 };
 
 #define theBlockSystem BlockSystem::GetInstance()

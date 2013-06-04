@@ -17,7 +17,7 @@
 
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
-static bool debugBlockSystem = !true;
+static bool debugBlockSystem = true;
 #else
 static bool debugBlockSystem = false;
 #endif
@@ -96,13 +96,14 @@ void drawTriangle(const glm::vec2& pointOfView, const glm::vec2& first, const gl
 
 
 struct EnhancedPoint {
-    EnhancedPoint() : position(0.), nextEdge1(0.), nextEdge2(0.), name("unknown") {}
-    EnhancedPoint(const glm::vec2& inp, const glm::vec2& ine1, const glm::vec2& ine2, const std::string & iname)
-    : position(inp), nextEdge1(ine1), nextEdge2(ine2), name(iname) {}
+    EnhancedPoint() : position(0.), name("unknown") {}
+    EnhancedPoint(const glm::vec2& inp, const glm::vec2 & ne, const std::string & iname) :
+        position(inp), name(iname) { nextEdges.push_back(ne); }
+    EnhancedPoint(const glm::vec2& inp, const std::vector<glm::vec2> & ine, const std::string & iname)
+    : position(inp), nextEdges(ine), name(iname) {}
     glm::vec2 position;
 
-    glm::vec2 nextEdge1;
-    glm::vec2 nextEdge2;
+    std::vector<glm::vec2> nextEdges;
 
     std::string name; //only debug
     bool operator< (const EnhancedPoint & ep) const {
@@ -123,7 +124,10 @@ struct EnhancedPoint {
 };
 
 inline std::ostream & operator<<(std::ostream & o, const EnhancedPoint & ep) {
-    o << "name='" << ep.name << "': position='" << ep.position << "' nextEdge1='" << ep.nextEdge1 << "', nextEdge2='" << ep.nextEdge2 << "'";
+    o << "name='" << ep.name << "': position='" << ep.position;
+    int i = 0;
+    for (auto item : ep.nextEdges)
+        o << "' nextEdge" <<  ++i << "='" << item << ", ";
     return o;
 }
 inline std::ostream & operator<<(std::ostream & o, const std::pair<glm::vec2, glm::vec2> & wall) {
@@ -272,9 +276,9 @@ void BlockSystem::DoUpdate(float) {
             tc->position + offset, //top right
             // tc->position - glm::vec2(offset.x, -offset.y) / 2.f, //top left
         };
-        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1], rectanglePoints[1],
+        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
             theEntityManager.entityName(e) + "- first point"));
-        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[0],
+        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
             theEntityManager.entityName(e) + "- second point"));
 
         // points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
@@ -298,10 +302,66 @@ void BlockSystem::DoUpdate(float) {
         glm::vec2(sx, -sy), // bottom right
         glm::vec2(-sx, -sy), // bottom left
     };
-    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], externalWalls[2], "wall top left"));
-    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], externalWalls[3], "top right"));
-    points.push_back(EnhancedPoint(externalWalls[3], externalWalls[4], externalWalls[4], "wall bottom right"));
-    points.push_back(EnhancedPoint(externalWalls[4], externalWalls[0], externalWalls[0], "wall bottom left"));
+
+    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "wall top left"));
+    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "top right"));
+    points.push_back(EnhancedPoint(externalWalls[3], externalWalls[4], "wall bottom right"));
+    points.push_back(EnhancedPoint(externalWalls[4], externalWalls[0], "wall bottom left"));
+
+    /*
+    for (auto point : points) LOGI(point);
+    // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
+    bool foundAnIntersection = false;
+    int maxIter = 3;
+    do {
+        foundAnIntersection = false;
+        for (auto it1 = points.begin(); it1 != --points.end(); ++it1) {
+            auto it2 = it1;
+            for (++it2; it2 != points.end(); ++it2) {
+
+                glm::vec2 intersectionPoint;
+
+                for (auto & endPoint1 : it1->nextEdges) {
+                    for (auto & endPoint2 : it2->nextEdges) {
+                        glm::vec2 startPoint1 = it1->position;
+                        glm::vec2 startPoint2 = it2->position;
+
+                        const float eps = 0.00001f;
+
+                        if (IntersectionUtil::lineLine(startPoint1, endPoint1, startPoint2, endPoint2, &intersectionPoint)) {
+                            if (glm::length2(intersectionPoint - startPoint2) > eps
+                            && glm::length2(intersectionPoint - endPoint1) > eps
+                            && glm::length2(intersectionPoint - endPoint1) > eps
+                            &&  glm::length2(intersectionPoint - endPoint2) > eps) {
+
+                                // LOGI(glm::length2(intersectionPoint - startPoint1)
+                                //     << " " << glm::length2(intersectionPoint - startPoint2)
+                                //     << " " << glm::length2(intersectionPoint - endPoint1)
+                                //     << " " << glm::length2(intersectionPoint - endPoint2));
+                                 LOGI_IF(debugBlockSystem, "Lines " << startPoint1 << " <-> " << endPoint1
+                                    << " and " << startPoint2 << " <-> " << endPoint2 <<  " are crossing each other at point " << intersectionPoint);
+
+                                points.push_back(EnhancedPoint(intersectionPoint, endPoint1, endPoint1, "intersection point"));
+                                points.push_back(EnhancedPoint(intersectionPoint, endPoint2, endPoint2, "intersection point"));
+
+                                *endPoints1[i] = intersectionPoint;
+                                *endPoints2[j] = intersectionPoint;
+
+                                foundAnIntersection = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (foundAnIntersection) break;
+                }
+                if (foundAnIntersection) break;
+
+            }
+            if (foundAnIntersection) break;
+        }
+    } while (foundAnIntersection);
+        for (auto point : points) LOGI(point);
+    */
 
     // on trie les points par angle, en sens horaire (min = max = (-1, 0))
     points.sort([] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
@@ -309,16 +369,13 @@ void BlockSystem::DoUpdate(float) {
     });
 
     //on s'assure que le 1er point qui sera parcouru est le "wall middle left"
-    points.push_front(EnhancedPoint(externalWalls[0], externalWalls[1], externalWalls[1], "wall middle left"));
+    points.push_front(EnhancedPoint(externalWalls[0], externalWalls[1], "wall middle left"));
 
     //on garde la liste de tous les murs disponibles, le 1er point est le premier point que la caméra rencontrera
     std::list<std::pair<glm::vec2, glm::vec2>> walls;
     for (auto point : points) {
-        insertInWallsIfNotPresent(walls, pointOfView, point.position, point.nextEdge1);
-
-        //il FAUT le 2eme, parce que la caméra peut voir le 1er ou le 2nd selon où elle est
-        if (point.nextEdge1 != point.nextEdge2) {
-            insertInWallsIfNotPresent(walls, pointOfView, point.position, point.nextEdge2);
+        for (auto next : point.nextEdges) {
+            insertInWallsIfNotPresent(walls, pointOfView, point.position, next);
         }
     }
     // on trie les murs par distance à la caméra, du plus proche au plus lointain
