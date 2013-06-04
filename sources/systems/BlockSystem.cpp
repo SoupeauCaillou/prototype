@@ -22,6 +22,8 @@ static bool debugBlockSystem = true;
 static bool debugBlockSystem = false;
 #endif
 
+const float eps = 0.0001f;
+
 INSTANCE_IMPL(BlockSystem);
 
 BlockSystem::BlockSystem() : ComponentSystemImpl <BlockComponent>("Block") {
@@ -124,10 +126,10 @@ struct EnhancedPoint {
         return (firstAngle < secondAngle);
     }
     bool operator== (const EnhancedPoint & ep) const {
-        return (glm::length2(position - ep.position) < 0.0001f);
+        return (glm::length2(position - ep.position) < eps);
     }
     bool operator== (const glm::vec2 & pos) const {
-        return (glm::length2(position - pos) < 0.0001f);
+        return (glm::length2(position - pos) < eps);
     }
     bool operator== (const std::string & inName) const {
         return (name == inName);
@@ -153,7 +155,7 @@ float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm
     glm::vec2 projectionOnSegment;
 
     // if v = w, this is not a segment!
-    if (norm2 < 0.0001f) {
+    if (norm2 < eps) {
         projectionOnSegment = v;
     } else {
         const float t = glm::dot (p - v, w - v) / norm2;
@@ -196,8 +198,6 @@ bool getProjection(const glm::vec2 & pA, const glm::vec2 & pB, const glm::vec2 &
     float ua = nume_a / denom;
     float ub = nume_b / denom;
 
-    const float eps = 0.0001;
-
     if(ub > - eps && ub <= 1.0f + eps)
     {
         if (intersectionPoint) {
@@ -234,7 +234,7 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
             LOGI_IF(debugBlockSystem, "found a candidate wall: " << wall << " for distance: " << minDist
                 << " points: " << firstIntersectionPoint << " and " << secondIntersectionPoint);
 
-            if (minDist < nearestWallDistance - 0.00001f) {
+            if (minDist < nearestWallDistance - eps) {
                 LOGI_IF(debugBlockSystem, "found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
 
                 nearestWallDistance = minDist;
@@ -265,6 +265,16 @@ void insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & wall
     }
 }
 
+bool doesVec2ListContainValue(const std::vector<glm::vec2> & list, const glm::vec2 & value) {
+    for (auto item : list) {
+        if (glm::length2(item - value) < eps) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
     for (auto point : points) LOGI(point);
     bool foundAnIntersection = false;
@@ -282,7 +292,6 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                         glm::vec2 startPoint1 = it1->position;
                         glm::vec2 startPoint2 = it2->position;
 
-                        const float eps = 0.00001f;
 
                         if (IntersectionUtil::lineLine(startPoint1, endPoint1, startPoint2, endPoint2, &intersectionPoint)) {
                             if (glm::length2(intersectionPoint - startPoint2) > eps
@@ -307,13 +316,16 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                                 } else {
                                     //todo: vérifier s'il est pas déjà présent avant de l'ajouter
                                     // if (std::find(points.begin(), points.end(), endPoint1) == points.end()) {
-
-                                    it->nextEdges.push_back(endPoint1);
-                                    it->nextEdges.push_back(endPoint2);
-
-                                    endPoint1 = intersectionPoint;
-                                    endPoint2 = intersectionPoint;
+                                    if (! doesVec2ListContainValue(it->nextEdges, endPoint1)) {
+                                        it->nextEdges.push_back(endPoint1);
+                                    }
+                                    if (! doesVec2ListContainValue(it->nextEdges, endPoint2)) {
+                                        it->nextEdges.push_back(endPoint2);
+                                    }
                                 }
+
+                                endPoint1 = intersectionPoint;
+                                endPoint2 = intersectionPoint;
 
                                 foundAnIntersection = true;
                                 break;
@@ -385,7 +397,7 @@ void BlockSystem::DoUpdate(float) {
     points.push_back(EnhancedPoint(externalWalls[4], externalWalls[0], "wall bottom left"));
 
     // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
-    // splitIntersectionWalls(points);
+    splitIntersectionWalls(points);
 
     // on trie les points par angle, en sens horaire (min = max = (-1, 0))
     points.sort([] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
@@ -514,7 +526,7 @@ void BlockSystem::DoUpdate(float) {
         } else {
             glm::vec2 intersection;
             bool isIntercepting = IntersectionUtil::lineLine(pointOfView, point.position, activeWall.first, activeWall.second, &intersection);
-            if (isIntercepting && glm::length2(intersection - point.position) > 0.0001f) {
+            if (isIntercepting && glm::length2(intersection - point.position) > eps) {
                 // LOGI_IF(debugBlockSystem, intersection << " != " << point.position);
                 LOGI_IF(debugBlockSystem, "\tCurrent point is behind the activeWall, starting point is the projection point on the active wall");
                 startPoint = intersection;
