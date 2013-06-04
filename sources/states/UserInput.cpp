@@ -22,8 +22,11 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
-
+#include "util/SpatialGrid.h"
 #include "systems/RenderingSystem.h"
+#include "systems/TransformationSystem.h"
+
+#define GridSize 1.2f
 
 struct UserInputScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -35,8 +38,9 @@ struct UserInputScene : public StateHandler<Scene::Enum> {
     std::list<Entity> players;
     std::list<Entity> objs;
     Entity background;
+    SpatialGrid grid;
 
-    UserInputScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    UserInputScene(PrototypeGame* game) : StateHandler<Scene::Enum>(), grid(41, 25, GridSize) {
         this->game = game;
     }
 
@@ -114,12 +118,27 @@ struct UserInputScene : public StateHandler<Scene::Enum> {
             RENDERING(s)->show = true;
         }
         RENDERING(background)->show = true;
+
+        // quick test
+        grid.doForEachCell([this] (const GridPos& p) -> void {
+            Entity e = theEntityManager.CreateEntity("gridcell");
+            ADD_COMPONENT(e, Transformation);
+            TRANSFORM(e)->z = 0.9;
+            TRANSFORM(e)->size = glm::vec2(GridSize);
+            TRANSFORM(e)->position = this->grid.gridPosToPosition(p);
+            ADD_COMPONENT(e, Rendering);
+            RENDERING(e)->shape = Shape::Hexagon;
+            RENDERING(e)->color = Color(0,0,0,0.15);
+            if (glm::abs(p.q + p.r) % 2)
+                RENDERING(e)->color.a = 0.3;
+            RENDERING(e)->show = true;
+        });
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { 
+    Scene::Enum update(float) override {
         return Scene::UserInput;
     }
 
