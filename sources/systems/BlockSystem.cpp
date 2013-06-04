@@ -14,6 +14,7 @@
 #include <glm/gtx/projection.hpp>
 
 #include <algorithm>
+#include <ostream>
 
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
