@@ -71,7 +71,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
             a << "yellowSoldier_" << i;
             Entity s = theEntityManager.CreateEntity(a.str(),
                 EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
-            walls.push_back(s);
+            yEnnemies.push_back(s);
         }
 
         for (int i=1; i<3; ++i) {
@@ -137,17 +137,20 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
         game->grid.autoAssignEntitiesToCell(players);
         game->grid.autoAssignEntitiesToCell(walls);
+        game->grid.autoAssignEntitiesToCell(yEnnemies);
+        game->grid.autoAssignEntitiesToCell(bEnnemies);
+        game->grid.autoAssignEntitiesToCell(objs);
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override { 
+    Scene::Enum update(float dt) override {
         theCameraMoveManager.update(dt, game->camera);
         TransformationComponent *tc = TRANSFORM(game->camera);
 
         if (glm::abs(tc->position.x) + tc->size.x / 2.f > 20) {
-            
+
             float posx = 20.f - tc->size.x/2.f;
             if (tc->position.x < 0)
                 tc->position.x = - posx;
@@ -156,7 +159,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         }
 
         if (glm::abs(tc->position.y) + tc->size.y / 2.f > 12.5) {
-            
+
             float posy = 12.5f - tc->size.y/2.f;
             if (tc->position.y < 0)
                 tc->position.y = - posy;
@@ -174,7 +177,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                         game->activeCharacter = e;
                         return Scene::SelectAction;;
                     }
-                }   
+                }
             }
         }
 
