@@ -23,3 +23,9 @@ color = 1,1,1,1
 #opaque_type
 #~ int
 #camera_bitmask
+
+[Grid]
+#~bool
+blocks_vision = 1
+#~bool
+blocks_path = 1

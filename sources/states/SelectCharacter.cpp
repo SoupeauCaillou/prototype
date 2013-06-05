@@ -29,7 +29,10 @@
 #include "base/EntityManager.h"
 #include "util/SpatialGrid.h"
 #include "systems/RenderingSystem.h"
+#include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
+
+#include <map>
 
 #define GridSize 1.2f
 
@@ -133,6 +136,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         });
 
         game->grid.autoAssignEntitiesToCell(players);
+        game->grid.autoAssignEntitiesToCell(walls);
     }
 
     ///----------------------------------------------------------------------------//
@@ -172,6 +176,34 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                     }
                 }   
             }
+        }
+
+        if (theTouchInputManager.isTouched(0)) {
+            GridPos pos = game->grid.positionToGridPos(theTouchInputManager.getTouchLastPosition());
+            std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, 4);
+            LOGI("size = " << v[0].size());
+            LOGI("size = " << v[1].size());
+            LOGI("size = " << v[2].size());
+            LOGI("size = " << v[3].size());
+            LOGI("size = " << v[4].size());
+            std::stringstream a;
+            for (auto i: v) {
+                a.str("");
+                a << i.first;
+                LOGI("size = " << i.second.size());
+                for (auto b: i.second) {
+                    Entity e = theEntityManager.CreateEntity("t");
+                    ADD_COMPONENT(e, Transformation);
+                    TRANSFORM(e)->position = game->grid.gridPosToPosition(b);
+                    TRANSFORM(e)->size = glm::vec2(1.f);
+                    TRANSFORM(e)->z = 0.9;
+                    ADD_COMPONENT(e, TextRendering);
+                    TEXT_RENDERING(e)->text = a.str();
+                    TEXT_RENDERING(e)->color = Color(1,0,0,1);
+                    TEXT_RENDERING(e)->show = true;
+                }
+            }
+
         }
 
         return Scene::SelectCharacter;

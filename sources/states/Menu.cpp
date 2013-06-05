@@ -81,7 +81,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
         std::string input;
         game->gameThreadContext->keyboardInputHandlerAPI->done(input);
         std::stringstream s;
