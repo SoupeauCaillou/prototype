@@ -182,7 +182,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
         static float debugAcc = 0;
         debugAcc += dt;
-        if (theTouchInputManager.isTouched(0) && debugAcc > 1) {
+        if (theTouchInputManager.isTouched(1) && debugAcc > 1) {
             debugAcc = 0;
             GridPos pos = game->grid.positionToGridPos(theTouchInputManager.getTouchLastPosition());
             std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, 4);
