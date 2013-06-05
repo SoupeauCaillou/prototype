@@ -32,6 +32,7 @@
 #include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/AutoDestroySystem.h"
 
 #include <map>
 
@@ -177,7 +178,10 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        if (theTouchInputManager.isTouched(0)) {
+        static float debugAcc = 0;
+        debugAcc += dt;
+        if (theTouchInputManager.isTouched(0) && debugAcc > 1) {
+            debugAcc = 0;
             GridPos pos = game->grid.positionToGridPos(theTouchInputManager.getTouchLastPosition());
             std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, 4);
             LOGI("size = " << v[0].size());
@@ -186,33 +190,25 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
             LOGI("size = " << v[3].size());
             LOGI("size = " << v[4].size());
             std::stringstream a;
-            static std::vector<Entity> debug;
-            unsigned dbgIndex = 0;
             for (auto i: v) {
                 a.str("");
                 a << i.first;
                 LOGI("size = " << i.second.size());
                 for (auto b: i.second) {
-                    Entity e;
-                    if (dbgIndex >= debug.size()) {
-                        e = theEntityManager.CreateEntity("t");
-                        ADD_COMPONENT(e, Transformation);
-                        TRANSFORM(e)->size = glm::vec2(1.f);
-                        TRANSFORM(e)->z = 0.9;
-                        ADD_COMPONENT(e, TextRendering);
-                        TEXT_RENDERING(e)->color = Color(1,0,0,1);
-                        debug.push_back(e);
-                    } else {
-                        e = debug[dbgIndex];
-                    }
+                    Entity e = theEntityManager.CreateEntity("t");
+                    ADD_COMPONENT(e, Transformation);
+                    TRANSFORM(e)->size = glm::vec2(1.f);
+                    TRANSFORM(e)->z = 0.9;
+                    ADD_COMPONENT(e, TextRendering);
+                    TEXT_RENDERING(e)->color = Color(1,0,0,1);
                     TEXT_RENDERING(e)->text = a.str();
                     TEXT_RENDERING(e)->show = true;
                     TRANSFORM(e)->position = game->grid.gridPosToPosition(b);
-                    dbgIndex++;
+                    ADD_COMPONENT(e, AutoDestroy);
+                    AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
+                    AUTO_DESTROY(e)->params.lifetime.freq.value = 3;
+                    AUTO_DESTROY(e)->params.lifetime.map2AlphaTextRendering = true;
                 }
-            }
-            for (unsigned i=dbgIndex; i<debug.size(); i++) {
-                TEXT_RENDERING(debug[i])->show = false;
             }
         }
 
@@ -225,22 +221,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
     void onPreExit(Scene::Enum) override {}
     bool updatePreExit(Scene::Enum, float) override {return true;}
     void onExit(Scene::Enum) override {
-        for (auto wall: walls) {
-            RENDERING(wall)-> show = false;
-        }
-        for (auto s: yEnnemies) {
-            RENDERING(s)-> show = false;
-        }
-        for (auto p: players) {
-            RENDERING(p)->show =false;
-        }
-        for (auto o: objs) {
-            RENDERING(o)->show = false;
-        }
-        for (auto s: bEnnemies) {
-            RENDERING(s)->show = false;
-        }
-        RENDERING(background)->show = false;
+
     }
 };
 
