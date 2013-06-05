@@ -108,14 +108,11 @@ void PrototypeGame::init(const uint8_t*, int) {
 #if SAC_INGAME_EDITORS
     PrototypeDebugConsole::init(this);
 #endif
-    
+
     grid.doForEachCell([this] (const GridPos& p) -> void {
         Entity e = theEntityManager.CreateEntity("gridcell",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
-    
         TRANSFORM(e)->position = this->grid.gridPosToPosition(p);
-        if (glm::abs(p.q + p.r) % 2)
-            RENDERING(e)->color.a = 0.3;
         grid.addEntityAt(e, p);
     });
 

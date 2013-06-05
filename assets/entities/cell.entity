@@ -10,7 +10,7 @@ z = 0.9
 #~ EffectRef
 #effectRef
 #~ Color
-color = 1, 1, 1, 0.8
+color = 0.3, 0.3, 0.3, 0.3,0.5, 0.5, 0.5, 0.3
 #~ bool
 show = 0
 #~ bool
@@ -27,6 +27,6 @@ shape = 2
 
 [Grid]
 #~bool
-#blocks_vision = 
+#blocks_vision =
 #~bool
-#blocks_path = 
+#blocks_path =
