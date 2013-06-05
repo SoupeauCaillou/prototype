@@ -22,6 +22,7 @@
 #include "Scenes.h"
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
+#include "systems/ButtonSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
 struct SelectActionScene : public StateHandler<Scene::Enum> {
@@ -73,6 +74,9 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        if (BUTTON(game->activeCharacter)->clicked)
+            return Scene::SelectCharacter;
+
         return Scene::SelectAction;
     }
 

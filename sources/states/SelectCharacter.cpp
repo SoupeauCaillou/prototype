@@ -142,6 +142,8 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         game->grid.autoAssignEntitiesToCell(yEnnemies);
         game->grid.autoAssignEntitiesToCell(bEnnemies);
         game->grid.autoAssignEntitiesToCell(objs);
+
+        game->activeCharacter = 0;
     }
 
     ///----------------------------------------------------------------------------//
