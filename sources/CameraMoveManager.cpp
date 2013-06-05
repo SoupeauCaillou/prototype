@@ -13,7 +13,7 @@ CameraMoveManager* CameraMoveManager::Instance() {
 	return instance;
 }
 
-void CameraMoveManager::update(float dt, Entity camera) {
+bool CameraMoveManager::update(float dt, Entity camera) {
 	static glm::vec2 lastTouched = glm::vec2(0.f);
 	if (theTouchInputManager.isTouched(0) && theTouchInputManager.isTouched(1)) {
 		glm::vec2 position = theTouchInputManager.getTouchLastPosition();
@@ -27,8 +27,10 @@ void CameraMoveManager::update(float dt, Entity camera) {
 				lastTouched = position;
 			}
 		}
+        return true;
 	}
 	else {
 		lastTouched = glm::vec2(0.f);
+        return false;
 	}
 }

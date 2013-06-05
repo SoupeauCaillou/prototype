@@ -146,7 +146,9 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        theCameraMoveManager.update(dt, game->camera);
+        if (theCameraMoveManager.update(dt, game->camera))
+            return Scene::SelectCharacter;
+
         TransformationComponent *tc = TRANSFORM(game->camera);
 
         if (glm::abs(tc->position.x) + tc->size.x / 2.f > 20) {
@@ -190,23 +192,34 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
             LOGI("size = " << v[3].size());
             LOGI("size = " << v[4].size());
             std::stringstream a;
+            static std::vector<Entity> debug;
+            unsigned dbgIndex = 0;
             for (auto i: v) {
                 a.str("");
                 a << i.first;
                 LOGI("size = " << i.second.size());
                 for (auto b: i.second) {
-                    Entity e = theEntityManager.CreateEntity("t");
-                    ADD_COMPONENT(e, Transformation);
-                    TRANSFORM(e)->position = game->grid.gridPosToPosition(b);
-                    TRANSFORM(e)->size = glm::vec2(1.f);
-                    TRANSFORM(e)->z = 0.9;
-                    ADD_COMPONENT(e, TextRendering);
+                    Entity e;
+                    if (dbgIndex >= debug.size()) {
+                        e = theEntityManager.CreateEntity("t");
+                        ADD_COMPONENT(e, Transformation);
+                        TRANSFORM(e)->size = glm::vec2(1.f);
+                        TRANSFORM(e)->z = 0.9;
+                        ADD_COMPONENT(e, TextRendering);
+                        TEXT_RENDERING(e)->color = Color(1,0,0,1);
+                        debug.push_back(e);
+                    } else {
+                        e = debug[dbgIndex];
+                    }
                     TEXT_RENDERING(e)->text = a.str();
-                    TEXT_RENDERING(e)->color = Color(1,0,0,1);
                     TEXT_RENDERING(e)->show = true;
+                    TRANSFORM(e)->position = game->grid.gridPosToPosition(b);
+                    dbgIndex++;
                 }
             }
-
+            for (unsigned i=dbgIndex; i<debug.size(); i++) {
+                TEXT_RENDERING(debug[i])->show = false;
+            }
         }
 
         return Scene::SelectCharacter;

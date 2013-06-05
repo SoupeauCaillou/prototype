@@ -30,6 +30,6 @@ private:
 public:
     static CameraMoveManager* Instance();
 
-    void update(float dt, Entity camera);
+    bool update(float dt, Entity camera);
     /* data */
 };
