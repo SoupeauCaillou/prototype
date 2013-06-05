@@ -47,6 +47,7 @@
 #include "systems/CameraSystem.h"
 #include "systems/NetworkSystem.h"
 #include "systems/GraphSystem.h"
+#include "systems/SoldierSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -86,6 +87,8 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
     Game::sacInit(windowW, windowH);
+
+    SoldierSystem::CreateInstance();
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 

@@ -35,6 +35,7 @@ z = 0.1
 #p_lance =
 #~ int
 #defense_point =
+move_range = 4
 
 [Grid]
 #~bool

@@ -22,20 +22,21 @@
 #include "systems/System.h"
 
 struct SoldierComponent {
-    SoldierComponent() {
+    SoldierComponent() :moveRange(4), visionRange(10), attackRange(5), attackDamage(1), pLance(0), defensePoint(0) {
     }
 
+    int moveRange;
     int visionRange;
 	int attackRange;
 	int attackDamage;
 	int pLance;
 	int defensePoint;
-	
+
 	enum Actions {
 		Move,
 		Attack,
 	};
-    
+
 };
 
 #define theSoldierSystem SoldierSystem::GetInstance()

@@ -23,6 +23,7 @@ INSTANCE_IMPL(SoldierSystem);
 
 SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier") {
 	SoldierComponent sc;
+    componentSerializer.add(new Property<int>("move_range", OFFSET(moveRange, sc), 0));
 	componentSerializer.add(new Property<int>("vision_range", OFFSET(visionRange, sc), 0));
 	componentSerializer.add(new Property<int>("attack_range", OFFSET(attackRange, sc), 0));
 	componentSerializer.add(new Property<int>("attack_damage", OFFSET(attackDamage, sc), 0));
@@ -31,5 +32,5 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
 }
 
 void SoldierSystem::DoUpdate(float) {
-	
+
 }

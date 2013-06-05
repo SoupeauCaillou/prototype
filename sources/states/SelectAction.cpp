@@ -18,14 +18,18 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "base/StateMachine.h"
-
+#include "PrototypeGame.h"
 #include "Scenes.h"
+#include "systems/TransformationSystem.h"
+#include "systems/SoldierSystem.h"
+#include <glm/gtx/compatibility.hpp>
 
 struct SelectActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+    std::vector<Entity> moves;
 
     // Scene variables
-    
+
     SelectActionScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
@@ -41,12 +45,34 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onPreEnter(Scene::Enum) {}
     bool updatePreEnter(Scene::Enum, float) override {return true;}
-    void onEnter(Scene::Enum) override {}
+    void onEnter(Scene::Enum) override {
+        // mark all moveable tile
+        Entity active = game->activeCharacter;
+        GridPos pos = game->grid.positionToGridPos(TRANSFORM(active)->position);
+
+        const int maxRange = SOLDIER(active)->moveRange;
+        std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, maxRange);
+        Color green1(0,1,0, 0.5);
+        Color green2(0.2,0.4,0, 0.5);
+        for (auto i: v) {
+            if (i.first > 0) {
+                for (auto gridPos: i.second) {
+                    Entity e = theEntityManager.CreateEntity("gridcell",
+                    EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+                    TRANSFORM(e)->position = game->grid.gridPosToPosition(gridPos);
+                    float t = i.first / (float)maxRange;
+                    RENDERING(e)->color = green2 * t + green1 * (1 - t);
+                    RENDERING(e)->show = true;
+                    moves.push_back(e);
+                }
+            }
+        }
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { 
+    Scene::Enum update(float) override {
         return Scene::SelectAction;
     }
 
@@ -55,7 +81,11 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {}
     bool updatePreExit(Scene::Enum, float) override {return true;}
-    void onExit(Scene::Enum) override {}
+    void onExit(Scene::Enum) override {
+        for (auto e: moves) {
+            theEntityManager.DeleteEntity(e);
+        }
+    }
 };
 
 namespace Scene {
