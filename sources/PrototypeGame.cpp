@@ -55,7 +55,7 @@
 #define ZOOM 1
 
 
-PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
+PrototypeGame::PrototypeGame(int, char**) : Game(), grid(41, 25, 1.2) {
     nickname = "anonymous";
     serverIp = "127.0.0.1";
 
@@ -63,7 +63,9 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::Connecting, Scene::CreateConnectingSceneHandler(this), "Scene::Connecting");
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
-    sceneStateMachine.registerState(Scene::UserInput, Scene::CreateUserInputSceneHandler(this), "Scene::UserInput");
+    sceneStateMachine.registerState(Scene::SelectCharacter, Scene::CreateSelectCharacterSceneHandler(this), "Scene::SelectCharacter");
+    sceneStateMachine.registerState(Scene::SelectAction, Scene::CreateSelectActionSceneHandler(this), "Scene::SelectAction");
+    sceneStateMachine.registerState(Scene::ExecuteAction, Scene::CreateExecuteActionSceneHandler(this), "Scene::ExecuteAction");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -106,6 +108,16 @@ void PrototypeGame::init(const uint8_t*, int) {
 #if SAC_INGAME_EDITORS
     PrototypeDebugConsole::init(this);
 #endif
+    
+    grid.doForEachCell([this] (const GridPos& p) -> void {
+        Entity e = theEntityManager.CreateEntity("gridcell",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+    
+        TRANSFORM(e)->position = this->grid.gridPosToPosition(p);
+        if (glm::abs(p.q + p.r) % 2)
+            RENDERING(e)->color.a = 0.3;
+        grid.addEntityAt(e, p);
+    });
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");

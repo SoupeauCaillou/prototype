@@ -23,6 +23,8 @@
 #include "base/StateMachine.h"
 #include "states/Scenes.h"
 
+#include "util/SpatialGrid.h"
+
 #include "base/Game.h"
 #include "base/GameContext.h"
 
@@ -44,8 +46,12 @@ class PrototypeGame : public Game {
         bool willConsumeBackEvent();
 		void backPressed();
 
+	// Game datas
+	public:
         Entity camera;
         std::string serverIp, nickname;
+    	SpatialGrid grid;
+    	
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };
