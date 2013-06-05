@@ -41,7 +41,7 @@ move_range = 4
 #~bool
 #blocks_vision =
 #~bool
-#blocks_path =
+blocks_path = 1
 can_be_on_multiple_cells = 0
 
 [Button]
