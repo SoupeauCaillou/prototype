@@ -55,7 +55,7 @@
 #define ZOOM 1
 
 
-PrototypeGame::PrototypeGame(int, char**) : Game(), grid(41, 25, 1.2) {
+PrototypeGame::PrototypeGame(int, char**) : Game(), grid(39, 27, 1.1) {
     nickname = "anonymous";
     serverIp = "127.0.0.1";
 
