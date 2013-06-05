@@ -131,6 +131,8 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                 RENDERING(e)->show = true;
             }
         });
+
+        game->grid.autoAssignEntitiesToCell(players);
     }
 
     ///----------------------------------------------------------------------------//
@@ -159,7 +161,17 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         }
 
         if (theTouchInputManager.isTouched(0)) {
-            
+            GridPos pos = game->grid.positionToGridPos(theTouchInputManager.getTouchLastPosition());
+            std::list<Entity>& l = game->grid.getEntitiesAt(pos);
+            game->activeCharacter = 0;
+            for (auto e: l) {
+                for (auto p : players) {
+                    if (e == p) {
+                        game->activeCharacter = e;
+                        return Scene::SelectAction;;
+                    }
+                }   
+            }
         }
 
         return Scene::SelectCharacter;

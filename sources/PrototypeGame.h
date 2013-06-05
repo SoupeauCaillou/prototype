@@ -51,7 +51,8 @@ class PrototypeGame : public Game {
         Entity camera;
         std::string serverIp, nickname;
     	SpatialGrid grid;
-    	
+    	Entity activeCharacter;
+
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

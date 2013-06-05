@@ -23,8 +23,7 @@ void CameraMoveManager::update(float dt, Entity camera) {
 		else {
 			if (position != lastTouched) {
 				glm::vec2 dir = position - lastTouched;
-				dir = glm::normalize(dir);
-				TRANSFORM(camera)->position += dir * dt;
+				TRANSFORM(camera)->position += dir/2.f;
 				lastTouched = position;
 			}
 		}
