@@ -1,0 +1,26 @@
+[Transformation]
+#position = 0, 0
+size = 1.2, 1.2
+#rotation = 0
+z = 0.9
+
+[Rendering]
+#~ TextureRef
+#texture
+#~ EffectRef
+#effectRef
+#~ Color
+color = 0, 0, 0, 0.15
+#~ bool
+show = 0
+#~ bool
+#mirror_h
+#~ bool
+#z_pre_pass
+#~ bool
+#fast_culling
+#~ int
+#opaque_type
+#~ int
+#camera_bitmask
+shape = 2
