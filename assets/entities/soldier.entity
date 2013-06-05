@@ -42,3 +42,6 @@ z = 0.1
 #~bool
 #blocks_path =
 can_be_on_multiple_cells = 0
+
+[Button]
+enabled = 1

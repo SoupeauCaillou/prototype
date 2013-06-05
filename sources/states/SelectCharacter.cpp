@@ -31,6 +31,7 @@
 #include "systems/RenderingSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/ButtonSystem.h"
 
 #include <map>
 
@@ -169,17 +170,10 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                 tc->position.y = posy;
         }
 
-        if (theTouchInputManager.isTouched(0)) {
-            GridPos pos = game->grid.positionToGridPos(theTouchInputManager.getTouchLastPosition());
-            std::list<Entity>& l = game->grid.getEntitiesAt(pos);
-            game->activeCharacter = 0;
-            for (auto e: l) {
-                for (auto p : players) {
-                    if (e == p) {
-                        game->activeCharacter = e;
-                        return Scene::SelectAction;;
-                    }
-                }
+        for (auto p: players) {
+            if (BUTTON(p)->clicked) {
+                game->activeCharacter = p;
+                return Scene::SelectAction;;
             }
         }
 
