@@ -29,3 +29,4 @@ color = 1,1,1,1
 blocks_vision = 1
 #~bool
 blocks_path = 1
+can_be_on_multiple_cells = 1

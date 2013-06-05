@@ -38,6 +38,7 @@ z = 0.1
 
 [Grid]
 #~bool
-#blocks_vision = 
+#blocks_vision =
 #~bool
-#blocks_path = 
+#blocks_path =
+can_be_on_multiple_cells = 0
