@@ -10,7 +10,7 @@ z = 0.01
 #~ EffectRef
 #effectRef
 #~ Color
-color=1,1,1,1
+color=0,0,0,1
 #~ bool
 #show
 #~ bool
