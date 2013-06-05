@@ -89,6 +89,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         for (auto e: moves) {
             theEntityManager.DeleteEntity(e);
         }
+        moves.clear();
     }
 };
 
