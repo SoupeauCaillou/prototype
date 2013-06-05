@@ -21,6 +21,11 @@
 
 #include "Scenes.h"
 
+#include "CameraMoveManager.h"
+#include "PrototypeGame.h"
+
+#include "util/SpatialGrid.h"
+
 #include "base/EntityManager.h"
 #include "util/SpatialGrid.h"
 #include "systems/RenderingSystem.h"
@@ -39,6 +44,7 @@ struct UserInputScene : public StateHandler<Scene::Enum> {
     std::list<Entity> objs;
     Entity background;
     SpatialGrid grid;
+
 
     UserInputScene(PrototypeGame* game) : StateHandler<Scene::Enum>(), grid(41, 25, GridSize) {
         this->game = game;
@@ -138,7 +144,28 @@ struct UserInputScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override { 
+        theCameraMoveManager.update(dt, game->camera);
+        TransformationComponent *tc = TRANSFORM(game->camera);
+
+        if (glm::abs(tc->position.x) + tc->size.x / 2.f > 20) {
+            
+            float posx = 20.f - tc->size.x/2.f;
+            if (tc->position.x < 0)
+                tc->position.x = - posx;
+            else
+                tc->position.x = posx;
+        }
+
+        if (glm::abs(tc->position.y) + tc->size.y / 2.f > 12.5) {
+            
+            float posy = 12.5f - tc->size.y/2.f;
+            if (tc->position.y < 0)
+                tc->position.y = - posy;
+            else
+                tc->position.y = posy;
+        }
+
         return Scene::UserInput;
     }
 
