@@ -26,15 +26,19 @@ namespace Scene {
       Menu,
       Connecting,
       SocialCenter,
-      UserInput,
+      SelectCharacter,
+      SelectAction,
+      ExecuteAction,
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \
-  StateHandler<Scene::Enum>* Create##name##SceneHandler(PrototypeGame* game);
+  StateHandler<Scene::Enum>* Create##name##SceneHandler(PrototypeGame* game)
 
-  DECLARE_SCENE_HANDLER_FACTORY(Logo)
-  DECLARE_SCENE_HANDLER_FACTORY(Menu)
-  DECLARE_SCENE_HANDLER_FACTORY(Connecting)
-  DECLARE_SCENE_HANDLER_FACTORY(SocialCenter)
-  DECLARE_SCENE_HANDLER_FACTORY(UserInput)
+  DECLARE_SCENE_HANDLER_FACTORY(Logo);
+  DECLARE_SCENE_HANDLER_FACTORY(Menu);
+  DECLARE_SCENE_HANDLER_FACTORY(Connecting);
+  DECLARE_SCENE_HANDLER_FACTORY(SocialCenter);
+  DECLARE_SCENE_HANDLER_FACTORY(SelectCharacter);
+  DECLARE_SCENE_HANDLER_FACTORY(SelectAction);
+  DECLARE_SCENE_HANDLER_FACTORY(ExecuteAction);
 }
