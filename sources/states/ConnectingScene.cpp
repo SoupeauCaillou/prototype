@@ -16,6 +16,8 @@
 	You should have received a copy of the GNU General Public License
 	along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
+#if SAC_NETWORK
+
 #include "base/StateMachine.h"
 
 #include "Scenes.h"
@@ -133,3 +135,4 @@ namespace Scene {
         return new ConnectingScene(game);
     }
 }
+#endif

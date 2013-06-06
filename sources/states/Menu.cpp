@@ -44,7 +44,10 @@
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity startSolo, startMulti, serverIp;
+    Entity startSolo;
+#if SAC_NETWORK
+    Entity startMulti, serverIp;
+#endif
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -53,10 +56,12 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void setup() {
         startSolo = theEntityManager.CreateEntity("startSolo",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("menu/startSolo"));
+#if SAC_NETWORK
         startMulti = theEntityManager.CreateEntity("startMulti",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("menu/startMulti"));
         serverIp = theEntityManager.CreateEntity("serverIp",
             EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("menu/serverIp"));
+#endif
     }
 
 
@@ -67,14 +72,18 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         TEXT_RENDERING(startSolo)->show =
+#if SAC_NETWORK
         TEXT_RENDERING(startMulti)->show =
         TEXT_RENDERING(serverIp)->show =
-        BUTTON(startSolo)->enabled =
         BUTTON(startMulti)->enabled =
-        RENDERING(startSolo)->show =
-        RENDERING(startMulti)->show = true;
+        RENDERING(startMulti)->show =
+#endif
+        BUTTON(startSolo)->enabled =
+        RENDERING(startSolo)->show = true;
 
+#if SAC_NETWORK
         game->gameThreadContext->keyboardInputHandlerAPI->askUserInput(game->serverIp, 15);
+#endif
     }
 
 
@@ -82,15 +91,19 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+#if SAC_NETWORK
         std::string input;
         game->gameThreadContext->keyboardInputHandlerAPI->done(input);
         std::stringstream s;
         s << "Server: " << input;
         TEXT_RENDERING(serverIp)->text = s.str();
+#endif
         if (BUTTON(startSolo)->clicked)
             return Scene::SelectCharacter;
+#if SAC_NETWORK
         if (BUTTON(startMulti)->clicked)
             return Scene::Connecting;
+#endif
         return Scene::Menu;
     }
 
@@ -99,16 +112,19 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onExit(Scene::Enum) override {
-        TEXT_RENDERING(startSolo)->show =
+#if SAC_NETWORK
         TEXT_RENDERING(startMulti)->show =
         TEXT_RENDERING(serverIp)->show =
-        BUTTON(startSolo)->enabled =
-        BUTTON(startMulti)->enabled =
-        RENDERING(startSolo)->show =
         RENDERING(startMulti)->show =
-        RENDERING(serverIp)->show = false;
-
+        RENDERING(serverIp)->show =
+        BUTTON(startMulti)->enabled =
+#endif
+        TEXT_RENDERING(startSolo)->show =
+        BUTTON(startSolo)->enabled =
+        RENDERING(startSolo)->show = false;
+#if SAC_NETWORK
         game->gameThreadContext->keyboardInputHandlerAPI->cancelUserInput();
+#endif
     }
 };
 

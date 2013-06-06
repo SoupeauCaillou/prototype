@@ -41,7 +41,9 @@ PrototypeGame::PrototypeGame(int, char**) : Game(), grid(39, 27, 1.1) {
 
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+#if SAC_NETWORK
     sceneStateMachine.registerState(Scene::Connecting, Scene::CreateConnectingSceneHandler(this), "Scene::Connecting");
+#endif
     sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
     sceneStateMachine.registerState(Scene::SelectCharacter, Scene::CreateSelectCharacterSceneHandler(this), "Scene::SelectCharacter");
     sceneStateMachine.registerState(Scene::SelectAction, Scene::CreateSelectActionSceneHandler(this), "Scene::SelectAction");
@@ -55,7 +57,9 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Communication:
         case ContextAPI::Storage:
         case ContextAPI::Sound:
+#if SAC_NETWORK
         case ContextAPI::Network:
+#endif
         case ContextAPI::KeyboardInputHandler:
             return true;
         default:
