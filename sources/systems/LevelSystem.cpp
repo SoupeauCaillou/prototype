@@ -41,6 +41,9 @@ void LevelSystem::SaveInFile(const std::string & filename, const std::list<Entit
     std::ofstream myfile (filename);
     LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
 
+    //spot number
+    myfile << "1\n";
+
     for (auto wall : list) {
         TransformationComponent * tc = TRANSFORM(wall);
 
@@ -54,6 +57,9 @@ void LevelSystem::SaveInFile(const std::string & filename, const std::list<Entit
 
 void LevelSystem::LoadFromFile(const std::string & filename) {
 #if SAC_EMSCRIPTEN
+    Entity e = theEntityManager.CreateEntity("spot",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
+
     for (auto pair : points) {
         Entity e = theEntityManager.CreateEntity("block",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
@@ -68,23 +74,33 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
     LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
     std::string line;
 
+    std::getline (myfile, line);
+    std::istringstream iss(line);
+    int spotCount = 0;
+    iss >> spotCount;
+    while (--spotCount >= 0) {
+        Entity e = theEntityManager.CreateEntity("spot",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
+        TRANSFORM(e)->position.x = TRANSFORM(e)->position.y = 4*spotCount;
+    }
+
     while (std::getline(myfile, line)) {
-        std::istringstream iss(line);
+        std::istringstream iss2(line);
 
         glm::vec2 firstPoint, secondPoint;
         std::string doubleFace;
 
-        iss >> firstPoint.x;
-        iss.ignore(1, ',');
-        iss >> firstPoint.y;
+        iss2 >> firstPoint.x;
+        iss2.ignore(1, ',');
+        iss2 >> firstPoint.y;
 
-        iss.ignore(1, '|');
+        iss2.ignore(1, '|');
 
-        iss >> secondPoint.x;
-        iss.ignore(1, ',');
-        iss >> secondPoint.y;
+        iss2 >> secondPoint.x;
+        iss2.ignore(1, ',');
+        iss2 >> secondPoint.y;
 
-        iss >> doubleFace;
+        iss2 >> doubleFace;
 
         Entity e = theEntityManager.CreateEntity("block",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));

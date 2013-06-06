@@ -27,6 +27,7 @@
 
 #include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
+#include "systems/SpotSystem.h"
 #include "systems/TransformationSystem.h"
 
 #include "PrototypeGame.h"
@@ -67,6 +68,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     Scene::Enum update(float dt) override {
         theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
+        theSpotSystem.Update(dt);
 
         //go back to leveleditor - right click
         if (theTouchInputManager.wasTouched(1)) {
@@ -80,8 +82,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
-        theBlockSystem.CleanEntities();
-
+        theSpotSystem.CleanEntities();
+        FOR_EACH_ENTITY(Spot, e)
+            theEntityManager.DeleteEntity(e);
+        }
         FOR_EACH_ENTITY(Block, e)
             theEntityManager.DeleteEntity(e);
         }

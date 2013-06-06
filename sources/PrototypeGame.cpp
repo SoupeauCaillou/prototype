@@ -31,6 +31,7 @@
 #include "api/NetworkAPI.h"
 
 #include "systems/BlockSystem.h"
+#include "systems/SpotSystem.h"
 #include "systems/LevelSystem.h"
 
 #include "systems/TransformationSystem.h"
@@ -82,6 +83,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     LevelSystem::CreateInstance();
     BlockSystem::CreateInstance();
+    SpotSystem::CreateInstance();
 
 
 #if SAC_DEBUG
