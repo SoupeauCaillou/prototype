@@ -17,37 +17,16 @@
 	along with Heriswap.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PrototypeGame.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/random.hpp>
-
-#include "base/TouchInputManager.h"
-#include "base/EntityManager.h"
-#include "base/TimeUtil.h"
 #include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
 #include "util/ScoreStorageProxy.h"
 
 #include "api/StorageAPI.h"
-#include "api/NetworkAPI.h"
 
 #include "systems/TransformationSystem.h"
-#include "systems/RenderingSystem.h"
-#include "systems/AnimationSystem.h"
-#include "systems/ButtonSystem.h"
-#include "systems/ADSRSystem.h"
-#include "systems/TextRenderingSystem.h"
-#include "systems/SoundSystem.h"
-#include "systems/TaskAISystem.h"
-#include "systems/MusicSystem.h"
-#include "systems/ContainerSystem.h"
-#include "systems/ParticuleSystem.h"
-#include "systems/ScrollingSystem.h"
-#include "systems/MorphingSystem.h"
-#include "systems/CameraSystem.h"
-#include "systems/NetworkSystem.h"
-#include "systems/GraphSystem.h"
 #include "systems/SoldierSystem.h"
+#include "systems/ActionSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -89,6 +68,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     Game::sacInit(windowW, windowH);
 
     SoldierSystem::CreateInstance();
+    ActionSystem::CreateInstance();
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
