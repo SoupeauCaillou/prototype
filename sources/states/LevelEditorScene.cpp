@@ -83,10 +83,10 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
         } else {
             static float lastChange = 0.f;
             static Entity firstSelectionned = 0;
-            if (theTouchInputManager.wasTouched(1) && TimeUtil::GetTime() - lastChange > .4) {
+            if (theTouchInputManager.wasTouched(0) && TimeUtil::GetTime() - lastChange > .4) {
                 lastChange = TimeUtil::GetTime();
 
-                auto mousePosition = theTouchInputManager.getTouchLastPosition(1);
+                auto mousePosition = theTouchInputManager.getTouchLastPosition(0);
 
                 bool handled = false;
 

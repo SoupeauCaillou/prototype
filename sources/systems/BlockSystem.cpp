@@ -18,7 +18,7 @@
 
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
-static bool debugBlockSystem = true;
+static bool debugBlockSystem = !true;
 #else
 static bool debugBlockSystem = false;
 #endif
@@ -277,7 +277,6 @@ bool doesVec2ListContainValue(const std::vector<glm::vec2> & list, const glm::ve
 
 
 void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
-    for (auto point : points) LOGI(point);
     bool foundAnIntersection = false;
 
     do {
@@ -329,6 +328,8 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                                 endPoint2 = intersectionPoint;
 
                                 foundAnIntersection = true;
+    //yeah the following
+    //is a bit ugly :-)
                                 break;
                             }
                         }
@@ -336,12 +337,10 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                     if (foundAnIntersection) break;
                 }
                 if (foundAnIntersection) break;
-
             }
             if (foundAnIntersection) break;
         }
     } while (foundAnIntersection);
-    for (auto point : points) LOGI(point);
 }
 void BlockSystem::DoUpdate(float) {
     currentDrawPointIndice = 0;
