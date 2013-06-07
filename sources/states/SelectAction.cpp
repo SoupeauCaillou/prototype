@@ -20,6 +20,7 @@
 #include "base/StateMachine.h"
 #include "PrototypeGame.h"
 #include "Scenes.h"
+#include "CameraMoveManager.h"
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
 #include "systems/ButtonSystem.h"
@@ -78,7 +79,10 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
+        if (theCameraMoveManager.update(dt, game->camera))
+            return Scene::SelectAction;
+
         if (BUTTON(game->activeCharacter)->clicked)
             return Scene::SelectCharacter;
 

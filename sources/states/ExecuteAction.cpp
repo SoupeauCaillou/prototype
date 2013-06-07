@@ -22,6 +22,7 @@
 #include "Scenes.h"
 #include "systems/ActionSystem.h"
 #include "PrototypeGame.h"
+#include "CameraMoveManager.h"
 #include "systems/TransformationSystem.h"
 
 struct ExecuteActionScene : public StateHandler<Scene::Enum> {
@@ -51,6 +52,8 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        theCameraMoveManager.update(dt, game->camera);
+
         if (theActionSystem.getAllComponents().empty()) {
             return Scene::SelectCharacter;
         }

@@ -106,26 +106,6 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         if (theCameraMoveManager.update(dt, game->camera))
             return Scene::SelectCharacter;
 
-        TransformationComponent *tc = TRANSFORM(game->camera);
-
-        if (glm::abs(tc->position.x) + tc->size.x / 2.f > 20) {
-
-            float posx = 20.f - tc->size.x/2.f;
-            if (tc->position.x < 0)
-                tc->position.x = - posx;
-            else
-                tc->position.x = posx;
-        }
-
-        if (glm::abs(tc->position.y) + tc->size.y / 2.f > 12.5) {
-
-            float posy = 12.5f - tc->size.y/2.f;
-            if (tc->position.y < 0)
-                tc->position.y = - posy;
-            else
-                tc->position.y = posy;
-        }
-
         for (auto p: game->players) {
             if (BUTTON(p)->clicked) {
                 game->activeCharacter = p;
