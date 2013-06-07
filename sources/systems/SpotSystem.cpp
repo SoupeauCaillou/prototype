@@ -249,16 +249,12 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
     return nearestWall;
 }
 
-void insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & pointOfView, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
-
-    float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(firstPoint - pointOfView ));
-    float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(secondPoint - pointOfView ));
-
-    // le premier point c'est celui avec le plus grand angle (premier où la caméra passera)
-    auto pair = (firstAngle > secondAngle) ? std::make_pair( firstPoint, secondPoint ) : std::make_pair( secondPoint, firstPoint );
+void insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
+    auto pair = std::make_pair( firstPoint, secondPoint );
 
     //s'il n'est pas déjà présent, on l'insère dans la liste
-    if (std::find(walls.begin(), walls.end(), pair) == walls.end()) {
+    if (std::find(walls.begin(), walls.end(), pair) == walls.end()
+        && std::find(walls.begin(), walls.end(), std::make_pair( secondPoint, firstPoint)) == walls.end()) {
         walls.push_back(pair);
     }
 }
@@ -356,6 +352,59 @@ void SpotSystem::DoUpdate(float) {
         glm::vec2(-sx, -sy), // bottom left
     };
 
+    std::list<EnhancedPoint> points;
+
+    //Première étape : on ajoute les points des blocks
+    FOR_EACH_ENTITY(Block, block)
+        TransformationComponent * tc = TRANSFORM(block);
+
+        glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
+
+        glm::vec2 rectanglePoints[4] = {
+            tc->position - offset, //bottom left
+            // tc->position + glm::vec2(offset.x, -offset.y) / 2.f, //bottom right
+            tc->position + offset, //top right
+            // tc->position - glm::vec2(offset.x, -offset.y) / 2.f, //top left
+        };
+        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
+            theEntityManager.entityName(block) + "- first point"));
+        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
+            theEntityManager.entityName(block) + "- second point"));
+
+        // points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
+        //     theEntityManager.entityName(block) + "- top left"));
+        // points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3],
+        //     theEntityManager.entityName(block) + "- top right"));
+        // points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2],
+        //     theEntityManager.entityName(block) + "- bottom right"));
+        // points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
+        //     theEntityManager.entityName(block) + "- bottom left"));
+    }
+
+    // et les points des murs extérieurs
+    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left"));
+    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right"));
+    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right"));
+    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-sx, -10000.f), "wall bottom left"));
+
+    // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
+    splitIntersectionWalls(points);
+
+    //on garde la liste de tous les murs disponibles
+    std::list<std::pair<glm::vec2, glm::vec2>> walls;
+    for (auto point : points) {
+        for (auto next : point.nextEdges) {
+            insertInWallsIfNotPresent(walls, point.position, next);
+        }
+    }
+    //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
+    insertInWallsIfNotPresent(walls, glm::vec2(-sx, -10000.f), externalWalls[0]);
+
+    auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
+    auto wallBotLeft = std::find(walls.begin(), walls.end(), std::make_pair(externalWalls[3], glm::vec2(-sx, -10000.f)));
+    auto wallTopLeft = std::find(walls.begin(), walls.end(), std::make_pair(glm::vec2(-sx, -10000.f), externalWalls[0]));
+    LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
+        "Can't find left wall?" << (wallBotLeft == walls.end() ? "bottom one" : "") << " && " <<  (wallTopLeft == walls.end() ? "top one" : ""));
 
     glm::vec2 mousePosition = theTouchInputManager.getTouchLastPosition(0);
     bool isTouched = theTouchInputManager.isTouched(0);
@@ -389,43 +438,9 @@ void SpotSystem::DoUpdate(float) {
 
         LOGI_IF(debugSpotSystem, "pointOfView: " << pointOfView);
         drawPoint(pointOfView, "pointOfView", Color(1., .8, 0));
-        std::list<EnhancedPoint> points;
 
-        //Première étape : on ajoute les points des blocks
-        FOR_EACH_ENTITY(Block, block)
-            TransformationComponent * tc = TRANSFORM(block);
-
-            glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
-
-            glm::vec2 rectanglePoints[4] = {
-                tc->position - offset, //bottom left
-                // tc->position + glm::vec2(offset.x, -offset.y) / 2.f, //bottom right
-                tc->position + offset, //top right
-                // tc->position - glm::vec2(offset.x, -offset.y) / 2.f, //top left
-            };
-            points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
-                theEntityManager.entityName(block) + "- first point"));
-            points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
-                theEntityManager.entityName(block) + "- second point"));
-
-            // points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
-            //     theEntityManager.entityName(block) + "- top left"));
-            // points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3],
-            //     theEntityManager.entityName(block) + "- top right"));
-            // points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2],
-            //     theEntityManager.entityName(block) + "- bottom right"));
-            // points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
-            //     theEntityManager.entityName(block) + "- bottom left"));
-        }
-
-        // et les points des murs extérieurs
-        points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left"));
-        points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right"));
-        points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right"));
-        points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-sx, pointOfView.y), "wall bottom left"));
-
-        // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
-        splitIntersectionWalls(points);
+        //on change les 3 points qui dépendent de la caméra
+        wallTopLeft->first.y = wallBotLeft->second.y = bottomLeft->nextEdges[0].y = pointOfView.y;
 
         // on trie les points par angle, en sens horaire (min = max = (-1, 0))
         points.sort([pointOfView] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
@@ -434,17 +449,25 @@ void SpotSystem::DoUpdate(float) {
             float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep2.position - pointOfView));
             return (firstAngle > secondAngle);
         });
+        //on trie aussi les murs pour que le premier point rencontré soit celui avec le plus grand angle
+        for (auto & wall : walls) {
+            float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(wall.first - pointOfView));
+            float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(wall.second - pointOfView));
+
+            if (secondAngle > firstAngle) {
+                auto tmp = wall.first;
+                wall.first = wall.second;
+                wall.second = tmp;
+            }
+        }
+        //le dernier mur est un peu particulier : pour lui, on inverse les 2 valeurs pour qu'on ait bien une boucle
+        auto tmp = wallBotLeft->first;
+        wallBotLeft->first = wallBotLeft->second;
+        wallBotLeft->second = tmp;
 
         //on s'assure que le 1er point qui sera parcouru est le "wall middle left"
         points.push_front(EnhancedPoint( glm::vec2(-sx, pointOfView.y), externalWalls[0], "wall middle left (first point)"));
 
-        //on garde la liste de tous les murs disponibles, le 1er point est le premier point que la caméra rencontrera
-        std::list<std::pair<glm::vec2, glm::vec2>> walls;
-        for (auto point : points) {
-            for (auto next : point.nextEdges) {
-                insertInWallsIfNotPresent(walls, pointOfView, point.position, next);
-            }
-        }
         // on trie les murs par distance à la caméra, du plus proche au plus lointain
         walls.sort([pointOfView] (std::pair<glm::vec2, glm::vec2> & w1, std::pair<glm::vec2, glm::vec2> & w2) {
             float firstDist = distancePointToSegment(w1.first, w1.second, pointOfView);
@@ -467,9 +490,8 @@ void SpotSystem::DoUpdate(float) {
         w = 0;
         LOGI_IF(debugSpotSystem, "Points are: ");
         for (auto point : points) {
-            LOGI_IF(debugSpotSystem, "\t" << ++w << ". " << point.name
-                << " (angle=" << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position - pointOfView))
-                << ", position = " << point.position <<  ")");
+            LOGI_IF(debugSpotSystem, "\t" << ++w << ". " << point
+                << " (angle=" << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position - pointOfView)) << " )");
           }
 
         // le point de départ de l'éclairage
@@ -492,11 +514,9 @@ void SpotSystem::DoUpdate(float) {
         for (auto pointIt = ++points.begin(); pointIt != points.end(); ++pointIt) {
             auto point = *pointIt;
 
-  #if SAC_DEBUG
+#if SAC_DEBUG
             drawPoint(point.position, point.name);
-    #endif
-
-
+#endif
 
             // on cherche le mur actif (c'est à dire le mur le plus proche qui contient le startPoint ET le point actuel)
             activeWall = getActiveWall(walls, pointOfView, startPoint, point.position);
@@ -579,6 +599,9 @@ void SpotSystem::DoUpdate(float) {
         getProjection(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint);
 
         sc->highlightedEdges.push_back(std::make_pair(startPoint, endPoint));
+
+        //finalement, on supprime le premien point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
+        points.pop_front();
     }
 
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)

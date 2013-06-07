@@ -25,6 +25,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
+#include "systems/SpotSystem.h"
 
 #include "util/IntersectionUtil.h"
 #include "util/drawVector.h"
@@ -34,6 +35,7 @@
 #include "PrototypeGame.h"
 #include <fstream>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/norm.hpp>
 
 
 struct LevelEditorScene : public StateHandler<Scene::Enum> {
@@ -41,7 +43,8 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
 
     Entity saveButton, goTryLevelButton;
 
-    std::list<Entity> drawVectorList;
+    std::list<Entity> wallList;
+    std::list<Entity> spotList;
 
     LevelEditorScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -75,7 +78,7 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         if (BUTTON(saveButton)->clicked || BUTTON(goTryLevelButton)->clicked) {
-            theLevelSystem.SaveInFile("/tmp/level_editor.map", drawVectorList);
+            theLevelSystem.SaveInFile("/tmp/level_editor.map", wallList, spotList);
 
             if (BUTTON(goTryLevelButton)->clicked) {
                 return Scene::Menu;
@@ -90,13 +93,51 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
 
                 bool handled = false;
 
-                FOR_EACH_ENTITY(Block, e)
+                FOR_EACH_ENTITY(Spot, e)
+                    //if we clicked a spot, cancel the thing
                     if (IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
                         if (firstSelectionned) {
-                            if (firstSelectionned != e) {
-                                drawVectorList.push_back(drawVector(TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position));
-                            }
                             RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
+                        }
+                        firstSelectionned = 0;
+
+                        handled = true;
+                        break;
+                    }
+                }
+
+
+                FOR_EACH_ENTITY(Block, e)
+                    //if we clicked a block
+                    if (IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
+                        //if we already had a block selectionned earlier
+                        if (firstSelectionned) {
+                            //and the second block is not the first one, then create a wall
+                            if (firstSelectionned != e) {
+                                wallList.push_back(drawVector(TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position));
+                                RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
+                            //else the block is a spot;
+                            } else {
+                                Entity spot = theEntityManager.CreateEntity("spot",
+                                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
+                                TRANSFORM(spot)->position = TRANSFORM(e)->position;
+                                spotList.push_back(spot);
+
+                                //if there were previously wall(s) for this block, delete it(them)
+                                for (auto wallIt = wallList.begin(); wallIt != wallList.end(); ++wallIt) {
+                                    auto tc = TRANSFORM(*wallIt);
+                                    glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
+
+                                    if (glm::length2(tc->position + offset - TRANSFORM(spot)->position) < 0.1f
+                                        || glm::length2(tc->position - offset - TRANSFORM(spot)->position) < 0.1f) {
+                                        theEntityManager.DeleteEntity(*wallIt);
+                                        wallIt = wallList.erase(wallIt);
+                                    }
+
+                                }
+                                //remove the block since we replaced it with a spot
+                                theEntityManager.DeleteEntity(e);
+                            }
                             firstSelectionned = 0;
                         } else {
                             firstSelectionned = e;
@@ -126,9 +167,14 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
             theEntityManager.DeleteEntity(e);
         }
 
-        while (drawVectorList.begin() != drawVectorList.end()) {
-            theEntityManager.DeleteEntity(*drawVectorList.begin());
-            drawVectorList.pop_front();
+        while (wallList.begin() != wallList.end()) {
+            theEntityManager.DeleteEntity(*wallList.begin());
+            wallList.pop_front();
+        }
+
+        while (spotList.begin() != spotList.end()) {
+            theEntityManager.DeleteEntity(*spotList.begin());
+            spotList.pop_front();
         }
     }
 

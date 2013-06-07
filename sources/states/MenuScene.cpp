@@ -70,8 +70,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         theBlockSystem.Update(dt);
         theSpotSystem.Update(dt);
 
-        //go back to leveleditor - right click
-        if (theTouchInputManager.wasTouched(1)) {
+        //go back to leveleditor - right click or no spot
+        if (theSpotSystem.getAllComponents().size() == 0 || theTouchInputManager.wasTouched(1)) {
             return Scene::LevelEditor;
         }
         return Scene::Menu;
