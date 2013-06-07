@@ -20,9 +20,6 @@
 #include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
-#include "util/ScoreStorageProxy.h"
-
-#include "api/StorageAPI.h"
 
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
@@ -55,7 +52,6 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Asset:
         case ContextAPI::Localize:
         case ContextAPI::Communication:
-        case ContextAPI::Storage:
         case ContextAPI::Sound:
 #if SAC_NETWORK
         case ContextAPI::Network:
@@ -75,10 +71,6 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     ActionSystem::CreateInstance();
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
-
-    gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
-    ScoreStorageProxy ssp;
-    gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
     LOGI("SAC engine initialisation done.");
 }
