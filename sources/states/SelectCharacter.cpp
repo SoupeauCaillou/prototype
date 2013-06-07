@@ -41,15 +41,6 @@
 struct SelectCharacterScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
-    // Scene variables
-    std::list<Entity> walls;
-    std::list<Entity> yEnnemies;
-    std::list<Entity> bEnnemies;
-    std::list<Entity> players;
-    std::list<Entity> objs;
-    Entity background;
-
-
     SelectCharacterScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
@@ -59,58 +50,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
     // Setup internal var, states, ...
     void setup() override {
-        std::stringstream a;
-        for (int i=1; i<27; ++i) {
-            a.str("");
-            a << "wall_" << i;
-            Entity wall = theEntityManager.CreateEntity(a.str(),
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
-            walls.push_back(wall);
-        }
 
-        for (int i=1; i<10; ++i) {
-            a.str("");
-            a << "yellowSoldier_" << i;
-            Entity s = theEntityManager.CreateEntity(a.str(),
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
-            yEnnemies.push_back(s);
-        }
-
-        for (int i=1; i<3; ++i) {
-            a.str("");
-            a << "blueSoldier_" << i;
-            Entity s = theEntityManager.CreateEntity(a.str(),
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
-            bEnnemies.push_back(s);
-        }
-
-
-        for (int i=1; i<3; ++i) {
-            a.str("");
-            a << "objective_" << i;
-            Entity s = theEntityManager.CreateEntity(a.str(),
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
-            objs.push_back(s);
-        }
-
-        players.push_back(theEntityManager.CreateEntity("playerb",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playerb")));
-        players.push_back(theEntityManager.CreateEntity("playerg",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playerg")));
-        players.push_back(theEntityManager.CreateEntity("playerr",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playerr")));
-        players.push_back(theEntityManager.CreateEntity("playery",
-                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playery")));
-
-        background = theEntityManager.CreateEntity("background",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("background"));
-
-        // static entities
-        game->grid.autoAssignEntitiesToCell(walls);
-        game->grid.autoAssignEntitiesToCell(objs);
-
-        game->visibilityManager.toggleVisibility(false);
-        game->visibilityManager.init(game->grid);
     }
 
     ///----------------------------------------------------------------------------//
@@ -120,29 +60,29 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
     bool updatePreEnter(Scene::Enum, float) override {return true;}
     void onEnter(Scene::Enum) override {
-        for (auto wall: walls) {
+        for (auto wall: game->walls) {
             RENDERING(wall)-> show = true;
         }
-        for (auto s: yEnnemies) {
+        for (auto s: game->yEnnemies) {
             RENDERING(s)-> show = true;
         }
-        for (auto p: players) {
-            RENDERING(p)->show = true;
 
-            game->visibilityManager.toggleVisibility(true);
+        game->visibilityManager.reset();
+        for (auto p: game->players) {
+            RENDERING(p)->show = true;
 
             game->visibilityManager.updateVisibility(
                 game->grid,
                 game->grid.positionToGridPos(TRANSFORM(p)->position),
                 6);
         }
-        for (auto o: objs) {
+        for (auto o: game->objs) {
             RENDERING(o)->show = true;
         }
-        for (auto s: bEnnemies) {
+        for (auto s: game->bEnnemies) {
             RENDERING(s)->show = true;
         }
-        RENDERING(background)->show = true;
+        RENDERING(game->background)->show = true;
 
         // quick test
         game->grid.doForEachCell([this] (const GridPos& p) -> void {
@@ -152,9 +92,9 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
             }
         });
 
-        game->grid.autoAssignEntitiesToCell(players);
-        game->grid.autoAssignEntitiesToCell(yEnnemies);
-        game->grid.autoAssignEntitiesToCell(bEnnemies);
+        game->grid.autoAssignEntitiesToCell(game->players);
+        game->grid.autoAssignEntitiesToCell(game->yEnnemies);
+        game->grid.autoAssignEntitiesToCell(game->bEnnemies);
 
         game->activeCharacter = 0;
     }
@@ -186,7 +126,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                 tc->position.y = posy;
         }
 
-        for (auto p: players) {
+        for (auto p: game->players) {
             if (BUTTON(p)->clicked) {
                 game->activeCharacter = p;
                 return Scene::SelectAction;;

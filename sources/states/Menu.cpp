@@ -112,6 +112,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onExit(Scene::Enum) override {
+        game->visibilityManager.toggleVisibility(true);
+
 #if SAC_NETWORK
         TEXT_RENDERING(startMulti)->show =
         TEXT_RENDERING(serverIp)->show =

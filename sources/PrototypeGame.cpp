@@ -104,6 +104,59 @@ void PrototypeGame::init(const uint8_t*, int) {
     });
 
     quickInit();
+
+std::stringstream a;
+        for (int i=1; i<27; ++i) {
+            a.str("");
+            a << "wall_" << i;
+            Entity wall = theEntityManager.CreateEntity(a.str(),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
+            walls.push_back(wall);
+        }
+
+        for (int i=1; i<10; ++i) {
+            a.str("");
+            a << "yellowSoldier_" << i;
+            Entity s = theEntityManager.CreateEntity(a.str(),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
+            yEnnemies.push_back(s);
+        }
+
+        for (int i=1; i<3; ++i) {
+            a.str("");
+            a << "blueSoldier_" << i;
+            Entity s = theEntityManager.CreateEntity(a.str(),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
+            bEnnemies.push_back(s);
+        }
+
+
+        for (int i=1; i<3; ++i) {
+            a.str("");
+            a << "objective_" << i;
+            Entity s = theEntityManager.CreateEntity(a.str(),
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load(a.str()));
+            objs.push_back(s);
+        }
+
+        players.push_back(theEntityManager.CreateEntity("playerb",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playerb")));
+        players.push_back(theEntityManager.CreateEntity("playerg",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playerg")));
+        players.push_back(theEntityManager.CreateEntity("playerr",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playerr")));
+        players.push_back(theEntityManager.CreateEntity("playery",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("playery")));
+
+        background = theEntityManager.CreateEntity("background",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("background"));
+
+        // static entities
+        grid.autoAssignEntitiesToCell(walls);
+        grid.autoAssignEntitiesToCell(objs);
+
+        visibilityManager.toggleVisibility(false);
+        visibilityManager.init(grid);
     LOGI("PrototypeGame initialisation done.");
 }
 

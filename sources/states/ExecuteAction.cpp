@@ -21,6 +21,8 @@
 
 #include "Scenes.h"
 #include "systems/ActionSystem.h"
+#include "PrototypeGame.h"
+#include "systems/TransformationSystem.h"
 
 struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -53,7 +55,15 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
             return Scene::SelectCharacter;
         }
 
+        game->visibilityManager.reset();
+        for (auto p: game->players) {
+            game->visibilityManager.updateVisibility(
+                game->grid,
+                game->grid.positionToGridPos(TRANSFORM(p)->position),
+                6);
+        }
         theActionSystem.Update(dt);
+
         return Scene::ExecuteAction;
     }
 
