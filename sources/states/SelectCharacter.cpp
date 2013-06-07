@@ -104,12 +104,20 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
         background = theEntityManager.CreateEntity("background",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("background"));
+
+        // static entities
+        game->grid.autoAssignEntitiesToCell(walls);
+        game->grid.autoAssignEntitiesToCell(objs);
+
+        game->visibilityManager.toggleVisibility(false);
+        game->visibilityManager.init(game->grid);
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreEnter(Scene::Enum) {}
+    void onPreEnter(Scene::Enum) { }
+
     bool updatePreEnter(Scene::Enum, float) override {return true;}
     void onEnter(Scene::Enum) override {
         for (auto wall: walls) {
@@ -120,6 +128,13 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         }
         for (auto p: players) {
             RENDERING(p)->show = true;
+
+            game->visibilityManager.toggleVisibility(true);
+
+            game->visibilityManager.updateVisibility(
+                game->grid,
+                game->grid.positionToGridPos(TRANSFORM(p)->position),
+                6);
         }
         for (auto o: objs) {
             RENDERING(o)->show = true;
@@ -138,10 +153,8 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         });
 
         game->grid.autoAssignEntitiesToCell(players);
-        game->grid.autoAssignEntitiesToCell(walls);
         game->grid.autoAssignEntitiesToCell(yEnnemies);
         game->grid.autoAssignEntitiesToCell(bEnnemies);
-        game->grid.autoAssignEntitiesToCell(objs);
 
         game->activeCharacter = 0;
     }
@@ -182,20 +195,14 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
         static float debugAcc = 0;
         debugAcc += dt;
-        if (theTouchInputManager.isTouched(1) && debugAcc > 1) {
+        if (0 && theTouchInputManager.isTouched(1) && debugAcc > 1) {
             debugAcc = 0;
             GridPos pos = game->grid.positionToGridPos(theTouchInputManager.getTouchLastPosition());
             std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, 4);
-            LOGI("size = " << v[0].size());
-            LOGI("size = " << v[1].size());
-            LOGI("size = " << v[2].size());
-            LOGI("size = " << v[3].size());
-            LOGI("size = " << v[4].size());
             std::stringstream a;
             for (auto i: v) {
                 a.str("");
                 a << i.first;
-                LOGI("size = " << i.second.size());
                 for (auto b: i.second) {
                     Entity e = theEntityManager.CreateEntity("t");
                     ADD_COMPONENT(e, Transformation);
@@ -213,7 +220,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                 }
             }
             std::vector<GridPos> m = game->grid.ringFinder(pos, 6, false);
-            std::vector<GridPos> s = game->grid.viewRange(pos, 6); 
+            std::vector<GridPos> s = game->grid.viewRange(pos, 6);
 
             for (auto i: m) {
                 Entity e = theEntityManager.CreateEntity("i");
@@ -221,11 +228,11 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                 TRANSFORM(e)->position = game->grid.gridPosToPosition(i);
                 TRANSFORM(e)->size = glm::vec2(1.f);
                 TRANSFORM(e)->z = 0.9;
-                
+
                 ADD_COMPONENT(e, Rendering);
                 RENDERING(e)->color = Color(1,0,1,1);
                 RENDERING(e)->show = true;
-                
+
                 ADD_COMPONENT(e, AutoDestroy);
                 AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
                 AUTO_DESTROY(e)->params.lifetime.freq.value = 3;
@@ -235,13 +242,13 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                 ADD_COMPONENT(e, Transformation);
                 TRANSFORM(e)->position = game->grid.gridPosToPosition(i);
                 TRANSFORM(e)->size = glm::vec2(1.f);
-                TRANSFORM(e)->z = 1;
-                
+                TRANSFORM(e)->z = 0.99;
+
                 ADD_COMPONENT(e, Rendering);
                 RENDERING(e)->color = Color(0,1,0,1);
                 RENDERING(e)->show = true;
                 RENDERING(e)->shape = Shape::Hexagon;
-                
+
                 ADD_COMPONENT(e, AutoDestroy);
                 AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
                 AUTO_DESTROY(e)->params.lifetime.freq.value = 3;

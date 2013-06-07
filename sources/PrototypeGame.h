@@ -33,6 +33,8 @@
 #include "api/LocalizeAPI.h"
 #include "api/AdAPI.h"
 
+#include "VisibilityManager.h"
+
 class PrototypeGame : public Game {
 	public:
 		PrototypeGame(int argc, char** argv);
@@ -52,6 +54,7 @@ class PrototypeGame : public Game {
         std::string serverIp, nickname;
     	SpatialGrid grid;
     	Entity activeCharacter;
+        VisibilityManager visibilityManager;
 
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
