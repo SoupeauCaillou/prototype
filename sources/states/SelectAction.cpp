@@ -23,6 +23,8 @@
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/ActionSystem.h"
+#include "systems/RenderingSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
 struct SelectActionScene : public StateHandler<Scene::Enum> {
@@ -64,6 +66,9 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                     float t = i.first / (float)maxRange;
                     RENDERING(e)->color = green2 * t + green1 * (1 - t);
                     RENDERING(e)->show = true;
+                    ADD_COMPONENT(e, Button);
+                    BUTTON(e)->enabled = true;
+                    BUTTON(e)->overSize = 0.8;
                     moves.push_back(e);
                 }
             }
@@ -76,6 +81,36 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     Scene::Enum update(float) override {
         if (BUTTON(game->activeCharacter)->clicked)
             return Scene::SelectCharacter;
+
+        for (auto e: moves) {
+            if (BUTTON(e)->clicked) {
+                const GridPos from =
+                    game->grid.positionToGridPos(TRANSFORM(game->activeCharacter)->position);
+                const GridPos to =
+                    game->grid.positionToGridPos(TRANSFORM(e)->position);
+                std::vector<GridPos> steps = game->grid.findPath(from, to);
+                LOGF_IF(steps.empty(), "Could not find path: " << from << " -> " << to);
+
+                // Create Move action
+                Entity previousAction = 0;
+                for (const auto& gp : steps) {
+                    Entity action = theEntityManager.CreateEntity("move_action",
+                    EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+                    RENDERING(action)->color = Color(0.8, 0.7, 0, 0.5);
+                    RENDERING(action)->show = true;
+                    TRANSFORM(action)->position = game->grid.gridPosToPosition(gp);
+                    ADD_COMPONENT(action, Action);
+                    ACTION(action)->type = Action::MoveTo;
+                    ACTION(action)->entity = game->activeCharacter;
+                    ACTION(action)->moveToTarget = game->grid.gridPosToPosition(gp);
+                    LOGI("Move Target, " << ACTION(action)->moveToTarget);
+                    ACTION(action)->moveSpeed = 3;
+                    ACTION(action)->dependsOn = previousAction;
+                    previousAction = action;
+                }
+                return Scene::ExecuteAction;
+            }
+        }
 
         return Scene::SelectAction;
     }

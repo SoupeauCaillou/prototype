@@ -20,12 +20,13 @@
 #include "base/StateMachine.h"
 
 #include "Scenes.h"
+#include "systems/ActionSystem.h"
 
 struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
     // Scene variables
-    
+
 
     ExecuteActionScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -47,7 +48,12 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { 
+    Scene::Enum update(float dt) override {
+        if (theActionSystem.getAllComponents().empty()) {
+            return Scene::SelectCharacter;
+        }
+
+        theActionSystem.Update(dt);
         return Scene::ExecuteAction;
     }
 

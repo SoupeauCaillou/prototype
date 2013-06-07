@@ -24,60 +24,60 @@
 INSTANCE_IMPL(ActionSystem);
 
 ActionSystem::ActionSystem() : ComponentSystemImpl<ActionComponent>("Action") {
-	ActionComponent sc;
+    ActionComponent sc;
 }
 
 void ActionSystem::DoUpdate(float dt) {
-	std::vector<Entity> actionFinished;
-	std::vector<ActionComponent*> actionDependingOnAnother;
+    std::vector<Entity> actionFinished;
+    std::vector<ActionComponent*> actionDependingOnAnother;
 
-	for (auto& p: components) {
-		Entity entity = p.first;
-		ActionComponent* ac = p.second;
+    for (auto& p: components) {
+        Entity entity = p.first;
+        ActionComponent* ac = p.second;
 
-		if (ac->dependsOn <= 0) {
-			switch (ac->type) {
-				case Action::None: {
-					// mark action as finished
-					actionFinished.push_back(entity);
-					break;
-				}
-				case Action::MoveTo: {
-					glm::vec2 diff (TRANSFORM(ac->entity)->position - ac->moveToTarget);
-					float length = glm::length(diff);
-					if (length < 0.001 || length <= ac->moveSpeed * dt) {
-						// set final position
-						TRANSFORM(ac->entity)->position = ac->moveToTarget;
-						// mark action as finished
-						actionFinished.push_back(entity);
-					} else {
-						// move nearer to target
-						TRANSFORM(ac->entity)->position += diff * (ac->moveSpeed * dt) / length;
-						// rotate
-						TRANSFORM(ac->entity)->rotation = glm::atan2(diff.y, diff.x);
-					}
-					break;
-				}
-			}
-		} else {
-			actionDependingOnAnother.push_back(ac);
-		}
-	}
+        if (ac->dependsOn <= 0) {
+            switch (ac->type) {
+                case Action::None: {
+                    // mark action as finished
+                    actionFinished.push_back(entity);
+                    break;
+                }
+                case Action::MoveTo: {
+                    glm::vec2 diff (ac->moveToTarget - TRANSFORM(ac->entity)->position);
+                    float length = glm::length(diff);
+                    if (length < 0.001 || length <= ac->moveSpeed * dt) {
+                        // set final position
+                        TRANSFORM(ac->entity)->position = ac->moveToTarget;
+                        LOGI(TRANSFORM(ac->entity)->position);
+                        // mark action as finished
+                        actionFinished.push_back(entity);
+                    } else {
+                        // move nearer to target
+                        TRANSFORM(ac->entity)->position += diff * (ac->moveSpeed * dt) / length;
+                        // rotate
+                        TRANSFORM(ac->entity)->rotation = glm::atan2(diff.y, diff.x);
+                    }
+                    break;
+                }
+            }
+        } else {
+            actionDependingOnAnother.push_back(ac);
+        }
+    }
 
-	if (!actionFinished.empty()) {
-		if (!actionDependingOnAnother.empty()) {
-			for (auto eDone: actionFinished) {
-				for (auto aBlocked: actionDependingOnAnother) {
-					if (aBlocked->dependsOn == eDone) {
-						aBlocked->dependsOn = 0;
-						break;
-					}
-				}
-
-				theEntityManager.DeleteEntity(eDone);
-			}
-		}
-	}
+    if (!actionFinished.empty()) {
+        for (auto eDone: actionFinished) {
+            if (!actionDependingOnAnother.empty()) {
+                for (auto aBlocked: actionDependingOnAnother) {
+                    if (aBlocked->dependsOn == eDone) {
+                        aBlocked->dependsOn = 0;
+                        break;
+                    }
+                }
+            }
+            theEntityManager.DeleteEntity(eDone);
+        }
+    }
 
 
 }
