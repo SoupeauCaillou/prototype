@@ -77,7 +77,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
+#if SAC_DEBUG
+    sceneStateMachine.setup(Scene::Menu);
+#else
     sceneStateMachine.setup(Scene::Logo);
+#endif
     sceneStateMachine.reEnterCurrentState();
 
     // default camera
