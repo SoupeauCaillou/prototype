@@ -74,9 +74,9 @@ public:
     }
 
     void setup() {
-        logo = theEntityManager.CreateEntity("logo", EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("logo"));
-        logobg = theEntityManager.CreateEntity("logo_bg", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo_bg"));
-        logofade = theEntityManager.CreateEntity("logo_fade", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo_fade"));
+        logo = theEntityManager.CreateEntity("logo", EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("logo/logo"));
+        logobg = theEntityManager.CreateEntity("logo_bg", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo/logo_bg"));
+        logofade = theEntityManager.CreateEntity("logo_fade", EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("logo/logo_fade"));
         animLogo = theEntityManager.CreateEntity("logo_anim");
 
         //TRANSFORM(logo)->parent = game->camera;
@@ -89,7 +89,7 @@ public:
             * glm::vec2(1.0 / theRenderingSystem.getTextureSize("soupe_logo").x, 1.0 / theRenderingSystem.getTextureSize("soupe_logo").y);
         glm::vec2 offset = glm::vec2(-10 / 800.0, 83/869.0) * TRANSFORM(logo)->size;
         TRANSFORM(animLogo)->position = TRANSFORM(logo)->position + offset;
-        TRANSFORM(animLogo)->z = 0.95;
+        TRANSFORM(animLogo)->z = 0.99;
         // TRANSFORM(animLogo)->parent = game->camera;
         ADD_COMPONENT(animLogo, Rendering);
         RENDERING(animLogo)->texture = theRenderingSystem.loadTextureFile("soupe_logo2_365_331");
