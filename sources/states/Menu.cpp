@@ -111,7 +111,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onExit(Scene::Enum) override {
+
+    void onPreExit(Scene::Enum) override {
         game->visibilityManager.toggleVisibility(true);
 
 #if SAC_NETWORK
@@ -127,6 +128,19 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 #if SAC_NETWORK
         game->gameThreadContext->keyboardInputHandlerAPI->cancelUserInput();
 #endif
+    }
+
+    bool updatePreExit(Scene::Enum , float dt) override {
+        const glm::vec2 target(10, -5);
+        float speed = 5;
+        glm::vec2 diff = target - TRANSFORM(game->camera)->position;
+        if (glm::length(diff) <= speed * dt) {
+            TRANSFORM(game->camera)->position = target;
+            return true;
+        } else {
+            TRANSFORM(game->camera)->position += glm::normalize(diff) * (speed * dt);
+            return false;
+        }
     }
 };
 

@@ -56,10 +56,9 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreEnter(Scene::Enum) { }
 
     bool updatePreEnter(Scene::Enum, float) override {return true;}
-    void onEnter(Scene::Enum) override {
+    void onPreEnter(Scene::Enum) override {
         for (auto wall: game->walls) {
             RENDERING(wall)-> show = true;
         }
