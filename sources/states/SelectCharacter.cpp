@@ -28,11 +28,11 @@
 
 #include "base/EntityManager.h"
 #include "util/SpatialGrid.h"
+#include "systems/AutoDestroySystem.h"
+#include "systems/ButtonSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
-#include "systems/ButtonSystem.h"
-#include "systems/AutoDestroySystem.h"
 
 #include <map>
 
@@ -211,6 +211,40 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                     AUTO_DESTROY(e)->params.lifetime.freq.value = 3;
                     AUTO_DESTROY(e)->params.lifetime.map2AlphaTextRendering = true;
                 }
+            }
+            std::vector<GridPos> m = game->grid.ringFinder(pos, 6, false);
+            std::vector<GridPos> s = game->grid.viewRange(pos, 6); 
+
+            for (auto i: m) {
+                Entity e = theEntityManager.CreateEntity("i");
+                ADD_COMPONENT(e, Transformation);
+                TRANSFORM(e)->position = game->grid.gridPosToPosition(i);
+                TRANSFORM(e)->size = glm::vec2(1.f);
+                TRANSFORM(e)->z = 0.9;
+                
+                ADD_COMPONENT(e, Rendering);
+                RENDERING(e)->color = Color(1,0,1,1);
+                RENDERING(e)->show = true;
+                
+                ADD_COMPONENT(e, AutoDestroy);
+                AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
+                AUTO_DESTROY(e)->params.lifetime.freq.value = 3;
+            }
+            for (auto i: s) {
+                Entity e = theEntityManager.CreateEntity("i");
+                ADD_COMPONENT(e, Transformation);
+                TRANSFORM(e)->position = game->grid.gridPosToPosition(i);
+                TRANSFORM(e)->size = glm::vec2(1.f);
+                TRANSFORM(e)->z = 1;
+                
+                ADD_COMPONENT(e, Rendering);
+                RENDERING(e)->color = Color(0,1,0,1);
+                RENDERING(e)->show = true;
+                RENDERING(e)->shape = Shape::Hexagon;
+                
+                ADD_COMPONENT(e, AutoDestroy);
+                AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
+                AUTO_DESTROY(e)->params.lifetime.freq.value = 3;
             }
         }
 
