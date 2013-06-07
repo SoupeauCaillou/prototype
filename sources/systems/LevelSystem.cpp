@@ -25,7 +25,7 @@ void LevelSystem::DoUpdate(float) {
 }
 
 #if SAC_EMSCRIPTEN
-std::vector<std::pair<std::pair<glm::vec2, glm::vec2>, bool>> points;
+std::vector<std::pair<std::pair<glm::vec2, glm::vec2>, bool>> walls;
 std::vector<glm::vec2> spots;
 void LevelSystem::SaveInFile(const std::string &, const std::list<Entity> & wallList, const std::list<Entity> & spotList) {
     for (auto spot : spotList) {
@@ -36,7 +36,7 @@ void LevelSystem::SaveInFile(const std::string &, const std::list<Entity> & wall
         TransformationComponent * tc = TRANSFORM(wall);
 
         glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
-        points.push_back(std::make_pair(std::make_pair(tc->position - offset, tc->position + offset), false));
+        walls.push_back(std::make_pair(std::make_pair(tc->position - offset, tc->position + offset), false));
     }
 }
 
@@ -65,13 +65,13 @@ void LevelSystem::SaveInFile(const std::string & filename, const std::list<Entit
 
 void LevelSystem::LoadFromFile(const std::string & filename) {
 #if SAC_EMSCRIPTEN
-    for (int i = 0; i < spotList.size(); ++i) {
+    for (int i = 0; i < spots.size(); ++i) {
         Entity e = theEntityManager.CreateEntity("spot",
                 EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
-        TRANSFORM(e)->position = spotList[i];
+        TRANSFORM(e)->position = spots[i];
     }
 
-    for (auto pair : points) {
+    for (auto pair : walls) {
         Entity e = theEntityManager.CreateEntity("block",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
         TRANSFORM(e)->position = (pair.first.first + pair.first.second) / 2.f;
