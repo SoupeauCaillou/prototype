@@ -7,3 +7,12 @@ color = 0.9,0.9,0.9,1.0
 [Anchor]
 z = 0.98
 positionN%screen = 0, 0.5
+
+[Button]
+enabled = 1
+
+[TextRendering]
+color%html = 0x00FF00
+text = END-TURN
+font_name = typo
+char_height = 1.3

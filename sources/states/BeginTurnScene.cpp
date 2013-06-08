@@ -45,7 +45,9 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onPreEnter(Scene::Enum) {}
     bool updatePreEnter(Scene::Enum, float) override {return true;}
-    void onEnter(Scene::Enum) override {}
+    void onEnter(Scene::Enum) override {
+        TEXT_RENDERING(game->banner)->color = Color(0, 1, 0);
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//

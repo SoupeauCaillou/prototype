@@ -131,6 +131,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         if (to == Scene::BeginTurn) {
             RENDERING(game->banner)->show =
+            TEXT_RENDERING(game->banner)->show =
             TEXT_RENDERING(game->turn)->show =
             TEXT_RENDERING(game->points)->show =
                 true;

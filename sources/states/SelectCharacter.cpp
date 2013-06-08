@@ -27,6 +27,7 @@
 #include "util/SpatialGrid.h"
 
 #include "base/EntityManager.h"
+#include "systems/PlayerSystem.h"
 #include "util/SpatialGrid.h"
 #include "systems/AutoDestroySystem.h"
 #include "systems/ButtonSystem.h"
@@ -96,6 +97,9 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
         game->grid.autoAssignEntitiesToCell(game->bEnnemies);
 
         game->activeCharacter = 0;
+
+        if (PLAYER(game->humanPlayer)->actionPointsLeft == 0)
+            TEXT_RENDERING(game->banner)->color = Color(1, 0, 0);
     }
 
     ///----------------------------------------------------------------------------//
@@ -104,6 +108,9 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
     Scene::Enum update(float dt) override {
         if (theCameraMoveManager.update(dt, game->camera))
             return Scene::SelectCharacter;
+
+        if (BUTTON(game->banner)->clicked)
+            return Scene::EndTurn;
 
         for (auto p: game->players) {
             if (BUTTON(p)->clicked) {
