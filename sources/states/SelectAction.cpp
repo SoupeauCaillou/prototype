@@ -30,7 +30,7 @@
 
 struct SelectActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    std::vector<Entity> moves;
+    std::vector<Entity> moves, attacks;
 
     // Scene variables
 
@@ -52,7 +52,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         // mark all moveable tile
         Entity active = game->activeCharacter;
-        GridPos pos = game->grid.positionToGridPos(TRANSFORM(active)->position);
+        const GridPos pos = game->grid.positionToGridPos(TRANSFORM(active)->position);
 
         const int maxRange = SOLDIER(active)->moveRange;
         std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, maxRange);
@@ -61,7 +61,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         for (auto i: v) {
             if (i.first > 0) {
                 for (auto gridPos: i.second) {
-                    Entity e = theEntityManager.CreateEntity("gridcell",
+                    Entity e = theEntityManager.CreateEntity("potential_move",
                     EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
                     TRANSFORM(e)->position = game->grid.gridPosToPosition(gridPos);
                     float t = i.first / (float)maxRange;
@@ -71,6 +71,22 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                     BUTTON(e)->enabled = true;
                     BUTTON(e)->overSize = 0.8;
                     moves.push_back(e);
+                }
+            }
+        }
+
+        // mark attack possibilities
+        unsigned atkRange = SOLDIER(game->activeCharacter)->attackRange;
+        for (auto enemy: game->yEnnemies) {
+            const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
+            if (SpatialGrid::ComputeDistance(pos, enemyPos) <= atkRange) {
+                if (game->grid.canDrawLine(pos, enemyPos)) {
+                    Entity e = theEntityManager.CreateEntity("potential_atk",
+                    EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+                    TRANSFORM(e)->position = TRANSFORM(enemy)->position;
+                    RENDERING(e)->color = Color(0.6, 0.1, 0.1);
+                    RENDERING(e)->show = true;
+                    attacks.push_back(e);
                 }
             }
         }
@@ -135,7 +151,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                 const GridPos& myPos = game->grid.positionToGridPos(TRANSFORM(game->activeCharacter)->position);
                 const GridPos& enemyPos = game->grid.positionToGridPos(TRANSFORM(e)->position);
 
-                if (SpatialGrid::ComputeDistance(myPos, enemyPos) <= SOLDIER(game->activeCharacter)->attackRange) {
+                if (game->grid.canDrawLine(myPos, enemyPos)) {
                     Entity action = theEntityManager.CreateEntity("atk_action",
                     EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
                     RENDERING(action)->color = Color(0.8, 0.2, 0.2, 0.5);
@@ -158,6 +174,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                         p2
                     };
                     theRenderingSystem.defineDynamicVertices(0, points);
+                    return Scene::ExecuteAction;
                 }
             }
         }
@@ -175,6 +192,10 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
             theEntityManager.DeleteEntity(e);
         }
         moves.clear();
+        for (auto a: attacks) {
+            theEntityManager.DeleteEntity(a);
+        }
+        attacks.clear();
     }
 };
 

@@ -59,6 +59,16 @@ void ActionSystem::DoUpdate(float dt) {
                     }
                     break;
                 }
+                case Action::Attack: {
+                    static float accum = 0;
+                    accum += dt;
+                    if (accum >= 1) {
+                        accum = 0;
+                        // mark action as finished
+                        actionFinished.push_back(entity);
+                    }
+                    break;
+                }
             }
         } else {
             actionDependingOnAnother.push_back(ac);
