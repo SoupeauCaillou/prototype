@@ -83,8 +83,17 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         if (theCameraMoveManager.update(dt, game->camera))
             return Scene::SelectAction;
 
-        if (BUTTON(game->activeCharacter)->clicked)
-            return Scene::SelectCharacter;
+        for (auto p: game->players) {
+            if (BUTTON(p)->clicked) {
+                if (game->activeCharacter == p) {
+                    return Scene::SelectCharacter;
+                } else {
+                    game->activeCharacter = p;
+                    onExit(Scene::SelectCharacter);
+                    onEnter(Scene::SelectCharacter);
+                }
+            }
+        }
 
         for (auto e: moves) {
             if (BUTTON(e)->clicked) {
