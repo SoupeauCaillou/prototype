@@ -25,6 +25,7 @@
 #include "systems/SoldierSystem.h"
 #include "systems/ActionSystem.h"
 #include "systems/AnchorSystem.h"
+#include "systems/PlayerSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -46,6 +47,8 @@ PrototypeGame::PrototypeGame(int, char**) : Game(), grid(39, 27, 1.1) {
     sceneStateMachine.registerState(Scene::SelectCharacter, Scene::CreateSelectCharacterSceneHandler(this), "Scene::SelectCharacter");
     sceneStateMachine.registerState(Scene::SelectAction, Scene::CreateSelectActionSceneHandler(this), "Scene::SelectAction");
     sceneStateMachine.registerState(Scene::ExecuteAction, Scene::CreateExecuteActionSceneHandler(this), "Scene::ExecuteAction");
+    sceneStateMachine.registerState(Scene::BeginTurn, Scene::CreateBeginTurnSceneHandler(this), "Scene::BeginTurn");
+    sceneStateMachine.registerState(Scene::EndTurn, Scene::CreateEndTurnSceneHandler(this), "Scene::EndTurn");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -70,6 +73,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     SoldierSystem::CreateInstance();
     ActionSystem::CreateInstance();
+    PlayerSystem::CreateInstance();
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
@@ -147,6 +151,11 @@ std::stringstream a;
 
         background = theEntityManager.CreateEntity("background",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("background"));
+
+        humanPlayer = theEntityManager.CreateEntity("human_player",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("human_player"));
+        aiPlayer = theEntityManager.CreateEntity("ai_player",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ai_player"));
 
         // static entities
         grid.autoAssignEntitiesToCell(walls);

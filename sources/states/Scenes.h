@@ -26,9 +26,11 @@ namespace Scene {
       Menu,
       Connecting,
       SocialCenter,
+      BeginTurn,
       SelectCharacter,
       SelectAction,
       ExecuteAction,
+      EndTurn,
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \
@@ -41,4 +43,6 @@ namespace Scene {
   DECLARE_SCENE_HANDLER_FACTORY(SelectCharacter);
   DECLARE_SCENE_HANDLER_FACTORY(SelectAction);
   DECLARE_SCENE_HANDLER_FACTORY(ExecuteAction);
+  DECLARE_SCENE_HANDLER_FACTORY(BeginTurn);
+  DECLARE_SCENE_HANDLER_FACTORY(EndTurn);
 }

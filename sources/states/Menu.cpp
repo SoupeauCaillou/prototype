@@ -99,7 +99,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(serverIp)->text = s.str();
 #endif
         if (BUTTON(startSolo)->clicked)
-            return Scene::SelectCharacter;
+            return Scene::BeginTurn;
 #if SAC_NETWORK
         if (BUTTON(startMulti)->clicked)
             return Scene::Connecting;
@@ -129,7 +129,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         game->gameThreadContext->keyboardInputHandlerAPI->cancelUserInput();
 #endif
 
-        if (to == Scene::SelectCharacter) {
+        if (to == Scene::BeginTurn) {
             RENDERING(game->banner)->show =
             TEXT_RENDERING(game->turn)->show =
             TEXT_RENDERING(game->points)->show =
