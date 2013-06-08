@@ -56,7 +56,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         objectiveProgression = theEntityManager.CreateEntity("objective",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
-        TRANSFORM(objectiveProgression)->position = glm::vec2(8, 6);
+        TRANSFORM(objectiveProgression)->position = glm::vec2(7, 6);
         TEXT_RENDERING(objectiveProgression)->text = "0.0\%";
     }
 
@@ -66,8 +66,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        // LevelSystem::LoadFromFile("../../assetspc/level1.map");
-        LevelSystem::LoadFromFile("/tmp/level_editor.map");
+        LevelSystem::LoadFromFile();
 
         TEXT_RENDERING(objectiveProgression)->show = true;
     }
@@ -85,7 +84,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         {
             //update the text from the entity
             std::stringstream a;
-            a << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Done / theSpotSystem.totalHighlightedDistance2Objective << "/ 100 %";
+            a << std::fixed << std::setprecision(2) << glm::sqrt(theSpotSystem.totalHighlightedDistance2Done) << "/ "
+            << std::fixed << std::setprecision(2) << glm::sqrt(theSpotSystem.totalHighlightedDistance2Objective) << " %";
 
             TEXT_RENDERING(objectiveProgression)->text = a.str();
         }

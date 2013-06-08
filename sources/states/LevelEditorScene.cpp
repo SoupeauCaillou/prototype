@@ -175,11 +175,14 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
             theEntityManager.DeleteEntity(*spotList.begin());
             spotList.pop_front();
         }
+
+        LevelSystem::currentLevelPath = "/tmp/level_editor.map";
     }
 
     void onExit(Scene::Enum) override {
         TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = false;
+
     }
 };
 

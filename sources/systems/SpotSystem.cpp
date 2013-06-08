@@ -219,8 +219,8 @@ void SpotSystem::DoUpdate(float) {
     Draw::DrawVec2Restart("SpotSystem");
     Draw::DrawTriangleRestart("SpotSystem");
 
-    Draw::DrawTriangle("SpotSystem", glm::vec2(0.), glm::vec2(0., 1.), glm::vec2(1.));
-    Draw::DrawTriangle("SpotSystem", glm::vec2(2.), glm::vec2(2., 1.), glm::vec2(1.));
+    // Draw::DrawTriangle("SpotSystem", glm::vec2(0.), glm::vec2(0., 1.), glm::vec2(1.));
+    // Draw::DrawTriangle("SpotSystem", glm::vec2(2.), glm::vec2(2., 1.), glm::vec2(1.));
 
     LOGI_IF(debugSpotSystem, "\n");
 
@@ -257,13 +257,15 @@ void SpotSystem::DoUpdate(float) {
             }
         }
     }
+    auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
+
+
     // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
-    totalHighlightedDistance2Objective += 2 * sy - (-10000.f);
+    totalHighlightedDistance2Objective += 4 * sy * sy - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
 
     //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
     insertInWallsIfNotPresent(walls, glm::vec2(-sx, -10000.f), externalWalls[0]);
 
-    auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
     auto wallBotLeft = std::find(walls.begin(), walls.end(), std::make_pair(externalWalls[3], glm::vec2(-sx, -10000.f)));
     auto wallTopLeft = std::find(walls.begin(), walls.end(), std::make_pair(glm::vec2(-sx, -10000.f), externalWalls[0]));
     LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),

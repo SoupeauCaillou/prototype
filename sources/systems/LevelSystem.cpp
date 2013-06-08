@@ -14,6 +14,8 @@
 
 INSTANCE_IMPL(LevelSystem);
 
+std::string LevelSystem::currentLevelPath = "../../assetspc/level1.map";
+
 LevelSystem::LevelSystem() : ComponentSystemImpl <LevelComponent>("Level") {
     LevelComponent lc;
 }
@@ -81,7 +83,14 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         BLOCK(e)->doubleFace = pair.second;
     }
 #else
-    std::ifstream myfile (filename);
+    std::ifstream myfile;
+
+    if (filename.size() != 0) {
+        myfile.open(filename);
+    } else {
+        myfile.open(currentLevelPath);
+    }
+
     LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
     std::string line;
 
