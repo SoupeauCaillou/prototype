@@ -112,7 +112,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onPreExit(Scene::Enum) override {
+    void onPreExit(Scene::Enum to) override {
         game->visibilityManager.toggleVisibility(true);
 
 #if SAC_NETWORK
@@ -128,6 +128,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 #if SAC_NETWORK
         game->gameThreadContext->keyboardInputHandlerAPI->cancelUserInput();
 #endif
+
+        if (to == Scene::SelectCharacter) {
+            RENDERING(game->banner)->show =
+            TEXT_RENDERING(game->turn)->show =
+            TEXT_RENDERING(game->points)->show =
+                true;
+        }
     }
 
     bool updatePreExit(Scene::Enum , float dt) override {

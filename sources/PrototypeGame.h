@@ -63,6 +63,7 @@ class PrototypeGame : public Game {
         std::list<Entity> players;
         std::list<Entity> objs;
         Entity background;
+        Entity banner, turn, points;
 
     private:
         StateMachine<Scene::Enum> sceneStateMachine;

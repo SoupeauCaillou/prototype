@@ -24,6 +24,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
 #include "systems/ActionSystem.h"
+#include "systems/AnchorSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -153,6 +154,18 @@ std::stringstream a;
 
         visibilityManager.toggleVisibility(false);
         visibilityManager.init(grid);
+
+    banner = theEntityManager.CreateEntity("banner",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ui/banner"));
+    turn = theEntityManager.CreateEntity("turn",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ui/turn"));
+    points = theEntityManager.CreateEntity("action_point",
+                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ui/action_point"));
+
+    ANCHOR(banner)->parent =
+    ANCHOR(turn)->parent =
+    ANCHOR(points)->parent =
+        camera;
     LOGI("PrototypeGame initialisation done.");
 }
 

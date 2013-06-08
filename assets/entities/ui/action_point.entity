@@ -1,0 +1,12 @@
+[Transformation]
+
+[TextRendering]
+color = 0.1,0.1,0.1,1.0
+font_name = typo
+char_height = 1
+positioning = 1
+text = Pointsleft: 4
+
+[Anchor]
+z = 0.98
+positionNE%screen = 0.5, 0.5
