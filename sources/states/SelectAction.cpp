@@ -148,36 +148,38 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        // Attack action
-        for (auto e: game->yEnnemies) {
-            if (BUTTON(e)->clicked) {
-                const GridPos& myPos = game->grid.positionToGridPos(TRANSFORM(game->activeCharacter)->position);
-                const GridPos& enemyPos = game->grid.positionToGridPos(TRANSFORM(e)->position);
+        if (PLAYER(game->humanPlayer)->actionPointsLeft >= 2) {
+            // Attack action
+            for (auto e: game->yEnnemies) {
+                if (BUTTON(e)->clicked) {
+                    const GridPos& myPos = game->grid.positionToGridPos(TRANSFORM(game->activeCharacter)->position);
+                    const GridPos& enemyPos = game->grid.positionToGridPos(TRANSFORM(e)->position);
 
-                if (game->grid.canDrawLine(myPos, enemyPos)) {
-                    Entity action = theEntityManager.CreateEntity("atk_action",
-                    EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
-                    RENDERING(action)->color = Color(0.8, 0.2, 0.2, 0.5);
-                    RENDERING(action)->show = true;
-                    RENDERING(action)->shape = Shape::Triangle;
-                    RENDERING(action)->dynamicVertices = 0;
-                    ADD_COMPONENT(action, Action);
-                    ACTION(action)->type = Action::Attack;
-                    ACTION(action)->entity = game->activeCharacter;
-                    ACTION(action)->attackTarget = e;
-                    TRANSFORM(action)->position = glm::vec2(0.0f);
-                    TRANSFORM(action)->size = glm::vec2(1.0f);
+                    if (game->grid.canDrawLine(myPos, enemyPos)) {
+                        Entity action = theEntityManager.CreateEntity("atk_action",
+                        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+                        RENDERING(action)->color = Color(0.8, 0.2, 0.2, 0.5);
+                        RENDERING(action)->show = true;
+                        RENDERING(action)->shape = Shape::Triangle;
+                        RENDERING(action)->dynamicVertices = 0;
+                        ADD_COMPONENT(action, Action);
+                        ACTION(action)->type = Action::Attack;
+                        ACTION(action)->entity = game->activeCharacter;
+                        ACTION(action)->attackTarget = e;
+                        TRANSFORM(action)->position = glm::vec2(0.0f);
+                        TRANSFORM(action)->size = glm::vec2(1.0f);
 
-                    const auto p1 = TRANSFORM(game->activeCharacter)->position;
-                    const auto p2 = TRANSFORM(e)->position;
-                    const auto diff = glm::normalize(p2 - p1);
-                    std::vector<glm::vec2> points = {
-                        p1 + glm::vec2(diff.y, -diff.x) * TRANSFORM(game->activeCharacter)->size * 0.1f,
-                        p1 + glm::vec2(diff.y, -diff.x) * TRANSFORM(game->activeCharacter)->size * -0.1f,
-                        p2
-                    };
-                    theRenderingSystem.defineDynamicVertices(0, points);
-                    return Scene::ExecuteAction;
+                        const auto p1 = TRANSFORM(game->activeCharacter)->position;
+                        const auto p2 = TRANSFORM(e)->position;
+                        const auto diff = glm::normalize(p2 - p1);
+                        std::vector<glm::vec2> points = {
+                            p1 + glm::vec2(diff.y, -diff.x) * TRANSFORM(game->activeCharacter)->size * 0.1f,
+                            p1 + glm::vec2(diff.y, -diff.x) * TRANSFORM(game->activeCharacter)->size * -0.1f,
+                            p2
+                        };
+                        theRenderingSystem.defineDynamicVertices(0, points);
+                        return Scene::ExecuteAction;
+                    }
                 }
             }
         }
