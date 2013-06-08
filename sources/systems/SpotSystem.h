@@ -36,9 +36,13 @@ struct EnhancedPoint {
 };
 
 struct SpotComponent {
-    SpotComponent() : dragStarted(false) {}
+    SpotComponent() : dragStarted(false), highlightColor(Color::random()) {
+        highlightColor.a = .3;
+    }
 
     bool dragStarted;
+
+    Color highlightColor;
 
     //for each wall highlighted, get the first and last highlighted points
     std::list<std::pair<glm::vec2, glm::vec2>> highlightedEdges;
@@ -49,5 +53,6 @@ struct SpotComponent {
 
 UPDATABLE_SYSTEM(Spot)
     public:
-        void DeleteHighlightEntities();
+        float totalHighlightedDistance2Objective, totalHighlightedDistance2Done;
+
 };

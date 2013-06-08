@@ -28,7 +28,7 @@
 #include "systems/SpotSystem.h"
 
 #include "util/IntersectionUtil.h"
-#include "util/drawVector.h"
+#include "util/DrawSomething.h"
 
 #include "Scenes.h"
 
@@ -114,8 +114,7 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
                         if (firstSelectionned) {
                             //and the second block is not the first one, then create a wall
                             if (firstSelectionned != e) {
-                                wallList.push_back(drawVector(TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position));
-                                RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
+                                wallList.push_back(Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(1.f, 1.f, 1.f)));
                             //else the block is a spot;
                             } else {
                                 Entity spot = theEntityManager.CreateEntity("spot",

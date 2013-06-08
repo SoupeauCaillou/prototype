@@ -24,7 +24,9 @@
 #include "base/TouchInputManager.h"
 
 #include "util/IntersectionUtil.h"
+#include "util/DrawSomething.h"
 
+#include "systems/TextRenderingSystem.h"
 #include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
@@ -33,12 +35,12 @@
 #include "PrototypeGame.h"
 
 #include <glm/gtx/vector_angle.hpp>
-
+#include <iomanip>
 
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity currentLevel;
+    Entity objectiveProgression;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -49,6 +51,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         // bug dans glm? notre point est à gauche de "l'origine", et un peu plus bas ... donc l'angle devrait etre -179.9 pas 179.9
         LOGF_IF(0.f <  glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView)),
             "Bug with GLM. You should fix it in glm/gtx/vector_angle.inl:36 -> change epsilon value to 0.00001 ");
+
+
+
+        objectiveProgression = theEntityManager.CreateEntity("objective",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+        TRANSFORM(objectiveProgression)->position = glm::vec2(8, 6);
+        TEXT_RENDERING(objectiveProgression)->text = "0.0\%";
     }
 
 
@@ -59,6 +68,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         // LevelSystem::LoadFromFile("../../assetspc/level1.map");
         LevelSystem::LoadFromFile("/tmp/level_editor.map");
+
+        TEXT_RENDERING(objectiveProgression)->show = true;
     }
 
 
@@ -69,6 +80,15 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
         theSpotSystem.Update(dt);
+
+        //update objective
+        {
+            //update the text from the entity
+            std::stringstream a;
+            a << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Done / theSpotSystem.totalHighlightedDistance2Objective << "/ 100 %";
+
+            TEXT_RENDERING(objectiveProgression)->text = a.str();
+        }
 
         //go back to leveleditor - right click or no spot
         if (theSpotSystem.getAllComponents().size() == 0 || theTouchInputManager.wasTouched(1)) {
@@ -82,7 +102,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
-        theSpotSystem.DeleteHighlightEntities();
+        Draw::DrawPointRestart("SpotSystem");
+        Draw::DrawVec2Restart("SpotSystem");
+        Draw::DrawTriangleRestart("SpotSystem");
+
         FOR_EACH_ENTITY(Spot, e)
             theEntityManager.DeleteEntity(e);
         }
@@ -92,6 +115,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        TEXT_RENDERING(objectiveProgression)->show = false;
     }
 };
 

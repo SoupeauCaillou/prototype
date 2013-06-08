@@ -5,7 +5,7 @@
 #include "systems/BlockSystem.h"
 #include "systems/ButtonSystem.h"
 
-#include "util/drawVector.h"
+#include "util/DrawSomething.h"
 #include "util/IntersectionUtil.h"
 
 #include "base/TouchInputManager.h"
@@ -27,84 +27,6 @@ static bool debugSpotSystem = false;
 INSTANCE_IMPL(SpotSystem);
 
 SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
-}
-
-static int currentDrawPointIndice = 0;
-static std::vector<Entity> drawPointList;
-Entity drawPoint(const glm::vec2& position, const std::string name = "point", const Color & color = Color(0.5, 0.5, 0.5)) {
-    Entity vector;
-
-    if (currentDrawPointIndice == (int)drawPointList.size()) {
-        vector = theEntityManager.CreateEntity(name);
-        ADD_COMPONENT(vector, Transformation);
-        ADD_COMPONENT(vector, Rendering);
-
-        drawPointList.push_back(vector);
-    } else {
-        vector = drawPointList[currentDrawPointIndice];
-    }
-
-    TRANSFORM(vector)->size = glm::vec2(0.5f);
-    TRANSFORM(vector)->position = position;
-
-    TRANSFORM(vector)->z = 1;
-    RENDERING(vector)->color = color;//Color(.5, currentDrawPointIndice * 1.f / list.size(), currentDrawPointIndice * 1.f / list.size());
-    RENDERING(vector)->show = true;
-
-    ++currentDrawPointIndice;
-
-    return vector;
-}
-
-static int currentDrawEdgeIndice = 0;
-static std::vector<Entity> drawEdgeList;
-Entity drawEdge(const glm::vec2& positionA, const glm::vec2& positionB, const Color & color = Color(0.3, 0.5, 0.8)) {
-
-    Entity vector;
-
-    if (currentDrawEdgeIndice == (int)drawEdgeList.size()) {
-        vector = theEntityManager.CreateEntity("drawEdge vector");
-        ADD_COMPONENT(vector, Transformation);
-        ADD_COMPONENT(vector, Rendering);
-
-        drawEdgeList.push_back(vector);
-    } else {
-        vector = drawEdgeList[currentDrawEdgeIndice];
-    }
-
-    drawVector(positionA, positionB - positionA, vector, color);
-    RENDERING(vector)->texture = InvalidTextureRef;
-    RENDERING(vector)->show = true;
-    ++currentDrawEdgeIndice;
-
-    return vector;
-}
-
-static int currentDrawTriangleColorIndice = 0;
-static std::vector<std::pair<Entity, Color>> drawTriangleList;
-void drawTriangle(const glm::vec2& pointOfView, const glm::vec2& first, const glm::vec2& second) {
-    LOGI_IF(debugSpotSystem, "\tPlotting triangle: '" << pointOfView << "' x '" << first << "' x '" << second << "'");
-
-    if (currentDrawTriangleColorIndice == (int)drawTriangleList.size()) {
-        Entity e = theEntityManager.CreateEntity("triangle");
-        Color c = Color::random();
-        c.a = .3;
-        ADD_COMPONENT(e, Transformation);
-        ADD_COMPONENT(e, Rendering);
-        RENDERING(e)->shape = Shape::Triangle;
-        RENDERING(e)->color = c;
-        RENDERING(e)->dynamicVertices = currentDrawTriangleColorIndice;
-
-        drawTriangleList.push_back(std::make_pair(e, c));
-    }
-    std::vector<glm::vec2> vert;
-    vert.push_back(pointOfView);
-    vert.push_back(first);
-    vert.push_back(second);
-    theRenderingSystem.defineDynamicVertices(currentDrawTriangleColorIndice, vert);
-    RENDERING(drawTriangleList[currentDrawTriangleColorIndice].first)->show = true;
-
-    ++currentDrawTriangleColorIndice;
 }
 
 inline std::ostream & operator<<(std::ostream & o, const EnhancedPoint & ep) {
@@ -191,14 +113,16 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
     return nearestWall;
 }
 
-void insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
+bool insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
     auto pair = std::make_pair( firstPoint, secondPoint );
 
     //s'il n'est pas déjà présent, on l'insère dans la liste
     if (std::find(walls.begin(), walls.end(), pair) == walls.end()
         && std::find(walls.begin(), walls.end(), std::make_pair( secondPoint, firstPoint)) == walls.end()) {
         walls.push_back(pair);
+        return true;
     }
+    return false;
 }
 
 bool doesVec2ListContainValue(const std::vector<glm::vec2> & list, const glm::vec2 & value) {
@@ -266,25 +190,7 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
     }
 }
 
-void SpotSystem::DoUpdate(float) {
-    currentDrawPointIndice = 0;
-    currentDrawEdgeIndice = 0;
-    currentDrawTriangleColorIndice = 0;
-    LOGI_IF(debugSpotSystem, "\n");
-
-    //external walls helper
-    float sx = PlacementHelper::ScreenWidth / 2.;
-    float sy = PlacementHelper::ScreenHeight / 2.;
-
-    glm::vec2 externalWalls[4] = {
-        glm::vec2(-sx, sy), // top left
-        glm::vec2(sx, sy), // top right
-        glm::vec2(sx, -sy), // bottom right
-        glm::vec2(-sx, -sy), // bottom left
-    };
-
-    std::list<EnhancedPoint> points;
-
+void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 externalWalls[4]) {
     //Première étape : on ajoute les points des blocks
     FOR_EACH_ENTITY(Block, block)
         TransformationComponent * tc = TRANSFORM(block);
@@ -305,7 +211,39 @@ void SpotSystem::DoUpdate(float) {
     points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left"));
     points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right"));
     points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right"));
-    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-sx, -10000.f), "wall bottom left"));
+    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., -10000.f), "wall bottom left"));
+}
+
+void SpotSystem::DoUpdate(float) {
+    Draw::DrawPointRestart("SpotSystem");
+    Draw::DrawVec2Restart("SpotSystem");
+    Draw::DrawTriangleRestart("SpotSystem");
+
+    Draw::DrawTriangle("SpotSystem", glm::vec2(0.), glm::vec2(0., 1.), glm::vec2(1.));
+    Draw::DrawTriangle("SpotSystem", glm::vec2(2.), glm::vec2(2., 1.), glm::vec2(1.));
+
+    LOGI_IF(debugSpotSystem, "\n");
+
+    //external walls helper
+    float sx = PlacementHelper::ScreenWidth / 2.;
+    float sy = PlacementHelper::ScreenHeight / 2.;
+
+    glm::vec2 externalWalls[4] = {
+        glm::vec2(-sx, sy), // top left
+        glm::vec2(sx, sy), // top right
+        glm::vec2(sx, -sy), // bottom right
+        glm::vec2(-sx, -sy), // bottom left
+    };
+
+    // la distance totale de murs à éclairer
+    totalHighlightedDistance2Objective = 0.f;
+
+    // et celle réalisée
+    totalHighlightedDistance2Done = 0.f;
+
+    // la liste de tous les points intéréssants pour l'algo (tous les sommets)
+    std::list<EnhancedPoint> points;
+    getAllWallsExtremities(points, externalWalls);
 
     // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
     splitIntersectionWalls(points);
@@ -314,9 +252,14 @@ void SpotSystem::DoUpdate(float) {
     std::list<std::pair<glm::vec2, glm::vec2>> walls;
     for (auto point : points) {
         for (auto next : point.nextEdges) {
-            insertInWallsIfNotPresent(walls, point.position, next);
+            if (insertInWallsIfNotPresent(walls, point.position, next)) {
+                totalHighlightedDistance2Objective += glm::length2(next - point.position);
+            }
         }
     }
+    // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
+    totalHighlightedDistance2Objective += 2 * sy - (-10000.f);
+
     //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
     insertInWallsIfNotPresent(walls, glm::vec2(-sx, -10000.f), externalWalls[0]);
 
@@ -325,6 +268,17 @@ void SpotSystem::DoUpdate(float) {
     auto wallTopLeft = std::find(walls.begin(), walls.end(), std::make_pair(glm::vec2(-sx, -10000.f), externalWalls[0]));
     LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
         "Can't find left wall?" << (wallBotLeft == walls.end() ? "bottom one" : "") << " && " <<  (wallTopLeft == walls.end() ? "top one" : ""));
+
+
+
+
+
+
+
+
+
+
+
 
     glm::vec2 mousePosition = theTouchInputManager.getTouchLastPosition(0);
     bool isTouched = theTouchInputManager.isTouched(0);
@@ -358,7 +312,7 @@ void SpotSystem::DoUpdate(float) {
         const glm::vec2 pointOfView = TRANSFORM(e)->position;
 
         LOGI_IF(debugSpotSystem, "pointOfView: " << pointOfView);
-        drawPoint(pointOfView, "pointOfView", Color(1., .8, 0));
+        Draw::DrawPoint("SpotSystem", pointOfView, Color(1., .8, 0), "pointOfView");
 
         //on change les 3 points qui dépendent de la caméra
         wallTopLeft->first.y = wallBotLeft->second.y = bottomLeft->nextEdges[0].y = pointOfView.y;
@@ -429,7 +383,7 @@ void SpotSystem::DoUpdate(float) {
 
         LOGI_IF(debugSpotSystem, "Start point is " << startPoint);
     #if SAC_DEBUG
-        drawPoint(points.begin()->position, points.begin()->name);
+        Draw::DrawPoint("SpotSystem", points.begin()->position, Color(1., 1., 1.), points.begin()->name);
     #endif
 
         //le dernier point de l'éclairage courant
@@ -440,7 +394,7 @@ void SpotSystem::DoUpdate(float) {
             auto point = *pointIt;
 
 #if SAC_DEBUG
-            drawPoint(point.position, point.name);
+            Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);
 #endif
 
             // on cherche le mur actif (c'est à dire le mur le plus proche qui contient le startPoint ET le point actuel)
@@ -525,45 +479,14 @@ void SpotSystem::DoUpdate(float) {
 
         sc->highlightedEdges.push_back(std::make_pair(startPoint, endPoint));
 
-        //finalement, on supprime le premien point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
+        //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
         points.pop_front();
     }
 
     //finalement on affiche tous les triangles
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         for (auto pair : sc->highlightedEdges) {
-            drawTriangle(TRANSFORM(e)->position, pair.first, pair.second);
+            // Draw::DrawTriangle("SpotSystem", TRANSFORM(e)->position, pair.first, pair.second, sc->highlightColor);
         }
-    }
-
-    //hide the extra
-    while (currentDrawPointIndice < (int)drawPointList.size()) {
-        RENDERING(drawPointList[currentDrawPointIndice])->show = false;
-        ++currentDrawPointIndice;
-    }
-    while (currentDrawEdgeIndice < (int)drawEdgeList.size()) {
-        RENDERING(drawEdgeList[currentDrawEdgeIndice])->show = false;
-        ++currentDrawEdgeIndice;
-    }
-    while (currentDrawTriangleColorIndice < (int)drawTriangleList.size()) {
-        RENDERING(drawTriangleList[currentDrawTriangleColorIndice].first)->show = false;
-        ++currentDrawTriangleColorIndice;
-    }
-
-}
-
-
-void SpotSystem::DeleteHighlightEntities() {
-    while (drawPointList.begin() != drawPointList.end()) {
-        theEntityManager.DeleteEntity(*--drawPointList.end());
-        drawPointList.pop_back();
-    }
-    while (drawEdgeList.begin() != drawEdgeList.end()) {
-        theEntityManager.DeleteEntity(*--drawEdgeList.end());
-        drawEdgeList.pop_back();
-    }
-    while (drawTriangleList.begin() != drawTriangleList.end()) {
-        theEntityManager.DeleteEntity((*--drawTriangleList.end()).first);
-        drawTriangleList.pop_back();
     }
 }
