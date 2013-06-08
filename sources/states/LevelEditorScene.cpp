@@ -154,7 +154,6 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
                                     auto tc = TRANSFORM(*wallIt);
                                     glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
 
-                                    LOGI(glm::length2(tc->position + offset - TRANSFORM(spot)->position) << " and " << glm::length2(tc->position - offset - TRANSFORM(spot)->position));
                                     if (glm::length2(tc->position + offset - TRANSFORM(spot)->position) < 0.1f
                                         || glm::length2(tc->position - offset - TRANSFORM(spot)->position) < 0.1f) {
                                         theEntityManager.DeleteEntity(*wallIt);
