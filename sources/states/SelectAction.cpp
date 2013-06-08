@@ -25,6 +25,7 @@
 #include "systems/SoldierSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/ActionSystem.h"
+#include "systems/PlayerSystem.h"
 #include "systems/RenderingSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
@@ -54,17 +55,17 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         Entity active = game->activeCharacter;
         const GridPos pos = game->grid.positionToGridPos(TRANSFORM(active)->position);
 
-        const int maxRange = SOLDIER(active)->moveRange;
-        std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, maxRange);
+        const int pointsLeft = PLAYER(game->humanPlayer)->actionPointsLeft;
+        std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, pointsLeft);
         Color green1(0,1,0, 0.5);
         Color green2(0.2,0.4,0, 0.5);
         for (auto i: v) {
-            if (i.first > 0) {
+            if (i.first > 0 && i.first <= pointsLeft) {
                 for (auto gridPos: i.second) {
                     Entity e = theEntityManager.CreateEntity("potential_move",
                     EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
                     TRANSFORM(e)->position = game->grid.gridPosToPosition(gridPos);
-                    float t = i.first / (float)maxRange;
+                    float t = i.first / (float)pointsLeft;
                     RENDERING(e)->color = green2 * t + green1 * (1 - t);
                     RENDERING(e)->show = true;
                     ADD_COMPONENT(e, Button);
@@ -76,17 +77,19 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         }
 
         // mark attack possibilities
-        unsigned atkRange = SOLDIER(game->activeCharacter)->attackRange;
-        for (auto enemy: game->yEnnemies) {
-            const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
-            if (SpatialGrid::ComputeDistance(pos, enemyPos) <= atkRange) {
-                if (game->grid.canDrawLine(pos, enemyPos)) {
-                    Entity e = theEntityManager.CreateEntity("potential_atk",
-                    EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
-                    TRANSFORM(e)->position = TRANSFORM(enemy)->position;
-                    RENDERING(e)->color = Color(0.6, 0.1, 0.1);
-                    RENDERING(e)->show = true;
-                    attacks.push_back(e);
+        if (pointsLeft >= 2) {
+            unsigned atkRange = SOLDIER(game->activeCharacter)->attackRange;
+            for (auto enemy: game->yEnnemies) {
+                const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
+                if (SpatialGrid::ComputeDistance(pos, enemyPos) <= atkRange) {
+                    if (game->grid.canDrawLine(pos, enemyPos)) {
+                        Entity e = theEntityManager.CreateEntity("potential_atk",
+                        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+                        TRANSFORM(e)->position = TRANSFORM(enemy)->position;
+                        RENDERING(e)->color = Color(0.6, 0.1, 0.1);
+                        RENDERING(e)->show = true;
+                        attacks.push_back(e);
+                    }
                 }
             }
         }

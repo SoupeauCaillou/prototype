@@ -22,9 +22,10 @@
 #include "systems/System.h"
 
 struct SoldierComponent {
-    SoldierComponent() :moveRange(4), visionRange(10), attackRange(5), attackDamage(1), pLance(0), defensePoint(0) {
+    SoldierComponent() :player(0), moveRange(4), visionRange(10), attackRange(5), attackDamage(1), pLance(0), defensePoint(0) {
     }
 
+    Entity player;
     int moveRange;
     int visionRange;
 	int attackRange;

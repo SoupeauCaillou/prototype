@@ -19,6 +19,8 @@
 */
 #include "ActionSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/SoldierSystem.h"
+#include "systems/PlayerSystem.h"
 #include <glm/gtx/compatibility.hpp>
 
 INSTANCE_IMPL(ActionSystem);
@@ -51,6 +53,7 @@ void ActionSystem::DoUpdate(float dt) {
                         LOGI(TRANSFORM(ac->entity)->position);
                         // mark action as finished
                         actionFinished.push_back(entity);
+                        PLAYER(SOLDIER(ac->entity)->player)->actionPointsLeft--;
                     } else {
                         // move nearer to target
                         TRANSFORM(ac->entity)->position += diff * (ac->moveSpeed * dt) / length;
@@ -66,6 +69,7 @@ void ActionSystem::DoUpdate(float dt) {
                         accum = 0;
                         // mark action as finished
                         actionFinished.push_back(entity);
+                        PLAYER(SOLDIER(ac->entity)->player)->actionPointsLeft-=2;
                     }
                     break;
                 }

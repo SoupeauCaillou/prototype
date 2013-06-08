@@ -21,9 +21,11 @@
 
 #include "Scenes.h"
 #include "systems/ActionSystem.h"
+#include "systems/PlayerSystem.h"
 #include "PrototypeGame.h"
 #include "CameraMoveManager.h"
 #include "systems/TransformationSystem.h"
+#include "systems/TextRenderingSystem.h"
 
 struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -53,6 +55,10 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
         theCameraMoveManager.update(dt, game->camera);
+
+        std::stringstream ss2;
+        ss2 << "AP left: " << PLAYER(game->humanPlayer)->actionPointsLeft;
+        TEXT_RENDERING(game->points)->text = ss2.str();
 
         if (theActionSystem.getAllComponents().empty()) {
             return Scene::SelectCharacter;
