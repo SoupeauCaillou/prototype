@@ -25,15 +25,10 @@ z = 0.1
 #camera_bitmask
 
 [Soldier]
-#~ int
-#vision_range =
-#~ int
-#attack_range =
-#~ int
+vision_range = 5
+attack_range = 5
 #attack_damage =
-#~ int
 #p_lance =
-#~ int
 #defense_point =
 move_range = 4
 

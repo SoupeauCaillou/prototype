@@ -25,6 +25,7 @@ namespace Action {
     enum Enum {
         None,
         MoveTo,
+        Attack
     };
 }
 
@@ -38,8 +39,11 @@ struct ActionComponent {
     Entity entity;
 
     // Actions params
+    //   1. MoveTo
     glm::vec2 moveToTarget;
     float moveSpeed;
+    //   2. Attack
+    Entity attackTarget;
 
     // Dependency on another action
     Entity dependsOn;
