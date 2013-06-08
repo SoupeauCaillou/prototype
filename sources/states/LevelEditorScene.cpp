@@ -38,10 +38,19 @@
 #include <glm/gtx/norm.hpp>
 
 
+const std::string tip_Default = "Left click: create a point. \n\
+Select it and it will be red (selectionned).\n\
+Then click again on it and it will be a Spot (blue)\n\
+or click on another point and you will create a wall.";
+const std::string tip_NoSpot = "You need to create one spot at least!\n\
+(double select a white square -> it should became blue)";
+
 struct LevelEditorScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
-    Entity saveButton, goTryLevelButton;
+    Entity saveButton, goTryLevelButton, tip;
+
+    Entity firstSelectionned;
 
     std::list<Entity> wallList;
     std::list<Entity> spotList;
@@ -60,6 +69,16 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
                     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("action_button"));
         TRANSFORM(goTryLevelButton)->position.x = -5;
         TEXT_RENDERING(goTryLevelButton)->text = "try it!";
+
+        tip = theEntityManager.CreateEntity("objective",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+        TRANSFORM(tip)->position = glm::vec2(-5, -3);
+        TEXT_RENDERING(tip)->text = tip_Default;
+        TEXT_RENDERING(tip)->flags |= TextRenderingComponent::MultiLineBit;
+        TEXT_RENDERING(tip)->charHeight = .5f;
+        TEXT_RENDERING(tip)->color = Color(0., 0., 0.);
+        TEXT_RENDERING(tip)->show = false;
+        TRANSFORM(tip)->size.x = 10;
     }
 
 
@@ -68,8 +87,11 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        TEXT_RENDERING(tip)->show =
         TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = true;
+
+        firstSelectionned = 0;
     }
 
 
@@ -78,14 +100,18 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         if (BUTTON(saveButton)->clicked || BUTTON(goTryLevelButton)->clicked) {
-            theLevelSystem.SaveInFile("/tmp/level_editor.map", wallList, spotList);
+            if (theSpotSystem.getAllComponents().size() == 0) {
+                TEXT_RENDERING(tip)->text = tip_NoSpot;
+                TEXT_RENDERING(tip)->color = Color(1., 0., 0.);
+            } else {
+                theLevelSystem.SaveInFile("/tmp/level_editor.map", wallList, spotList);
 
-            if (BUTTON(goTryLevelButton)->clicked) {
-                return Scene::Menu;
+                if (BUTTON(goTryLevelButton)->clicked) {
+                    return Scene::Menu;
+                }
             }
         } else {
             static float lastChange = 0.f;
-            static Entity firstSelectionned = 0;
             if (theTouchInputManager.wasTouched(0) && TimeUtil::GetTime() - lastChange > .4) {
                 lastChange = TimeUtil::GetTime();
 
@@ -114,7 +140,8 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
                         if (firstSelectionned) {
                             //and the second block is not the first one, then create a wall
                             if (firstSelectionned != e) {
-                                wallList.push_back(Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(1.f, 1.f, 1.f)));
+                                wallList.push_back(Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(.1f, .1f, .1f)));
+                                RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
                             //else the block is a spot;
                             } else {
                                 Entity spot = theEntityManager.CreateEntity("spot",
@@ -123,14 +150,17 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
                                 spotList.push_back(spot);
 
                                 //if there were previously wall(s) for this block, delete it(them)
-                                for (auto wallIt = wallList.begin(); wallIt != wallList.end(); ++wallIt) {
+                                for (auto wallIt = wallList.begin(); wallIt != wallList.end();) {
                                     auto tc = TRANSFORM(*wallIt);
                                     glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
 
+                                    LOGI(glm::length2(tc->position + offset - TRANSFORM(spot)->position) << " and " << glm::length2(tc->position - offset - TRANSFORM(spot)->position));
                                     if (glm::length2(tc->position + offset - TRANSFORM(spot)->position) < 0.1f
                                         || glm::length2(tc->position - offset - TRANSFORM(spot)->position) < 0.1f) {
                                         theEntityManager.DeleteEntity(*wallIt);
                                         wallIt = wallList.erase(wallIt);
+                                    } else {
+                                        ++wallIt;
                                     }
 
                                 }
@@ -146,11 +176,13 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
                         break;
                     }
                 }
-                if (! handled) {
+                if (handled) {
+                    TEXT_RENDERING(tip)->text = tip_Default;
+                    TEXT_RENDERING(tip)->color = Color(0., 0., 0.);
+                } else {
                     Entity e = theEntityManager.CreateEntity("point",
                         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
                     TRANSFORM(e)->position = mousePosition;
-                    // RENDERING(e)->shape = Shape::Triangle;
                 }
             }
         }
@@ -180,6 +212,7 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        TEXT_RENDERING(tip)->show =
         TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = false;
 

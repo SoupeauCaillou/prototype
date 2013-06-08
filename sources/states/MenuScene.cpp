@@ -84,8 +84,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         {
             //update the text from the entity
             std::stringstream a;
-            a << std::fixed << std::setprecision(2) << glm::sqrt(theSpotSystem.totalHighlightedDistance2Done) << "/ "
-            << std::fixed << std::setprecision(2) << glm::sqrt(theSpotSystem.totalHighlightedDistance2Objective) << " %";
+            a << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Done << "/ "
+            << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Objective << " %";
 
             TEXT_RENDERING(objectiveProgression)->text = a.str();
         }

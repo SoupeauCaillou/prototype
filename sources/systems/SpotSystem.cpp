@@ -24,6 +24,8 @@ static bool debugSpotSystem = !true;
 static bool debugSpotSystem = false;
 #endif
 
+#define FAR_FAR_AWAY -100.f
+
 INSTANCE_IMPL(SpotSystem);
 
 SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
@@ -211,16 +213,13 @@ void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 
     points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left"));
     points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right"));
     points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right"));
-    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., -10000.f), "wall bottom left"));
+    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., FAR_FAR_AWAY), "wall bottom left"));
 }
 
 void SpotSystem::DoUpdate(float) {
     Draw::DrawPointRestart("SpotSystem");
     Draw::DrawVec2Restart("SpotSystem");
     Draw::DrawTriangleRestart("SpotSystem");
-
-    // Draw::DrawTriangle("SpotSystem", glm::vec2(0.), glm::vec2(0., 1.), glm::vec2(1.));
-    // Draw::DrawTriangle("SpotSystem", glm::vec2(2.), glm::vec2(2., 1.), glm::vec2(1.));
 
     LOGI_IF(debugSpotSystem, "\n");
 
@@ -259,15 +258,14 @@ void SpotSystem::DoUpdate(float) {
     }
     auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
 
-
     // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
-    totalHighlightedDistance2Objective += 4 * sy * sy - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
+    totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
 
     //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
-    insertInWallsIfNotPresent(walls, glm::vec2(-sx, -10000.f), externalWalls[0]);
+    insertInWallsIfNotPresent(walls, glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]);
 
-    auto wallBotLeft = std::find(walls.begin(), walls.end(), std::make_pair(externalWalls[3], glm::vec2(-sx, -10000.f)));
-    auto wallTopLeft = std::find(walls.begin(), walls.end(), std::make_pair(glm::vec2(-sx, -10000.f), externalWalls[0]));
+    auto wallBotLeft = std::find(walls.begin(), walls.end(), std::make_pair(externalWalls[3], glm::vec2(-sx, FAR_FAR_AWAY)));
+    auto wallTopLeft = std::find(walls.begin(), walls.end(), std::make_pair(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]));
     LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
         "Can't find left wall?" << (wallBotLeft == walls.end() ? "bottom one" : "") << " && " <<  (wallTopLeft == walls.end() ? "top one" : ""));
 
@@ -488,7 +486,7 @@ void SpotSystem::DoUpdate(float) {
     //finalement on affiche tous les triangles
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         for (auto pair : sc->highlightedEdges) {
-            // Draw::DrawTriangle("SpotSystem", TRANSFORM(e)->position, pair.first, pair.second, sc->highlightColor);
+            Draw::DrawTriangle("SpotSystem", TRANSFORM(e)->position, pair.first, pair.second, sc->highlightColor);
         }
     }
 }
