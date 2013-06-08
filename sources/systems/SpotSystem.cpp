@@ -12,7 +12,6 @@
 #include "base/PlacementHelper.h"
 
 #include <glm/gtx/vector_angle.hpp>
-#include <glm/gtx/norm.hpp>
 #include <glm/gtx/projection.hpp>
 
 #include <algorithm>
@@ -25,8 +24,6 @@ static bool debugSpotSystem = !true;
 static bool debugSpotSystem = false;
 #endif
 
-const float eps = 0.0001f;
-
 INSTANCE_IMPL(SpotSystem);
 
 SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
@@ -34,7 +31,7 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
 
 static int currentDrawPointIndice = 0;
 static std::vector<Entity> drawPointList;
-Entity drawPoint(const glm::vec2& position, const std::string name = "vector", const Color & color = Color(0.5, 0.5, 0.5)) {
+Entity drawPoint(const glm::vec2& position, const std::string name = "point", const Color & color = Color(0.5, 0.5, 0.5)) {
     Entity vector;
 
     if (currentDrawPointIndice == (int)drawPointList.size()) {
@@ -110,30 +107,6 @@ void drawTriangle(const glm::vec2& pointOfView, const glm::vec2& first, const gl
     ++currentDrawTriangleColorIndice;
 }
 
-
-struct EnhancedPoint {
-    EnhancedPoint() : position(0.), name("unknown") {}
-    EnhancedPoint(const glm::vec2& inp, const glm::vec2 & ne, const std::string & iname) :
-        position(inp), name(iname) { nextEdges.push_back(ne); }
-    EnhancedPoint(const glm::vec2& inp, const std::vector<glm::vec2> & ine, const std::string & iname)
-    : position(inp), nextEdges(ine), name(iname) {}
-    glm::vec2 position;
-
-    std::vector<glm::vec2> nextEdges;
-
-    std::string name; //only debug
-
-    bool operator== (const EnhancedPoint & ep) const {
-        return (glm::length2(position - ep.position) < eps);
-    }
-    bool operator== (const glm::vec2 & pos) const {
-        return (glm::length2(position - pos) < eps);
-    }
-    bool operator== (const std::string & inName) const {
-        return (name == inName);
-    }
-};
-
 inline std::ostream & operator<<(std::ostream & o, const EnhancedPoint & ep) {
     o << "name='" << ep.name << "': position='" << ep.position;
     int i = 0;
@@ -145,6 +118,7 @@ inline std::ostream & operator<<(std::ostream & o, const std::pair<glm::vec2, gl
     o << wall.first << " <-> " << wall.second;
     return o;
 }
+
 // Return minimum distance between line segment vw and point p
 // see http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
 float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm::vec2 & p, glm::vec2 * projectionResult = 0) {
@@ -175,38 +149,6 @@ float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm
     //drawPoint(projectionOnSegment, Color(1., 0., 0.));
 
     return glm::length(projectionOnSegment - p);
-}
-
-//project line P on line Q and save the intersection point
-bool getProjection(const glm::vec2 & pA, const glm::vec2 & pB, const glm::vec2 & qA, const glm::vec2 & qB, glm::vec2 * intersectionPoint = 0) {
-    float denom = ((qB.y - qA.y)*(pB.x - pA.x)) -
-                      ((qB.x - qA.x)*(pB.y - pA.y));
-
-    float nume_a = ((qB.x - qA.x)*(pA.y - qA.y)) -
-                   ((qB.y - qA.y)*(pA.x - qA.x));
-
-    float nume_b = ((pB.x - pA.x)*(pA.y - qA.y)) -
-                   ((pB.y - pA.y)*(pA.x - qA.x));
-
-    if(denom == 0.0f)
-    {
-        return false;
-    }
-
-    float ua = nume_a / denom;
-    float ub = nume_b / denom;
-
-    if(ub > - eps && ub <= 1.0f + eps)
-    {
-        if (intersectionPoint) {
-            // Get the intersection point.
-            intersectionPoint->x = pA.x + ua*(pB.x - pA.x);
-            intersectionPoint->y = pA.y + ua*(pB.y - pA.y);
-        }
-        return true;
-    }
-
-    return false;
 }
 
 // retourne le mur actif entre les 2 points, vus de la caméra
@@ -269,70 +211,59 @@ bool doesVec2ListContainValue(const std::vector<glm::vec2> & list, const glm::ve
 }
 
 void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
-    bool foundAnIntersection = false;
+    //we don't search two intersection in the same loop, since it could be a mess. When finding an intersection, we restart the algo;
+    for (auto it1 = points.begin(); it1 != --points.end(); ++it1) {
+        auto it2 = it1;
+        for (++it2; it2 != points.end(); ++it2) {
 
-    do {
-        foundAnIntersection = false;
-        for (auto it1 = points.begin(); it1 != --points.end(); ++it1) {
-            auto it2 = it1;
-            for (++it2; it2 != points.end(); ++it2) {
+            glm::vec2 intersectionPoint;
 
-                glm::vec2 intersectionPoint;
-
-                for (auto & endPoint1 : it1->nextEdges) {
-                    for (auto & endPoint2 : it2->nextEdges) {
-                        glm::vec2 startPoint1 = it1->position;
-                        glm::vec2 startPoint2 = it2->position;
+            for (auto & endPoint1 : it1->nextEdges) {
+                for (auto & endPoint2 : it2->nextEdges) {
+                    glm::vec2 startPoint1 = it1->position;
+                    glm::vec2 startPoint2 = it2->position;
 
 
-                        if (IntersectionUtil::lineLine(startPoint1, endPoint1, startPoint2, endPoint2, &intersectionPoint)) {
-                            if (glm::length2(intersectionPoint - startPoint2) > eps
-                            && glm::length2(intersectionPoint - endPoint1) > eps
-                            && glm::length2(intersectionPoint - endPoint1) > eps
-                            &&  glm::length2(intersectionPoint - endPoint2) > eps) {
+                    if (IntersectionUtil::lineLine(startPoint1, endPoint1, startPoint2, endPoint2, &intersectionPoint)) {
+                        if (glm::length2(intersectionPoint - startPoint2) > eps
+                        && glm::length2(intersectionPoint - endPoint1) > eps
+                        && glm::length2(intersectionPoint - endPoint1) > eps
+                        &&  glm::length2(intersectionPoint - endPoint2) > eps) {
 
-                                // LOGI(glm::length2(intersectionPoint - startPoint1)
-                                //     << " " << glm::length2(intersectionPoint - startPoint2)
-                                //     << " " << glm::length2(intersectionPoint - endPoint1)
-                                //     << " " << glm::length2(intersectionPoint - endPoint2));
-                                 LOGI_IF(debugSpotSystem, "Lines " << startPoint1 << " <-> " << endPoint1
-                                    << " and " << startPoint2 << " <-> " << endPoint2 <<  " are crossing each other at point " << intersectionPoint);
+                             LOGI_IF(debugSpotSystem, "Lines " << startPoint1 << " <-> " << endPoint1
+                                << " and " << startPoint2 << " <-> " << endPoint2 <<  " are crossing each other at point " << intersectionPoint);
 
 
-                                auto it = std::find(points.begin(), points.end(), intersectionPoint);
-                                if (it == points.end()) {
-                                    std::vector<glm::vec2> nexts;
-                                    nexts.push_back(endPoint1);
-                                    nexts.push_back(endPoint2);
-                                    points.push_back(EnhancedPoint(intersectionPoint, nexts, "intersection point"));
-                                } else {
-                                    //todo: vérifier s'il est pas déjà présent avant de l'ajouter
-                                    // if (std::find(points.begin(), points.end(), endPoint1) == points.end()) {
-                                    if (! doesVec2ListContainValue(it->nextEdges, endPoint1)) {
-                                        it->nextEdges.push_back(endPoint1);
-                                    }
-                                    if (! doesVec2ListContainValue(it->nextEdges, endPoint2)) {
-                                        it->nextEdges.push_back(endPoint2);
-                                    }
+                            auto it = std::find(points.begin(), points.end(), intersectionPoint);
+                            //if we couldn't find the intersection point in list, then we create a new point
+                            if (it == points.end()) {
+                                std::vector<glm::vec2> nexts;
+                                nexts.push_back(endPoint1);
+                                nexts.push_back(endPoint2);
+                                points.push_back(EnhancedPoint(intersectionPoint, nexts, "intersection point"));
+                            } else {
+                                //todo: vérifier s'il est pas déjà présent avant de l'ajouter
+                                // if (std::find(points.begin(), points.end(), endPoint1) == points.end()) {
+                                if (! doesVec2ListContainValue(it->nextEdges, endPoint1)) {
+                                    it->nextEdges.push_back(endPoint1);
                                 }
-
-                                endPoint1 = intersectionPoint;
-                                endPoint2 = intersectionPoint;
-
-                                foundAnIntersection = true;
-    //yeah the following
-    //is a bit ugly :-)
-                                break;
+                                if (! doesVec2ListContainValue(it->nextEdges, endPoint2)) {
+                                    it->nextEdges.push_back(endPoint2);
+                                }
                             }
+
+                            endPoint1 = intersectionPoint;
+                            endPoint2 = intersectionPoint;
+
+                            //restart the algo from start
+                            splitIntersectionWalls(points);
+                            return;
                         }
                     }
-                    if (foundAnIntersection) break;
                 }
-                if (foundAnIntersection) break;
             }
-            if (foundAnIntersection) break;
         }
-    } while (foundAnIntersection);
+    }
 }
 
 void SpotSystem::DoUpdate(float) {
@@ -361,24 +292,13 @@ void SpotSystem::DoUpdate(float) {
         glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
 
         glm::vec2 rectanglePoints[4] = {
-            tc->position - offset, //bottom left
-            // tc->position + glm::vec2(offset.x, -offset.y) / 2.f, //bottom right
-            tc->position + offset, //top right
-            // tc->position - glm::vec2(offset.x, -offset.y) / 2.f, //top left
+            tc->position - offset, //first point
+            tc->position + offset, //second point
         };
         points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
             theEntityManager.entityName(block) + "- first point"));
         points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
             theEntityManager.entityName(block) + "- second point"));
-
-        // points.push_back(EnhancedPoint(rectanglePoints[3], rectanglePoints[2], rectanglePoints[0],
-        //     theEntityManager.entityName(block) + "- top left"));
-        // points.push_back(EnhancedPoint(rectanglePoints[2], rectanglePoints[1], rectanglePoints[3],
-        //     theEntityManager.entityName(block) + "- top right"));
-        // points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0], rectanglePoints[2],
-        //     theEntityManager.entityName(block) + "- bottom right"));
-        // points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[3], rectanglePoints[1],
-        //     theEntityManager.entityName(block) + "- bottom left"));
     }
 
     // et les points des murs extérieurs
@@ -410,6 +330,7 @@ void SpotSystem::DoUpdate(float) {
     bool isTouched = theTouchInputManager.isTouched(0);
 
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
+        //on vérifie qu'on a déplacé le spot
         sc->dragStarted = isTouched && (sc->dragStarted || IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)));
 
         // if the point has not changed since last time don't recalculate the rays
@@ -418,7 +339,7 @@ void SpotSystem::DoUpdate(float) {
         }
 
         if (sc->dragStarted) {
-            // check that there is not collision before going to mouse position
+            // don't go in external walls
             if (sx - glm::abs(mousePosition.x) < TRANSFORM(e)->size.x / 2.f) {
                 int sign = mousePosition.x > 0.f ? 1 : -1;
                 mousePosition.x = sign * ( sx - TRANSFORM(e)->size.x / 2.f - eps );
@@ -444,12 +365,11 @@ void SpotSystem::DoUpdate(float) {
 
         // on trie les points par angle, en sens horaire (min = max = (-1, 0))
         points.sort([pointOfView] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
-
             float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep1.position - pointOfView));
             float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep2.position - pointOfView));
             return (firstAngle > secondAngle);
         });
-        //on trie aussi les murs pour que le premier point rencontré soit celui avec le plus grand angle
+        //on trie aussi les murs pour que le premier point rencontré soit le 1er en sens horaire
         for (auto & wall : walls) {
             float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(wall.first - pointOfView));
             float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(wall.second - pointOfView));
@@ -460,6 +380,7 @@ void SpotSystem::DoUpdate(float) {
                 wall.second = tmp;
             }
         }
+
         //le dernier mur est un peu particulier : pour lui, on inverse les 2 valeurs pour qu'on ait bien une boucle
         auto tmp = wallBotLeft->first;
         wallBotLeft->first = wallBotLeft->second;
@@ -476,23 +397,25 @@ void SpotSystem::DoUpdate(float) {
             return firstDist < secondDist;
         });
 
-        // du debug
-        FOR_EACH_ENTITY(Block, block)
-            if (IntersectionUtil::pointRectangle(pointOfView, TRANSFORM(block))) {
-                LOGI_IF(debugSpotSystem, "Point of view is INSIDE the block " << theEntityManager.entityName(block));
+        //debug print
+        {
+            FOR_EACH_ENTITY(Block, block)
+                if (IntersectionUtil::pointRectangle(pointOfView, TRANSFORM(block))) {
+                    LOGI_IF(debugSpotSystem, "Point of view is INSIDE the block " << theEntityManager.entityName(block));
+                }
+            }
+            int w = 0;
+            LOGI_IF(debugSpotSystem, "Walls are: ");
+            for (auto wall : walls) {
+                LOGI_IF(debugSpotSystem, "\t" <<  ++w << ". " << wall);
+            }
+            w = 0;
+            LOGI_IF(debugSpotSystem, "Points are: ");
+            for (auto point : points) {
+                LOGI_IF(debugSpotSystem, "\t" << ++w << ". " << point
+                    << " (angle=" << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position - pointOfView)) << " )");
             }
         }
-        int w = 0;
-        LOGI_IF(debugSpotSystem, "Walls are: ");
-        for (auto wall : walls) {
-            LOGI_IF(debugSpotSystem, "\t" <<  ++w << ". " << wall);
-        }
-        w = 0;
-        LOGI_IF(debugSpotSystem, "Points are: ");
-        for (auto point : points) {
-            LOGI_IF(debugSpotSystem, "\t" << ++w << ". " << point
-                << " (angle=" << glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(point.position - pointOfView)) << " )");
-          }
 
         // le point de départ de l'éclairage
         glm::vec2 startPoint = points.begin()->position;
@@ -500,14 +423,16 @@ void SpotSystem::DoUpdate(float) {
         if (! IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second)) {
             LOGI_IF(debugSpotSystem, "First point ( " << startPoint << " ) is NOT on the active wall. There must be a block between it and the camera right? So we'll project\
                 that point on the active wall and take this point as the start point...");
-            if (! getProjection(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint))
+            if (! IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true))
                 LOGF("could not project!!");
         }
+
         LOGI_IF(debugSpotSystem, "Start point is " << startPoint);
     #if SAC_DEBUG
         drawPoint(points.begin()->position, points.begin()->name);
     #endif
-        //le dernier point de l'éclérage
+
+        //le dernier point de l'éclairage courant
         glm::vec2 endPoint;
 
         // on commence directement au 2eme du coup vu qu'on a déjà pris le 1er au dessus
@@ -542,7 +467,7 @@ void SpotSystem::DoUpdate(float) {
                 else LOGI_IF(debugSpotSystem, "\t\tsecond cond: false -> " << activeWall.second << " != " << point.position);
 
                 LOGI_IF(debugSpotSystem, "\tCurrent point is not on the active wall! Projecting point " << point.position << " into the old active wall..." << activeWall);
-                getProjection(pointOfView, point.position, activeWall.first, activeWall.second, & endPoint);
+                IntersectionUtil::lineLine(pointOfView, point.position, activeWall.first, activeWall.second, & endPoint, true);
             }
 
             //finalement on affiche notre zone à éclairer
@@ -568,7 +493,7 @@ void SpotSystem::DoUpdate(float) {
                     startPoint = point.position;
                 } else {
                     // sinon si on arrive pas à projeter sur le mur suivant, il y a un problème
-                    if (! getProjection(pointOfView, point.position, nextActiveWall.first, nextActiveWall.second, & startPoint)) {
+                    if (! IntersectionUtil::lineLine(pointOfView, point.position, nextActiveWall.first, nextActiveWall.second, & startPoint, true)) {
                         LOGF("could not project!!");
                     }
                 }
@@ -595,8 +520,8 @@ void SpotSystem::DoUpdate(float) {
         // 2) soit ils sont sur 2 murs distincts, et dans ce cas on projete les 2 points sur le mur actif (2 blocks, 1 de chaque côté de l'axe des abcisses)
         activeWall = getActiveWall(walls, pointOfView, startPoint, points.front().position);
         LOGI_IF(debugSpotSystem, "\tLast activeWall is " << activeWall << " so projeting " << startPoint << " and " << points.front().position << " on it.");
-        getProjection(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint);
-        getProjection(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint);
+        IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
+        IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
 
         sc->highlightedEdges.push_back(std::make_pair(startPoint, endPoint));
 
@@ -604,6 +529,7 @@ void SpotSystem::DoUpdate(float) {
         points.pop_front();
     }
 
+    //finalement on affiche tous les triangles
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         for (auto pair : sc->highlightedEdges) {
             drawTriangle(TRANSFORM(e)->position, pair.first, pair.second);
@@ -627,7 +553,7 @@ void SpotSystem::DoUpdate(float) {
 }
 
 
-void SpotSystem::CleanEntities() {
+void SpotSystem::DeleteHighlightEntities() {
     while (drawPointList.begin() != drawPointList.end()) {
         theEntityManager.DeleteEntity(*--drawPointList.end());
         drawPointList.pop_back();

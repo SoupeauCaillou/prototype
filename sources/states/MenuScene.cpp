@@ -82,7 +82,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
-        theSpotSystem.CleanEntities();
+        theSpotSystem.DeleteHighlightEntities();
         FOR_EACH_ENTITY(Spot, e)
             theEntityManager.DeleteEntity(e);
         }
