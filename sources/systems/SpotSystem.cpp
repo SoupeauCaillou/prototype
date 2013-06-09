@@ -255,14 +255,23 @@ void SpotSystem::DoUpdate(float) {
                 //double distance if the wall is visible from the 2 sides
                 int doubled = (point.isDoubleFace && std::find(points.begin(), points.end(), next)->isDoubleFace) ? 2 : 1;
 
+#if SAC_DEBUG
+                //norm is easier to validate than norm2
+                totalHighlightedDistance2Objective += doubled * glm::length(next - point.position);
+#else
                 totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
+#endif
             }
         }
     }
     auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
 
     // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
+#if SAC_DEBUG
+    totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0]);
+#else
     totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
+#endif
 
     //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
     insertInWallsIfNotPresent(walls, glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]);
