@@ -115,6 +115,33 @@ std::pair<glm::vec2, glm::vec2> getActiveWall(const std::list<std::pair<glm::vec
     return nearestWall;
 }
 
+bool doesVec2ListContainValue(const std::vector<glm::vec2> & list, const glm::vec2 & value) {
+    for (auto item : list) {
+        if (glm::length2(item - value) < eps) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool insertInPointsIfNotPresent(std::list<EnhancedPoint> & points, const EnhancedPoint & ep) {
+    auto it = std::find(points.begin(), points.end(), ep.position);
+
+    // il n'y est pas, on peut le créer
+    if (it == points.end()) {
+        points.push_back(ep);
+        return true;
+    // sinon, on merge les sommets 'nextEdges' avec ceux déjà existants
+    } else {
+        for (auto next : ep.nextEdges) {
+            if (! doesVec2ListContainValue(it->nextEdges, next)) {
+                it->nextEdges.push_back(next);
+            }
+        }
+        return false;
+    }
+}
+
 bool insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & walls, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
     auto pair = std::make_pair( firstPoint, secondPoint );
 
@@ -123,15 +150,6 @@ bool insertInWallsIfNotPresent(std::list<std::pair<glm::vec2, glm::vec2>> & wall
         && std::find(walls.begin(), walls.end(), std::make_pair( secondPoint, firstPoint)) == walls.end()) {
         walls.push_back(pair);
         return true;
-    }
-    return false;
-}
-
-bool doesVec2ListContainValue(const std::vector<glm::vec2> & list, const glm::vec2 & value) {
-    for (auto item : list) {
-        if (glm::length2(item - value) < eps) {
-            return true;
-        }
     }
     return false;
 }
@@ -166,7 +184,7 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                                 std::vector<glm::vec2> nexts;
                                 nexts.push_back(endPoint1);
                                 nexts.push_back(endPoint2);
-                                points.push_back(EnhancedPoint(intersectionPoint, nexts, "intersection point", true));
+                                insertInPointsIfNotPresent(points, EnhancedPoint(intersectionPoint, nexts, "intersection point", true));
                             } else {
                                 //todo: vérifier s'il est pas déjà présent avant de l'ajouter
                                 // if (std::find(points.begin(), points.end(), endPoint1) == points.end()) {
@@ -197,19 +215,20 @@ void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 
     FOR_EACH_ENTITY_COMPONENT(Block, block, bc)
         TransformationComponent * tc = TRANSFORM(block);
 
-        glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
+        //since we consider only 2 points, don't consider size.y
+        glm::vec2 offset = glm::rotate(.5f * glm::vec2(tc->size.x, 0.), tc->rotation);
 
         glm::vec2 rectanglePoints[4] = {
             tc->position - offset, //first point
             tc->position + offset, //second point
         };
-        points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
+        insertInPointsIfNotPresent(points, EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
             theEntityManager.entityName(block) + "- first point", bc->isDoubleFace));
-        points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
+        insertInPointsIfNotPresent(points, EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
             theEntityManager.entityName(block) + "- second point", bc->isDoubleFace));
     }
 
-    // et les points des murs extérieurs
+    // et les points des murs extérieurs - pas besoin de vérifier pour eux
     points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left", false));
     points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right", false));
     points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right", false));
