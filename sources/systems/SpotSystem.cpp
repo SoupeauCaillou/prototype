@@ -166,7 +166,7 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                                 std::vector<glm::vec2> nexts;
                                 nexts.push_back(endPoint1);
                                 nexts.push_back(endPoint2);
-                                points.push_back(EnhancedPoint(intersectionPoint, nexts, "intersection point"));
+                                points.push_back(EnhancedPoint(intersectionPoint, nexts, "intersection point", true));
                             } else {
                                 //todo: vérifier s'il est pas déjà présent avant de l'ajouter
                                 // if (std::find(points.begin(), points.end(), endPoint1) == points.end()) {
@@ -194,7 +194,7 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
 
 void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 externalWalls[4]) {
     //Première étape : on ajoute les points des blocks
-    FOR_EACH_ENTITY(Block, block)
+    FOR_EACH_ENTITY_COMPONENT(Block, block, bc)
         TransformationComponent * tc = TRANSFORM(block);
 
         glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
@@ -204,16 +204,16 @@ void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 
             tc->position + offset, //second point
         };
         points.push_back(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
-            theEntityManager.entityName(block) + "- first point"));
+            theEntityManager.entityName(block) + "- first point", bc->isDoubleFace));
         points.push_back(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
-            theEntityManager.entityName(block) + "- second point"));
+            theEntityManager.entityName(block) + "- second point", bc->isDoubleFace));
     }
 
     // et les points des murs extérieurs
-    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left"));
-    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right"));
-    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right"));
-    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., FAR_FAR_AWAY), "wall bottom left"));
+    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left", false));
+    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right", false));
+    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right", false));
+    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., FAR_FAR_AWAY), "wall bottom left", false));
 }
 
 void SpotSystem::DoUpdate(float) {
@@ -252,7 +252,10 @@ void SpotSystem::DoUpdate(float) {
     for (auto point : points) {
         for (auto next : point.nextEdges) {
             if (insertInWallsIfNotPresent(walls, point.position, next)) {
-                totalHighlightedDistance2Objective += glm::length2(next - point.position);
+                //double distance if the wall is visible from the 2 sides
+                int doubled = (point.isDoubleFace && std::find(points.begin(), points.end(), next)->isDoubleFace) ? 2 : 1;
+
+                totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
             }
         }
     }
@@ -341,7 +344,7 @@ void SpotSystem::DoUpdate(float) {
         wallBotLeft->second = tmp;
 
         //on s'assure que le 1er point qui sera parcouru est le "wall middle left"
-        points.push_front(EnhancedPoint( glm::vec2(-sx, pointOfView.y), externalWalls[0], "wall middle left (first point)"));
+        points.push_front(EnhancedPoint( glm::vec2(-sx, pointOfView.y), externalWalls[0], "wall middle left (first point)", false));
 
         // on trie les murs par distance à la caméra, du plus proche au plus lointain
         walls.sort([pointOfView] (std::pair<glm::vec2, glm::vec2> & w1, std::pair<glm::vec2, glm::vec2> & w2) {

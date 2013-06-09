@@ -26,6 +26,7 @@
 #include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
+#include "util/DebugConsole.h"
 
 #include "api/StorageAPI.h"
 #include "api/NetworkAPI.h"
@@ -103,6 +104,10 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+
+#if SAC_INGAME_EDITORS
+    DebugConsole::registerMethodWithOneArg("GoToLevel", "level", &LevelSystem::LoadFromFile, &LevelSystem::currentLevelPath, TW_TYPE_STDSTRING);
+#endif
 
 #if SAC_DEBUG
     //create a grid

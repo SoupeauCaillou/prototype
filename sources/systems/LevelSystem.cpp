@@ -3,9 +3,12 @@
 #include "base/Color.h"
 #include "base/PlacementHelper.h"
 
+#include "util/DrawSomething.h"
+
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/BlockSystem.h"
+#include "systems/SpotSystem.h"
 
 #include <fstream>
 #include <sstream>
@@ -65,7 +68,26 @@ void LevelSystem::SaveInFile(const std::string & filename, const std::list<Entit
 }
 #endif
 
+void LevelSystem::LoadFromFile(void * filename) {
+    LoadFromFile(*((std::string *)filename));
+}
+
 void LevelSystem::LoadFromFile(const std::string & filename) {
+    LOGI("Loading map '" << filename << "'...");
+
+    //remove any existing things first
+    Draw::DrawPointRestart("SpotSystem");
+    Draw::DrawVec2Restart("SpotSystem");
+    Draw::DrawTriangleRestart("SpotSystem");
+
+    FOR_EACH_ENTITY(Spot, e)
+        theEntityManager.DeleteEntity(e);
+    }
+    FOR_EACH_ENTITY(Block, e)
+        theEntityManager.DeleteEntity(e);
+    }
+
+
 #if SAC_EMSCRIPTEN
     for (int i = 0; i < spots.size(); ++i) {
         Entity e = theEntityManager.CreateEntity("spot",
@@ -80,7 +102,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         TRANSFORM(e)->size.x = glm::length(pair.first.second - pair.first.first);
         TRANSFORM(e)->size.y = 0.1;
         TRANSFORM(e)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize( pair.first.second - pair.first.first));
-        BLOCK(e)->doubleFace = pair.second;
+        BLOCK(e)->isDoubleFace = pair.second;
     }
 #else
     std::ifstream myfile;
@@ -115,7 +137,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         iss.str(line);
 
         glm::vec2 firstPoint, secondPoint;
-        std::string doubleFace;
+        std::string isDoubleFace;
 
         iss >> firstPoint.x;
         iss.ignore(1, ',');
@@ -127,7 +149,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         iss.ignore(1, ',');
         iss >> secondPoint.y;
 
-        iss >> doubleFace;
+        iss >> isDoubleFace;
 
         Entity e = theEntityManager.CreateEntity("block",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
@@ -135,7 +157,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         TRANSFORM(e)->size.x = glm::length(secondPoint - firstPoint);
         TRANSFORM(e)->size.y = 0.1;
         TRANSFORM(e)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize( secondPoint - firstPoint));
-        BLOCK(e)->doubleFace = (doubleFace == "true");
+        BLOCK(e)->isDoubleFace = (isDoubleFace == "true");
     }
 
     myfile.close();

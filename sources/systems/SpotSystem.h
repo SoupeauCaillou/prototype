@@ -8,11 +8,11 @@
 const float eps = 0.0001f;
 struct EnhancedPoint {
     EnhancedPoint() :
-        position(0.), name("unknown") {}
-    EnhancedPoint(const glm::vec2& inp, const glm::vec2 & ne, const std::string & iname) :
-        position(inp), name(iname) { nextEdges.push_back(ne); }
-    EnhancedPoint(const glm::vec2& inp, const std::vector<glm::vec2> & ine, const std::string & iname) :
-        position(inp), nextEdges(ine), name(iname) {}
+        position(0.), name("unknown"), isDoubleFace(false) {}
+    EnhancedPoint(const glm::vec2& inp, const glm::vec2 & ne, const std::string & iname, bool isD) :
+        position(inp), name(iname), isDoubleFace(isD) { nextEdges.push_back(ne); }
+    EnhancedPoint(const glm::vec2& inp, const std::vector<glm::vec2> & ine, const std::string & iname, bool isD) :
+        position(inp), nextEdges(ine), name(iname), isDoubleFace(isD) {}
 
 
     //old position for the spot (used in case of drag)
@@ -21,8 +21,11 @@ struct EnhancedPoint {
     //list of all connected points
     std::vector<glm::vec2> nextEdges;
 
-    //only fpr debug
+    //only for debug
     std::string name;
+
+    //for solution calculation
+    bool isDoubleFace;
 
     bool operator== (const EnhancedPoint & ep) const {
         return (glm::length2(position - ep.position) < eps);
