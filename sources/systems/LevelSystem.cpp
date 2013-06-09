@@ -73,7 +73,7 @@ void LevelSystem::LoadFromFile(void * filename) {
 }
 
 void LevelSystem::LoadFromFile(const std::string & filename) {
-    LOGI("Loading map '" << filename << "'...");
+    LOGI("Loading map '" << ((filename.size() != 0) ? filename : currentLevelPath) << "'...");
 
     //remove any existing things first
     Draw::DrawPointRestart("SpotSystem");
@@ -113,7 +113,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         myfile.open(currentLevelPath);
     }
 
-    LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
+    LOGE_IF( ! myfile.is_open(), "Could not open file '" << ((filename.size() != 0) ? filename : currentLevelPath) << "'");
     std::string line;
 
     std::getline (myfile, line);
