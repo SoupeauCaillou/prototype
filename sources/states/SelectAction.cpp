@@ -102,6 +102,8 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         // Camera movement
         if (theCameraMoveManager.update(dt, game->camera))
             return Scene::SelectAction;
+        if (BUTTON(game->banner)->clicked)
+            return Scene::EndTurn;
 
         // Change active character
         for (auto p: game->players) {
