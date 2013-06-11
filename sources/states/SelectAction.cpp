@@ -88,6 +88,9 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                         TRANSFORM(e)->position = TRANSFORM(enemy)->position;
                         RENDERING(e)->color = Color(0.6, 0.1, 0.1);
                         RENDERING(e)->show = true;
+                        ADD_COMPONENT(e, Button);
+                        BUTTON(e)->enabled = true;
+                        BUTTON(e)->overSize = 0.8;
                         attacks.push_back(e);
                     }
                 }
@@ -157,7 +160,8 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                     const GridPos& myPos = game->grid.positionToGridPos(TRANSFORM(game->activeCharacter)->position);
                     const GridPos& enemyPos = game->grid.positionToGridPos(TRANSFORM(e)->position);
 
-                    if (game->grid.canDrawLine(myPos, enemyPos)) {
+                    if (SpatialGrid::ComputeDistance(myPos, enemyPos) <= SOLDIER(game->activeCharacter)->attackRange &&
+                            game->grid.canDrawLine(myPos, enemyPos)) {
                         Entity action = theEntityManager.CreateEntity("atk_action",
                         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
                         RENDERING(action)->color = Color(0.8, 0.2, 0.2, 0.5);
