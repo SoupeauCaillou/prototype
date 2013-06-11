@@ -84,6 +84,8 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         if (apLeftForActive >= 2) {
             unsigned maxAtkRange = SOLDIER(game->activeCharacter)->attackRange.t2;
             for (auto enemy: game->yEnnemies) {
+                BUTTON(enemy)->enabled = false;
+
                 const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
                 if (SpatialGrid::ComputeDistance(pos, enemyPos) <= maxAtkRange) {
                     if (game->grid.canDrawLine(pos, enemyPos)) {
@@ -96,6 +98,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                         BUTTON(e)->enabled = true;
                         BUTTON(e)->overSize = 0.8;
                         attacks.push_back(e);
+                        BUTTON(enemy)->enabled = true;
                     }
                 }
             }

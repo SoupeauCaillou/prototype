@@ -21,6 +21,8 @@
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
 #include "systems/PlayerSystem.h"
+#include "../PrototypeGame.h"
+
 #include <glm/gtx/compatibility.hpp>
 
 INSTANCE_IMPL(ActionSystem);
@@ -79,6 +81,33 @@ void ActionSystem::DoUpdate(float dt) {
                 }
                 case Action::Attack: {
                     static float accum = 0;
+                    if (accum == 0.0f) {
+                        LOGI("Resolve attack");
+                        const auto* sc = SOLDIER(ac->entity);
+                        // Resolve attack
+                        //   1. determine distance
+                        unsigned distance = game->grid.computeGridDistance(
+                            TRANSFORM(ac->entity)->position,
+                            TRANSFORM(ac->attackTarget)->position);
+                        LOGI("Distance: " << distance);
+                        //   2. if closer than min distance, use min distance
+                        distance = glm::max(distance, sc->attackRange.t1);
+                        LOGI("Distance bis: " << distance);
+                        //   3. compute hit probability
+                        float hitProbability = glm::lerp(0.9f, 0.1f, distance / (float)sc->attackRange.t2);
+                        LOGI("Proba: " << hitProbability);
+                        //   4. throw 1d10!
+                        float dice = glm::linearRand(0.0f, 1.0f);
+                        LOGI("Dice: " << dice);
+                        //   5. It's a hit ?!
+                        if (dice <= hitProbability) {
+                            LOGI(theEntityManager.entityName(ac->entity) << " just hit " <<
+                                theEntityManager.entityName(ac->attackTarget));
+                            SOLDIER(ac->attackTarget)->maxActionPointsPerTurn
+                                -= SOLDIER(ac->entity)->attackDamage;
+                        }
+                    }
+
                     accum += dt;
                     if (accum >= 1) {
                         accum = 0;

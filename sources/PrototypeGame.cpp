@@ -77,6 +77,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
+    theActionSystem.game = this;
+
     LOGI("SAC engine initialisation done.");
 }
 

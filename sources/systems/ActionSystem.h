@@ -29,6 +29,8 @@ namespace Action {
     };
 }
 
+class PrototypeGame;
+
 struct ActionComponent {
     ActionComponent() : type(Action::None), entity(0), dependsOn(0) {}
 
@@ -53,4 +55,7 @@ struct ActionComponent {
 #define ACTION(e) theActionSystem.Get(e)
 
 UPDATABLE_SYSTEM(Action)
+
+    public:
+        PrototypeGame* game;
 };
