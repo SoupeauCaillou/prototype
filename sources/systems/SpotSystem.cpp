@@ -146,15 +146,14 @@ bool insertInPointsIfNotPresent(std::list<EnhancedPoint> & points, const Enhance
 
 bool insertInWallsIfNotPresent(std::list<Wall> & walls, const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint) {
     auto pair = Wall( firstPoint, secondPoint );
-    LOGI("try to insert: " << pair);
+    // LOGI("try to insert: " << pair);
 
-    for (auto w : walls) LOGI(w);
     //s'il n'est pas déjà présent, on l'insère dans la liste
     if (std::find(walls.begin(), walls.end(), pair) == walls.end() &&
         std::find(walls.begin(), walls.end(), Wall( secondPoint, firstPoint)) == walls.end()) {
 
         walls.push_back(pair);
-        LOGI("successfully");
+        // LOGI("successfully");
         return true;
     }
     return false;
@@ -403,9 +402,8 @@ void SpotSystem::DoUpdate(float) {
 
     //on garde la liste de tous les murs disponibles
     std::list<Wall> walls;
-    LOGI("\n");
+
     for (auto point : points) {
-        LOGI(point);
         for (auto next : point.nextEdges) {
             if (insertInWallsIfNotPresent(walls, point.position, next)) {
                 //double distance if the wall is visible from the 2 sides
@@ -416,7 +414,6 @@ void SpotSystem::DoUpdate(float) {
 #else
                 totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
 #endif
-                LOGI(totalHighlightedDistance2Objective);
             }
         }
     }

@@ -17,47 +17,57 @@
 	along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "base/StateMachine.h"
-
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
+#include "base/PlacementHelper.h"
 
-#include "util/IntersectionUtil.h"
-#include "util/DrawSomething.h"
-
-#include "systems/TextRenderingSystem.h"
 #include "systems/LevelSystem.h"
-#include "systems/BlockSystem.h"
-#include "systems/SpotSystem.h"
+#include "systems/TextRenderingSystem.h"
+#include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
 
 #include "PrototypeGame.h"
 
-#include <glm/gtx/vector_angle.hpp>
-#include <iomanip>
-
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity objectiveProgression;
+
+    std::vector<Entity> levels;
+    Entity levelEditor;
+
+    const int LEVEL_COUNT = 4;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
-        glm::vec2 pointOfView(0.6222f, 0.0778f);
-        // bug dans glm? notre point est à gauche de "l'origine", et un peu plus bas ... donc l'angle devrait etre -179.9 pas 179.9
-        LOGF_IF(0.f <  glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(glm::vec2(-4.0966f, 0.0701f ) - pointOfView)),
-            "Bug with GLM. You should fix it in glm/gtx/vector_angle.inl:36 -> change epsilon value to 0.00001 ");
+        //inside sqrt '+1' is for levelEditor btn
+        int sqrtTot = (int)sqrt(LEVEL_COUNT + 1) + 1;
 
+        float sx = PlacementHelper::ScreenWidth / 3.;
+        float sy = PlacementHelper::ScreenHeight / 3.;
 
+        for (int i = 0; i < LEVEL_COUNT; ++i) {
+            std::stringstream ss;
+            ss << "Level " << i + 1;
 
-        objectiveProgression = theEntityManager.CreateEntity("objective",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
-        TRANSFORM(objectiveProgression)->position = glm::vec2(7, 6);
-        TEXT_RENDERING(objectiveProgression)->text = "0.0\%";
+            Entity e = theEntityManager.CreateEntity(ss.str(),
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("action_button"));
+
+            TEXT_RENDERING(e)->text = ss.str();
+
+            TRANSFORM(e)->position = glm::vec2(-sx + 2.f * sx * (i % sqrtTot) / sqrtTot, sy - 2.f * sy * (i / sqrtTot) / sqrtTot);
+            levels.push_back(e);
+        }
+
+        //finally, add a level editor button
+        levelEditor = theEntityManager.CreateEntity("Level editor",
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("action_button"));
+        TEXT_RENDERING(levelEditor)->text = "Level editor";
+        TRANSFORM(levelEditor)->position = glm::vec2(-sx + 2.f * sx * (LEVEL_COUNT % sqrtTot) / sqrtTot, sy - 2.f * sy * (LEVEL_COUNT / sqrtTot) / sqrtTot);
     }
 
 
@@ -66,33 +76,31 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        LevelSystem::LoadFromFile();
-
-        TEXT_RENDERING(objectiveProgression)->show = true;
+        for (auto e : levels) {
+            TEXT_RENDERING(e)->show = BUTTON(e)->enabled = true;
+        }
+        TEXT_RENDERING(levelEditor)->show = BUTTON(levelEditor)->enabled = true;
     }
 
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
-        theLevelSystem.Update(dt);
-        theBlockSystem.Update(dt);
-        theSpotSystem.Update(dt);
-
-        //update objective
-        {
-            //update the text from the entity
-            std::stringstream a;
-            a << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Done << "/ "
-            << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Objective << " %";
-
-            TEXT_RENDERING(objectiveProgression)->text = a.str();
+    Scene::Enum update(float) override {
+        if (BUTTON(levelEditor)->clicked) {
+            return Scene::LevelEditor;
         }
 
-        //go back to leveleditor - right click or no spot
-        if (theSpotSystem.getAllComponents().size() == 0 || theTouchInputManager.wasTouched(1)) {
-            return Scene::LevelEditor;
+        for (int i = 0; i < LEVEL_COUNT; ++i) {
+            Entity e = levels[i];
+
+            if (BUTTON(e)->clicked) {
+                std::stringstream ss;
+                ss << "../../assetspc/level" << i + 1 << ".map";
+                LevelSystem::currentLevelPath = ss.str();
+
+                return Scene::Play;
+            }
         }
         return Scene::Menu;
     }
@@ -102,20 +110,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
-        Draw::DrawPointRestart("SpotSystem");
-        Draw::DrawVec2Restart("SpotSystem");
-        Draw::DrawTriangleRestart("SpotSystem");
-
-        FOR_EACH_ENTITY(Spot, e)
-            theEntityManager.DeleteEntity(e);
-        }
-        FOR_EACH_ENTITY(Block, e)
-            theEntityManager.DeleteEntity(e);
-        }
     }
 
     void onExit(Scene::Enum) override {
-        TEXT_RENDERING(objectiveProgression)->show = false;
+        for (auto e : levels) {
+            TEXT_RENDERING(e)->show = BUTTON(e)->enabled = false;
+        }
+        TEXT_RENDERING(levelEditor)->show = BUTTON(levelEditor)->enabled = false;
     }
 };
 

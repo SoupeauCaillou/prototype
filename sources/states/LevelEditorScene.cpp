@@ -31,6 +31,7 @@
 
 #include "util/IntersectionUtil.h"
 #include "util/DrawSomething.h"
+#include "util/Grid.h"
 
 #include "Scenes.h"
 
@@ -113,6 +114,10 @@ or click on another point and you will create a wall.";
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+#if SAC_DEBUG
+        Grid::EnableGrid();
+#endif
+
         TEXT_RENDERING(tip)->show =
         TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = true;
@@ -135,13 +140,13 @@ or click on another point and you will create a wall.";
                 theLevelSystem.SaveInFile("/tmp/" + userLevelName + ".map", wallList, spotList);
                 waitingForLevelName = false;
 
-                selectTip(EnumTip::NoSpot);
+                selectTip(EnumTip::Default);
 
                 //if he pressed "go try!", then change scene
                 if (shouldGoTryAfterInput) {
                     LevelSystem::currentLevelPath = "/tmp/" + userLevelName + ".map";
                     shouldGoTryAfterInput = false;
-                    return Scene::Menu;
+                    return Scene::Play;
                 }
             } else if (userLevelName.size() > 0) {
                 //show current input...
@@ -258,6 +263,10 @@ or click on another point and you will create a wall.";
     }
 
     void onExit(Scene::Enum) override {
+#if SAC_DEBUG
+        Grid::DisableGrid();
+#endif
+
         TEXT_RENDERING(tip)->show =
         TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = false;

@@ -27,6 +27,7 @@
 
 #include "util/IntersectionUtil.h"
 #include "util/DebugConsole.h"
+#include "util/Grid.h"
 
 #include "api/StorageAPI.h"
 #include "api/NetworkAPI.h"
@@ -58,6 +59,7 @@
 PrototypeGame::PrototypeGame() : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::Play, Scene::CreatePlaySceneHandler(this), "Scene::Play");
     sceneStateMachine.registerState(Scene::LevelEditor, Scene::CreateLevelEditorSceneHandler(this), "Scene::LevelEditor");
 }
 
@@ -111,29 +113,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 #endif
 
 #if SAC_DEBUG
-    //create a grid
-    int i = 0;
-    for (; i < PlacementHelper::ScreenHeight + 1; ++i) {
-        Entity e = theEntityManager.CreateEntity("grid_line",
-          EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_line"));
-        TRANSFORM(e)->position.y = -.5 + PlacementHelper::ScreenHeight / 2. - i;
-        TRANSFORM(e)->size.y = 1.;
-    }
-
-    for (int j = - 10; j <= 10; j += 2) {
-        std::stringstream ss;
-        ss << j;
-
-        Entity e = theEntityManager.CreateEntity("grid_number_x " + ss.str(),
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
-        TEXT_RENDERING(e)->text = ss.str();
-        TRANSFORM(e)->position.x = j;
-
-        e = theEntityManager.CreateEntity("grid_number_y " + ss.str(),
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
-        TEXT_RENDERING(e)->text = ss.str();
-        TRANSFORM(e)->position.y = j;
-    }
+    Grid::CreateGrid();
 #endif
 
     quickInit();
