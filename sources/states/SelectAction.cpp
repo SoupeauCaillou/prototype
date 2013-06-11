@@ -57,8 +57,9 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         const GridPos pos = game->grid.positionToGridPos(TRANSFORM(active)->position);
 
         apLeftForActive =
-            glm::min(PLAYER(game->humanPlayer)->actionPointsLeft,
-                SOLDIER(active)->actionPointsLeft);
+            glm::min(SOLDIER(active)->maxActionPointsPerTurn,
+                glm::min(PLAYER(game->humanPlayer)->actionPointsLeft,
+                    SOLDIER(active)->actionPointsLeft));
 
         std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, apLeftForActive);
         Color green1(0,1,0, 0.5);
@@ -86,20 +87,25 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
             for (auto enemy: game->yEnnemies) {
                 BUTTON(enemy)->enabled = false;
 
+                if (SOLDIER(enemy)->maxActionPointsPerTurn <= 0)
+                    continue;
+
                 const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
-                if (SpatialGrid::ComputeDistance(pos, enemyPos) <= maxAtkRange) {
-                    if (game->grid.canDrawLine(pos, enemyPos)) {
-                        Entity e = theEntityManager.CreateEntity("potential_atk",
-                        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
-                        TRANSFORM(e)->position = TRANSFORM(enemy)->position;
-                        RENDERING(e)->color = Color(0.6, 0.1, 0.1);
-                        RENDERING(e)->show = true;
-                        ADD_COMPONENT(e, Button);
-                        BUTTON(e)->enabled = true;
-                        BUTTON(e)->overSize = 0.8;
-                        attacks.push_back(e);
-                        BUTTON(enemy)->enabled = true;
-                    }
+
+                if (SpatialGrid::ComputeDistance(pos, enemyPos) > maxAtkRange)
+                    continue;
+
+                if (game->grid.canDrawLine(pos, enemyPos)) {
+                    Entity e = theEntityManager.CreateEntity("potential_atk",
+                    EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
+                    TRANSFORM(e)->position = TRANSFORM(enemy)->position;
+                    RENDERING(e)->color = Color(0.6, 0.1, 0.1);
+                    RENDERING(e)->show = true;
+                    ADD_COMPONENT(e, Button);
+                    BUTTON(e)->enabled = true;
+                    BUTTON(e)->overSize = 0.8;
+                    attacks.push_back(e);
+                    BUTTON(enemy)->enabled = true;
                 }
             }
         }

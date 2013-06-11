@@ -19,6 +19,7 @@
 */
 #include "ActionSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/ParticuleSystem.h"
 #include "systems/SoldierSystem.h"
 #include "systems/PlayerSystem.h"
 #include "../PrototypeGame.h"
@@ -44,6 +45,7 @@ static void payForAction(Entity soldier, Action::Enum type) {
             break;
     }
 
+    LOGI("Pay for action: " << type << " -> " << actionCost);
     PLAYER(SOLDIER(soldier)->player)->actionPointsLeft -= actionCost;
     SOLDIER(soldier)->actionPointsLeft -= actionCost;
 }
@@ -82,29 +84,35 @@ void ActionSystem::DoUpdate(float dt) {
                 case Action::Attack: {
                     static float accum = 0;
                     if (accum == 0.0f) {
-                        LOGI("Resolve attack");
+                        LOGV(1, "Resolve attack");
                         const auto* sc = SOLDIER(ac->entity);
                         // Resolve attack
                         //   1. determine distance
                         unsigned distance = game->grid.computeGridDistance(
                             TRANSFORM(ac->entity)->position,
                             TRANSFORM(ac->attackTarget)->position);
-                        LOGI("Distance: " << distance);
+                        LOGV(1, "Distance: " << distance);
                         //   2. if closer than min distance, use min distance
                         distance = glm::max(distance, sc->attackRange.t1);
-                        LOGI("Distance bis: " << distance);
+                        LOGV(1, "Distance bis: " << distance);
                         //   3. compute hit probability
                         float hitProbability = glm::lerp(0.9f, 0.1f, distance / (float)sc->attackRange.t2);
-                        LOGI("Proba: " << hitProbability);
+                        LOGV(1, "Proba: " << hitProbability);
                         //   4. throw 1d10!
                         float dice = glm::linearRand(0.0f, 1.0f);
-                        LOGI("Dice: " << dice);
+                        LOGV(1, "Dice: " << dice);
                         //   5. It's a hit ?!
                         if (dice <= hitProbability) {
                             LOGI(theEntityManager.entityName(ac->entity) << " just hit " <<
                                 theEntityManager.entityName(ac->attackTarget));
                             SOLDIER(ac->attackTarget)->maxActionPointsPerTurn
                                 -= SOLDIER(ac->entity)->attackDamage;
+
+                            PARTICULE(ac->attackTarget)->duration = 0.1;
+                            PARTICULE(ac->attackTarget)->emissionRate = 150;
+                            if (SOLDIER(ac->attackTarget)->maxActionPointsPerTurn <= 0) {
+                                RENDERING(ac->attackTarget)->color = Color(0.2, 0.2, 0.2);
+                            }
                         }
                     }
 
@@ -113,7 +121,6 @@ void ActionSystem::DoUpdate(float dt) {
                         accum = 0;
                         // mark action as finished
                         actionFinished.push_back(entity);
-                        PLAYER(SOLDIER(ac->entity)->player)->actionPointsLeft-=2;
                     }
                     break;
                 }
