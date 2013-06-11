@@ -57,7 +57,7 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
         for (auto o: game->objs) {
             RENDERING(o)->show = true;
         }
-        theSoldierSystem.forEachEntityDo([] (Entity e, SoldierComponent* sc) -> void {
+        theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent* sc) -> void {
             RENDERING(e)-> show = true;
             TEXT_RENDERING(sc->apIndicator)-> show = true;
         });
@@ -98,13 +98,13 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
 
 
         // reset players
-        thePlayerSystem.forEachEntityDo([] (Entity , PlayerComponent* pc) -> void {
+        thePlayerSystem.forEachECDo([] (Entity , PlayerComponent* pc) -> void {
             pc->actionPointsLeft = pc->actionPointsPerTurn;
             pc->turn++;
         });
 
         // reset soldier too
-        theSoldierSystem.forEachEntityDo([] (Entity e, SoldierComponent* sc) -> void {
+        theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent* sc) -> void {
             sc->actionPointsLeft = sc->maxActionPointsPerTurn;
             SoldierSystem::UpdateUI(e, sc);
         });

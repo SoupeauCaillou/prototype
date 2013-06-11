@@ -69,11 +69,12 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
-    Game::sacInit(windowW, windowH);
-
     SoldierSystem::CreateInstance();
     ActionSystem::CreateInstance();
     PlayerSystem::CreateInstance();
+
+    Game::sacInit(windowW, windowH);
+
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
