@@ -7,7 +7,8 @@ z = 0.1
 [Soldier]
 vision_range = 5
 attack_range = 3, 10
-move_range = 4
+move_range = 5
+max_action_points_per_turn = 5
 
 [Grid]
 blocks_path = 1

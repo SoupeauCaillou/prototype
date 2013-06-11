@@ -21,6 +21,7 @@
 
 #include "Scenes.h"
 #include "systems/PlayerSystem.h"
+#include "systems/SoldierSystem.h"
 #include "PrototypeGame.h"
 #include "systems/TextRenderingSystem.h"
 
@@ -60,6 +61,19 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
         PLAYER(game->humanPlayer)->turn ++;
         PLAYER(game->aiPlayer)->turn ++;
 
+
+        // reset players
+        thePlayerSystem.forEachEntityDo([] (Entity , PlayerComponent* pc) -> void {
+            pc->actionPointsLeft = pc->actionPointsPerTurn;
+            pc->turn++;
+        });
+
+        // reset soldier too
+        theSoldierSystem.forEachEntityDo([] (Entity , SoldierComponent* pc) -> void {
+            pc->actionPointsLeft = pc->maxActionPointsPerTurn;
+        });
+
+        // update ui
         std::stringstream ss1;
         ss1 << "Turn: " << PLAYER(game->humanPlayer)->turn;
         TEXT_RENDERING(game->turn)->text = ss1.str();

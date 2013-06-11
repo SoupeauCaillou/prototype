@@ -29,6 +29,23 @@ ActionSystem::ActionSystem() : ComponentSystemImpl<ActionComponent>("Action") {
     ActionComponent sc;
 }
 
+static void payForAction(Entity soldier, Action::Enum type) {
+    int actionCost = 0;
+    switch (type) {
+        case Action::None:
+            break;
+        case Action::MoveTo:
+            actionCost = 1;
+            break;
+        case Action::Attack:
+            actionCost = 2;
+            break;
+    }
+
+    PLAYER(SOLDIER(soldier)->player)->actionPointsLeft -= actionCost;
+    SOLDIER(soldier)->actionPointsLeft -= actionCost;
+}
+
 void ActionSystem::DoUpdate(float dt) {
     std::vector<Entity> actionFinished;
     std::vector<ActionComponent*> actionDependingOnAnother;
@@ -50,10 +67,8 @@ void ActionSystem::DoUpdate(float dt) {
                     if (length < 0.001 || length <= ac->moveSpeed * dt) {
                         // set final position
                         TRANSFORM(ac->entity)->position = ac->moveToTarget;
-                        LOGI(TRANSFORM(ac->entity)->position);
                         // mark action as finished
                         actionFinished.push_back(entity);
-                        PLAYER(SOLDIER(ac->entity)->player)->actionPointsLeft--;
                     } else {
                         // move nearer to target
                         TRANSFORM(ac->entity)->position += diff * (ac->moveSpeed * dt) / length;
@@ -81,6 +96,8 @@ void ActionSystem::DoUpdate(float dt) {
 
     if (!actionFinished.empty()) {
         for (auto eDone: actionFinished) {
+            payForAction(ACTION(eDone)->entity, ACTION(eDone)->type);
+
             if (!actionDependingOnAnother.empty()) {
                 for (auto aBlocked: actionDependingOnAnother) {
                     if (aBlocked->dependsOn == eDone) {

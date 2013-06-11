@@ -22,7 +22,7 @@
 #include "systems/System.h"
 
 struct SoldierComponent {
-    SoldierComponent() :player(0), moveRange(4), visionRange(10), attackRange(1, 5), attackDamage(1), pLance(0), defensePoint(0) {
+    SoldierComponent() :player(0), moveRange(4), visionRange(10), attackRange(1, 5), attackDamage(1), pLance(0), defensePoint(0), maxActionPointsPerTurn(5), actionPointsLeft(0) {
     }
 
     Entity player;
@@ -32,6 +32,8 @@ struct SoldierComponent {
 	int attackDamage;
 	int pLance;
 	int defensePoint;
+    int maxActionPointsPerTurn;
+    int actionPointsLeft;
 
 	enum Actions {
 		Move,

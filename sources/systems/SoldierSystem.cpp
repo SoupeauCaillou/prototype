@@ -29,6 +29,8 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
 	componentSerializer.add(new Property<int>("attack_damage", OFFSET(attackDamage, sc), 0));
 	componentSerializer.add(new Property<int>("p_lance", OFFSET(pLance, sc), 0));
 	componentSerializer.add(new Property<int>("defense_point", OFFSET(defensePoint, sc), 0));
+    componentSerializer.add(new Property<int>("max_action_points_per_turn", OFFSET(maxActionPointsPerTurn, sc), 0));
+    componentSerializer.add(new Property<int>("action_points_left", OFFSET(actionPointsLeft, sc), 0));
 }
 
 void SoldierSystem::DoUpdate(float) {

@@ -32,6 +32,7 @@
 struct SelectActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     std::vector<Entity> moves, attacks;
+    int apLeftForActive;
 
     // Scene variables
 
@@ -55,17 +56,20 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         Entity active = game->activeCharacter;
         const GridPos pos = game->grid.positionToGridPos(TRANSFORM(active)->position);
 
-        const int pointsLeft = PLAYER(game->humanPlayer)->actionPointsLeft;
-        std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, pointsLeft);
+        apLeftForActive =
+            glm::min(PLAYER(game->humanPlayer)->actionPointsLeft,
+                SOLDIER(active)->actionPointsLeft);
+
+        std::map<int, std::vector<GridPos> > v = game->grid.movementRange(pos, apLeftForActive);
         Color green1(0,1,0, 0.5);
         Color green2(0.2,0.4,0, 0.5);
         for (auto i: v) {
-            if (i.first > 0 && i.first <= pointsLeft) {
+            if (i.first > 0 && i.first <= apLeftForActive && i.first <= SOLDIER(active)->moveRange) {
                 for (auto gridPos: i.second) {
                     Entity e = theEntityManager.CreateEntity("potential_move",
                     EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
                     TRANSFORM(e)->position = game->grid.gridPosToPosition(gridPos);
-                    float t = i.first / (float)pointsLeft;
+                    float t = i.first / (float)apLeftForActive;
                     RENDERING(e)->color = green2 * t + green1 * (1 - t);
                     RENDERING(e)->show = true;
                     ADD_COMPONENT(e, Button);
@@ -77,7 +81,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
         }
 
         // mark attack possibilities
-        if (pointsLeft >= 2) {
+        if (apLeftForActive >= 2) {
             unsigned maxAtkRange = SOLDIER(game->activeCharacter)->attackRange.t2;
             for (auto enemy: game->yEnnemies) {
                 const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
@@ -153,7 +157,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        if (PLAYER(game->humanPlayer)->actionPointsLeft >= 2) {
+        if (apLeftForActive >= 2) {
             // Attack action
             for (auto e: game->yEnnemies) {
                 if (BUTTON(e)->clicked) {
@@ -199,6 +203,8 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
     void onPreExit(Scene::Enum) override {}
     bool updatePreExit(Scene::Enum, float) override {return true;}
     void onExit(Scene::Enum) override {
+        apLeftForActive = 0;
+
         for (auto e: moves) {
             theEntityManager.DeleteEntity(e);
         }

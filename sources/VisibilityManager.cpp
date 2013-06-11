@@ -7,7 +7,7 @@ static Entity createVisibilityEntity() {
         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
 	TRANSFORM(e)->z = 0.95;
 	TRANSFORM(e)->size *= 1.1;
-	RENDERING(e)->color = Color(0.2, 0.2, 0.2, 1);
+	RENDERING(e)->color.a = 1;// *= Color(0.2, 0.2, 0.2, 1);
 	return e;
 }
 
