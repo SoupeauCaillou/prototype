@@ -78,10 +78,10 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
 
         // mark attack possibilities
         if (pointsLeft >= 2) {
-            unsigned atkRange = SOLDIER(game->activeCharacter)->attackRange;
+            unsigned maxAtkRange = SOLDIER(game->activeCharacter)->attackRange.t2;
             for (auto enemy: game->yEnnemies) {
                 const GridPos enemyPos = game->grid.positionToGridPos(TRANSFORM(enemy)->position);
-                if (SpatialGrid::ComputeDistance(pos, enemyPos) <= atkRange) {
+                if (SpatialGrid::ComputeDistance(pos, enemyPos) <= maxAtkRange) {
                     if (game->grid.canDrawLine(pos, enemyPos)) {
                         Entity e = theEntityManager.CreateEntity("potential_atk",
                         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
@@ -160,7 +160,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                     const GridPos& myPos = game->grid.positionToGridPos(TRANSFORM(game->activeCharacter)->position);
                     const GridPos& enemyPos = game->grid.positionToGridPos(TRANSFORM(e)->position);
 
-                    if (SpatialGrid::ComputeDistance(myPos, enemyPos) <= SOLDIER(game->activeCharacter)->attackRange &&
+                    if (SpatialGrid::ComputeDistance(myPos, enemyPos) <= SOLDIER(game->activeCharacter)->attackRange.t2 &&
                             game->grid.canDrawLine(myPos, enemyPos)) {
                         Entity action = theEntityManager.CreateEntity("atk_action",
                         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));

@@ -6,3 +6,6 @@ position = 15.5, -10
 
 [Rendering]
 color = 0,0,1,1
+
+[Soldier]
+attack_range = 3, 10

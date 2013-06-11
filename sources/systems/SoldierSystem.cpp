@@ -25,7 +25,7 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
 	SoldierComponent sc;
     componentSerializer.add(new Property<int>("move_range", OFFSET(moveRange, sc), 0));
 	componentSerializer.add(new Property<int>("vision_range", OFFSET(visionRange, sc), 0));
-	componentSerializer.add(new Property<int>("attack_range", OFFSET(attackRange, sc), 0));
+	componentSerializer.add(new IntervalProperty<unsigned>("attack_range", OFFSET(attackRange, sc)));
 	componentSerializer.add(new Property<int>("attack_damage", OFFSET(attackDamage, sc), 0));
 	componentSerializer.add(new Property<int>("p_lance", OFFSET(pLance, sc), 0));
 	componentSerializer.add(new Property<int>("defense_point", OFFSET(defensePoint, sc), 0));

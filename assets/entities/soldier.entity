@@ -1,41 +1,15 @@
 [Transformation]
-#position = 0, 0
 size = 1, 1
-#rotation = 0
 z = 0.1
 
 [Rendering]
-#~ TextureRef
-#texture
-#~ EffectRef
-#effectRef
-#~ Color
-#color
-#~ bool
-#show
-#~ bool
-#mirror_h
-#~ bool
-#z_pre_pass
-#~ bool
-#fast_culling
-#~ int
-#opaque_type
-#~ int
-#camera_bitmask
 
 [Soldier]
 vision_range = 5
-attack_range = 5
-#attack_damage =
-#p_lance =
-#defense_point =
+attack_range = 3, 10
 move_range = 4
 
 [Grid]
-#~bool
-#blocks_vision =
-#~bool
 blocks_path = 1
 can_be_on_multiple_cells = 0
 
