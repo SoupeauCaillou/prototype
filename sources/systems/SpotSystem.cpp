@@ -20,8 +20,10 @@
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
 static bool debugSpotSystem = !true;
+static bool debugDistanceCalculation = false;
 #else
 static bool debugSpotSystem = false;
+static bool debugDistanceCalculation = false;
 #endif
 
 #define FAR_FAR_AWAY -100.f
@@ -235,12 +237,141 @@ void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 
     points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., FAR_FAR_AWAY), "wall bottom left", false));
 }
 
+std::pair<glm::vec2, glm::vec2> getUnion(const std::pair<glm::vec2, glm::vec2> & wall, const std::pair<glm::vec2, glm::vec2> & zone) {
+    //order by x
+    auto merge = wall;
+
+    const float firstPointDot = glm::dot (zone.first - wall.first, wall.second - wall.first) / glm::length2(wall.second - wall.first);
+    const float secondPointDot = glm::dot (zone.second - wall.first, wall.second - wall.first) / glm::length2(wall.second - wall.first);
+    //if the point is NOT on the segment yet, we can increase it ...
+    if (firstPointDot < 0.f) {
+        merge.first = zone.first;
+    } else if (firstPointDot > 1.f) {
+        merge.second = zone.first;
+    }
+
+    if (secondPointDot < 0.f) {
+        merge.first = zone.second;
+    } else if (secondPointDot > 1.f) {
+        merge.second = zone.second;
+    }
+
+    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "  final union is " << merge << " for " << wall << " and " << zone << "( " << firstPointDot << ")");
+
+    return merge;
+}
+
+float calculateHighlightedZone() {
+    float result = 0.f;
+
+    // cette liste contient les morceaux de murs éclairés, on la remplit au fur et à mesure
+    std::list<std::pair<glm::vec2, glm::vec2>> highlightedEdges;
+
+    //on parcoure chaque spot
+    FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
+        auto position = TRANSFORM(e)->position;
+        LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\n\nConsidering spot at position " << position);
+
+        //et l'ensemble des "zones" (murs à vrai dire) qu'il éclaire
+        for (auto zone : sc->highlightedEdges) {
+            LOGI_IF(debugSpotSystem && debugDistanceCalculation, "Considering zone " << zone);
+
+            //cette liste contient tous les murs DÉJÀ ÉCLAIRÉS, qui sont dans la continuité
+            //du mur actuel
+            std::list<std::pair<glm::vec2, glm::vec2>> wallsMatching;
+
+
+            //si la liste ci dessus est non vide, il va falloir merger tous ces segments en un unique
+            bool needAMerge = false;
+
+            //pour la remplir, on parcourt les segments déjà éclairés
+            for (auto wall = highlightedEdges.begin(); wall != highlightedEdges.end(); ++wall) {
+                glm::vec2 intersectionPoint;
+
+                LOGI_IF(debugSpotSystem && debugDistanceCalculation, "  trying wall " << *wall);
+
+                //et si ils sont paralléles ET coincidents, on l'ajoute à la liste
+                if (IntersectionUtil::lineLine(wall->first, wall->second, zone.first, zone.second, &intersectionPoint)) {
+                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t wall new candidate: " << *wall);
+                    //il y a 2 cas où la fonction renvoie vrai:
+                    //1) s'ils sont perpendiculaires avec un point pivot en commun (à ignorer)
+                    //2) s'ils sont adjacents / ont une partie confondu
+                    if (glm::abs(glm::dot(wall->second - wall->first, zone.second - zone.first)) < eps) {
+                        LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t\tthey are perpendiculars, cancelled");
+                        continue;
+                    }
+                    needAMerge = true;
+                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "Yeah there are coincidents! Will be treated later");
+                    wallsMatching.push_back(*wall);
+
+                    //on supprime le segment de la liste, car on va y mettre à la place la fusion avec le nouvel élément
+                    highlightedEdges.erase(wall++);
+                }
+            }
+
+            //donc si on a trouvé un morceau du même mur déjà éclairé, on les merge
+            if (needAMerge) {
+                float beforeUnionTotalDistance = 0.f;
+
+
+                std::pair<glm::vec2, glm::vec2> unionned = zone;
+                for (auto wall = wallsMatching.begin(); wall != wallsMatching.end(); ++wall) {
+                    //utilisé plus bas pour connaître le gain
+#if SAC_DEBUG
+                    beforeUnionTotalDistance += glm::length(wall->first - wall->second);
+#else
+                    beforeUnionTotalDistance += glm::length2(wall->first - wall->second);
+#endif
+
+                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\tfusionning " << unionned << " and " << *wall);
+                    unionned = getUnion(*wall, unionned);
+                }
+
+                //on calcule le gain de distance, qui correspond à la  différence entre
+                //la distance de l'union des segments moins la somme des distances
+                //des anciennes segments séparés
+#if SAC_DEBUG
+                float afterUnionTotalDistance = glm::length(unionned.first - unionned.second);
+#else
+                float afterUnionTotalDistance = glm::length2(unionned.first - unionned.second);
+#endif
+                //finalement on rajoute le segment à la liste des murs éclairés
+                highlightedEdges.push_back(unionned);
+
+
+                for(auto i : highlightedEdges) LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\tyoupla: " << i);
+
+                //du debug uniquement
+                if (glm::abs(beforeUnionTotalDistance - afterUnionTotalDistance) < eps)  {
+                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t  already highlighted");
+                } else {
+                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t  merged(" << unionned << ")for a bonus of " << afterUnionTotalDistance - beforeUnionTotalDistance);
+                    result += afterUnionTotalDistance - beforeUnionTotalDistance;
+                }
+            //sinon il était tout seul sur ce mur, on l'ajoute normalement
+            } else {
+                LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t  added" );
+#if SAC_DEBUG
+                result += glm::length(zone.first - zone.second);
+#else
+                result += glm::length2(zone.first - zone.second);
+#endif
+
+                highlightedEdges.push_back(std::make_pair( zone.first, zone.second ));
+            }
+
+            LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t\tcurrent total: " << result);
+        }
+    }
+    return result;
+}
+
 void SpotSystem::DoUpdate(float) {
     Draw::DrawPointRestart("SpotSystem");
     Draw::DrawVec2Restart("SpotSystem");
     Draw::DrawTriangleRestart("SpotSystem");
 
-    LOGI_IF(debugSpotSystem, "\n");
+    LOGI_IF(debugSpotSystem, "\n\n\n");
 
     //external walls helper
     float sx = PlacementHelper::ScreenWidth / 2.;
@@ -299,16 +430,6 @@ void SpotSystem::DoUpdate(float) {
     auto wallTopLeft = std::find(walls.begin(), walls.end(), std::make_pair(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]));
     LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
         "Can't find left wall?" << (wallBotLeft == walls.end() ? "bottom one" : "") << " && " <<  (wallTopLeft == walls.end() ? "top one" : ""));
-
-
-
-
-
-
-
-
-
-
 
 
     glm::vec2 mousePosition = theTouchInputManager.getTouchLastPosition(0);
@@ -514,6 +635,8 @@ void SpotSystem::DoUpdate(float) {
         points.pop_front();
     }
 
+    totalHighlightedDistance2Done = calculateHighlightedZone();
+
     //finalement on affiche tous les triangles
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         for (auto pair : sc->highlightedEdges) {
@@ -521,3 +644,4 @@ void SpotSystem::DoUpdate(float) {
         }
     }
 }
+
