@@ -6,6 +6,32 @@
 
 //used in the algorithm
 const float eps = 0.0001f;
+
+struct Wall {
+    Wall() : first(0.), second(0.) {}
+    Wall(const glm::vec2 & inF, const glm::vec2 & inS) : first(inF), second(inS) {}
+    Wall(const Wall & inW) : first(inW.first), second(inW.second) {}
+
+    Wall & operator=(const Wall & inWall) {
+        //if (inWall != *this) {
+            this->first = inWall.first;
+            this->second = inWall.second;
+        //}
+
+        return *this;
+     }
+
+    bool operator== (const Wall & inWall) const {
+        return (glm::length2(first - inWall.first ) + glm::length2(second - inWall.second)) < eps;
+    }
+
+    //basically Wall struct is a std::pair...
+    glm::vec2 first;
+    glm::vec2 second;
+};
+/*inline bool operator!=(, const Wall & inWall2) {
+}*/
+
 struct EnhancedPoint {
     EnhancedPoint() :
         position(0.), name("unknown"), isDoubleFace(false) {}
@@ -48,7 +74,7 @@ struct SpotComponent {
     Color highlightColor;
 
     //for each wall highlighted, get the first and last highlighted points
-    std::list<std::pair<glm::vec2, glm::vec2>> highlightedEdges;
+    std::list<Wall> highlightedEdges;
 };
 
 #define theSpotSystem SpotSystem::GetInstance()
