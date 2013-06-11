@@ -53,16 +53,15 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
         for (auto wall: game->walls) {
             RENDERING(wall)-> show = true;
         }
-        for (auto s: game->yEnnemies) {
-            RENDERING(s)-> show = true;
-        }
 
         for (auto o: game->objs) {
             RENDERING(o)->show = true;
         }
-        for (auto s: game->bEnnemies) {
-            RENDERING(s)->show = true;
-        }
+        theSoldierSystem.forEachEntityDo([] (Entity e, SoldierComponent* sc) -> void {
+            RENDERING(e)-> show = true;
+            TEXT_RENDERING(sc->apIndicator)-> show = true;
+        });
+
         RENDERING(game->background)->show = true;
 
         // quick test
@@ -75,8 +74,6 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
 
         game->visibilityManager.reset();
         for (auto p: game->players) {
-            RENDERING(p)->show = true;
-
             game->visibilityManager.updateVisibility(
                 game->grid,
                 game->grid.positionToGridPos(TRANSFORM(p)->position),
@@ -107,8 +104,9 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
         });
 
         // reset soldier too
-        theSoldierSystem.forEachEntityDo([] (Entity , SoldierComponent* pc) -> void {
-            pc->actionPointsLeft = pc->maxActionPointsPerTurn;
+        theSoldierSystem.forEachEntityDo([] (Entity e, SoldierComponent* sc) -> void {
+            sc->actionPointsLeft = sc->maxActionPointsPerTurn;
+            SoldierSystem::UpdateUI(e, sc);
         });
 
         // update ui

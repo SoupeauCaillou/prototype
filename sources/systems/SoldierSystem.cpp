@@ -18,11 +18,15 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SoldierSystem.h"
+#include "systems/TextRenderingSystem.h"
+#include "systems/AnchorSystem.h"
+#include "systems/TransformationSystem.h"
 
 INSTANCE_IMPL(SoldierSystem);
 
 SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier") {
 	SoldierComponent sc;
+    componentSerializer.add(new EntityProperty("ap_indicator", OFFSET(apIndicator, sc)));
     componentSerializer.add(new Property<int>("move_range", OFFSET(moveRange, sc), 0));
 	componentSerializer.add(new Property<int>("vision_range", OFFSET(visionRange, sc), 0));
 	componentSerializer.add(new IntervalProperty<int>("attack_range", OFFSET(attackRange, sc)));
@@ -35,4 +39,15 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
 
 void SoldierSystem::DoUpdate(float) {
 
+}
+
+void SoldierSystem::UpdateUI(Entity e, SoldierComponent* sc) {
+    if (sc->maxActionPointsPerTurn <= 0) {
+        TEXT_RENDERING(sc->apIndicator)->show = false;
+    } else {
+        std::stringstream ss;
+        ss << sc->actionPointsLeft << ' ' << sc->maxActionPointsPerTurn;
+        TEXT_RENDERING(sc->apIndicator)->text = ss.str();
+        ANCHOR(sc->apIndicator)->rotation = -TRANSFORM(e)->rotation;
+    }
 }

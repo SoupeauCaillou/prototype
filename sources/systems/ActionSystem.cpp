@@ -49,6 +49,8 @@ static void payForAction(Entity soldier, Action::Enum type) {
     LOGI("Pay for action: " << type << " -> " << actionCost);
     PLAYER(SOLDIER(soldier)->player)->actionPointsLeft -= actionCost;
     SOLDIER(soldier)->actionPointsLeft -= actionCost;
+
+    SoldierSystem::UpdateUI(soldier, SOLDIER(soldier));
 }
 
 void ActionSystem::DoUpdate(float dt) {
@@ -111,6 +113,8 @@ void ActionSystem::DoUpdate(float dt) {
 
                             PARTICULE(ac->attackTarget)->duration = 0.1;
                             PARTICULE(ac->attackTarget)->emissionRate = 150;
+
+                            SoldierSystem::UpdateUI(ac->attackTarget, SOLDIER(ac->attackTarget));
                         }
                     }
 

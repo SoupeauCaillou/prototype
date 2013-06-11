@@ -22,10 +22,10 @@
 #include "systems/System.h"
 
 struct SoldierComponent {
-    SoldierComponent() :player(0), moveRange(4), visionRange(10), attackRange(1, 5), attackDamage(1), pLance(0), defensePoint(0), maxActionPointsPerTurn(5), actionPointsLeft(0) {
+    SoldierComponent() :player(0), apIndicator(0), moveRange(4), visionRange(10), attackRange(1, 5), attackDamage(1), pLance(0), defensePoint(0), maxActionPointsPerTurn(5), actionPointsLeft(0) {
     }
 
-    Entity player;
+    Entity player, apIndicator;
     int moveRange;
     int visionRange;
 	Interval<unsigned> attackRange;
@@ -46,4 +46,7 @@ struct SoldierComponent {
 #define SOLDIER(e) theSoldierSystem.Get(e)
 
 UPDATABLE_SYSTEM(Soldier)
+
+public:
+    static void UpdateUI(Entity s, SoldierComponent* sc);
 };
