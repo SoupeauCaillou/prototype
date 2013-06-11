@@ -60,46 +60,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
 
     bool updatePreEnter(Scene::Enum, float) override {return true;}
     void onPreEnter(Scene::Enum) override {
-        for (auto wall: game->walls) {
-            RENDERING(wall)-> show = true;
-        }
-        for (auto s: game->yEnnemies) {
-            RENDERING(s)-> show = true;
-        }
-
-        game->visibilityManager.reset();
-        for (auto p: game->players) {
-            RENDERING(p)->show = true;
-
-            game->visibilityManager.updateVisibility(
-                game->grid,
-                game->grid.positionToGridPos(TRANSFORM(p)->position),
-                6);
-        }
-        for (auto o: game->objs) {
-            RENDERING(o)->show = true;
-        }
-        for (auto s: game->bEnnemies) {
-            RENDERING(s)->show = true;
-        }
-        RENDERING(game->background)->show = true;
-
-        // quick test
-        game->grid.doForEachCell([this] (const GridPos& p) -> void {
-            std::list<Entity>& l = this->game->grid.getEntitiesAt(p);
-            for (auto& e: l) {
-                RENDERING(e)->show = true;
-            }
-        });
-
-        game->grid.autoAssignEntitiesToCell(game->players);
-        game->grid.autoAssignEntitiesToCell(game->yEnnemies);
-        game->grid.autoAssignEntitiesToCell(game->bEnnemies);
-
         game->activeCharacter = 0;
-
-        if (PLAYER(game->humanPlayer)->actionPointsLeft == 0)
-            TEXT_RENDERING(game->banner)->color = Color(1, 0, 0);
     }
 
     ///----------------------------------------------------------------------------//

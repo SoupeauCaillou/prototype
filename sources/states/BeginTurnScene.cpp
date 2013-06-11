@@ -24,6 +24,7 @@
 #include "systems/SoldierSystem.h"
 #include "PrototypeGame.h"
 #include "systems/TextRenderingSystem.h"
+#include "systems/TransformationSystem.h"
 
 struct BeginTurnScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -48,6 +49,43 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
     bool updatePreEnter(Scene::Enum, float) override {return true;}
     void onEnter(Scene::Enum) override {
         TEXT_RENDERING(game->banner)->color = Color(0, 1, 0);
+
+        for (auto wall: game->walls) {
+            RENDERING(wall)-> show = true;
+        }
+        for (auto s: game->yEnnemies) {
+            RENDERING(s)-> show = true;
+        }
+
+        for (auto o: game->objs) {
+            RENDERING(o)->show = true;
+        }
+        for (auto s: game->bEnnemies) {
+            RENDERING(s)->show = true;
+        }
+        RENDERING(game->background)->show = true;
+
+        // quick test
+        game->grid.doForEachCell([this] (const GridPos& p) -> void {
+            std::list<Entity>& l = this->game->grid.getEntitiesAt(p);
+            for (auto& e: l) {
+                RENDERING(e)->show = true;
+            }
+        });
+
+        game->visibilityManager.reset();
+        for (auto p: game->players) {
+            RENDERING(p)->show = true;
+
+            game->visibilityManager.updateVisibility(
+                game->grid,
+                game->grid.positionToGridPos(TRANSFORM(p)->position),
+                SOLDIER(p)->visionRange);
+        }
+
+        game->grid.autoAssignEntitiesToCell(game->players);
+        game->grid.autoAssignEntitiesToCell(game->yEnnemies);
+        game->grid.autoAssignEntitiesToCell(game->bEnnemies);
     }
 
     ///----------------------------------------------------------------------------//

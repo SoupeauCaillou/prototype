@@ -21,6 +21,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/ParticuleSystem.h"
 #include "systems/SoldierSystem.h"
+#include "systems/GridSystem.h"
 #include "systems/PlayerSystem.h"
 #include "../PrototypeGame.h"
 
@@ -110,9 +111,6 @@ void ActionSystem::DoUpdate(float dt) {
 
                             PARTICULE(ac->attackTarget)->duration = 0.1;
                             PARTICULE(ac->attackTarget)->emissionRate = 150;
-                            if (SOLDIER(ac->attackTarget)->maxActionPointsPerTurn <= 0) {
-                                RENDERING(ac->attackTarget)->color = Color(0.2, 0.2, 0.2);
-                            }
                         }
                     }
 
@@ -121,6 +119,11 @@ void ActionSystem::DoUpdate(float dt) {
                         accum = 0;
                         // mark action as finished
                         actionFinished.push_back(entity);
+
+                        if (SOLDIER(ac->attackTarget)->maxActionPointsPerTurn <= 0) {
+                            RENDERING(ac->attackTarget)->color = Color(0.2, 0.2, 0.2);
+                            GRID(ac->attackTarget)->blocksPath = false;
+                        }
                     }
                     break;
                 }
