@@ -556,7 +556,7 @@ void SpotSystem::DoUpdate(float) {
             activeWall = getActiveWall(walls, pointOfView, startPoint, point.position);
 
             //si on a pas trouvé de mur actif il y a un bug quelque part ...
-            // LOGF_IF(activeWall.first == glm::vec2(0.f) && activeWall.second == glm::vec2(0.f), "active wall not found");
+            LOGF_IF(activeWall.first == glm::vec2(0.f) && activeWall.second == glm::vec2(0.f), "active wall not found");
 
 
             bool isFirstPointOnWall = IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second);

@@ -137,7 +137,8 @@ or click on another point and you will create a wall.";
         if (waitingForLevelName) {
             //if the user pressed enter, save the file
             if (game->gameThreadContext->keyboardInputHandlerAPI->done(userLevelName)) {
-                LevelLoader::SaveInFile("/tmp/" + userLevelName + ".map", spotList, wallList);
+                userLevelName = game->gameThreadContext->assetAPI->getWritableAppDatasPath() + userLevelName + ".map";
+                LevelLoader::SaveInFile(userLevelName, spotList, wallList);
                 waitingForLevelName = false;
 
                 selectTip(EnumTip::Default);
@@ -261,6 +262,27 @@ or click on another point and you will create a wall.";
         }
     }
 
+    //should be in FSAPI... maybe next time
+    FileBuffer loadFile(const std::string& full) {
+        FileBuffer fb;
+        fb.data = 0;
+
+        FILE* file = fopen(full.c_str(), "rb");
+
+        fseek(file, 0, SEEK_END);
+        fb.size = ftell(file);
+        rewind(file);
+        fb.data = new uint8_t[fb.size + 1];
+        int count = 0;
+        do {
+            count += fread(&fb.data[count], 1, fb.size - count, file);
+        } while (count < fb.size);
+
+        fclose(file);
+        fb.data[fb.size] = 0;
+        return fb;
+    }
+
     void onExit(Scene::Enum to) override {
 #if SAC_DEBUG
         Grid::DisableGrid();
@@ -271,7 +293,7 @@ or click on another point and you will create a wall.";
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = false;
 
         if (to == Scene::Play) {
-            LevelLoader::LoadFromFile(userLevelName, game->gameThreadContext->assetAPI->loadAsset(userLevelName));
+            LevelLoader::LoadFromFile(userLevelName, loadFile(userLevelName));
             userLevelName = "";
         }
     }
