@@ -15,7 +15,7 @@ two_sided = false
 [wall_1]
 pos1 = 2.61077, 1.16425
 pos2 = 0.0336747, -3.0087
-tow_sided = false
+two_sided = false
 
 [wall_2]
 pos1 = -3.90392, -0.402643

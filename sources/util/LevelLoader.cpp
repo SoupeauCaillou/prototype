@@ -19,7 +19,7 @@
 #if SAC_EMSCRIPTEN
 std::vector<std::pair<std::pair<glm::vec2, glm::vec2>, bool>> walls;
 std::vector<glm::vec2> spots;
-void LevelLoader::SaveInFile(const std::string &, const std::list<Entity> & wallList, const std::list<Entity> & spotList) {
+void LevelLoader::SaveInFile(const std::string &, const std::vector<Entity> & spotList, const std::vector<Entity> & wallList) {
     for (auto spot : spotList) {
         spots.push_back(TRANSFORM(spot)->position);
     }
