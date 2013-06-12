@@ -19,11 +19,12 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
+#include "util/LevelLoader.h"
+
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
 
-#include "systems/LevelSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
@@ -34,23 +35,25 @@
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
+    std::string choosenLevel;
+
     std::vector<Entity> levels;
     Entity levelEditor;
-
-    const int LEVEL_COUNT = 4;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
+        auto LEVEL_COUNT = game->gameThreadContext->assetAPI->listContent(".map", "levels").size();
+
         //inside sqrt '+1' is for levelEditor btn
         int sqrtTot = (int)sqrt(LEVEL_COUNT + 1) + 1;
 
         float sx = PlacementHelper::ScreenWidth / 3.;
         float sy = PlacementHelper::ScreenHeight / 3.;
 
-        for (int i = 0; i < LEVEL_COUNT; ++i) {
+        for (unsigned i = 0; i < LEVEL_COUNT; ++i) {
             std::stringstream ss;
             ss << "Level " << i + 1;
 
@@ -91,13 +94,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             return Scene::LevelEditor;
         }
 
-        for (int i = 0; i < LEVEL_COUNT; ++i) {
+        for (unsigned i = 0; i < levels.size(); ++i) {
             Entity e = levels[i];
 
             if (BUTTON(e)->clicked) {
                 std::stringstream ss;
-                ss << "../../assetspc/level" << i + 1 << ".map";
-                LevelSystem::currentLevelPath = ss.str();
+                ss << "levels/level" << i + 1 << ".map";
+                choosenLevel = ss.str();
 
                 return Scene::Play;
             }
@@ -112,11 +115,15 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onPreExit(Scene::Enum) override {
     }
 
-    void onExit(Scene::Enum) override {
+    void onExit(Scene::Enum to) override {
         for (auto e : levels) {
             TEXT_RENDERING(e)->show = BUTTON(e)->enabled = false;
         }
         TEXT_RENDERING(levelEditor)->show = BUTTON(levelEditor)->enabled = false;
+
+        if (to == Scene::Play) {
+            LevelLoader::LoadFromFile(choosenLevel, game->gameThreadContext->assetAPI->loadAsset(choosenLevel));
+        }
     }
 };
 

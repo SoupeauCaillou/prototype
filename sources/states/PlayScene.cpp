@@ -28,7 +28,6 @@
 #include "util/Grid.h"
 
 #include "systems/TextRenderingSystem.h"
-#include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
 #include "systems/TransformationSystem.h"
@@ -71,8 +70,6 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         Grid::EnableGrid();
 #endif
 
-        LevelSystem::LoadFromFile();
-
         TEXT_RENDERING(objectiveProgression)->show = true;
     }
 
@@ -81,7 +78,6 @@ struct PlayScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        theLevelSystem.Update(dt);
         theBlockSystem.Update(dt);
         theSpotSystem.Update(dt);
 

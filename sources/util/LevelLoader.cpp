@@ -1,9 +1,10 @@
-#include "LevelSystem.h"
+#include "LevelLoader.h"
 #include "base/Log.h"
 #include "base/Color.h"
 #include "base/PlacementHelper.h"
 
 #include "util/DrawSomething.h"
+#include "util/DataFileParser.h"
 
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
@@ -15,24 +16,10 @@
 
 #include <glm/gtx/vector_angle.hpp>
 
-INSTANCE_IMPL(LevelSystem);
-
-std::string LevelSystem::currentLevelPath = "../../assetspc/level1.map";
-
-LevelSystem::LevelSystem() : ComponentSystemImpl <LevelComponent>("Level") {
-    LevelComponent lc;
-}
-
-void LevelSystem::DoUpdate(float) {
-    FOR_EACH_ENTITY_COMPONENT(Level, e, lc)
-        LOGI(theEntityManager.entityName(e) << ":" << lc->asciiMap);
-    }
-}
-
 #if SAC_EMSCRIPTEN
 std::vector<std::pair<std::pair<glm::vec2, glm::vec2>, bool>> walls;
 std::vector<glm::vec2> spots;
-void LevelSystem::SaveInFile(const std::string &, const std::list<Entity> & wallList, const std::list<Entity> & spotList) {
+void LevelLoader::SaveInFile(const std::string &, const std::list<Entity> & wallList, const std::list<Entity> & spotList) {
     for (auto spot : spotList) {
         spots.push_back(TRANSFORM(spot)->position);
     }
@@ -46,33 +33,81 @@ void LevelSystem::SaveInFile(const std::string &, const std::list<Entity> & wall
 }
 
 #else
-void LevelSystem::SaveInFile(const std::string & filename, const std::list<Entity> & wallList, const std::list<Entity> & spotList) {
+void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Entity> & spotList, const std::vector<Entity> & wallList) {
     //save in file each walls
     std::ofstream myfile (filename);
     LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
 
     //spot number
-    myfile << spotList.size() << "\n";
-    for (auto spot : spotList) {
-        myfile << TRANSFORM(spot)->position << "\n";
+    myfile << "nb_spot = " << spotList.size() << "\n";
+    myfile << "nb_wall = " << wallList.size() << "\n\n";
+
+    for (int i = 0; i < spotList.size(); ++i) {
+        myfile << "\n[spot_" << i << "]\n";
+        myfile << "position = " << TRANSFORM(spotList[i])->position << "\n";
     }
 
-    for (auto wall : wallList) {
-        auto * tc = TRANSFORM(wall);
 
+    for (int i = 0; i < wallList.size(); ++i) {
+        auto * tc = TRANSFORM(wallList[i]);
         auto offset = glm::rotate(tc->size / 2.f, tc->rotation);
 
-        myfile << tc->position - offset << " | " << tc->position + offset << " false\n";
+        myfile << "\n[wall_" << i << "]\n";
+        myfile << "pos1 = " << tc->position - offset << "\n";
+        myfile << "pos2 = " << tc->position + offset << "\n";
     }
+
     myfile.close();
 }
 #endif
 
-void LevelSystem::LoadFromFile(void * filename) {
-    LoadFromFile(*((std::string *)filename));
+
+bool LevelLoader::LoadFromFile(const std::string& ctx, const FileBuffer& fb) {
+    DataFileParser dfp;
+    if (!dfp.load(fb, ctx)) {
+        return false;
+    }
+    // spot count
+    int spotCount = 1;
+    dfp.get("", "nb_spot", &spotCount, 1, true);
+    // wall count
+    int wallCount = 1;
+    dfp.get("", "nb_wall", &wallCount, 1, true);
+
+    for (int i = 0; i < spotCount; ++i) {
+        std::stringstream ss;
+        ss << "spot_" << i;
+
+        Entity e = theEntityManager.CreateEntity("spot",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
+
+        dfp.get(ss.str(), "position", &TRANSFORM(e)->position.x, 2, true);
+    }
+
+    for (int i = 0; i < wallCount; ++i) {
+        std::stringstream ss;
+        ss << "wall_" << i;
+
+        glm::vec2 firstPoint, secondPoint;
+
+        dfp.get(ss.str(), "pos1", &firstPoint.x, 2, true);
+        dfp.get(ss.str(), "pos2", &secondPoint.x, 2, true);
+
+        Entity e = theEntityManager.CreateEntity("block",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
+        TRANSFORM(e)->position = (secondPoint + firstPoint) / 2.f;
+        TRANSFORM(e)->size.x = glm::length(secondPoint - firstPoint);
+        TRANSFORM(e)->size.y = 0.1;
+        TRANSFORM(e)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize( secondPoint - firstPoint));
+
+        dfp.get(ss.str(), "two_sided", &BLOCK(e)->isDoubleFace, 1, true);
+    }
+
+    return true;
 }
 
-void LevelSystem::LoadFromFile(const std::string & filename) {
+/*
+void LevelLoader::LoadFromFile(const std::string & filename) {
     LOGI("Loading map '" << ((filename.size() != 0) ? filename : currentLevelPath) << "'...");
 
     //remove any existing things first
@@ -125,11 +160,7 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
         iss.clear();
         iss.str(line);
 
-        Entity e = theEntityManager.CreateEntity("spot",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
-        iss >> TRANSFORM(e)->position.x;
-        iss.ignore(1, ',');
-        iss >> TRANSFORM(e)->position.y;
+
     }
 
     while (std::getline(myfile, line)) {
@@ -162,4 +193,4 @@ void LevelSystem::LoadFromFile(const std::string & filename) {
 
     myfile.close();
 #endif
-}
+}*/

@@ -25,13 +25,13 @@
 #include "systems/ButtonSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
-#include "systems/LevelSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
 
 #include "util/IntersectionUtil.h"
 #include "util/DrawSomething.h"
 #include "util/Grid.h"
+#include "util/LevelLoader.h"
 
 #include "Scenes.h"
 
@@ -48,8 +48,10 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
 
     Entity firstSelectionned;
 
-    std::list<Entity> wallList;
-    std::list<Entity> spotList;
+    std::vector<Entity> wallList;
+    std::vector<Entity> spotList;
+
+    std::string userLevelName;
 
     bool waitingForLevelName, shouldGoTryAfterInput;
 
@@ -133,18 +135,15 @@ or click on another point and you will create a wall.";
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         if (waitingForLevelName) {
-            std::string userLevelName;
-
             //if the user pressed enter, save the file
             if (game->gameThreadContext->keyboardInputHandlerAPI->done(userLevelName)) {
-                theLevelSystem.SaveInFile("/tmp/" + userLevelName + ".map", wallList, spotList);
+                LevelLoader::SaveInFile("/tmp/" + userLevelName + ".map", spotList, wallList);
                 waitingForLevelName = false;
 
                 selectTip(EnumTip::Default);
 
                 //if he pressed "go try!", then change scene
                 if (shouldGoTryAfterInput) {
-                    LevelSystem::currentLevelPath = "/tmp/" + userLevelName + ".map";
                     shouldGoTryAfterInput = false;
                     return Scene::Play;
                 }
@@ -252,17 +251,17 @@ or click on another point and you will create a wall.";
         }
 
         while (wallList.begin() != wallList.end()) {
-            theEntityManager.DeleteEntity(*wallList.begin());
-            wallList.pop_front();
+            theEntityManager.DeleteEntity(wallList.back());
+            wallList.pop_back();
         }
 
         while (spotList.begin() != spotList.end()) {
-            theEntityManager.DeleteEntity(*spotList.begin());
-            spotList.pop_front();
+            theEntityManager.DeleteEntity(spotList.back());
+            spotList.pop_back();
         }
     }
 
-    void onExit(Scene::Enum) override {
+    void onExit(Scene::Enum to) override {
 #if SAC_DEBUG
         Grid::DisableGrid();
 #endif
@@ -270,6 +269,11 @@ or click on another point and you will create a wall.";
         TEXT_RENDERING(tip)->show =
         TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
         TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = false;
+
+        if (to == Scene::Play) {
+            LevelLoader::LoadFromFile(userLevelName, game->gameThreadContext->assetAPI->loadAsset(userLevelName));
+            userLevelName = "";
+        }
     }
 };
 

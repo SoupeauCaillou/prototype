@@ -1,0 +1,23 @@
+nb_spot = 2
+nb_wall = 3
+
+[spot_0]
+position = -3, 3.45555
+
+[spot_1]
+position = 4.48889, -2.21111
+
+[wall_0]
+pos1 = -4.01883, -0.378807
+pos2 = -0.00339651, -2.79897
+two_sided = false
+
+[wall_1]
+pos1 = 2.61077, 1.16425
+pos2 = 0.0336747, -3.0087
+tow_sided = false
+
+[wall_2]
+pos1 = -3.90392, -0.402643
+pos2 = 2.70392, 1.22486
+two_sided = false

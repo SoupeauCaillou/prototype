@@ -34,7 +34,6 @@
 
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
-#include "systems/LevelSystem.h"
 
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
@@ -85,7 +84,6 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
-    LevelSystem::CreateInstance();
     BlockSystem::CreateInstance();
     SpotSystem::CreateInstance();
 
@@ -109,7 +107,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
 
 #if SAC_INGAME_EDITORS
-    DebugConsole::registerMethodWithOneArg("GoToLevel", "level", &LevelSystem::LoadFromFile, &LevelSystem::currentLevelPath, TW_TYPE_STDSTRING);
+    // DebugConsole::registerMethodWithOneArg("GoToLevel", "level", &LevelSystem::LoadFromFile, &LevelSystem::currentLevelPath, TW_TYPE_STDSTRING);
 #endif
 
 #if SAC_DEBUG
