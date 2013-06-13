@@ -22,11 +22,13 @@
 
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
+#include "base/PlacementHelper.h"
 
 #include "util/IntersectionUtil.h"
 #include "util/DrawSomething.h"
 #include "util/Grid.h"
 
+#include "systems/ADSRSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
@@ -40,7 +42,7 @@
 
 struct PlayScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity objectiveProgression;
+    Entity objectiveProgression, victory, fadeout;
 
     PlayScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -58,6 +60,21 @@ struct PlayScene : public StateHandler<Scene::Enum> {
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
         TRANSFORM(objectiveProgression)->position = glm::vec2(7, 6);
         TEXT_RENDERING(objectiveProgression)->text = "0.0\%";
+
+        victory = theEntityManager.CreateEntity("Victory",
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+        TEXT_RENDERING(victory)->text = "Victory!";
+        TRANSFORM(victory)->position = glm::vec2(0., PlacementHelper::ScreenHeight / 4.);
+
+        fadeout = theEntityManager.CreateEntity("playscene fade out");
+        ADD_COMPONENT(fadeout, Rendering);
+        RENDERING(fadeout)->color = Color(0., 0., 0.);
+        ADD_COMPONENT(fadeout, ADSR);
+        ADSR(fadeout)->attackTiming = 5.;
+        ADSR(fadeout)->sustainValue = 1.;
+        ADSR(fadeout)->decayTiming = ADSR(fadeout)->releaseTiming = 0.;
+        ADD_COMPONENT(fadeout, Transformation);
+        TRANSFORM(fadeout)->size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
     }
 
 
@@ -94,6 +111,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         //if objective is done or right click, go back to menu
         if (theTouchInputManager.isTouched(1)
             || theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done < 0.001) {
+            RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
             return Scene::Menu;
         }
 
@@ -104,7 +122,16 @@ struct PlayScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
+    bool updatePreExit(Scene::Enum , float ) {
+        RENDERING(fadeout)->color.a = ADSR(fadeout)->value;
+        return (ADSR(fadeout)->value == ADSR(fadeout)->sustainValue);
+    }
+
     void onPreExit(Scene::Enum) override {
+        ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
+    }
+
+    void onExit(Scene::Enum) override {
         Draw::DrawPointRestart("SpotSystem");
         Draw::DrawVec2Restart("SpotSystem");
         Draw::DrawTriangleRestart("SpotSystem");
@@ -115,13 +142,13 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         FOR_EACH_ENTITY(Block, e)
             theEntityManager.DeleteEntity(e);
         }
-    }
 
-    void onExit(Scene::Enum) override {
 #if SAC_DEBUG
         Grid::DisableGrid();
 #endif
-
+        ADSR(fadeout)->active =
+        RENDERING(fadeout)->show =
+        TEXT_RENDERING(victory)->show =
         TEXT_RENDERING(objectiveProgression)->show = false;
     }
 };
