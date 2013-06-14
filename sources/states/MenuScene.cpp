@@ -50,12 +50,14 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TEXT_RENDERING(btn)->text = name;
         TRANSFORM(btn)->position = position;
+        TEXT_RENDERING(btn)->show = true;
 
         //and its container
         Entity container = theEntityManager.CreateEntity(name + " container",
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
         TRANSFORM(container)->position = TRANSFORM(btn)->position;
         TRANSFORM(container)->size = TRANSFORM(btn)->size;
+        BUTTON(container)->enabled = true;
 
         if (mustBeInsertedInList) {
             levels.push_back(btn);
@@ -66,6 +68,19 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
+        //add a level editor button
+        auto pair = createTextAndContainer(false, "Level editor", glm::vec2(0.));
+        levelEditorButton = pair.first;
+        levelEditorButtonContainer = pair.second;
+        TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = true;
+    }
+
+
+    ///----------------------------------------------------------------------------//
+    ///--------------------- ENTER SECTION ----------------------------------------//
+    ///----------------------------------------------------------------------------//
+
+    void onEnter(Scene::Enum) override {
         float sx = PlacementHelper::ScreenWidth / 3.;
         float sy = PlacementHelper::ScreenHeight / 3.;
 
@@ -73,10 +88,15 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         auto listOriginals = game->gameThreadContext->assetAPI->listAssetContent(".map", "levels");
         auto listUsers = game->gameThreadContext->assetAPI->listContent(game->gameThreadContext->assetAPI->getWritableAppDatasPath(), ".map");
 
-        auto LEVEL_COUNT = listOriginals.size() + listUsers.size();
+        // +1 = levelEditorButton
+        auto LEVEL_COUNT = listOriginals.size() + listUsers.size() + 1;
 
-        //inside sqrt '+1' is for levelEditorButton btn
-        int sqrtTot = (int)sqrt(LEVEL_COUNT + 1) + 1;
+
+        //there must be an more elegant way to do that... but nvm
+        float sqrtIs = sqrt(LEVEL_COUNT);
+        int sqrtTot = (sqrtIs == (int)sqrtIs) ? sqrtIs : (int)sqrtIs + 1;
+
+
         int current = 0;
 
         for (auto file : listOriginals) {
@@ -90,22 +110,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             ++current;
         }
 
-        //finally, add a level editor button
-        auto pair = createTextAndContainer(false, "Level editor", glm::vec2(-sx + 2.f * sx * (current % sqrtTot) / sqrtTot, sy - 2.f * sy * (current / sqrtTot) / sqrtTot));
-
-        levelEditorButton = pair.first;
-        levelEditorButtonContainer = pair.second;
-    }
-
-
-    ///----------------------------------------------------------------------------//
-    ///--------------------- ENTER SECTION ----------------------------------------//
-    ///----------------------------------------------------------------------------//
-
-    void onEnter(Scene::Enum) override {
-        for (unsigned i = 0; i < levels.size(); i += 2) {
-            TEXT_RENDERING(levels[i])->show = BUTTON(levels[i+1])->enabled = true;
-        }
+        //update level editor btn
+        TRANSFORM(levelEditorButton)->position = TRANSFORM(levelEditorButtonContainer)->position = glm::vec2(-sx + 2.f * sx * (current % sqrtTot) / sqrtTot, sy - 2.f * sy * (current / sqrtTot) / sqrtTot);
         TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = true;
     }
 
@@ -136,9 +142,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum to) override {
-        for (unsigned i = 0; i < levels.size(); i += 2) {
-            TEXT_RENDERING(levels[i])->show = BUTTON(levels[i+1])->enabled = false;
+        for (auto it = levels.begin(); it != levels.end(); ++it) {
+            theEntityManager.DeleteEntity(*it);
         }
+        levels.clear();
 
         TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = false;
 
