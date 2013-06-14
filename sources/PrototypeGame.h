@@ -65,6 +65,7 @@ class PrototypeGame : public Game {
         Entity background;
         Entity banner, turn, points;
         Entity humanPlayer, aiPlayer;
+        bool aiPlaying;
 
     private:
         StateMachine<Scene::Enum> sceneStateMachine;

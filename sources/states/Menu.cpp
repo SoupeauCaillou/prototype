@@ -144,6 +144,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         glm::vec2 diff = target - TRANSFORM(game->camera)->position;
         if (glm::length(diff) <= speed * dt) {
             TRANSFORM(game->camera)->position = target;
+            game->aiPlaying = false;
             return true;
         } else {
             TRANSFORM(game->camera)->position += glm::normalize(diff) * (speed * dt);

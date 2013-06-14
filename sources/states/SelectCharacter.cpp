@@ -71,7 +71,7 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
             return Scene::SelectCharacter;
 
         if (BUTTON(game->banner)->clicked)
-            return Scene::EndTurn;
+            return Scene::AIThinking;
 
         for (auto p: game->players) {
             if (BUTTON(p)->clicked) {

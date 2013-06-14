@@ -20,44 +20,23 @@
 #pragma once
 
 #include "systems/System.h"
+#include "util/SpatialGrid.h"
 
-namespace Action {
-    enum Enum {
-        None,
-        MoveTo,
-        Attack
-    };
-}
+typedef std::pair<int, GridPos> TurnPosition;
 
-class PrototypeGame;
+struct UnitAIComponent {
+    UnitAIComponent() : active(false) { }
 
-struct ActionComponent {
-    ActionComponent() : type(Action::None), entity(0), dependsOn(0) {}
+    bool active, ready;
 
-    // Action to execute
-    Action::Enum type;
+    std::map<Entity, TurnPosition> knownPositions;
 
-    // Action target
-    Entity entity;
-
-    // Actions params
-    //   1. MoveTo
-    glm::vec2 moveToTarget;
-    float moveSpeed;
-    //   2. Attack
-    Entity attackTarget;
-
-    // Dependency on another action
-    Entity dependsOn;
+    std::vector<Entity> preferedActions;
 };
 
-#define theActionSystem ActionSystem::GetInstance()
-#define ACTION(e) theActionSystem.Get(e)
+#define theUnitAISystem UnitAISystem::GetInstance()
+#define UNIT_AI(e) theUnitAISystem.Get(e)
 
-UPDATABLE_SYSTEM(Action)
+UPDATABLE_SYSTEM(UnitAI)
 
-    public:
-        static int ActionCost(Action::Enum type);
-
-        PrototypeGame* game;
 };

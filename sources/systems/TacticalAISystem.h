@@ -21,43 +21,14 @@
 
 #include "systems/System.h"
 
-namespace Action {
-    enum Enum {
-        None,
-        MoveTo,
-        Attack
-    };
-}
+struct TacticalAIComponent {
+    TacticalAIComponent() {
 
-class PrototypeGame;
-
-struct ActionComponent {
-    ActionComponent() : type(Action::None), entity(0), dependsOn(0) {}
-
-    // Action to execute
-    Action::Enum type;
-
-    // Action target
-    Entity entity;
-
-    // Actions params
-    //   1. MoveTo
-    glm::vec2 moveToTarget;
-    float moveSpeed;
-    //   2. Attack
-    Entity attackTarget;
-
-    // Dependency on another action
-    Entity dependsOn;
+    }
 };
 
-#define theActionSystem ActionSystem::GetInstance()
-#define ACTION(e) theActionSystem.Get(e)
+#define theTacticalAISystem TacticalAISystem::GetInstance()
+#define Tactical_AI(e) theTacticalAISystem.Get(e)
 
-UPDATABLE_SYSTEM(Action)
-
-    public:
-        static int ActionCost(Action::Enum type);
-
-        PrototypeGame* game;
+UPDATABLE_SYSTEM(TacticalAI)
 };

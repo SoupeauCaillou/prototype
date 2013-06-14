@@ -26,6 +26,8 @@
 #include "systems/ActionSystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/PlayerSystem.h"
+#include "systems/UnitAISystem.h"
+#include "systems/TacticalAISystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -72,6 +74,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     SoldierSystem::CreateInstance();
     ActionSystem::CreateInstance();
     PlayerSystem::CreateInstance();
+    UnitAISystem::CreateInstance();
+    TacticalAISystem::CreateInstance();
 
     Game::sacInit(windowW, windowH);
 

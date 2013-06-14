@@ -33,18 +33,21 @@ ActionSystem::ActionSystem() : ComponentSystemImpl<ActionComponent>("Action") {
     ActionComponent sc;
 }
 
-static void payForAction(Entity soldier, Action::Enum type) {
-    int actionCost = 0;
+int ActionSystem::ActionCost(Action::Enum type) {
     switch (type) {
         case Action::None:
-            break;
+            return 0;
         case Action::MoveTo:
-            actionCost = 1;
-            break;
+            return 1;
         case Action::Attack:
-            actionCost = 2;
-            break;
+            return 2;
+        default:
+            return 0;
     }
+}
+
+static void payForAction(Entity soldier, Action::Enum type) {
+    int actionCost = ActionSystem::ActionCost(type);
 
     LOGI("Pay for action: " << type << " -> " << actionCost);
     PLAYER(SOLDIER(soldier)->player)->actionPointsLeft -= actionCost;
