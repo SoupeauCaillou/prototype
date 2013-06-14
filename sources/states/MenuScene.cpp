@@ -44,44 +44,57 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         this->game = game;
     }
 
-    void setup() {
-        auto LEVEL_COUNT = game->gameThreadContext->assetAPI->listContent(".map", "levels").size();
+    std::pair<Entity, Entity> createTextAndContainer(bool mustBeInsertedInList, const std::string & name, const glm::vec2 & position) {
+        //create the text
+        Entity btn = theEntityManager.CreateEntity(name,
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
+        TEXT_RENDERING(btn)->text = name;
+        TRANSFORM(btn)->position = position;
 
-        //inside sqrt '+1' is for levelEditorButton btn
-        int sqrtTot = (int)sqrt(LEVEL_COUNT + 1) + 1;
+        //and its container
+        Entity container = theEntityManager.CreateEntity(name + " container",
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
+        TRANSFORM(container)->position = TRANSFORM(btn)->position;
+        TRANSFORM(container)->size = TRANSFORM(btn)->size;
 
-        float sx = PlacementHelper::ScreenWidth / 3.;
-        float sy = PlacementHelper::ScreenHeight / 3.;
-
-        for (unsigned i = 0; i < LEVEL_COUNT; ++i) {
-            std::stringstream ss;
-            ss << "Level " << i + 1;
-
-            //create the text
-            Entity btn = theEntityManager.CreateEntity(ss.str(),
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
-            TEXT_RENDERING(btn)->text = ss.str();
-            TRANSFORM(btn)->position = glm::vec2(-sx + 2.f * sx * (i % sqrtTot) / sqrtTot, sy - 2.f * sy * (i / sqrtTot) / sqrtTot);
+        if (mustBeInsertedInList) {
             levels.push_back(btn);
-
-            //and its container
-            Entity container = theEntityManager.CreateEntity(ss.str() + " container",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
-            TRANSFORM(container)->position = TRANSFORM(btn)->position;
-            TRANSFORM(container)->size = TRANSFORM(btn)->size;
             levels.push_back(container);
         }
 
-        //finally, add a level editor button
-        levelEditorButton = theEntityManager.CreateEntity("Level editor",
-        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
-        TEXT_RENDERING(levelEditorButton)->text = "Level editor";
-        TRANSFORM(levelEditorButton)->position = glm::vec2(-sx + 2.f * sx * (LEVEL_COUNT % sqrtTot) / sqrtTot, sy - 2.f * sy * (LEVEL_COUNT / sqrtTot) / sqrtTot);
+        return std::make_pair(btn, container);
+    }
 
-        levelEditorButtonContainer = theEntityManager.CreateEntity("Level editor container",
-        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
-        TRANSFORM(levelEditorButtonContainer)->position = TRANSFORM(levelEditorButton)->position;
-        TRANSFORM(levelEditorButtonContainer)->size = TRANSFORM(levelEditorButton)->size;
+    void setup() {
+        float sx = PlacementHelper::ScreenWidth / 3.;
+        float sy = PlacementHelper::ScreenHeight / 3.;
+
+
+        auto listOriginals = game->gameThreadContext->assetAPI->listAssetContent(".map", "levels");
+        auto listUsers = game->gameThreadContext->assetAPI->listContent(game->gameThreadContext->assetAPI->getWritableAppDatasPath(), ".map");
+
+        auto LEVEL_COUNT = listOriginals.size() + listUsers.size();
+
+        //inside sqrt '+1' is for levelEditorButton btn
+        int sqrtTot = (int)sqrt(LEVEL_COUNT + 1) + 1;
+        int current = 0;
+
+        for (auto file : listOriginals) {
+            createTextAndContainer(true, file, glm::vec2(-sx + 2.f * sx * (current % sqrtTot) / sqrtTot,
+             sy - 2.f * sy * (current / sqrtTot) / sqrtTot));
+            ++current;
+        }
+        for (auto file : listUsers) {
+            createTextAndContainer(true, file, glm::vec2(-sx + 2.f * sx * (current % sqrtTot) / sqrtTot,
+             sy - 2.f * sy * (current / sqrtTot) / sqrtTot));
+            ++current;
+        }
+
+        //finally, add a level editor button
+        auto pair = createTextAndContainer(false, "Level editor", glm::vec2(-sx + 2.f * sx * (current % sqrtTot) / sqrtTot, sy - 2.f * sy * (current / sqrtTot) / sqrtTot));
+
+        levelEditorButton = pair.first;
+        levelEditorButtonContainer = pair.second;
     }
 
 
@@ -107,9 +120,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         for (unsigned i = 0; i < levels.size(); i += 2) {
             if (BUTTON(levels[i+1])->clicked) {
-                std::stringstream ss;
-                ss << "levels/level" << (i + 2) / 2 << ".map";
-                choosenLevel = ss.str();
+                choosenLevel = TEXT_RENDERING(levels[i])->text + ".map";
 
                 return Scene::Play;
             }
@@ -132,7 +143,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = false;
 
         if (to == Scene::Play) {
-            LevelLoader::LoadFromFile(choosenLevel, game->gameThreadContext->assetAPI->loadAsset(choosenLevel));
+            bool isInAsset = LevelLoader::LoadFromFile(choosenLevel, game->gameThreadContext->assetAPI->loadAsset("levels/" + choosenLevel));
+            if (! isInAsset) {
+                LevelLoader::LoadFromFile(choosenLevel, game->gameThreadContext->assetAPI->loadFile(game->gameThreadContext->assetAPI->getWritableAppDatasPath() + choosenLevel));
+            }
         }
     }
 };

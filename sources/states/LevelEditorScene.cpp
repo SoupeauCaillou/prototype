@@ -154,6 +154,9 @@ or click on another point and you will create a wall.";
                 LevelLoader::SaveInFile(userLevelName, spotList, wallList);
                 waitingForLevelName = false;
 
+                LOGI("synchronizing...");
+                game->gameThreadContext->assetAPI->synchronize();
+
                 selectTip(EnumTip::Default);
 
                 //if he pressed "go try!", then change scene
