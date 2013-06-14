@@ -1,6 +1,4 @@
 [Transformation]
 z = 0.9
-position%screen = 0, -.4
 size = 1, 1
-[TextRendering]
 [Button]

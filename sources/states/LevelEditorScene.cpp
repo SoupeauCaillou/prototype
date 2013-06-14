@@ -44,7 +44,7 @@
 struct LevelEditorScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
-    Entity saveButton, goTryLevelButton, tip;
+    Entity saveButton, saveButtonContainer, goTryLevelButton, goTryLevelButtonContainer, tip;
 
     Entity firstSelectionned;
 
@@ -61,17 +61,29 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
 
     void setup() {
         saveButton = theEntityManager.CreateEntity("save",
-                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("action_button"));
-        TRANSFORM(saveButton)->position.x = -9;
+                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
+        TRANSFORM(saveButton)->position = glm::vec2(-9, -6);
         TEXT_RENDERING(saveButton)->text = "save";
+        TEXT_RENDERING(saveButton)->color = Color(0., 0., 0.);
+
+        saveButtonContainer = theEntityManager.CreateEntity("save container",
+                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
+        TRANSFORM(saveButtonContainer)->position = TRANSFORM(saveButton)->position;
+        TRANSFORM(saveButtonContainer)->size = TRANSFORM(saveButton)->size;
 
         goTryLevelButton = theEntityManager.CreateEntity("go_try_level",
-                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("action_button"));
-        TRANSFORM(goTryLevelButton)->position.x = -5;
+                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
+        TRANSFORM(goTryLevelButton)->position = glm::vec2(-5, -6);
         TEXT_RENDERING(goTryLevelButton)->text = "try it!";
+        TEXT_RENDERING(goTryLevelButton)->color = Color(0., 0., 0.);
+
+        goTryLevelButtonContainer = theEntityManager.CreateEntity("save container",
+                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
+        TRANSFORM(goTryLevelButtonContainer)->position = TRANSFORM(goTryLevelButton)->position;
+        TRANSFORM(goTryLevelButtonContainer)->size = TRANSFORM(goTryLevelButton)->size;
 
         tip = theEntityManager.CreateEntity("objective",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TRANSFORM(tip)->position = glm::vec2(-5, -3);
         TEXT_RENDERING(tip)->flags |= TextRenderingComponent::MultiLineBit;
         TEXT_RENDERING(tip)->charHeight = .5f;
@@ -121,8 +133,8 @@ or click on another point and you will create a wall.";
 #endif
 
         TEXT_RENDERING(tip)->show =
-        TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
-        TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = true;
+        TEXT_RENDERING(saveButton)->show = BUTTON(saveButtonContainer)->enabled =
+        TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButtonContainer)->enabled = true;
 
         selectTip(EnumTip::Default);
 
@@ -134,6 +146,7 @@ or click on another point and you will create a wall.";
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        static float lastChange = 0.f;
         if (waitingForLevelName) {
             //if the user pressed enter, save the file
             if (game->gameThreadContext->keyboardInputHandlerAPI->done(userLevelName)) {
@@ -152,9 +165,8 @@ or click on another point and you will create a wall.";
                 //show current input...
                 selectTip(EnumTip::SelectedName, userLevelName);
             }
-        }
-
-        if (BUTTON(saveButton)->clicked || BUTTON(goTryLevelButton)->clicked) {
+        } else if (BUTTON(saveButtonContainer)->clicked || BUTTON(goTryLevelButtonContainer)->clicked) {
+            lastChange = TimeUtil::GetTime();
             if (theSpotSystem.getAllComponents().size() == 0) {
                 selectTip(EnumTip::NoSpot);
             } else {
@@ -163,80 +175,78 @@ or click on another point and you will create a wall.";
 
                 selectTip(EnumTip::SelectLevelName);
 
-                shouldGoTryAfterInput = BUTTON(goTryLevelButton)->clicked;
+                shouldGoTryAfterInput = BUTTON(goTryLevelButtonContainer)->clicked;
             }
-        } else {
-            static float lastChange = 0.f;
-            if (theTouchInputManager.wasTouched(0) && TimeUtil::GetTime() - lastChange > .4) {
-                lastChange = TimeUtil::GetTime();
+        } else if (theTouchInputManager.hasClicked(0) && TimeUtil::GetTime() - lastChange > .4) {
+            lastChange = TimeUtil::GetTime();
 
-                auto mousePosition = theTouchInputManager.getTouchLastPosition(0);
+            auto mousePosition = theTouchInputManager.getTouchLastPosition(0);
 
-                bool handled = false;
+            bool handled = false;
 
-                FOR_EACH_ENTITY(Spot, e)
-                    //if we clicked a spot, cancel the thing
-                    if (IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
-                        if (firstSelectionned) {
+            FOR_EACH_ENTITY(Spot, e)
+                //if we clicked a spot, cancel the thing
+                if (IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
+                    if (firstSelectionned) {
+                        RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
+                    }
+                    firstSelectionned = 0;
+
+                    handled = true;
+                    break;
+                }
+            }
+
+
+            FOR_EACH_ENTITY(Block, e)
+                //if we clicked a block
+                if (IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
+                    //if we already had a block selectionned earlier
+                    if (firstSelectionned) {
+                        //and the second block is not the first one, then create a wall
+                        if (firstSelectionned != e) {
+                            wallList.push_back(Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(.1f, .1f, .1f)));
                             RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
+                        //else the block is a spot;
+                        } else {
+                            Entity spot = theEntityManager.CreateEntity("spot",
+                                EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
+                            TRANSFORM(spot)->position = TRANSFORM(e)->position;
+                            spotList.push_back(spot);
+
+                            //if there were previously wall(s) for this block, delete it(them)
+                            for (auto wallIt = wallList.begin(); wallIt != wallList.end();) {
+                                auto tc = TRANSFORM(*wallIt);
+                                glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
+
+                                if (glm::length2(tc->position + offset - TRANSFORM(spot)->position) < 0.1f
+                                    || glm::length2(tc->position - offset - TRANSFORM(spot)->position) < 0.1f) {
+                                    theEntityManager.DeleteEntity(*wallIt);
+                                    wallIt = wallList.erase(wallIt);
+                                } else {
+                                    ++wallIt;
+                                }
+
+                            }
+                            //remove the block since we replaced it with a spot
+                            theEntityManager.DeleteEntity(e);
                         }
                         firstSelectionned = 0;
-
-                        handled = true;
-                        break;
+                    } else {
+                        firstSelectionned = e;
+                        RENDERING(firstSelectionned)->color = Color(1.f, 0.f, 0.f);
                     }
+                    handled = true;
+                    break;
                 }
-
-
-                FOR_EACH_ENTITY(Block, e)
-                    //if we clicked a block
-                    if (IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)->position, TRANSFORM(e)->size)) {
-                        //if we already had a block selectionned earlier
-                        if (firstSelectionned) {
-                            //and the second block is not the first one, then create a wall
-                            if (firstSelectionned != e) {
-                                wallList.push_back(Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(.1f, .1f, .1f)));
-                                RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
-                            //else the block is a spot;
-                            } else {
-                                Entity spot = theEntityManager.CreateEntity("spot",
-                                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
-                                TRANSFORM(spot)->position = TRANSFORM(e)->position;
-                                spotList.push_back(spot);
-
-                                //if there were previously wall(s) for this block, delete it(them)
-                                for (auto wallIt = wallList.begin(); wallIt != wallList.end();) {
-                                    auto tc = TRANSFORM(*wallIt);
-                                    glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
-
-                                    if (glm::length2(tc->position + offset - TRANSFORM(spot)->position) < 0.1f
-                                        || glm::length2(tc->position - offset - TRANSFORM(spot)->position) < 0.1f) {
-                                        theEntityManager.DeleteEntity(*wallIt);
-                                        wallIt = wallList.erase(wallIt);
-                                    } else {
-                                        ++wallIt;
-                                    }
-
-                                }
-                                //remove the block since we replaced it with a spot
-                                theEntityManager.DeleteEntity(e);
-                            }
-                            firstSelectionned = 0;
-                        } else {
-                            firstSelectionned = e;
-                            RENDERING(firstSelectionned)->color = Color(1.f, 0.f, 0.f);
-                        }
-                        handled = true;
-                        break;
-                    }
-                }
-                if (handled) {
-                    selectTip(EnumTip::Default);
-                } else {
-                    Entity e = theEntityManager.CreateEntity("point",
-                        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
-                    TRANSFORM(e)->position = mousePosition;
-                }
+            }
+            if (handled) {
+                selectTip(EnumTip::Default);
+            } else {
+                LOGI( "Create a new block" );
+                Entity e = theEntityManager.CreateEntity("point",
+                    EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
+                TRANSFORM(e)->position = mousePosition;
             }
         }
         return Scene::LevelEditor;
@@ -268,8 +278,8 @@ or click on another point and you will create a wall.";
 #endif
 
         TEXT_RENDERING(tip)->show =
-        TEXT_RENDERING(saveButton)->show = BUTTON(saveButton)->enabled =
-        TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButton)->enabled = false;
+        TEXT_RENDERING(saveButton)->show = BUTTON(saveButtonContainer)->enabled =
+        TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButtonContainer)->enabled = false;
 
         if (to == Scene::Play) {
             LevelLoader::LoadFromFile(userLevelName, game->gameThreadContext->assetAPI->loadFile(userLevelName));

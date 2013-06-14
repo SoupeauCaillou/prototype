@@ -29,13 +29,13 @@ void Grid::CreateGrid() {
         ss << j;
 
         Entity e = theEntityManager.CreateEntity("grid_number_x " + ss.str(),
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TEXT_RENDERING(e)->text = ss.str();
         TRANSFORM(e)->position.x = j;
         Instance()._gridTextEntities.push_back(e);
 
         e = theEntityManager.CreateEntity("grid_number_y " + ss.str(),
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TEXT_RENDERING(e)->text = ss.str();
         TRANSFORM(e)->position.y = j;
         Instance()._gridTextEntities.push_back(e);

@@ -57,12 +57,12 @@ struct PlayScene : public StateHandler<Scene::Enum> {
 
 
         objectiveProgression = theEntityManager.CreateEntity("objective",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TRANSFORM(objectiveProgression)->position = glm::vec2(7, 6);
         TEXT_RENDERING(objectiveProgression)->text = "0.0\%";
 
         victory = theEntityManager.CreateEntity("Victory",
-        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
+        EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TEXT_RENDERING(victory)->text = "Victory!";
         TRANSFORM(victory)->position = glm::vec2(0., PlacementHelper::ScreenHeight / 4.);
         TRANSFORM(victory)->z = .95;
@@ -112,9 +112,10 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         }
 
         //if objective is done or right click, go back to menu
-        if (theTouchInputManager.isTouched(1)
-            || theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done < 0.001) {
-            RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
+        if (theTouchInputManager.isTouched(1)) {
+            return Scene::Menu;
+        } else if (theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done < 0.001) {
+            ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
             return Scene::Menu;
         }
 
@@ -126,14 +127,18 @@ struct PlayScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     bool updatePreExit(Scene::Enum , float ) {
-        float value = ADSR(fadeout)->value;
-        TEXT_RENDERING(victory)->charHeight = 3 * value;
-        RENDERING(fadeout)->color.a = value;
-        return (theTouchInputManager.isTouched(0) && value == ADSR(fadeout)->sustainValue);
+        //if adsr is active, wait for the end of it
+        if (ADSR(fadeout)->active) {
+            float value = ADSR(fadeout)->value;
+            TEXT_RENDERING(victory)->charHeight = 3 * value;
+            RENDERING(fadeout)->color.a = value;
+            return (theTouchInputManager.isTouched(0) && value == ADSR(fadeout)->sustainValue);
+        } else {
+            return true;
+        }
     }
 
     void onPreExit(Scene::Enum) override {
-        ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
     }
 
     void onExit(Scene::Enum) override {
