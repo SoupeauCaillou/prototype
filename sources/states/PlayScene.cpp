@@ -65,16 +65,19 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_number"));
         TEXT_RENDERING(victory)->text = "Victory!";
         TRANSFORM(victory)->position = glm::vec2(0., PlacementHelper::ScreenHeight / 4.);
+        TRANSFORM(victory)->z = .95;
 
         fadeout = theEntityManager.CreateEntity("playscene fade out");
         ADD_COMPONENT(fadeout, Rendering);
         RENDERING(fadeout)->color = Color(0., 0., 0.);
         ADD_COMPONENT(fadeout, ADSR);
+        ADSR(fadeout)->attackMode = Mode::Quadratic;
         ADSR(fadeout)->attackTiming = 5.;
         ADSR(fadeout)->sustainValue = 1.;
         ADSR(fadeout)->decayTiming = ADSR(fadeout)->releaseTiming = 0.;
         ADD_COMPONENT(fadeout, Transformation);
         TRANSFORM(fadeout)->size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
+        TRANSFORM(fadeout)->z = 0.93;
     }
 
 
@@ -123,8 +126,10 @@ struct PlayScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     bool updatePreExit(Scene::Enum , float ) {
-        RENDERING(fadeout)->color.a = ADSR(fadeout)->value;
-        return (ADSR(fadeout)->value == ADSR(fadeout)->sustainValue);
+        float value = ADSR(fadeout)->value;
+        TEXT_RENDERING(victory)->charHeight = 3 * value;
+        RENDERING(fadeout)->color.a = value;
+        return (theTouchInputManager.isTouched(0) && value == ADSR(fadeout)->sustainValue);
     }
 
     void onPreExit(Scene::Enum) override {

@@ -42,13 +42,13 @@ void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Ent
     myfile << "nb_spot = " << spotList.size() << "\n";
     myfile << "nb_wall = " << wallList.size() << "\n\n";
 
-    for (int i = 0; i < spotList.size(); ++i) {
+    for (unsigned i = 0; i < spotList.size(); ++i) {
         myfile << "\n[spot_" << i << "]\n";
         myfile << "position = " << TRANSFORM(spotList[i])->position << "\n";
     }
 
 
-    for (int i = 0; i < wallList.size(); ++i) {
+    for (unsigned i = 0; i < wallList.size(); ++i) {
         auto * tc = TRANSFORM(wallList[i]);
         auto offset = glm::rotate(tc->size / 2.f, tc->rotation);
 
