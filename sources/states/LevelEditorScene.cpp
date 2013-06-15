@@ -48,7 +48,7 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
 
     Entity firstSelectionned;
 
-    std::vector<Entity> wallList;
+    std::vector<std::pair<Entity, std::pair<Entity, Entity>>> wallList;
     std::vector<Entity> spotList;
 
     std::string userLevelName;
@@ -151,7 +151,12 @@ or click on another point and you will create a wall.";
             //if the user pressed enter, save the file
             if (game->gameThreadContext->keyboardInputHandlerAPI->done(userLevelName)) {
                 userLevelName = game->gameThreadContext->assetAPI->getWritableAppDatasPath() + userLevelName + ".map";
-                LevelLoader::SaveInFile(userLevelName, spotList, wallList);
+
+                std::vector<std::pair<Entity, Entity>> finalList;
+                for (auto item : wallList) {
+                    finalList.push_back(item.second);
+                }
+                LevelLoader::SaveInFile(userLevelName, spotList, finalList);
                 waitingForLevelName = false;
 
                 LOGI("synchronizing...");
@@ -208,7 +213,9 @@ or click on another point and you will create a wall.";
                     if (firstSelectionned) {
                         //and the second block is not the first one, then create a wall
                         if (firstSelectionned != e) {
-                            wallList.push_back(Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position, TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(.1f, .1f, .1f)));
+                            Entity line = Draw::DrawVec2("LevelEditor", TRANSFORM(firstSelectionned)->position,
+                                TRANSFORM(e)->position - TRANSFORM(firstSelectionned)->position, Color(.1f, .1f, .1f));
+                            wallList.push_back(std::make_pair(line, std::make_pair(firstSelectionned, e)));
                             RENDERING(firstSelectionned)->color = Color(1.f, 1.f, 1.f);
                         //else the block is a spot;
                         } else {
@@ -218,16 +225,14 @@ or click on another point and you will create a wall.";
                             spotList.push_back(spot);
 
                             //if there were previously wall(s) for this block, delete it(them)
-                            for (auto wallIt = wallList.begin(); wallIt != wallList.end();) {
-                                auto tc = TRANSFORM(*wallIt);
+                            for (auto wallIt = wallList.begin(); wallIt != wallList.end(); ++wallIt) {
+                                auto tc = TRANSFORM(wallIt->first);
                                 glm::vec2 offset = glm::rotate(tc->size / 2.f, tc->rotation);
 
                                 if (glm::length2(tc->position + offset - TRANSFORM(spot)->position) < 0.1f
                                     || glm::length2(tc->position - offset - TRANSFORM(spot)->position) < 0.1f) {
-                                    theEntityManager.DeleteEntity(*wallIt);
-                                    wallIt = wallList.erase(wallIt);
-                                } else {
-                                    ++wallIt;
+                                    theEntityManager.DeleteEntity(wallIt->first);
+                                    wallList.erase(wallIt++);
                                 }
 
                             }
@@ -264,10 +269,7 @@ or click on another point and you will create a wall.";
             theEntityManager.DeleteEntity(e);
         }
 
-        while (wallList.begin() != wallList.end()) {
-            theEntityManager.DeleteEntity(wallList.back());
-            wallList.pop_back();
-        }
+        Draw::DrawVec2Restart("LevelEditor");
 
         while (spotList.begin() != spotList.end()) {
             theEntityManager.DeleteEntity(spotList.back());

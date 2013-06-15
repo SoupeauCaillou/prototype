@@ -115,7 +115,9 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         if (theTouchInputManager.isTouched(1)) {
             return Scene::Menu;
         } else if (theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done < 0.001) {
+#if ! SAC_DEBUG
             ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
+#endif
             return Scene::Menu;
         }
 
@@ -134,7 +136,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
             RENDERING(fadeout)->color.a = value;
             return (theTouchInputManager.isTouched(0) && value == ADSR(fadeout)->sustainValue);
         } else {
-            return true;
+            return theTouchInputManager.isTouched(1);
         }
     }
 

@@ -13,10 +13,12 @@
 
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 #include <glm/gtx/vector_angle.hpp>
 
-void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Entity> & spotList, const std::vector<Entity> & wallList) {
+void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Entity> & spotList,
+    const std::vector<std::pair<Entity, Entity>> & wallList) {
     //save in file each walls
     std::ofstream myfile (filename);
     LOGE_IF( ! myfile.is_open(), "Could not open file '" << filename << "'");
@@ -27,17 +29,14 @@ void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Ent
 
     for (unsigned i = 0; i < spotList.size(); ++i) {
         myfile << "\n[spot_" << i << "]\n";
-        myfile << "position = " << TRANSFORM(spotList[i])->position << "\n";
+        myfile << "position = " << std::setprecision(2) << TRANSFORM(spotList[i])->position << "\n";
     }
 
 
     for (unsigned i = 0; i < wallList.size(); ++i) {
-        auto * tc = TRANSFORM(wallList[i]);
-        auto offset = glm::rotate(tc->size / 2.f, tc->rotation);
-
         myfile << "\n[wall_" << i << "]\n";
-        myfile << "pos1 = " << tc->position - offset << "\n";
-        myfile << "pos2 = " << tc->position + offset << "\n";
+        myfile << "pos1 = " << std::setprecision(2) << TRANSFORM(wallList[i].first)->position << "\n";
+        myfile << "pos2 = " << std::setprecision(2) << TRANSFORM(wallList[i].second)->position << "\n";
     }
 
     myfile.close();

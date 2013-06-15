@@ -9,7 +9,7 @@
 
 class LevelLoader {
     public:
-        static void SaveInFile(const std::string & filename, const std::vector<Entity> & spotList, const std::vector<Entity> & wallList);
+        static void SaveInFile(const std::string & filename, const std::vector<Entity> & spotList, const std::vector<std::pair<Entity, Entity>> & wallList);
 
         static bool LoadFromFile(const std::string& ctx, const FileBuffer& fb);
 };
