@@ -71,6 +71,18 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
             theVisionSystem.Update(dt);
             // update visibility after action finished
             game->visibilityManager.updateVisibility(game->players);
+
+            // activate visible AI-soldiers
+            for (auto& pl: game->players) {
+                for (auto& gp: VISION(pl)->visiblePositions) {
+                    for (auto& visible: game->grid.getEntitiesAt(gp)) {
+                        auto* vc = theVisionSystem.Get(visible, false);
+                        if (vc) {
+                            vc->enabled = true;
+                        }
+                    }
+                }
+            }
         }
         if (countAfter == 0) {
             if (game->aiPlaying)
