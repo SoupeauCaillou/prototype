@@ -4,8 +4,10 @@ z = 0.1
 
 [Rendering]
 
-[Soldier]
+[Vision]
 vision_range = 5
+
+[Soldier]
 attack_range = 3, 10
 move_range = 5
 max_action_points_per_turn = 5

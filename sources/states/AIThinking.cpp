@@ -23,7 +23,7 @@
 #include "CameraMoveManager.h"
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
-#include "systems/UnitAISystem.h"
+#include "systems/TacticalAISystem.h"
 
 struct AIPlayingScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -45,9 +45,9 @@ struct AIPlayingScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onEnter(Scene::Enum) override {
         // mark all unit as not ready
-        theUnitAISystem.forEachECDo([] (Entity, UnitAIComponent* uc) -> void {
-            uc->ready = false;
-        });
+        // theUnitAISystem.forEachECDo([] (Entity, UnitAIComponent* uc) -> void {
+        //    uc->ready = false;
+        // });
     }
 
     ///----------------------------------------------------------------------------//
@@ -58,20 +58,9 @@ struct AIPlayingScene : public StateHandler<Scene::Enum> {
         if (theCameraMoveManager.update(dt, game->camera))
             return Scene::AIThinking;
 
-        theUnitAISystem.Update(dt);
+        theTacticalAISystem.Update(dt);
 
-        bool ready = false;
-        // Are all units ready ?
-        theUnitAISystem.forEachECDo([&ready] (Entity, UnitAIComponent* uc) -> void {
-            if (uc->active)
-                ready &= uc->ready;
-        });
-
-        if (ready) {
-            return Scene::AIPlaying;
-        } else {
-            return Scene::AIThinking;
-        }
+        return Scene::AIThinking;
     }
 
     ///----------------------------------------------------------------------------//
@@ -82,7 +71,7 @@ struct AIPlayingScene : public StateHandler<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateAIPlayingSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateAIThinkingSceneHandler(PrototypeGame* game) {
         return new AIPlayingScene(game);
     }
 }

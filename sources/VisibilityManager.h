@@ -8,12 +8,11 @@
 class VisibilityManager {
 	public:
 		void init(SpatialGrid& grid);
-		void reset();
-		void updateVisibility(const SpatialGrid& grid, const GridPos& viewerPos, int viewDistance);
+
+		void updateVisibility(const std::vector<Entity>& viewers);
 		void toggleVisibility(bool show);
 
 	private:
 		bool show;
-		std::vector<GridPos> visible;
 		std::map<GridPos, Entity> entities;
 };

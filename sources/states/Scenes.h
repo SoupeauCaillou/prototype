@@ -31,7 +31,6 @@ namespace Scene {
       SelectAction,
       ExecuteAction,
       AIThinking,
-      AIPlaying,
       EndTurn,
    };
 
@@ -46,7 +45,6 @@ namespace Scene {
   DECLARE_SCENE_HANDLER_FACTORY(SelectAction);
   DECLARE_SCENE_HANDLER_FACTORY(ExecuteAction);
   DECLARE_SCENE_HANDLER_FACTORY(AIThinking);
-  DECLARE_SCENE_HANDLER_FACTORY(AIPlaying);
   DECLARE_SCENE_HANDLER_FACTORY(BeginTurn);
   DECLARE_SCENE_HANDLER_FACTORY(EndTurn);
 }

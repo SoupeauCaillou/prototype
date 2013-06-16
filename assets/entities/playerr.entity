@@ -10,3 +10,6 @@ color = 1,0,0,1
 [Soldier]
 attack_range = 1, 4
 attack_damage = 6
+
+[Vision]
+enabled = 1

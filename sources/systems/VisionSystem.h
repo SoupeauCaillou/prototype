@@ -22,21 +22,21 @@
 #include "systems/System.h"
 #include "util/SpatialGrid.h"
 
-typedef std::pair<int, GridPos> TurnPosition;
+class PrototypeGame;
 
-struct UnitAIComponent {
-    UnitAIComponent() : active(false) { }
+struct VisionComponent {
+    VisionComponent() : enabled(false), visionRange(5) { }
 
-    bool active, ready;
-
-    std::map<Entity, TurnPosition> knownPositions;
-
-    std::vector<Entity> preferedActions;
+    bool enabled;
+    int visionRange;
+    std::vector<GridPos> visiblePositions;
 };
 
-#define theUnitAISystem UnitAISystem::GetInstance()
-#define UNIT_AI(e) theUnitAISystem.Get(e)
+#define theVisionSystem VisionSystem::GetInstance()
+#define VISION(e) theVisionSystem.Get(e)
 
-UPDATABLE_SYSTEM(UnitAI)
+UPDATABLE_SYSTEM(Vision)
 
+    public:
+        PrototypeGame* game;
 };

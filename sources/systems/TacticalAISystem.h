@@ -20,15 +20,16 @@
 #pragma once
 
 #include "systems/System.h"
+#include "util/SpatialGrid.h"
 
 struct TacticalAIComponent {
-    TacticalAIComponent() {
+    TacticalAIComponent() { }
 
-    }
+    std::map<Entity, std::pair<int, GridPos>> enemyLastKnownPos;
 };
 
 #define theTacticalAISystem TacticalAISystem::GetInstance()
-#define Tactical_AI(e) theTacticalAISystem.Get(e)
+#define TACTICAL_AI(e) theTacticalAISystem.Get(e)
 
 UPDATABLE_SYSTEM(TacticalAI)
 };

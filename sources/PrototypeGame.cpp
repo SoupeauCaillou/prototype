@@ -26,8 +26,8 @@
 #include "systems/ActionSystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/PlayerSystem.h"
-#include "systems/UnitAISystem.h"
 #include "systems/TacticalAISystem.h"
+#include "systems/VisionSystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -35,6 +35,11 @@
 
 #define ZOOM 1
 
+#include <ostream>
+#include <fstream>
+    #if SAC_EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#endif
 
 PrototypeGame::PrototypeGame(int, char**) : Game(), grid(39, 27, 1.1) {
     nickname = "anonymous";
@@ -72,9 +77,9 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
     SoldierSystem::CreateInstance();
+    VisionSystem::CreateInstance();
     ActionSystem::CreateInstance();
     PlayerSystem::CreateInstance();
-    UnitAISystem::CreateInstance();
     TacticalAISystem::CreateInstance();
 
     Game::sacInit(windowW, windowH);
@@ -83,6 +88,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     PlacementHelper::GimpHeight = 0;
 
     theActionSystem.game = this;
+    theVisionSystem.game = this;
 
     LOGI("SAC engine initialisation done.");
 }
@@ -203,6 +209,53 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
+    static float accum = 5;
+    accum +=dt;
+    if (accum >= 5) {
+        accum = 0;
+        LOGI("Test file access");
+
+#if SAC_EMSCRIPTEN
+    #define TEST_FILE "/sac_temp/file1"
+#else
+    #define TEST_FILE "/tmp/file1"
+#endif
+
+        FILE* fd = fopen(TEST_FILE, "a");
+        if (!fd) {
+            LOGE("Meh ofstream is not good :'(");
+        } else {
+            // 'a' mode not properly handled by emscripten
+            // we need to fseek ourselves
+            fseek(fd, 0, SEEK_END);
+            #define A "Write something\n"
+            fwrite(A, 1, strlen(A), fd);
+
+        }
+        fclose(fd);
+
+        fd = fopen(TEST_FILE, "r");
+        if (!fd) {
+            LOGE("Meh ifstream is not good :'(");
+        } else {
+            int rd = 0;
+            do {
+                char line[256];
+                rd = fread(line, 1, 256, fd);
+                line[rd] = '\0';
+                if (rd)
+                    LOGI("Read: '" << line << "'");
+            } while (rd > 0);
+        }
+        fclose(fd);
+#if SAC_EMSCRIPTEN
+        const char* script = "" \
+            "localStorage[\"sac_root\"] = window.JSON.stringify(FS.root.contents['sac_temp']);" \
+            "localStorage[\"sac_nextInode\"] = window.JSON.stringify(FS.nextInode);";
+        emscripten_run_script(script);
+#endif
+    }
+
     sceneStateMachine.update(dt);
 }
 

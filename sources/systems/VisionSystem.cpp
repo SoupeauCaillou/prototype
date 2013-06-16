@@ -17,19 +17,27 @@
     You should have received a copy of the GNU General Public License
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "UnitAISystem.h"
-#include "systems/TextRenderingSystem.h"
-#include "systems/AnchorSystem.h"
+#include "VisionSystem.h"
+#include "PrototypeGame.h"
 #include "systems/TransformationSystem.h"
 
-INSTANCE_IMPL(UnitAISystem);
+INSTANCE_IMPL(VisionSystem);
 
-UnitAISystem::UnitAISystem() : ComponentSystemImpl<UnitAIComponent>("UnitAI") {
-	UnitAIComponent sc;
-    componentSerializer.add(new Property<bool>("active", OFFSET(active, sc), 0));
-    
+VisionSystem::VisionSystem() : ComponentSystemImpl<VisionComponent>("Vision") {
+	VisionComponent vc;
+    componentSerializer.add(new Property<bool>("enabled", OFFSET(enabled, vc)));
+	componentSerializer.add(new Property<int>("vision_range", OFFSET(visionRange, vc), 0));
 }
 
-void UnitAISystem::DoUpdate(float) {
+void VisionSystem::DoUpdate(float) {
+	for (auto it: components) {
+		const Entity e = it.first;
+		auto* vc = it.second;
 
+		if (!vc->enabled)
+			continue;
+
+		const GridPos viewerPos = game->grid.positionToGridPos(TRANSFORM(e)->position);
+		vc->visiblePositions = game->grid.viewRange(viewerPos, vc->visionRange);
+	}
 }

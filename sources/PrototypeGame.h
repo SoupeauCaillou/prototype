@@ -57,11 +57,11 @@ class PrototypeGame : public Game {
         VisibilityManager visibilityManager;
 
         // Scene variables
-        std::list<Entity> walls;
-        std::list<Entity> yEnnemies;
-        std::list<Entity> bEnnemies;
-        std::list<Entity> players;
-        std::list<Entity> objs;
+        std::vector<Entity> walls;
+        std::vector<Entity> yEnnemies;
+        std::vector<Entity> bEnnemies;
+        std::vector<Entity> players;
+        std::vector<Entity> objs;
         Entity background;
         Entity banner, turn, points;
         Entity humanPlayer, aiPlayer;

@@ -27,6 +27,7 @@
 #include "CameraMoveManager.h"
 #include "systems/TransformationSystem.h"
 #include "systems/TextRenderingSystem.h"
+#include "systems/VisionSystem.h"
 
 struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -67,18 +68,13 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(game->points)->text = ss2.str();
 
         if (countAfter < countBefore) {
+            theVisionSystem.Update(dt);
             // update visibility after action finished
-            game->visibilityManager.reset();
-            for (auto p: game->players) {
-                game->visibilityManager.updateVisibility(
-                    game->grid,
-                    game->grid.positionToGridPos(TRANSFORM(p)->position),
-                    SOLDIER(p)->visionRange);
-            }
+            game->visibilityManager.updateVisibility(game->players);
         }
         if (countAfter == 0) {
             if (game->aiPlaying)
-                return Scene::AIPlaying;
+                return Scene::AIThinking;
             else
                 return Scene::SelectAction;
         }
@@ -90,7 +86,7 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {}
-    bool updatePreExit(Scene::Enum, float) override {return true;}
+
     void onExit(Scene::Enum) override {
         game->grid.autoAssignEntitiesToCell(game->players);
 

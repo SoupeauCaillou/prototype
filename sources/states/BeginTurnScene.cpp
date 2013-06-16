@@ -25,6 +25,7 @@
 #include "PrototypeGame.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/VisionSystem.h"
 
 struct BeginTurnScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -45,9 +46,7 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreEnter(Scene::Enum) {}
-    bool updatePreEnter(Scene::Enum, float) override {return true;}
-    void onEnter(Scene::Enum) override {
+    void onPreEnter(Scene::Enum) override {
         TEXT_RENDERING(game->banner)->color = Color(0, 1, 0);
 
         for (auto wall: game->walls) {
@@ -72,17 +71,12 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
             }
         });
 
-        game->visibilityManager.reset();
-        for (auto p: game->players) {
-            game->visibilityManager.updateVisibility(
-                game->grid,
-                game->grid.positionToGridPos(TRANSFORM(p)->position),
-                SOLDIER(p)->visionRange);
-        }
-
         game->grid.autoAssignEntitiesToCell(game->players);
         game->grid.autoAssignEntitiesToCell(game->yEnnemies);
         game->grid.autoAssignEntitiesToCell(game->bEnnemies);
+
+        theVisionSystem.Update(0);
+        game->visibilityManager.updateVisibility(game->players);
     }
 
     ///----------------------------------------------------------------------------//
