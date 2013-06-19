@@ -20,7 +20,7 @@
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
 static bool debugSpotSystem = !true;
-static bool debugDistanceCalculation = false;
+static bool debugDistanceCalculation = !true;
 #else
 static bool debugSpotSystem = false;
 static bool debugDistanceCalculation = false;
@@ -259,7 +259,7 @@ const Wall getUnion(const Wall & wall, const Wall & zone) {
         merge.second = zone.second;
     }
 
-    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "  final union is " << merge << " for " << wall << " and " << zone << "( " << firstPointDot << ")");
+    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "  final union is " << merge << " for " << wall << " and " << zone << "( " << firstPointDot << ")");
 
     return merge;
 }
@@ -273,11 +273,11 @@ float calculateHighlightedZone() {
     //on parcoure chaque spot
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         auto position = TRANSFORM(e)->position;
-        LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\n\nConsidering spot at position " << position);
+        LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\n\nConsidering spot at position " << position);
 
         //et l'ensemble des "zones" (murs à vrai dire) qu'il éclaire
         for (auto zone : sc->highlightedEdges) {
-            LOGI_IF(debugSpotSystem && debugDistanceCalculation, "Considering zone " << zone);
+            LOGI_IF(debugSpotSystem || debugDistanceCalculation, "Considering zone " << zone);
 
             //cette liste contient tous les murs DÉJÀ ÉCLAIRÉS, qui sont dans la continuité
             //du mur actuel
@@ -291,20 +291,26 @@ float calculateHighlightedZone() {
             for (auto wall = highlightedEdges.begin(); wall != highlightedEdges.end(); ++wall) {
                 glm::vec2 intersectionPoint;
 
-                LOGI_IF(debugSpotSystem && debugDistanceCalculation, "  trying wall " << *wall);
+                LOGI_IF(debugSpotSystem || debugDistanceCalculation, "  trying wall " << *wall);
 
                 //et si ils sont paralléles ET coincidents, on l'ajoute à la liste
                 if (IntersectionUtil::lineLine(wall->first, wall->second, zone.first, zone.second, &intersectionPoint)) {
-                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t wall new candidate: " << *wall);
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t wall new candidate: " << *wall);
                     //il y a 2 cas où la fonction renvoie vrai:
                     //1) s'ils sont perpendiculaires avec un point pivot en commun (à ignorer)
                     //2) s'ils sont adjacents / ont une partie confondu
-                    if (glm::abs(glm::dot(wall->second - wall->first, zone.second - zone.first)) < eps) {
-                        LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t\tthey are perpendiculars, cancelled");
+                    auto absDot = glm::abs(glm::dot(wall->second - wall->first, zone.second - zone.first));
+                    // LOGI(glm::length(wall->second - wall->first)
+                        // << " " << glm::length(zone.second - zone.first) << " " << absDot);
+
+
+                    // if (absDot < eps) {
+                    if (glm::length(wall->second - wall->first) * glm::length(zone.second - zone.first) - absDot > eps) {
+                        LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tthey are not parallels, cancelled");
                         continue;
                     }
                     needAMerge = true;
-                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "Yeah there are coincidents! Will be treated later");
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "Yeah there are coincidents! Will be treated later");
                     wallsMatching.push_back(*wall);
 
                     //on supprime le segment de la liste, car on va y mettre à la place la fusion avec le nouvel élément
@@ -326,7 +332,7 @@ float calculateHighlightedZone() {
                     beforeUnionTotalDistance += glm::length2(wall->first - wall->second);
 #endif
 
-                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\tfusionning " << unionned << " and " << *wall);
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\tfusionning " << unionned << " and " << *wall);
                     unionned = getUnion(*wall, unionned);
                 }
 
@@ -341,19 +347,16 @@ float calculateHighlightedZone() {
                 //finalement on rajoute le segment à la liste des murs éclairés
                 highlightedEdges.push_back(unionned);
 
-
-                for(auto i : highlightedEdges) LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\tyoupla: " << i);
-
                 //du debug uniquement
                 if (glm::abs(beforeUnionTotalDistance - afterUnionTotalDistance) < eps)  {
-                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t  already highlighted");
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t  already highlighted");
                 } else {
-                    LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t  merged(" << unionned << ")for a bonus of " << afterUnionTotalDistance - beforeUnionTotalDistance);
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t  merged(" << unionned << ")for a bonus of " << afterUnionTotalDistance - beforeUnionTotalDistance);
                     result += afterUnionTotalDistance - beforeUnionTotalDistance;
                 }
             //sinon il était tout seul sur ce mur, on l'ajoute normalement
             } else {
-                LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t  added" );
+                LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t  added" );
 #if SAC_DEBUG
                 result += glm::length(zone.first - zone.second);
 #else
@@ -363,7 +366,7 @@ float calculateHighlightedZone() {
                 highlightedEdges.push_back(Wall( zone.first, zone.second ));
             }
 
-            LOGI_IF(debugSpotSystem && debugDistanceCalculation, "\t\tcurrent total: " << result);
+            LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tcurrent total: " << result);
         }
     }
     return result;
@@ -374,7 +377,7 @@ void SpotSystem::DoUpdate(float) {
     Draw::DrawVec2Restart("SpotSystem");
     Draw::DrawTriangleRestart("SpotSystem");
 
-    LOGI_IF(debugSpotSystem, "\n\n\n");
+    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\n\n\n");
 
     //external walls helper
     float sx = PlacementHelper::ScreenWidth / 2.;
