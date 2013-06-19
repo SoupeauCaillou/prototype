@@ -28,6 +28,7 @@
 #include "systems/PlayerSystem.h"
 #include "systems/TacticalAISystem.h"
 #include "systems/VisionSystem.h"
+#include "systems/MemorySystem.h"
 
 #if SAC_INGAME_EDITORS
 #include "util/PrototypeDebugConsole.h"
@@ -54,8 +55,11 @@ PrototypeGame::PrototypeGame(int, char**) : Game(), grid(39, 27, 1.1) {
     sceneStateMachine.registerState(Scene::SelectCharacter, Scene::CreateSelectCharacterSceneHandler(this), "Scene::SelectCharacter");
     sceneStateMachine.registerState(Scene::SelectAction, Scene::CreateSelectActionSceneHandler(this), "Scene::SelectAction");
     sceneStateMachine.registerState(Scene::ExecuteAction, Scene::CreateExecuteActionSceneHandler(this), "Scene::ExecuteAction");
+    sceneStateMachine.registerState(Scene::AIThinking, Scene::CreateAIThinkingSceneHandler(this), "Scene::AIThinking");
     sceneStateMachine.registerState(Scene::BeginTurn, Scene::CreateBeginTurnSceneHandler(this), "Scene::BeginTurn");
     sceneStateMachine.registerState(Scene::EndTurn, Scene::CreateEndTurnSceneHandler(this), "Scene::EndTurn");
+    LOGF_IF(sceneStateMachine.getStateCount() != (int)Scene::Count,
+        "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -81,14 +85,17 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     ActionSystem::CreateInstance();
     PlayerSystem::CreateInstance();
     TacticalAISystem::CreateInstance();
+    MemorySystem::CreateInstance();
 
     Game::sacInit(windowW, windowH);
 
     PlacementHelper::GimpWidth = 0;
     PlacementHelper::GimpHeight = 0;
 
-    theActionSystem.game = this;
-    theVisionSystem.game = this;
+    theActionSystem.game =
+    theVisionSystem.game =
+    theMemorySystem.game =
+    theTacticalAISystem.game = this;
 
     LOGI("SAC engine initialisation done.");
 }
@@ -124,6 +131,7 @@ void PrototypeGame::init(const uint8_t*, int) {
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("human_player"));
     aiPlayer = theEntityManager.CreateEntity("ai_player",
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("ai_player"));
+    MEMORY(aiPlayer)->enemyOwner = humanPlayer;
 
     std::stringstream a;
     for (int i=1; i<27; ++i) {
@@ -195,6 +203,25 @@ void PrototypeGame::init(const uint8_t*, int) {
     ANCHOR(points)->parent =
         camera;
     LOGI("PrototypeGame initialisation done.");
+
+    std::string outFolder = gameThreadContext->assetAPI->getWritableAppDatasPath();
+    LOGI("Writable folder : '" << outFolder << "'");
+    auto l = gameThreadContext->assetAPI->listContent(outFolder, ".test");
+    LOGI_IF(!l.empty(), l.size() << " existing files");
+    for (auto ff: l) {
+        LOGI("   " << ff);
+    }
+    std::stringstream filena;
+    filena << outFolder << "testcreatefile_" << l.size() << ".test";
+    FILE* fd = fopen(filena.str().c_str(), "a");
+    if (!fd) {
+        LOGF("Could not open: " << filena.str());
+    } else {
+        #define A "Write something\n"
+        fwrite(A, 1, strlen(A), fd);
+        fclose(fd);
+    }
+    gameThreadContext->assetAPI->synchronize();
 }
 
 void PrototypeGame::quickInit() {
@@ -209,53 +236,6 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
-    static float accum = 5;
-    accum +=dt;
-    if (accum >= 5) {
-        accum = 0;
-        LOGI("Test file access");
-
-#if SAC_EMSCRIPTEN
-    #define TEST_FILE "/sac_temp/file1"
-#else
-    #define TEST_FILE "/tmp/file1"
-#endif
-
-        FILE* fd = fopen(TEST_FILE, "a");
-        if (!fd) {
-            LOGE("Meh ofstream is not good :'(");
-        } else {
-            // 'a' mode not properly handled by emscripten
-            // we need to fseek ourselves
-            fseek(fd, 0, SEEK_END);
-            #define A "Write something\n"
-            fwrite(A, 1, strlen(A), fd);
-
-        }
-        fclose(fd);
-
-        fd = fopen(TEST_FILE, "r");
-        if (!fd) {
-            LOGE("Meh ifstream is not good :'(");
-        } else {
-            int rd = 0;
-            do {
-                char line[256];
-                rd = fread(line, 1, 256, fd);
-                line[rd] = '\0';
-                if (rd)
-                    LOGI("Read: '" << line << "'");
-            } while (rd > 0);
-        }
-        fclose(fd);
-#if SAC_EMSCRIPTEN
-        const char* script = "" \
-            "localStorage[\"sac_root\"] = window.JSON.stringify(FS.root.contents['sac_temp']);" \
-            "localStorage[\"sac_nextInode\"] = window.JSON.stringify(FS.nextInode);";
-        emscripten_run_script(script);
-#endif
-    }
-
     sceneStateMachine.update(dt);
 }
 

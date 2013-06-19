@@ -22,9 +22,11 @@ class PrototypeGame;
 
 namespace Scene {
    enum Enum {
-      Logo,
+      Logo = 0,
       Menu,
+#if SAC_NETWORK
       Connecting,
+#endif
       SocialCenter,
       BeginTurn,
       SelectCharacter,
@@ -32,6 +34,7 @@ namespace Scene {
       ExecuteAction,
       AIThinking,
       EndTurn,
+      Count
    };
 
 #define DECLARE_SCENE_HANDLER_FACTORY(name) \

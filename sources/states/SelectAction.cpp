@@ -95,7 +95,7 @@ struct SelectActionScene : public StateHandler<Scene::Enum> {
                 if (SpatialGrid::ComputeDistance(pos, enemyPos) > maxAtkRange)
                     continue;
 
-                if (game->grid.canDrawLine(pos, enemyPos)) {
+                if (game->grid.canDrawLine(pos, enemyPos) >= 0) {
                     Entity e = theEntityManager.CreateEntity("potential_atk",
                     EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("cell"));
                     TRANSFORM(e)->position = TRANSFORM(enemy)->position;

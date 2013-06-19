@@ -28,6 +28,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/TextRenderingSystem.h"
 #include "systems/VisionSystem.h"
+#include "systems/MemorySystem.h"
 
 struct ExecuteActionScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -68,21 +69,31 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
         TEXT_RENDERING(game->points)->text = ss2.str();
 
         if (countAfter < countBefore) {
+            // assign to grid
+            std::vector<Entity> soldiers = theSoldierSystem.RetrieveAllEntityWithComponent();
+            game->grid.autoAssignEntitiesToCell(soldiers);
+
             theVisionSystem.Update(dt);
             // update visibility after action finished
             game->visibilityManager.updateVisibility(game->players);
 
+            bool enabledOneAI = false;
             // activate visible AI-soldiers
             for (auto& pl: game->players) {
                 for (auto& gp: VISION(pl)->visiblePositions) {
                     for (auto& visible: game->grid.getEntitiesAt(gp)) {
                         auto* vc = theVisionSystem.Get(visible, false);
-                        if (vc) {
-                            vc->enabled = true;
+                        if (vc && !vc->enabled) {
+                            vc->enabled = enabledOneAI = true;
                         }
                     }
                 }
             }
+            if (enabledOneAI) {
+                theVisionSystem.Update(dt);
+            }
+
+            theMemorySystem.Update(dt);
         }
         if (countAfter == 0) {
             if (game->aiPlaying)

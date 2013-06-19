@@ -24,6 +24,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/SoldierSystem.h"
 #include "systems/TacticalAISystem.h"
+#include "systems/TextRenderingSystem.h"
 
 struct AIPlayingScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -44,6 +45,7 @@ struct AIPlayingScene : public StateHandler<Scene::Enum> {
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onEnter(Scene::Enum) override {
+        TEXT_RENDERING(game->banner)->text = "AI playing";
         // mark all unit as not ready
         // theUnitAISystem.forEachECDo([] (Entity, UnitAIComponent* uc) -> void {
         //    uc->ready = false;

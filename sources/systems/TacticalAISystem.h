@@ -22,14 +22,19 @@
 #include "systems/System.h"
 #include "util/SpatialGrid.h"
 
+class PrototypeGame;
+
 struct TacticalAIComponent {
     TacticalAIComponent() { }
 
-    std::map<Entity, std::pair<int, GridPos>> enemyLastKnownPos;
+    int enenyGroupingDistance;
 };
 
 #define theTacticalAISystem TacticalAISystem::GetInstance()
 #define TACTICAL_AI(e) theTacticalAISystem.Get(e)
 
 UPDATABLE_SYSTEM(TacticalAI)
+
+public:
+    PrototypeGame* game;
 };

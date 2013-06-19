@@ -56,6 +56,20 @@ static void payForAction(Entity soldier, Action::Enum type) {
     SoldierSystem::UpdateUI(soldier, SOLDIER(soldier));
 }
 
+float ActionSystem::DetermineHitProbability(const SoldierComponent& sc, const GridPos& attackerPos, const GridPos& targetPos) {
+    // Resolve attack
+    //   1. determine distance
+    unsigned distance = SpatialGrid::ComputeDistance(attackerPos, targetPos);
+
+    LOGV(1, "Distance: " << distance);
+    //   2. if closer than min distance, use min distance
+    distance = glm::max(distance, sc.attackRange.t1);
+
+    LOGV(1, "Distance bis: " << distance);
+    //   3. compute hit probability
+    return glm::lerp(0.9f, 0.1f, distance / (float)sc.attackRange.t2);
+}
+
 void ActionSystem::DoUpdate(float dt) {
     std::vector<Entity> actionFinished;
     std::vector<ActionComponent*> actionDependingOnAnother;
@@ -93,16 +107,10 @@ void ActionSystem::DoUpdate(float dt) {
                         LOGV(1, "Resolve attack");
                         const auto* sc = SOLDIER(ac->entity);
                         // Resolve attack
-                        //   1. determine distance
-                        unsigned distance = game->grid.computeGridDistance(
-                            TRANSFORM(ac->entity)->position,
-                            TRANSFORM(ac->attackTarget)->position);
-                        LOGV(1, "Distance: " << distance);
-                        //   2. if closer than min distance, use min distance
-                        distance = glm::max(distance, sc->attackRange.t1);
-                        LOGV(1, "Distance bis: " << distance);
-                        //   3. compute hit probability
-                        float hitProbability = glm::lerp(0.9f, 0.1f, distance / (float)sc->attackRange.t2);
+                        float hitProbability = DetermineHitProbability(
+                            *sc,
+                            game->grid.positionToGridPos(TRANSFORM(ac->entity)->position),
+                            game->grid.positionToGridPos(TRANSFORM(ac->attackTarget)->position));
                         LOGV(1, "Proba: " << hitProbability);
                         //   4. throw 1d10!
                         float dice = glm::linearRand(0.0f, 1.0f);
