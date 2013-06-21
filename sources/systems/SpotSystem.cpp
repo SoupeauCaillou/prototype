@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <ostream>
+#include <iomanip>
 
 //activate or not logs (debug)
 #ifdef SAC_DEBUG
@@ -30,8 +31,20 @@ static bool debugDistanceCalculation = false;
 
 INSTANCE_IMPL(SpotSystem);
 
-SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
+//we use this specific log function for unit tests
+#define SPOT_SYSTEM_LOG(lvl, x) {\
+    if (lvl & theSpotSystem.FLAGS_ENABLED) {\
+        std::ostream out(theSpotSystem.outputStream);\
+        out << x << "\n";\
+    }\
 }
+
+SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
+    //by default, outputStream is stdout
+    outputStream = std::cout.rdbuf();
+    FLAGS_ENABLED = 0;
+}
+
 
 inline std::ostream & operator<<(std::ostream & o, const EnhancedPoint & ep) {
     o << "name='" << ep.name << "': position='" << ep.position;
@@ -114,6 +127,7 @@ Wall getActiveWall(const std::list<Wall> & walls,
     LOGF_IF(debugSpotSystem && nearestWallDistance == 100000.f, "Couldn't find a wall between points " << firstPoint << " and " << secondPoint);
 
     LOGI_IF(debugSpotSystem, "\tActive wall is " << nearestWall);
+    SPOT_SYSTEM_LOG(SpotSystem::ACTIVE_WALL, "Active wall is " << std::setprecision(1) << nearestWall);
     return nearestWall;
 }
 
@@ -441,6 +455,7 @@ void SpotSystem::DoUpdate(float) {
     glm::vec2 mousePosition = theTouchInputManager.getTouchLastPosition(0);
     bool isTouched = theTouchInputManager.isTouched(0);
 
+
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         //on vérifie qu'on a déplacé le spot
         sc->dragStarted = isTouched && (sc->dragStarted || IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)));
@@ -539,6 +554,7 @@ void SpotSystem::DoUpdate(float) {
                 LOGF("could not project!!");
         }
 
+
         LOGI_IF(debugSpotSystem, "Start point is " << startPoint);
     #if SAC_DEBUG
         Draw::DrawPoint("SpotSystem", points.begin()->position, Color(1., 1., 1.), points.begin()->name);
@@ -547,9 +563,13 @@ void SpotSystem::DoUpdate(float) {
         //le dernier point de l'éclairage courant
         glm::vec2 endPoint;
 
+        int count = 0;
+        SPOT_SYSTEM_LOG(POINTS_ORDER, ++count << ". " << points.begin()->name);
         // on commence directement au 2eme du coup vu qu'on a déjà pris le 1er au dessus
         for (auto pointIt = ++points.begin(); pointIt != points.end(); ++pointIt) {
             auto point = *pointIt;
+
+            SPOT_SYSTEM_LOG(POINTS_ORDER, ++count << ". " << point.name);
 
 #if SAC_DEBUG
             Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);

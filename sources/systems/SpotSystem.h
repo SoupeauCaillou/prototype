@@ -4,6 +4,8 @@
 
 #include <glm/gtx/norm.hpp>
 
+#include <ostream>
+
 //used in the algorithm
 const float eps = 0.0001f;
 
@@ -84,4 +86,13 @@ UPDATABLE_SYSTEM(Spot)
     public:
         float totalHighlightedDistance2Objective, totalHighlightedDistance2Done;
 
+#if SAC_DEBUG
+        //should NOT be here on the release version obv
+        std::streambuf * outputStream;
+        const static int POINTS_ORDER = 1 << 0; // affiche l'ordre dans lequel les points sont parcourus
+        const static int HIGHLIGHTED_WALLS_BEFORE_MERGE = 1 << 1; //todo
+        const static int CALCULATION_ALGO = 1 << 2; //todo
+        const static int ACTIVE_WALL = 1 << 3; //affiche le mur actif entre chaque point
+        int FLAGS_ENABLED;
+#endif
 };

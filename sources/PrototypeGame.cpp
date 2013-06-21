@@ -87,7 +87,6 @@ void PrototypeGame::init(const uint8_t*, int) {
     BlockSystem::CreateInstance();
     SpotSystem::CreateInstance();
 
-
 #if SAC_DEBUG
     sceneStateMachine.setup(Scene::Menu);
 #else
