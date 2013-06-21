@@ -33,21 +33,43 @@ void AddWall(const std::string & name, const glm::vec2 & firstPoint, const glm::
     BLOCK(e)->isDoubleFace = isDoubleFace;
 }
 
-TEST(CheckWhenEmpty)
-{
+static void Init(std::fstream & of) {
     SpotSystem::CreateInstance();
     BlockSystem::CreateInstance();
     RenderingSystem::CreateInstance(); //needed because we do some stuff with drawSomething class..
     TransformationSystem::CreateInstance();
 
-
     //write the output in a random generated temporary file
     char *tmpname = strdup("/tmp/tmpfileXXXXXX");
     mkstemp(tmpname);
-    std::fstream of(tmpname);
-
+    of.open(tmpname);
 
     theSpotSystem.outputStream = of.rdbuf();
+}
+
+static void CheckAndQuit(std::fstream & of, const std::vector<std::string> & expected) {
+    //go back to the start of file, and compare result line by line
+    of.seekp(0);
+    std::string line;
+    for (unsigned i = 0; i < expected.size(); ++i) {
+        CHECK(of.good());
+        getline(of, line);
+        CHECK_EQUAL(expected[i], line);
+    }
+    of.close();
+
+    SpotSystem::DestroyInstance();
+    BlockSystem::DestroyInstance();
+    RenderingSystem::DestroyInstance();
+    TransformationSystem::DestroyInstance();
+}
+
+TEST(CheckWhenEmpty)
+{
+    std::fstream of;
+    Init(of);
+
+    //choose the flags
     theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER;
 
     //create the map
@@ -64,18 +86,5 @@ TEST(CheckWhenEmpty)
         "5. wall bottom left",
     };
 
-    //go back to the start of file, and compare result line by line
-    of.seekp(0);
-    std::string line;
-    for (unsigned i = 0; i < expected.size(); ++i) {
-        CHECK(of.good());
-        getline(of, line);
-        CHECK_EQUAL(expected[i], line);
-    }
-    of.close();
-
-    SpotSystem::DestroyInstance();
-    BlockSystem::DestroyInstance();
-    RenderingSystem::DestroyInstance();
-    TransformationSystem::DestroyInstance();
+    CheckAndQuit(of, expected);
 }
