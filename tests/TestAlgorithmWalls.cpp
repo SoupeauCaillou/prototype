@@ -33,30 +33,24 @@ void AddWall(const std::string & name, const glm::vec2 & firstPoint, const glm::
     BLOCK(e)->isDoubleFace = isDoubleFace;
 }
 
-static void Init(std::fstream & of) {
+static void Init(std::stringstream & ss) {
     SpotSystem::CreateInstance();
     BlockSystem::CreateInstance();
     RenderingSystem::CreateInstance(); //needed because we do some stuff with drawSomething class..
     TransformationSystem::CreateInstance();
 
-    //write the output in a random generated temporary file
-    char *tmpname = strdup("/tmp/tmpfileXXXXXX");
-    mkstemp(tmpname);
-    of.open(tmpname);
-
-    theSpotSystem.outputStream = of.rdbuf();
+    theSpotSystem.outputStream = ss.rdbuf();
 }
 
-static void CheckAndQuit(std::fstream & of, const std::vector<std::string> & expected) {
+static void CheckAndQuit(std::stringstream & ss, const std::vector<std::string> & expected) {
     //go back to the start of file, and compare result line by line
-    of.seekp(0);
+    ss.seekp(0);
     std::string line;
     for (unsigned i = 0; i < expected.size(); ++i) {
-        CHECK(of.good());
-        getline(of, line);
+        CHECK(ss.good());
+        getline(ss, line);
         CHECK_EQUAL(expected[i], line);
     }
-    of.close();
 
     SpotSystem::DestroyInstance();
     BlockSystem::DestroyInstance();
@@ -66,8 +60,8 @@ static void CheckAndQuit(std::fstream & of, const std::vector<std::string> & exp
 
 TEST(CheckWhenEmpty)
 {
-    std::fstream of;
-    Init(of);
+    std::stringstream ss;
+    Init(ss);
 
     //choose the flags
     theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER;
@@ -86,5 +80,5 @@ TEST(CheckWhenEmpty)
         "5. wall bottom left",
     };
 
-    CheckAndQuit(of, expected);
+    CheckAndQuit(ss, expected);
 }
