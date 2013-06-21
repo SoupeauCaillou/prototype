@@ -5,6 +5,8 @@
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 
+#include "base/PlacementHelper.h"
+
 #include <glm/gtx/vector_angle.hpp>
 #include <fstream>
 
@@ -34,6 +36,19 @@ void AddWall(const std::string & name, const glm::vec2 & firstPoint, const glm::
 }
 
 static void Init(std::stringstream & ss) {
+    auto windowW = 900, windowH = 625;
+    if (windowW < windowH) {
+        PlacementHelper::ScreenHeight = 10;
+        PlacementHelper::ScreenWidth = PlacementHelper::ScreenHeight * windowW / (float)windowH;
+    } else {
+        PlacementHelper::ScreenWidth = 20;
+        PlacementHelper::ScreenHeight = PlacementHelper::ScreenWidth * windowH / (float)windowW;
+    }
+
+    PlacementHelper::WindowWidth = windowW;
+    PlacementHelper::WindowHeight = windowH;
+
+
     SpotSystem::CreateInstance();
     BlockSystem::CreateInstance();
     RenderingSystem::CreateInstance(); //needed because we do some stuff with drawSomething class..
@@ -64,7 +79,7 @@ TEST(CheckWhenEmpty)
     Init(ss);
 
     //choose the flags
-    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER;
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER | SpotSystem::ACTIVE_WALL;
 
     //create the map
     AddSpot("spot1", glm::vec2(0.));
@@ -74,10 +89,16 @@ TEST(CheckWhenEmpty)
 
     std::vector<std::string> expected = {
         "1. wall middle left (first point)",
+        "Active wall is -10.0, -6.9 <-> -10.0, 0.0",
         "2. wall top left",
+        "Active wall is -10.0, 0.0 <-> -10.0, 6.9",
         "3. top right",
+        "Active wall is -10.0, 6.9 <-> 10.0, 6.9",
         "4. wall bottom right",
+        "Active wall is 10.0, 6.9 <-> 10.0, -6.9",
         "5. wall bottom left",
+        "Active wall is 10.0, -6.9 <-> -10.0, -6.9",
+        "Active wall is -10.0, -6.9 <-> -10.0, 0.0",
     };
 
     CheckAndQuit(ss, expected);

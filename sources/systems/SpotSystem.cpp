@@ -127,7 +127,6 @@ Wall getActiveWall(const std::list<Wall> & walls,
     LOGF_IF(debugSpotSystem && nearestWallDistance == 100000.f, "Couldn't find a wall between points " << firstPoint << " and " << secondPoint);
 
     LOGI_IF(debugSpotSystem, "\tActive wall is " << nearestWall);
-    SPOT_SYSTEM_LOG(SpotSystem::ACTIVE_WALL, "Active wall is " << std::setprecision(1) << nearestWall);
     return nearestWall;
 }
 
@@ -565,6 +564,7 @@ void SpotSystem::DoUpdate(float) {
 
         int count = 0;
         SPOT_SYSTEM_LOG(POINTS_ORDER, ++count << ". " << points.begin()->name);
+        SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << std::fixed << std::setprecision(1) << activeWall);
         // on commence directement au 2eme du coup vu qu'on a déjà pris le 1er au dessus
         for (auto pointIt = ++points.begin(); pointIt != points.end(); ++pointIt) {
             auto point = *pointIt;
@@ -577,6 +577,7 @@ void SpotSystem::DoUpdate(float) {
 
             // on cherche le mur actif (c'est à dire le mur le plus proche qui contient le startPoint ET le point actuel)
             activeWall = getActiveWall(walls, pointOfView, startPoint, point.position);
+            SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << std::fixed << std::setprecision(1) << activeWall);
 
             //si on a pas trouvé de mur actif il y a un bug quelque part ...
             LOGF_IF(activeWall.first == glm::vec2(0.f) && activeWall.second == glm::vec2(0.f), "active wall not found");
@@ -651,6 +652,7 @@ void SpotSystem::DoUpdate(float) {
         // 1) soit le dernier point et le 1er point sont un seul mur, et dans ce cas on affiche le mur (mur extérieur par ex)
         // 2) soit ils sont sur 2 murs distincts, et dans ce cas on projete les 2 points sur le mur actif (2 blocks, 1 de chaque côté de l'axe des abcisses)
         activeWall = getActiveWall(walls, pointOfView, startPoint, points.front().position);
+        SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << std::fixed << std::setprecision(1) << activeWall);
         LOGI_IF(debugSpotSystem, "\tLast activeWall is " << activeWall << " so projeting " << startPoint << " and " << points.front().position << " on it.");
         IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
         IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
