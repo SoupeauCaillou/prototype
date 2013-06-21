@@ -65,7 +65,7 @@ PrototypeGame::PrototypeGame() : Game() {
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
-        case ContextAPI::KeyboardInputHandler:
+        case ContextAPI::StringInput:
         case ContextAPI::Sound:
             return true;
         default:

@@ -2,9 +2,20 @@
 	"folders":
 	[
 		{
-            "path": ".",
-            "folder_exclude_patterns" : [".*"],
-            "file_exclude_patterns": [".*", "*.sln", "*.cproj*"]
+			"file_exclude_patterns":
+			[
+				".*",
+				"*.sln",
+				"*.cproj*"
+			],
+			"folder_exclude_patterns":
+			[
+				".*"
+			],
+			"path": "."
+		},
+		{
+			"path": "~/.local/share/sac"
 		}
 	]
 }

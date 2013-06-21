@@ -20,7 +20,7 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
-#include "api/KeyboardInputHandlerAPI.h"
+#include "api/StringInputAPI.h"
 
 #include "systems/ButtonSystem.h"
 #include "systems/TextRenderingSystem.h"
@@ -149,7 +149,7 @@ or click on another point and you will create a wall.";
         static float lastChange = 0.f;
         if (waitingForLevelName) {
             //if the user pressed enter, save the file
-            if (game->gameThreadContext->keyboardInputHandlerAPI->done(userLevelName)) {
+            if (game->gameThreadContext->stringInputAPI->done(userLevelName)) {
                 userLevelName = game->gameThreadContext->assetAPI->getWritableAppDatasPath() + userLevelName + ".map";
 
                 std::vector<std::pair<Entity, Entity>> finalList;
@@ -179,7 +179,7 @@ or click on another point and you will create a wall.";
                 selectTip(EnumTip::NoSpot);
             } else {
                 waitingForLevelName = true;
-                game->gameThreadContext->keyboardInputHandlerAPI->askUserInput();
+                game->gameThreadContext->stringInputAPI->askUserInput();
 
                 selectTip(EnumTip::SelectLevelName);
 
