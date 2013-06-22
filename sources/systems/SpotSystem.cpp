@@ -378,7 +378,7 @@ float calculateHighlightedZone() {
 
                 highlightedEdges.push_back(Wall( zone.first, zone.second ));
             }
-
+            SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "current total: " << result);
             LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tcurrent total: " << result);
         }
     }
@@ -456,6 +456,7 @@ void SpotSystem::DoUpdate(float) {
 
 
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
+
         //on vérifie qu'on a déplacé le spot
         sc->dragStarted = isTouched && (sc->dragStarted || IntersectionUtil::pointRectangle(mousePosition, TRANSFORM(e)));
 
@@ -482,6 +483,8 @@ void SpotSystem::DoUpdate(float) {
         sc->highlightedEdges.clear();
 
         const glm::vec2 pointOfView = TRANSFORM(e)->position;
+
+        SPOT_SYSTEM_LOG(POINTS_ORDER, "Spot " << theEntityManager.entityName(e));
 
         LOGI_IF(debugSpotSystem, "pointOfView: " << pointOfView);
         Draw::DrawPoint("SpotSystem", pointOfView, Color(1., .8, 0), "pointOfView");

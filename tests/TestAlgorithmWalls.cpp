@@ -6,14 +6,10 @@
 #include "systems/RenderingSystem.h"
 
 #include "base/PlacementHelper.h"
+#include "util/DrawSomething.h"
 
 #include <glm/gtx/vector_angle.hpp>
 #include <fstream>
-
-#if 0
-    CHECK_EQUAL(a, b);
-    CHECK_CLOSE(a, b, 0.001);
-#endif
 
 void AddSpot(const std::string & name, const glm::vec2 & pos) {
     Entity e = theEntityManager.CreateEntity(name);
@@ -66,6 +62,10 @@ static void CheckAndQuit(std::stringstream & ss, const std::vector<std::string> 
         getline(ss, line);
         CHECK_EQUAL(expected[i], line);
     }
+    getline(ss, line); //remove the last empty line
+    CHECK(! ss.good());
+
+    Draw::Clear();
 
     SpotSystem::DestroyInstance();
     BlockSystem::DestroyInstance();
@@ -88,6 +88,7 @@ TEST(CheckWhenEmpty)
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
+        "Spot spot1",
         "1. wall middle left (first point)",
         "Active wall is -10.0, -6.9 <-> -10.0, 0.0",
         "2. wall top left",
@@ -99,6 +100,49 @@ TEST(CheckWhenEmpty)
         "5. wall bottom left",
         "Active wall is 10.0, -6.9 <-> -10.0, -6.9",
         "Active wall is -10.0, -6.9 <-> -10.0, 0.0",
+    };
+
+    CheckAndQuit(ss, expected);
+}
+
+TEST(Check2SpotsAndATriangle)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER;// | SpotSystem::CALCULATION_ALGO;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(-5, 3));
+    AddSpot("spot2", glm::vec2(4.5, -2.25));
+
+    AddWall("block1", glm::vec2(-4, 0), glm::vec2(2.75, 1), false);
+    AddWall("block2", glm::vec2(2.75, 1), glm::vec2(0, -3), false);
+    AddWall("block3", glm::vec2(0, -3), glm::vec2(-4, 0), false);
+
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "Spot spot1",
+        "1. wall middle left (first point)",
+        "2. wall top left",
+        "3. top right",
+        "4. block1- second point",
+        "5. wall bottom right",
+        "6. block2- second point",
+        "7. block1- first point",
+        "8. wall bottom left",
+        "Spot spot2",
+        "1. wall middle left (first point)",
+        "2. block1- first point",
+        "3. wall top left",
+        "4. block1- second point",
+        "5. top right",
+        "6. wall bottom right",
+        "7. wall bottom left",
+        "8. block2- second point",
     };
 
     CheckAndQuit(ss, expected);
