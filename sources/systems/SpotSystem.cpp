@@ -24,15 +24,6 @@ static bool debugSpotSystem = false;
 static bool debugDistanceCalculation = false;
 // static bool debugSpotSystem = true;
 // static bool debugDistanceCalculation = true;
-#else
-static bool debugSpotSystem = false;
-static bool debugDistanceCalculation = false;
-#endif
-
-#define FAR_FAR_AWAY -100.f
-
-INSTANCE_IMPL(SpotSystem);
-
 //we use this specific log function for unit tests
 #define SPOT_SYSTEM_LOG(lvl, x) {\
     if (lvl & theSpotSystem.FLAGS_ENABLED) {\
@@ -41,10 +32,26 @@ INSTANCE_IMPL(SpotSystem);
     }\
 }
 
+#else
+static bool debugSpotSystem = false;
+static bool debugDistanceCalculation = false;
+
+//we use this specific log function for unit tests
+#define SPOT_SYSTEM_LOG(lvl, x) {}
+#endif
+
+#define FAR_FAR_AWAY -100.f
+
+INSTANCE_IMPL(SpotSystem);
+
+
+
 SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
+#if SAC_DEBUG
     //by default, outputStream is stdout
     outputStream = std::cout.rdbuf();
     FLAGS_ENABLED = 0;
+#endif
 }
 
 

@@ -1,28 +1,28 @@
 nb_spot = 2
 nb_wall = 4
 
-[spot_0]
+[spot_1]
 position = -4.5, 0
 
-[spot_1]
+[spot_2]
 position = 4.5, 0
 
-[wall_0]
+[wall_1]
 pos1 = -4., -4
 pos2 = -4, 4
 two_sided = false
 
-[wall_1]
+[wall_2]
 pos1 = -4, 4
 pos2 = 4, 4
 two_sided = false
 
-[wall_2]
+[wall_3]
 pos1 = 4, 4
 pos2 = 4, -4
 two_sided = false
 
-[wall_3]
+[wall_4]
 pos1 = 4, -4
 pos2 = -4., -4
 two_sided = false

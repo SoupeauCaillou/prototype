@@ -1,23 +1,23 @@
 nb_spot = 2
 nb_wall = 3
 
-[spot_0]
+[spot_1]
 position = -5, 3.4
 
-[spot_1]
+[spot_2]
 position = 4.5, -2.2
 
-[wall_0]
+[wall_1]
 pos1 = -4., -0.4
 pos2 = 0., -3
 two_sided = false
 
-[wall_1]
+[wall_2]
 pos1 = 0., -3.
 pos2 = 2.7, 1.2
 two_sided = false
 
-[wall_2]
+[wall_3]
 pos1 = 2.7, 1.2
 pos2 = -4., -0.4
 two_sided = false

@@ -1,5 +1,5 @@
+#if SAC_DEBUG
 #include <UnitTest++.h>
-
 #include "systems/SpotSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/TransformationSystem.h"
@@ -266,3 +266,4 @@ TEST(Check2SpotsAndATriangleAgainAgain)
     CheckAndQuit(ss, expected);
 }
 
+#endif

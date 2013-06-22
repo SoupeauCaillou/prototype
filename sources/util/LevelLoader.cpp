@@ -28,15 +28,16 @@ void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Ent
     myfile << "nb_wall = " << wallList.size() << "\n\n";
 
     for (unsigned i = 0; i < spotList.size(); ++i) {
-        myfile << "\n[spot_" << i << "]\n";
+        myfile << "\n[spot_" << i+1 << "]\n";
         myfile << "position = " << std::setprecision(2) << TRANSFORM(spotList[i])->position << "\n";
     }
 
 
-    for (unsigned i = 0; i < wallList.size(); ++i) {
+    for (unsigned i = 1; i <= wallList.size(); ++i) {
         myfile << "\n[wall_" << i << "]\n";
         myfile << "pos1 = " << std::setprecision(2) << TRANSFORM(wallList[i].first)->position << "\n";
         myfile << "pos2 = " << std::setprecision(2) << TRANSFORM(wallList[i].second)->position << "\n";
+        myfile << "two_sided = false\n";
     }
 
     myfile.close();
@@ -56,7 +57,7 @@ bool LevelLoader::LoadFromFile(const std::string& ctx, const FileBuffer& fb) {
     int wallCount = 1;
     dfp.get("", "nb_wall", &wallCount, 1, true);
 
-    for (int i = 0; i < spotCount; ++i) {
+    for (int i = 1; i <= spotCount; ++i) {
         std::stringstream ss;
         ss << "spot_" << i;
 
@@ -66,7 +67,7 @@ bool LevelLoader::LoadFromFile(const std::string& ctx, const FileBuffer& fb) {
         dfp.get(ss.str(), "position", &TRANSFORM(e)->position.x, 2, true);
     }
 
-    for (int i = 0; i < wallCount; ++i) {
+    for (int i = 1; i <= wallCount; ++i) {
         std::stringstream ss;
         ss << "wall_" << i;
 
