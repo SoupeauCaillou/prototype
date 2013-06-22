@@ -2,7 +2,7 @@ nb_spot = 2
 nb_wall = 3
 
 [spot_0]
-position = -3, 3.5
+position = -5, 3.4
 
 [spot_1]
 position = 4.5, -2.2

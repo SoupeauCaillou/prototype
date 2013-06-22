@@ -20,8 +20,8 @@
 
 //activate or not logs (debug)
 #if SAC_DEBUG
-static bool debugSpotSystem = true;
-static bool debugDistanceCalculation = true;
+static bool debugSpotSystem = !true;
+static bool debugDistanceCalculation = !true;
 #else
 static bool debugSpotSystem = false;
 static bool debugDistanceCalculation = false;
@@ -94,35 +94,41 @@ float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm
 Wall getActiveWall(const std::list<Wall> & walls,
     const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) {
 
+    //utile lorsque le point du mur le plus proche de la caméra est l'extremité du VRAI mur actif. C'est pour s'assurer que si on est dans ce
+    //cas spécifique, on choisira le vrai mur
+    bool nearestWallContainsFirstPointReally = false;
     float nearestWallDistance = 100000.f;
     Wall nearestWall;
 
-    //IL Y A UN BUG LORSQUE LE POINT DU MUR LE PLUS PROCHE ET LE MêEME QUE LE POINT DU SECOND MUR
-    // LE PLUS PROCHE - IL SE PEUT QU'ON PRENNE LE 2EME MUR DU COUP.
     for (auto wall : walls) {
         // LOGI_IF(debugSpotSystem, "\ttrying wall " << wall.first << " <-> " << wall.second);
         glm::vec2 firstIntersectionPoint, secondIntersectionPoint;
 
         //le facteur 100 est juste là pour faire une demi droite "infinie"
-        bool wallContainsFirstPoint = IntersectionUtil::lineLine(pointOfView, firstPoint + 100.f * (firstPoint - pointOfView), wall.first, wall.second, &firstIntersectionPoint);
+        bool wallContainsFirstPointReally = IntersectionUtil::lineLine(pointOfView, firstPoint, wall.first, wall.second, &firstIntersectionPoint);
+        bool wallContainsFirstPointByProjection = IntersectionUtil::lineLine(pointOfView, firstPoint + 100.f * (firstPoint - pointOfView), wall.first, wall.second, &firstIntersectionPoint);
         bool wallContainsSecondPoint = IntersectionUtil::lineLine(pointOfView, secondPoint + 100.f * (secondPoint - pointOfView), wall.first, wall.second, &secondIntersectionPoint);
 
-        // LOGI_IF(debugSpotSystem, "test current wall: " << wall << " " << wallContainsFirstPoint << "( " << firstPoint << " ) | " << wallContainsSecondPoint << " ( " << secondPoint << " ) " );
-        if (wallContainsFirstPoint && wallContainsSecondPoint) {
-            // bool isNearest = false;
+        if (wallContainsFirstPointByProjection && wallContainsSecondPoint) {
             float minDist = glm::min(glm::length2(firstIntersectionPoint - pointOfView), glm::length2(secondIntersectionPoint - pointOfView));
 
             LOGI_IF(debugSpotSystem, "\t\t Found a candidate wall: " << wall << " for distance: " << minDist
                 << " points: " << firstIntersectionPoint << " and " << secondIntersectionPoint);
 
-            if (minDist < nearestWallDistance - eps) {
-                LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
+            if ((! nearestWallContainsFirstPointReally && wallContainsFirstPointReally) ||
+             (minDist < nearestWallDistance - eps)) {
+                if (minDist < nearestWallDistance - eps) {
+                    LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
+                } else {
+                    LOGI_IF(debugSpotSystem, "\t\t  Since the current active wall didn't contain the first point, " << wall <<  " is preferred");
+                }
 
                 nearestWallDistance = minDist;
                 nearestWall = wall;
+                nearestWallContainsFirstPointReally = wallContainsFirstPointReally;
             }
         } else {
-            if (wallContainsFirstPoint) LOGE_IF(debugSpotSystem, "\t\t Wall contains first but not the second");
+            if (wallContainsFirstPointByProjection) LOGE_IF(debugSpotSystem, "\t\t Wall contains first but not the second");
             if (wallContainsSecondPoint) LOGE_IF(debugSpotSystem, "\t\t Wall contains second but not the first");
         }
     }
@@ -279,11 +285,12 @@ const Wall getUnion(const Wall & wall, const Wall & zone) {
     return merge;
 }
 
-float calculateHighlightedZone() {
+float calculateHighlightedZone(std::list<Wall> & highlightedEdges) {
     float result = 0.f;
 
     // cette liste contient les morceaux de murs éclairés, on la remplit au fur et à mesure
-    std::list<Wall> highlightedEdges;
+    highlightedEdges.clear();
+
 
     //on parcoure chaque spot
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
@@ -292,7 +299,7 @@ float calculateHighlightedZone() {
 
         //et l'ensemble des "zones" (murs à vrai dire) qu'il éclaire
         for (auto zone : sc->highlightedEdges) {
-            LOGI_IF(debugSpotSystem || debugDistanceCalculation, "Considering zone " << zone);
+            LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\nConsidering zone " << zone);
 
             //cette liste contient tous les murs DÉJÀ ÉCLAIRÉS, qui sont dans la continuité
             //du mur actuel
@@ -610,7 +617,6 @@ void SpotSystem::DoUpdate(float) {
 
             //finalement on affiche notre zone à éclairer
             sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
-            SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "new zone: " << glm::length(endPoint - startPoint));
 
 
             // maintenant qu'on a fini le mur, il faut chercher le futur mur actif, et projeter notre point dessus
@@ -664,7 +670,6 @@ void SpotSystem::DoUpdate(float) {
         IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
 
         sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
-        SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "new zone: " << glm::length(endPoint - startPoint));
 
         //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
         points.pop_front();
@@ -677,16 +682,17 @@ void SpotSystem::DoUpdate(float) {
         }
     }
 
-    totalHighlightedDistance2Done = calculateHighlightedZone();
+    totalHighlightedDistance2Done = calculateHighlightedZone(highlightedEdgesFromAllSpots);
     SPOT_SYSTEM_LOG(CALCULATION_ALGO, "totalHighlightedDistance2Objective=" << totalHighlightedDistance2Objective
      << " and totalHighlightedDistance2Done=" << totalHighlightedDistance2Done);
 
-    //finalement on affiche tous les triangles
+    for (auto pair : highlightedEdgesFromAllSpots) {
+        SPOT_SYSTEM_LOG(CALCULATION_ALGO, "highlighted: " << pair);
+    }
+
+    //finalement on affiche tous les triangles par spot
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         for (auto pair : sc->highlightedEdges) {
-            SPOT_SYSTEM_LOG(CALCULATION_ALGO, "highlighted: " << pair);
-
-
             Draw::DrawTriangle("SpotSystem", TRANSFORM(e)->position, pair.first, pair.second, sc->highlightColor);
         }
     }

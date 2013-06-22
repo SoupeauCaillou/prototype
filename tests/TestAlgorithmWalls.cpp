@@ -58,7 +58,6 @@ static void CheckAndQuit(std::stringstream & ss, const std::vector<std::string> 
     ss.seekp(0);
     std::string line;
     for (unsigned i = 0; i < expected.size(); ++i) {
-        CHECK(ss.good());
         getline(ss, line);
         CHECK_EQUAL(expected[i], line);
     }
@@ -134,44 +133,35 @@ TEST(Check1SpotAndATriangle)
         "Spot spot1",
         "wall middle left (first point)",
         "wall top left",
-        "new zone: 3.5",
         "top right",
-        "new zone: 20.0",
         "block2- second point",
-        "new zone: 7.8",
         "wall bottom right",
-        "new zone: 3.4",
         "block1- second point",
-        "new zone: 1.7",
         "block1- first point",
-        "new zone: 1.7",
         "wall bottom left",
-        "new zone: 8.9",
-        "new zone: 10.3",
-        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=57.5",
+        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=56.3",
         "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
         "highlighted: 10.0, 6.9 <-> 10.0, -0.9",
         "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
-        "highlighted: -4.0, -0.4 <-> -1.7, -6.9",
-        "highlighted: -1.7, -6.9 <-> -10.0, -6.9",
+        "highlighted: -2.3, -6.9 <-> -10.0, -6.9",
         "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
 
     };
 
     CheckAndQuit(ss, expected);
 }
-#if 0
+
 TEST(Check2SpotsAndATriangle)
 {
     std::stringstream ss;
     Init(ss);
 
     //choose the flags
-    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER | SpotSystem::CALCULATION_ALGO;
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::CALCULATION_ALGO;
 
     //create the map
-    AddSpot("spot1", glm::vec2(-5, 3.4));
-    AddSpot("spot2", glm::vec2(4.5, -2.2));
+    AddSpot("spot1", glm::vec2(-3.4, 2.5));
+    AddSpot("spot2", glm::vec2(8.9, 0.8));
 
     AddWall("block1", glm::vec2(-4, -0.4), glm::vec2(0, -3), false);
     AddWall("block2", glm::vec2(0, -3), glm::vec2(2.7, 1.2), false);
@@ -181,41 +171,7 @@ TEST(Check2SpotsAndATriangle)
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
-        "Spot spot1",
-        "wall middle left (first point)",
-        "wall top left",
-        "new zone: 3.5",
-        "top right",
-        "new zone: 20.0",
-        "block2- second point",
-        "new zone: 7.8",
-        "wall bottom right",
-        "new zone: 3.4",
-        "block1- second point",
-        "new zone: 1.7",
-        "block1- first point",
-        "new zone: 1.7",
-        "wall bottom left",
-        "new zone: 8.9",
-        "new zone: 10.3",
-        "Spot spot2",
-        "wall middle left (first point)",
-        "block1- first point",
-        "new zone: 0.9",
-        "wall top left",
-        "new zone: 1.2",
-        "block2- second point",
-        "new zone: 1.9",
-        "top right",
-        "new zone: 10.3",
-        "wall bottom right",
-        "new zone: 13.9",
-        "wall bottom left",
-        "new zone: 20.0",
-        "block1- second point",
-        "new zone: 2.2",
-        "new zone: 1.0",
-        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=88.5",
+        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=79.7",
         "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
         "highlighted: 10.0, 6.9 <-> 10.0, -0.9",
         "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
@@ -235,4 +191,3 @@ TEST(Check2SpotsAndATriangle)
 
     CheckAndQuit(ss, expected);
 }
-#endif

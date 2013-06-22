@@ -86,6 +86,9 @@ UPDATABLE_SYSTEM(Spot)
     public:
         float totalHighlightedDistance2Objective, totalHighlightedDistance2Done;
 
+        // cette liste contient les morceaux de murs éclairés, on la remplit au fur et à mesure
+        std::list<Wall> highlightedEdgesFromAllSpots;
+
 #if SAC_DEBUG
         //should NOT be here on the release version obv
         std::streambuf * outputStream;

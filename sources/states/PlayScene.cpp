@@ -135,12 +135,17 @@ struct PlayScene : public StateHandler<Scene::Enum> {
             TEXT_RENDERING(victory)->charHeight = 3 * value;
             RENDERING(fadeout)->color.a = value;
             return (theTouchInputManager.isTouched(0) && value == ADSR(fadeout)->sustainValue);
+        //else wait for right click
         } else {
             return theTouchInputManager.isTouched(1);
         }
     }
 
     void onPreExit(Scene::Enum) override {
+        LOGI("Congratulation! Your solution was: ");
+        FOR_EACH_ENTITY(Spot, e)
+            LOGI(theEntityManager.entityName(e) << ": " << TRANSFORM(e)->position);
+        }
     }
 
     void onExit(Scene::Enum) override {
