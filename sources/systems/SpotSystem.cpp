@@ -19,9 +19,9 @@
 #include <iomanip>
 
 //activate or not logs (debug)
-#ifdef SAC_DEBUG
-static bool debugSpotSystem = !true;
-static bool debugDistanceCalculation = !true;
+#if SAC_DEBUG
+static bool debugSpotSystem = true;
+static bool debugDistanceCalculation = true;
 #else
 static bool debugSpotSystem = false;
 static bool debugDistanceCalculation = false;
@@ -35,7 +35,7 @@ INSTANCE_IMPL(SpotSystem);
 #define SPOT_SYSTEM_LOG(lvl, x) {\
     if (lvl & theSpotSystem.FLAGS_ENABLED) {\
         std::ostream out(theSpotSystem.outputStream);\
-        out << x << "\n";\
+        out << std::fixed << std::setprecision(1) << x << "\n";\
     }\
 }
 
@@ -97,6 +97,8 @@ Wall getActiveWall(const std::list<Wall> & walls,
     float nearestWallDistance = 100000.f;
     Wall nearestWall;
 
+    //IL Y A UN BUG LORSQUE LE POINT DU MUR LE PLUS PROCHE ET LE MêEME QUE LE POINT DU SECOND MUR
+    // LE PLUS PROCHE - IL SE PEUT QU'ON PRENNE LE 2EME MUR DU COUP.
     for (auto wall : walls) {
         // LOGI_IF(debugSpotSystem, "\ttrying wall " << wall.first << " <-> " << wall.second);
         glm::vec2 firstIntersectionPoint, secondIntersectionPoint;
@@ -110,18 +112,18 @@ Wall getActiveWall(const std::list<Wall> & walls,
             // bool isNearest = false;
             float minDist = glm::min(glm::length2(firstIntersectionPoint - pointOfView), glm::length2(secondIntersectionPoint - pointOfView));
 
-            LOGI_IF(debugSpotSystem, "found a candidate wall: " << wall << " for distance: " << minDist
+            LOGI_IF(debugSpotSystem, "\t\t Found a candidate wall: " << wall << " for distance: " << minDist
                 << " points: " << firstIntersectionPoint << " and " << secondIntersectionPoint);
 
             if (minDist < nearestWallDistance - eps) {
-                LOGI_IF(debugSpotSystem, "found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
+                LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
 
                 nearestWallDistance = minDist;
                 nearestWall = wall;
             }
         } else {
-            if (wallContainsFirstPoint) LOGI_IF(debugSpotSystem, "\tfound first but not the second");
-            if (wallContainsSecondPoint) LOGI_IF(debugSpotSystem, "\tfound second but not the first");
+            if (wallContainsFirstPoint) LOGE_IF(debugSpotSystem, "\t\t Wall contains first but not the second");
+            if (wallContainsSecondPoint) LOGE_IF(debugSpotSystem, "\t\t Wall contains second but not the first");
         }
     }
     LOGF_IF(debugSpotSystem && nearestWallDistance == 100000.f, "Couldn't find a wall between points " << firstPoint << " and " << secondPoint);
@@ -304,11 +306,9 @@ float calculateHighlightedZone() {
             for (auto wall = highlightedEdges.begin(); wall != highlightedEdges.end(); ++wall) {
                 glm::vec2 intersectionPoint;
 
-                LOGI_IF(debugSpotSystem || debugDistanceCalculation, "  trying wall " << *wall);
-
                 //et si ils sont paralléles ET coincidents, on l'ajoute à la liste
                 if (IntersectionUtil::lineLine(wall->first, wall->second, zone.first, zone.second, &intersectionPoint)) {
-                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t wall new candidate: " << *wall);
+                    // LOGI_IF(debugSpotSystem || debugDistanceCalculation, "wall new candidate: " << *wall);
                     //il y a 2 cas où la fonction renvoie vrai:
                     //1) s'ils sont perpendiculaires avec un point pivot en commun (à ignorer)
                     //2) s'ils sont adjacents / ont une partie confondu
@@ -319,15 +319,17 @@ float calculateHighlightedZone() {
 
                     // if (absDot < eps) {
                     if (glm::length(wall->second - wall->first) * glm::length(zone.second - zone.first) - absDot > eps) {
-                        LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tthey are not parallels, cancelled");
+                        LOGW_IF(debugSpotSystem || debugDistanceCalculation, " -> Intersect but not parallels with " << *wall);
                         continue;
                     }
                     needAMerge = true;
-                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "Yeah there are coincidents! Will be treated later");
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, " -> Yes! " << *wall);
                     wallsMatching.push_back(*wall);
 
                     //on supprime le segment de la liste, car on va y mettre à la place la fusion avec le nouvel élément
                     highlightedEdges.erase(wall++);
+                } else {
+                    LOGE_IF(debugSpotSystem || debugDistanceCalculation, " -> NO intersection with " << *wall);
                 }
             }
 
@@ -362,14 +364,14 @@ float calculateHighlightedZone() {
 
                 //du debug uniquement
                 if (glm::abs(beforeUnionTotalDistance - afterUnionTotalDistance) < eps)  {
-                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t  already highlighted");
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "***Skipped*** (already highlighted)");
                 } else {
-                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t  merged(" << unionned << ")for a bonus of " << afterUnionTotalDistance - beforeUnionTotalDistance);
+                    LOGI_IF(debugSpotSystem || debugDistanceCalculation, "***Merged*** (" << unionned << ")for a bonus of " << afterUnionTotalDistance - beforeUnionTotalDistance);
                     result += afterUnionTotalDistance - beforeUnionTotalDistance;
                 }
             //sinon il était tout seul sur ce mur, on l'ajoute normalement
             } else {
-                LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t  added" );
+                LOGI_IF(debugSpotSystem || debugDistanceCalculation, "***Added***" );
 #if SAC_DEBUG
                 result += glm::length(zone.first - zone.second);
 #else
@@ -378,8 +380,8 @@ float calculateHighlightedZone() {
 
                 highlightedEdges.push_back(Wall( zone.first, zone.second ));
             }
-            SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "current total: " << result);
-            LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tcurrent total: " << result);
+            // SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "current total: " << result);
+            // LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tcurrent total: " << result);
         }
     }
     return result;
@@ -565,22 +567,22 @@ void SpotSystem::DoUpdate(float) {
         //le dernier point de l'éclairage courant
         glm::vec2 endPoint;
 
-        int count = 0;
-        SPOT_SYSTEM_LOG(POINTS_ORDER, ++count << ". " << points.begin()->name);
-        SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << std::fixed << std::setprecision(1) << activeWall);
+        SPOT_SYSTEM_LOG(POINTS_ORDER, points.begin()->name);
+        SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << activeWall);
         // on commence directement au 2eme du coup vu qu'on a déjà pris le 1er au dessus
         for (auto pointIt = ++points.begin(); pointIt != points.end(); ++pointIt) {
             auto point = *pointIt;
 
-            SPOT_SYSTEM_LOG(POINTS_ORDER, ++count << ". " << point.name);
+            SPOT_SYSTEM_LOG(POINTS_ORDER, point.name);
 
+            LOGI_IF(debugSpotSystem, "Current point is " << point.name << " ( " << point.position <<  " ) ");
 #if SAC_DEBUG
             Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);
 #endif
 
             // on cherche le mur actif (c'est à dire le mur le plus proche qui contient le startPoint ET le point actuel)
             activeWall = getActiveWall(walls, pointOfView, startPoint, point.position);
-            SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << std::fixed << std::setprecision(1) << activeWall);
+            SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << activeWall);
 
             //si on a pas trouvé de mur actif il y a un bug quelque part ...
             LOGF_IF(activeWall.first == glm::vec2(0.f) && activeWall.second == glm::vec2(0.f), "active wall not found");
@@ -596,11 +598,11 @@ void SpotSystem::DoUpdate(float) {
             //sinon, ça veut dire que le point courant et le startpoint ne sont plus sur le même mur: changement de mur.
             //la zone a eclairé c'est donc le projeté du point courant sur l'ancien mur actif
             } else {
-                if (isFirstPointOnWall) LOGI_IF(debugSpotSystem, "\t\tfirst cond: true");
-                else LOGI_IF(debugSpotSystem, "\t\tfirst cond: false -> " << startPoint << " not on " << activeWall);
+                if (isFirstPointOnWall) LOGI_IF(debugSpotSystem, "\t\tisFirstPointOnWall: true");
+                else LOGW_IF(debugSpotSystem, "\t\tisFirstPointOnWall: false -> " << startPoint << " not on " << activeWall);
 
-                if (isCurrentPointTheEndPoint) LOGI_IF(debugSpotSystem, "\t\tsecond cond: true");
-                else LOGI_IF(debugSpotSystem, "\t\tsecond cond: false -> " << activeWall.second << " != " << point.position);
+                if (isCurrentPointTheEndPoint) LOGI_IF(debugSpotSystem, "\t\tisCurrentPointTheEndPoint: true");
+                else LOGW_IF(debugSpotSystem, "\t\tisCurrentPointTheEndPoint: false -> " << activeWall.second << " != " << point.position);
 
                 LOGI_IF(debugSpotSystem, "\tCurrent point is not on the active wall! Projecting point " << point.position << " into the old active wall..." << activeWall);
                 IntersectionUtil::lineLine(pointOfView, point.position, activeWall.first, activeWall.second, & endPoint, true);
@@ -608,6 +610,7 @@ void SpotSystem::DoUpdate(float) {
 
             //finalement on affiche notre zone à éclairer
             sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
+            SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "new zone: " << glm::length(endPoint - startPoint));
 
 
             // maintenant qu'on a fini le mur, il faut chercher le futur mur actif, et projeter notre point dessus
@@ -642,7 +645,7 @@ void SpotSystem::DoUpdate(float) {
                     // LOGI_IF(debugSpotSystem, intersection << " != " << point.position);
                     LOGI_IF(debugSpotSystem, "\tCurrent point is behind the activeWall, starting point is the projection point on the active wall");
                     startPoint = intersection;
-                //sinon il est la base du nouveau mur actif, donc on met à jour le ponit de départ
+                //sinon il est la base du nouveau mur actif, donc on met à jour le point de départ
                 } else {
                     LOGI_IF(debugSpotSystem, "\tStarting point is now this point for next active wall");
                     startPoint = point.position;
@@ -655,22 +658,35 @@ void SpotSystem::DoUpdate(float) {
         // 1) soit le dernier point et le 1er point sont un seul mur, et dans ce cas on affiche le mur (mur extérieur par ex)
         // 2) soit ils sont sur 2 murs distincts, et dans ce cas on projete les 2 points sur le mur actif (2 blocks, 1 de chaque côté de l'axe des abcisses)
         activeWall = getActiveWall(walls, pointOfView, startPoint, points.front().position);
-        SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << std::fixed << std::setprecision(1) << activeWall);
+        SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << activeWall);
         LOGI_IF(debugSpotSystem, "\tLast activeWall is " << activeWall << " so projeting " << startPoint << " and " << points.front().position << " on it.");
         IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
         IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
 
         sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
+        SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "new zone: " << glm::length(endPoint - startPoint));
 
         //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
         points.pop_front();
     }
 
+    //only debug
+    FOR_EACH_COMPONENT(Spot, sc)
+        for (auto pair : sc->highlightedEdges) {
+            LOGI_IF(debugSpotSystem || debugDistanceCalculation, "highlighted: " << pair);
+        }
+    }
+
     totalHighlightedDistance2Done = calculateHighlightedZone();
+    SPOT_SYSTEM_LOG(CALCULATION_ALGO, "totalHighlightedDistance2Objective=" << totalHighlightedDistance2Objective
+     << " and totalHighlightedDistance2Done=" << totalHighlightedDistance2Done);
 
     //finalement on affiche tous les triangles
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         for (auto pair : sc->highlightedEdges) {
+            SPOT_SYSTEM_LOG(CALCULATION_ALGO, "highlighted: " << pair);
+
+
             Draw::DrawTriangle("SpotSystem", TRANSFORM(e)->position, pair.first, pair.second, sc->highlightColor);
         }
     }

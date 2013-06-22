@@ -63,7 +63,14 @@ static void CheckAndQuit(std::stringstream & ss, const std::vector<std::string> 
         CHECK_EQUAL(expected[i], line);
     }
     getline(ss, line); //remove the last empty line
-    CHECK(! ss.good());
+
+    if (ss.good()) {
+        do {
+            std::cout << "Error! Line not treated: " << line << std::endl;
+            getline(ss, line);
+        } while (ss.good());
+        CHECK(false);
+    }
 
     Draw::Clear();
 
@@ -89,15 +96,15 @@ TEST(CheckWhenEmpty)
 
     std::vector<std::string> expected = {
         "Spot spot1",
-        "1. wall middle left (first point)",
+        "wall middle left (first point)",
         "Active wall is -10.0, -6.9 <-> -10.0, 0.0",
-        "2. wall top left",
+        "wall top left",
         "Active wall is -10.0, 0.0 <-> -10.0, 6.9",
-        "3. top right",
+        "top right",
         "Active wall is -10.0, 6.9 <-> 10.0, 6.9",
-        "4. wall bottom right",
+        "wall bottom right",
         "Active wall is 10.0, 6.9 <-> 10.0, -6.9",
-        "5. wall bottom left",
+        "wall bottom left",
         "Active wall is 10.0, -6.9 <-> -10.0, -6.9",
         "Active wall is -10.0, -6.9 <-> -10.0, 0.0",
     };
@@ -105,45 +112,127 @@ TEST(CheckWhenEmpty)
     CheckAndQuit(ss, expected);
 }
 
-TEST(Check2SpotsAndATriangle)
+TEST(Check1SpotAndATriangle)
 {
     std::stringstream ss;
     Init(ss);
 
     //choose the flags
-    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER;// | SpotSystem::CALCULATION_ALGO;
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER | SpotSystem::CALCULATION_ALGO;
 
     //create the map
-    AddSpot("spot1", glm::vec2(-5, 3));
-    AddSpot("spot2", glm::vec2(4.5, -2.25));
+    AddSpot("spot1", glm::vec2(-5, 3.4));
 
-    AddWall("block1", glm::vec2(-4, 0), glm::vec2(2.75, 1), false);
-    AddWall("block2", glm::vec2(2.75, 1), glm::vec2(0, -3), false);
-    AddWall("block3", glm::vec2(0, -3), glm::vec2(-4, 0), false);
+    AddWall("block1", glm::vec2(-4, -0.4), glm::vec2(0, -3), false);
+    AddWall("block2", glm::vec2(0, -3), glm::vec2(2.7, 1.2), false);
+    AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
 
     //do the algorithm
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
         "Spot spot1",
-        "1. wall middle left (first point)",
-        "2. wall top left",
-        "3. top right",
-        "4. block1- second point",
-        "5. wall bottom right",
-        "6. block2- second point",
-        "7. block1- first point",
-        "8. wall bottom left",
-        "Spot spot2",
-        "1. wall middle left (first point)",
-        "2. block1- first point",
-        "3. wall top left",
-        "4. block1- second point",
-        "5. top right",
-        "6. wall bottom right",
-        "7. wall bottom left",
-        "8. block2- second point",
+        "wall middle left (first point)",
+        "wall top left",
+        "new zone: 3.5",
+        "top right",
+        "new zone: 20.0",
+        "block2- second point",
+        "new zone: 7.8",
+        "wall bottom right",
+        "new zone: 3.4",
+        "block1- second point",
+        "new zone: 1.7",
+        "block1- first point",
+        "new zone: 1.7",
+        "wall bottom left",
+        "new zone: 8.9",
+        "new zone: 10.3",
+        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=57.5",
+        "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -0.9",
+        "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
+        "highlighted: -4.0, -0.4 <-> -1.7, -6.9",
+        "highlighted: -1.7, -6.9 <-> -10.0, -6.9",
+        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
+
     };
 
     CheckAndQuit(ss, expected);
 }
+#if 0
+TEST(Check2SpotsAndATriangle)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::POINTS_ORDER | SpotSystem::CALCULATION_ALGO;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(-5, 3.4));
+    AddSpot("spot2", glm::vec2(4.5, -2.2));
+
+    AddWall("block1", glm::vec2(-4, -0.4), glm::vec2(0, -3), false);
+    AddWall("block2", glm::vec2(0, -3), glm::vec2(2.7, 1.2), false);
+    AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
+
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "Spot spot1",
+        "wall middle left (first point)",
+        "wall top left",
+        "new zone: 3.5",
+        "top right",
+        "new zone: 20.0",
+        "block2- second point",
+        "new zone: 7.8",
+        "wall bottom right",
+        "new zone: 3.4",
+        "block1- second point",
+        "new zone: 1.7",
+        "block1- first point",
+        "new zone: 1.7",
+        "wall bottom left",
+        "new zone: 8.9",
+        "new zone: 10.3",
+        "Spot spot2",
+        "wall middle left (first point)",
+        "block1- first point",
+        "new zone: 0.9",
+        "wall top left",
+        "new zone: 1.2",
+        "block2- second point",
+        "new zone: 1.9",
+        "top right",
+        "new zone: 10.3",
+        "wall bottom right",
+        "new zone: 13.9",
+        "wall bottom left",
+        "new zone: 20.0",
+        "block1- second point",
+        "new zone: 2.2",
+        "new zone: 1.0",
+        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=88.5",
+        "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -0.9",
+        "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
+        "highlighted: -4.0, -0.4 <-> -1.7, -6.9",
+        "highlighted: -1.7, -6.9 <-> -10.0, -6.9",
+        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
+        "highlighted: 0.5, -2.2 <-> 1.0, -1.5",
+        "highlighted: 1.0, -1.5 <-> 1.7, -0.4",
+        "highlighted: 1.7, -0.4 <-> 2.7, 1.2",
+        "highlighted: -0.3, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -6.9",
+        "highlighted: 10.0, -6.9 <-> -10.0, -6.9",
+        "highlighted: -10.0, -6.9 <-> -10.0, -4.8",
+        "highlighted: 0.0, -3.0 <-> 0.5, -2.2",
+
+    };
+
+    CheckAndQuit(ss, expected);
+}
+#endif
