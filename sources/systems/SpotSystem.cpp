@@ -20,8 +20,10 @@
 
 //activate or not logs (debug)
 #if SAC_DEBUG
-static bool debugSpotSystem = !true;
-static bool debugDistanceCalculation = !true;
+static bool debugSpotSystem = false;
+static bool debugDistanceCalculation = false;
+// static bool debugSpotSystem = true;
+// static bool debugDistanceCalculation = true;
 #else
 static bool debugSpotSystem = false;
 static bool debugDistanceCalculation = false;
@@ -111,18 +113,37 @@ Wall getActiveWall(const std::list<Wall> & walls,
 
         if (wallContainsFirstPointByProjection && wallContainsSecondPoint) {
             float minDist = glm::min(glm::length2(firstIntersectionPoint - pointOfView), glm::length2(secondIntersectionPoint - pointOfView));
-
             LOGI_IF(debugSpotSystem, "\t\t Found a candidate wall: " << wall << " for distance: " << minDist
                 << " points: " << firstIntersectionPoint << " and " << secondIntersectionPoint);
 
-            if ((! nearestWallContainsFirstPointReally && wallContainsFirstPointReally) ||
-             (minDist < nearestWallDistance - eps)) {
-                if (minDist < nearestWallDistance - eps) {
-                    LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
-                } else {
-                    LOGI_IF(debugSpotSystem, "\t\t  Since the current active wall didn't contain the first point, " << wall <<  " is preferred");
-                }
+            bool foundABetterWall = false;
 
+            //si notre mur contient le premier point et pas l'ancien mur alors il est nécessairement mieux
+            if (wallContainsFirstPointReally && !nearestWallContainsFirstPointReally) {
+                LOGI_IF(debugSpotSystem, "\t\t  Since the current active wall didn't contain the first point, " << wall <<  " is preferred");
+                foundABetterWall = true;
+            // si la distance est identique pour les 2 murs, alors le point le plus proche est une extremité
+            // et il faut qu'on regarde lequel est devant
+            } else if (glm::abs(minDist - nearestWallDistance) <  eps) {
+                 glm::vec2 nearestPoint = (glm::length2(firstIntersectionPoint - pointOfView) <
+                    glm::length2(secondIntersectionPoint - pointOfView)) ?
+                        firstIntersectionPoint : secondIntersectionPoint;
+
+                auto notThePivot = (glm::length2(nearestWall.first - nearestPoint) < eps) ? nearestWall.second : nearestWall.first;
+
+                LOGF_IF(glm::length2(nearestPoint - notThePivot) < eps, nearestPoint << " " << notThePivot);
+
+                foundABetterWall = IntersectionUtil::lineLine(pointOfView, notThePivot, wall.first, wall.second, 0);
+
+                LOGI_IF(debugSpotSystem, "\t\t  A wall is at the same distance, " << (foundABetterWall ? "and is above" : "but is behind") << " the nearestwall");
+            // le cas de base: s'il est plus proche, il est mieux
+            } else if (minDist < nearestWallDistance - eps) {
+                LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
+                foundABetterWall = true;
+            }
+
+
+            if (foundABetterWall) {
                 nearestWallDistance = minDist;
                 nearestWall = wall;
                 nearestWallContainsFirstPointReally = wallContainsFirstPointReally;
@@ -688,6 +709,7 @@ void SpotSystem::DoUpdate(float) {
 
     for (auto pair : highlightedEdgesFromAllSpots) {
         SPOT_SYSTEM_LOG(CALCULATION_ALGO, "highlighted: " << pair);
+        LOGI_IF(debugSpotSystem || debugDistanceCalculation, "highlighted: " << pair);
     }
 
     //finalement on affiche tous les triangles par spot

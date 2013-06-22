@@ -160,34 +160,109 @@ TEST(Check2SpotsAndATriangle)
     theSpotSystem.FLAGS_ENABLED = SpotSystem::CALCULATION_ALGO;
 
     //create the map
-    AddSpot("spot1", glm::vec2(-3.4, 2.5));
-    AddSpot("spot2", glm::vec2(8.9, 0.8));
+    AddSpot("spot1", glm::vec2(-5, 3.4));
+    AddSpot("spot2", glm::vec2(6.7778, 0.6556));
 
     AddWall("block1", glm::vec2(-4, -0.4), glm::vec2(0, -3), false);
     AddWall("block2", glm::vec2(0, -3), glm::vec2(2.7, 1.2), false);
     AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
 
+    //ensure that multiple updates does not broke the system
+    theSpotSystem.Update(1);
+    theSpotSystem.Update(1);
+
+    ss.str("");
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=79.7",
+        "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
+        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
+        "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -6.9",
+        "highlighted: 10.0, -6.9 <-> -10.0, -6.9",
+        "highlighted: 0.0, -3.0 <-> 2.7, 1.2",
+
+    };
+
+    CheckAndQuit(ss, expected);
+}
+
+
+TEST(Check2SpotsAndATriangleAgain)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::CALCULATION_ALGO;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(-5, 3.4));
+    AddSpot("spot2", glm::vec2(2.0667, 3.8778));
+
+    AddWall("block1", glm::vec2(-4, -0.4), glm::vec2(0, -3), false);
+    AddWall("block2", glm::vec2(0, -3), glm::vec2(2.7, 1.2), false);
+    AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
+
+    //ensure that multiple updates does not broke the system
+    theSpotSystem.Update(1);
+    theSpotSystem.Update(1);
+
+    ss.str("");
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=67.8",
+        "highlighted: -2.3, -6.9 <-> -10.0, -6.9",
+        "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -6.9",
+        "highlighted: 10.0, -6.9 <-> 4.6, -6.9",
+        "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
+        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
+
+    };
+
+    CheckAndQuit(ss, expected);
+}
+
+TEST(Check2SpotsAndATriangleAgainAgain)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::CALCULATION_ALGO;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(-5, 3.4));
+    AddSpot("spot2", glm::vec2(6.1111, 2.5000));
+
+    AddWall("block1", glm::vec2(-4, -0.4), glm::vec2(0, -3), false);
+    AddWall("block2", glm::vec2(0, -3), glm::vec2(2.7, 1.2), false);
+    AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
+
+    //ensure that multiple updates does not broke the system
+    theSpotSystem.Update(1);
+    theSpotSystem.Update(1);
+
+    ss.str("");
     //do the algorithm
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
         "totalHighlightedDistance2Objective=84.4 and totalHighlightedDistance2Done=79.7",
         "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
-        "highlighted: 10.0, 6.9 <-> 10.0, -0.9",
-        "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
-        "highlighted: -4.0, -0.4 <-> -1.7, -6.9",
-        "highlighted: -1.7, -6.9 <-> -10.0, -6.9",
-        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
-        "highlighted: 0.5, -2.2 <-> 1.0, -1.5",
-        "highlighted: 1.0, -1.5 <-> 1.7, -0.4",
-        "highlighted: 1.7, -0.4 <-> 2.7, 1.2",
-        "highlighted: -0.3, 6.9 <-> 10.0, 6.9",
         "highlighted: 10.0, 6.9 <-> 10.0, -6.9",
         "highlighted: 10.0, -6.9 <-> -10.0, -6.9",
-        "highlighted: -10.0, -6.9 <-> -10.0, -4.8",
-        "highlighted: 0.0, -3.0 <-> 0.5, -2.2",
+        "highlighted: 0.0, -3.0 <-> 2.7, 1.2",
+        "highlighted: 2.7, 1.2 <-> -4.0, -0.4",
+        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
 
     };
 
     CheckAndQuit(ss, expected);
 }
+
