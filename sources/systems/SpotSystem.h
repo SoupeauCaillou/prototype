@@ -87,6 +87,8 @@ UPDATABLE_SYSTEM(Spot)
     public:
         float totalHighlightedDistance2Objective, totalHighlightedDistance2Done;
 
+        float recalculateTotalDistanceObjective();
+
         // cette liste contient les morceaux de murs éclairés, on la remplit au fur et à mesure
         std::list<Wall> highlightedEdgesFromAllSpots;
 
@@ -101,4 +103,12 @@ UPDATABLE_SYSTEM(Spot)
 
         int FLAGS_ENABLED;
 #endif
+    private:
+        void PrepareAlgorithm();
+
+        // la liste de tous les points intéréssants pour l'algo (tous les sommets)
+        std::list<EnhancedPoint> points;
+        // la liste de tous les murs disponibles
+        std::list<Wall> walls;
+
 };

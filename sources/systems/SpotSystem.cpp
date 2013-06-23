@@ -52,6 +52,7 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
     outputStream = std::cout.rdbuf();
     FLAGS_ENABLED = 0;
 #endif
+    totalHighlightedDistance2Objective = totalHighlightedDistance2Done = 0.f;
 }
 
 
@@ -436,6 +437,80 @@ float calculateHighlightedZone(std::list<Wall> & highlightedEdges) {
     return result;
 }
 
+float SpotSystem::recalculateTotalDistanceObjective() {
+    totalHighlightedDistance2Objective = 0.f;
+    PrepareAlgorithm();
+    return totalHighlightedDistance2Objective;
+}
+
+void SpotSystem::PrepareAlgorithm() {
+    walls.clear();
+    points.clear();
+
+    //external walls helper
+    float sx = PlacementHelper::ScreenWidth / 2.;
+    float sy = PlacementHelper::ScreenHeight / 2.;
+
+    glm::vec2 externalWalls[4] = {
+        glm::vec2(-sx, sy), // top left
+        glm::vec2(sx, sy), // top right
+        glm::vec2(sx, -sy), // bottom right
+        glm::vec2(-sx, -sy), // bottom left
+    };
+
+    // distance total de mur éclairé réalisée
+    totalHighlightedDistance2Done = 0.f;
+
+    getAllWallsExtremities(points, externalWalls);
+
+    // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
+    for (auto item : points) {
+        SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
+    }
+    SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "before splitIntersectionWalls");
+    while (splitIntersectionWalls(points))
+    ;
+    SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "after splitIntersectionWalls");
+    for (auto item : points) {
+        SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
+    }
+
+    bool shouldUpdateDistanceObjective = false;
+    // la distance totale de murs à éclairer
+    if (totalHighlightedDistance2Objective < eps) {
+        totalHighlightedDistance2Objective = 0.f;
+        shouldUpdateDistanceObjective = true;
+    }
+
+    for (auto point : points) {
+        for (auto next : point.nextEdges) {
+            if (insertInWallsIfNotPresent(walls, point.position, next)) {
+                if (shouldUpdateDistanceObjective) {
+                    //double distance if the wall is visible from the 2 sides
+                    int doubled = (point.isDoubleFace && std::find(points.begin(), points.end(), next)->isDoubleFace) ? 2 : 1;
+#if SAC_DEBUG
+                    totalHighlightedDistance2Objective += doubled * glm::length(next - point.position);
+#else
+                    totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
+#endif
+                }
+            }
+        }
+    }
+
+    if (shouldUpdateDistanceObjective) {
+        auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
+
+        // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
+#if SAC_DEBUG
+        totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0]);
+#else
+        totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
+#endif
+    }
+    LOGF_IF(totalHighlightedDistance2Objective < 0, "wut");
+}
+
 void SpotSystem::DoUpdate(float) {
     Draw::DrawPointRestart("SpotSystem");
     Draw::DrawVec2Restart("SpotSystem");
@@ -454,57 +529,12 @@ void SpotSystem::DoUpdate(float) {
         glm::vec2(-sx, -sy), // bottom left
     };
 
-    // la distance totale de murs à éclairer
-    totalHighlightedDistance2Objective = 0.f;
-
-    // et celle réalisée
-    totalHighlightedDistance2Done = 0.f;
-
-    // la liste de tous les points intéréssants pour l'algo (tous les sommets)
-    std::list<EnhancedPoint> points;
-    getAllWallsExtremities(points, externalWalls);
-
-    // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
-    for (auto item : points) {
-        SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
-    }
-    SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "before splitIntersectionWalls");
-    while (splitIntersectionWalls(points))
-    ;
-    SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "after splitIntersectionWalls");
-    for (auto item : points) {
-        SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
-    }
-
-    //on garde la liste de tous les murs disponibles
-    std::list<Wall> walls;
-
-    for (auto point : points) {
-        for (auto next : point.nextEdges) {
-            if (insertInWallsIfNotPresent(walls, point.position, next)) {
-                //double distance if the wall is visible from the 2 sides
-                int doubled = (point.isDoubleFace && std::find(points.begin(), points.end(), next)->isDoubleFace) ? 2 : 1;
-#if SAC_DEBUG
-                //norm is easier to validate than norm2
-                totalHighlightedDistance2Objective += doubled * glm::length(next - point.position);
-#else
-                totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
-#endif
-            }
-        }
-    }
-    auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
-
-    // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
-#if SAC_DEBUG
-    totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0]);
-#else
-    totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
-#endif
+    PrepareAlgorithm();
 
     //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
     insertInWallsIfNotPresent(walls, glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]);
 
+    auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
     auto wallBotLeft = std::find(walls.begin(), walls.end(), Wall(externalWalls[3], glm::vec2(-sx, FAR_FAR_AWAY)));
     auto wallTopLeft = std::find(walls.begin(), walls.end(), Wall(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]));
     LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),

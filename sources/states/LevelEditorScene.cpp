@@ -156,10 +156,11 @@ or click on another point and you will create a wall.";
                 for (auto item : wallList) {
                     finalList.push_back(item.second);
                 }
-                LevelLoader::SaveInFile(userLevelName, spotList, finalList);
+
+                LevelLoader::SaveInFile(userLevelName, spotList, finalList, theSpotSystem.recalculateTotalDistanceObjective());
                 waitingForLevelName = false;
 
-                LOGI("synchronizing...");
+                LOGW("(wrong place for that) synchronizing...");
                 game->gameThreadContext->assetAPI->synchronize();
 
                 selectTip(EnumTip::Default);
