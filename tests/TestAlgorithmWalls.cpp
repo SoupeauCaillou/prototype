@@ -137,7 +137,7 @@ TEST(CheckIntersectionSplitter2WallsAtOrigin)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
         "before splitIntersectionWalls",
         "after splitIntersectionWalls",
         "name='block1- first point': position='-1.0, 0.0' nextEdge1='-0.0, 0.0, ",
@@ -147,7 +147,7 @@ TEST(CheckIntersectionSplitter2WallsAtOrigin)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
         "name='intersection point': position='-0.0, 0.0' nextEdge1='1.0, 0.0, ' nextEdge2='-0.0, 1.0, ' nextEdge3='-1.0, 0.0, ' nextEdge4='0.0, -1.0, ",
     };
 
@@ -177,7 +177,7 @@ TEST(CheckIntersectionSplitterWithExternalWall)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
         "before splitIntersectionWalls",
         "after splitIntersectionWalls",
         "name='block1- first point': position='0.0, 0.0' nextEdge1='10.0, 0.0, ",
@@ -185,7 +185,7 @@ TEST(CheckIntersectionSplitterWithExternalWall)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
 
     };
 

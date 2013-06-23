@@ -40,7 +40,7 @@ static bool debugDistanceCalculation = false;
 #define SPOT_SYSTEM_LOG(lvl, x) {}
 #endif
 
-#define FAR_FAR_AWAY -100.f
+static float FAR_FAR_AWAY = 1000.f;
 
 INSTANCE_IMPL(SpotSystem);
 
@@ -106,7 +106,7 @@ Wall getActiveWall(const std::list<Wall> & walls,
     //utile lorsque le point du mur le plus proche de la caméra est l'extremité du VRAI mur actif. C'est pour s'assurer que si on est dans ce
     //cas spécifique, on choisira le vrai mur
     bool nearestWallContainsFirstPointReally = false;
-    float nearestWallDistance = 100000.f;
+    float nearestWallDistance = FAR_FAR_AWAY;
     Wall nearestWall;
 
     for (auto wall : walls) {
@@ -160,7 +160,7 @@ Wall getActiveWall(const std::list<Wall> & walls,
             if (wallContainsSecondPoint) LOGE_IF(debugSpotSystem, "\t\t Wall contains second but not the first");
         }
     }
-    LOGF_IF(debugSpotSystem && nearestWallDistance == 100000.f, "Couldn't find a wall between points " << firstPoint << " and " << secondPoint);
+    LOGF_IF(debugSpotSystem && nearestWallDistance == FAR_FAR_AWAY, "Couldn't find a wall between points " << firstPoint << " and " << secondPoint);
 
     LOGI_IF(debugSpotSystem, "\tActive wall is " << nearestWall);
     return nearestWall;
@@ -469,7 +469,8 @@ void SpotSystem::DoUpdate(float) {
         SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
     }
     SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "before splitIntersectionWalls");
-    while (splitIntersectionWalls(points));
+    while (splitIntersectionWalls(points))
+    ;
     SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "after splitIntersectionWalls");
     for (auto item : points) {
         SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
