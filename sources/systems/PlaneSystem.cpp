@@ -58,15 +58,3 @@ void PlaneSystem::DoUpdate(float dt) {
 	}
 
 }
-
-#if SAC_INGAME_EDITORS
-void PlaneSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
-    PlaneComponent* pc = Get(entity, false);
-    if (!pc) return;
-    TwAddVarRW(bar, "speed.X", TW_TYPE_FLOAT, &pc->speed.x, "group=Plane precision=2 step=0,01");
-    TwAddVarRW(bar, "speed.Y", TW_TYPE_FLOAT, &pc->speed.y, "group=Plane precision=2 step=0,01");
-    TwAddVarRW(bar, "Paratrooper", TW_TYPE_FLOAT, &pc->paratrooperLimit, "group=Plane precision=1");
-    TwAddVarRW(bar, "Paratrooper", TW_TYPE_FLOAT, &pc->paratrooperAvailable, "group=Plane precision=1");
-    TwAddVarRW(bar, "timeBetweenJumps", TW_TYPE_FLOAT, &pc->timeBetweenJumps.value, "group=Plane");
-}
-#endif

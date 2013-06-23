@@ -72,10 +72,3 @@ void ParatrooperSystem::DoUpdate(float) {
 		}
 	}
 }
-
-#if SAC_INGAME_EDITORS
-void ParatrooperSystem::addEntityPropertiesToBar(Entity entity, TwBar*) {
-    ParatrooperComponent* pc = Get(entity, false);
-    if (!pc) return;
-}
-#endif

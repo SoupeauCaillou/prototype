@@ -10,7 +10,7 @@
 
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/norm.hpp>
-#include "util/drawVector.h"
+#include "util/DrawSomething.h"
 
 INSTANCE_IMPL(ParachuteSystem);
 
@@ -99,14 +99,6 @@ void ParachuteSystem::DoUpdate(float dt) {
         phc->addForce(applicationPoint, force * coeff[1], dt);
 	}
 }
-
-#if SAC_INGAME_EDITORS
-void ParachuteSystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
-    ParachuteComponent* pc = Get(entity, false);
-    if (!pc) return;
-	TwAddVarRW(bar, "frottement", TW_TYPE_FLOAT, &pc->frottement, "group=Parachute precision=2 step=0,01");
-}
-#endif
 
 void ParachuteSystem::DeleteParachute(Entity parachute) {
     theEntityManager.DeleteEntity(PARACHUTE(parachute)->fils);

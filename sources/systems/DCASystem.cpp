@@ -69,16 +69,3 @@ void DCASystem::DoUpdate(float dt) {
         dc->shoot = false;
 	}
 }
-
-#if SAC_INGAME_EDITORS
-void DCASystem::addEntityPropertiesToBar(Entity entity, TwBar* bar) {
-    DCAComponent* dc = Get(entity, false);
-    if (!dc) return;
-
-    TwAddVarRW(bar, "targetPoint x", TW_TYPE_FLOAT, &dc->targetPoint.x, "group=DCA precision=2 step=0,01");
-    TwAddVarRW(bar, "targetPoint y", TW_TYPE_FLOAT, &dc->targetPoint.y, "group=DCA precision=2 step=0,01");
-    TwAddVarRW(bar, "fire_rate", TW_TYPE_FLOAT, &dc->fireRate.value, "group=DCA precision=2 step=0,01");
-    TwAddVarRW(bar, "dispersion", TW_TYPE_FLOAT, &dc->dispersion, "group=DCA precision=2 step=0,01");
-
-}
-#endif

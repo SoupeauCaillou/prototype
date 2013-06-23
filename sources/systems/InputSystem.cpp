@@ -68,10 +68,3 @@ void InputSystem::DoUpdate(float) {
         }
 	}
 }
-
-#if SAC_INGAME_EDITORS
-void InputSystem::addEntityPropertiesToBar(Entity entity, TwBar*) {
-    InputComponent* pc = Get(entity, false);
-    if (!pc) return;
-}
-#endif

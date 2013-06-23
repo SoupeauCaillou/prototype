@@ -115,10 +115,3 @@ void AISystem::DoUpdate(float dt) {
         }
     }
 }
-
-#if SAC_INGAME_EDITORS
-void AISystem::addEntityPropertiesToBar(Entity entity, TwBar*) {
-    AIComponent* pc = Get(entity, false);
-    if (!pc) return;
-}
-#endif

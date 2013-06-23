@@ -61,10 +61,3 @@ void BulletSystem::DoUpdate(float) {
         }
 	}
 }
-
-#if SAC_INGAME_EDITORS
-void BulletSystem::addEntityPropertiesToBar(Entity entity, TwBar*) {
-    BulletComponent* dc = Get(entity, false);
-    if (!dc) return;
-}
-#endif

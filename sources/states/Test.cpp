@@ -53,6 +53,7 @@
 
 #include "Scenes.h"
 
+#include <SDL/SDL.h>
 
 #include <sstream>
 #include <vector>

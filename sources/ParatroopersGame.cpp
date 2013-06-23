@@ -121,7 +121,7 @@ void ParatroopersGame::sacInit(int windowW, int windowH) {
 
     // init font
     loadFont(renderThreadContext->assetAPI, "typo");
-    std::list<std::string> files = gameThreadContext->assetAPI->listContent(".atlas");
+    std::list<std::string> files = gameThreadContext->assetAPI->listAssetContent(".atlas");
     for(auto it=files.begin(); it!=files.end(); ++it)
         LOGI("atlas file: " << *it);
 
