@@ -116,7 +116,7 @@ public:
         logoSM->registerState(LogoStep1,
             new LogoTimeBasedStateHandler(LogoStep1, 0.8, [this] () {
                 RENDERING(animLogo)->show = true;
-                SOUND(animLogo)->sound = theSoundSystem.loadSoundFile("logo_sound.ogg");
+                // SOUND(animLogo)->sound = theSoundSystem.loadSoundFile("logo_sound.ogg");
             }), "WaitBeforeBlink");
         logoSM->registerState(LogoStep2,
             new LogoTimeBasedStateHandler(LogoStep2, 0.05, [this] () {

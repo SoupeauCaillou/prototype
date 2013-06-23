@@ -103,7 +103,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->enable = true;
     CAMERA(camera)->order = 2;
     CAMERA(camera)->id = 0;
-    CAMERA(camera)->clearColor = Color(125.0/255, 150./255.0, 0.);
+    CAMERA(camera)->clearColor = Color(50.0/255, 32./255.0, 94./255.);
 
 #if SAC_INGAME_EDITORS
     // DebugConsole::registerMethodWithOneArg("GoToLevel", "level", &LevelSystem::LoadFromFile, &LevelSystem::currentLevelPath, TW_TYPE_STDSTRING);

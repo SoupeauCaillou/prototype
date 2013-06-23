@@ -68,6 +68,7 @@ struct EnhancedPoint {
 
 struct SpotComponent {
     SpotComponent() : dragStarted(false), highlightColor(Color::random()) {
+        highlightColor.b = 0.;
         highlightColor.a = .3;
     }
 
