@@ -208,8 +208,8 @@ bool insertInWallsIfNotPresent(std::list<Wall> & walls, const glm::vec2 & firstP
     return false;
 }
 
-void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
-    //we don't search two intersection in the same loop, since it could be a mess. When finding an intersection, we restart the algo;
+bool splitIntersectionWalls(std::list<EnhancedPoint> & points) {
+    //we don't search two intersection in the same loop, since it could be a mess. When finding an intersection, we should restart the algo;
     for (auto it1 = points.begin(); it1 != --points.end(); ++it1) {
         auto it2 = it1;
         for (++it2; it2 != points.end(); ++it2) {
@@ -223,8 +223,8 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
 
 
                     if (IntersectionUtil::lineLine(startPoint1, endPoint1, startPoint2, endPoint2, &intersectionPoint)) {
-                        if (glm::length2(intersectionPoint - startPoint2) > eps
-                        && glm::length2(intersectionPoint - endPoint1) > eps
+                        if (glm::length2(intersectionPoint - startPoint1) > eps
+                        && glm::length2(intersectionPoint - startPoint2) > eps
                         && glm::length2(intersectionPoint - endPoint1) > eps
                         &&  glm::length2(intersectionPoint - endPoint2) > eps) {
 
@@ -235,33 +235,47 @@ void splitIntersectionWalls(std::list<EnhancedPoint> & points) {
                             auto it = std::find(points.begin(), points.end(), intersectionPoint);
                             //if we couldn't find the intersection point in list, then we create a new point
                             if (it == points.end()) {
+                                LOGI_IF(debugSpotSystem, "Point " << intersectionPoint << " does not exist yet; creating it");
+
                                 std::vector<glm::vec2> nexts;
                                 nexts.push_back(endPoint1);
                                 nexts.push_back(endPoint2);
                                 insertInPointsIfNotPresent(points, EnhancedPoint(intersectionPoint, nexts, "intersection point", true));
                             } else {
-                                //todo: vérifier s'il est pas déjà présent avant de l'ajouter
-                                // if (std::find(points.begin(), points.end(), endPoint1) == points.end()) {
+
+                                // for (auto item : points) {
+                                //     LOGI(item.name << " and " << item.position);
+                                // }
+
+
+                                LOGI_IF(debugSpotSystem, "Point " << *it << " is already in list; adding next edges to it");
                                 if (! doesVec2ListContainValue(it->nextEdges, endPoint1)) {
+                                    LOGI_IF(debugSpotSystem, "Point " << endPoint1 << " not in its list");
                                     it->nextEdges.push_back(endPoint1);
+                                } else {
+                                    LOGI_IF(debugSpotSystem, "Point " << endPoint1 << " already in its list");
                                 }
+
                                 if (! doesVec2ListContainValue(it->nextEdges, endPoint2)) {
+                                    LOGI_IF(debugSpotSystem, "Point " << endPoint2 << " not in its list");
                                     it->nextEdges.push_back(endPoint2);
+                                } else {
+                                    LOGI_IF(debugSpotSystem, "Point " << endPoint2 << " already in its list");
                                 }
                             }
 
-                            endPoint1 = intersectionPoint;
-                            endPoint2 = intersectionPoint;
-
+                            //THIS CODE IS DOING SOMETHING! Since endPoint1 and endPoint2 are references, we are modyfing their values by doing this. These variables
+                            // ARE NOT just local :-)
+                            endPoint1 = endPoint2 = intersectionPoint;
                             //restart the algo from start
-                            splitIntersectionWalls(points);
-                            return;
+                            return true;
                         }
                     }
                 }
             }
         }
     }
+    return false;
 }
 
 void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 externalWalls[4]) {
@@ -451,7 +465,15 @@ void SpotSystem::DoUpdate(float) {
     getAllWallsExtremities(points, externalWalls);
 
     // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
-    splitIntersectionWalls(points);
+    for (auto item : points) {
+        SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
+    }
+    SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "before splitIntersectionWalls");
+    while (splitIntersectionWalls(points));
+    SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, "after splitIntersectionWalls");
+    for (auto item : points) {
+        SPOT_SYSTEM_LOG(INTERSECTIONS_SPLIT, item);
+    }
 
     //on garde la liste de tous les murs disponibles
     std::list<Wall> walls;

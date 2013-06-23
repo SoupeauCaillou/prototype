@@ -111,6 +111,87 @@ TEST(CheckWhenEmpty)
     CheckAndQuit(ss, expected);
 }
 
+TEST(CheckIntersectionSplitter2WallsAtOrigin)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::INTERSECTIONS_SPLIT;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(2.));
+
+
+    AddWall("block1", glm::vec2(-1, 0), glm::vec2(1, 0), false);
+    AddWall("block2", glm::vec2(0, -1), glm::vec2(0, 1), false);
+
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "name='block1- first point': position='-1.0, 0.0' nextEdge1='1.0, 0.0, ",
+        "name='block1- second point': position='1.0, 0.0' nextEdge1='-1.0, 0.0, ",
+        "name='block2- first point': position='0.0, -1.0' nextEdge1='-0.0, 1.0, ",
+        "name='block2- second point': position='-0.0, 1.0' nextEdge1='0.0, -1.0, ",
+        "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
+        "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
+        "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "before splitIntersectionWalls",
+        "after splitIntersectionWalls",
+        "name='block1- first point': position='-1.0, 0.0' nextEdge1='-0.0, 0.0, ",
+        "name='block1- second point': position='1.0, 0.0' nextEdge1='0.0, 0.0, ",
+        "name='block2- first point': position='0.0, -1.0' nextEdge1='-0.0, 0.0, ",
+        "name='block2- second point': position='-0.0, 1.0' nextEdge1='0.0, 0.0, ",
+        "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
+        "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
+        "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "name='intersection point': position='-0.0, 0.0' nextEdge1='1.0, 0.0, ' nextEdge2='-0.0, 1.0, ' nextEdge3='-1.0, 0.0, ' nextEdge4='0.0, -1.0, ",
+    };
+
+    CheckAndQuit(ss, expected);
+}
+
+TEST(CheckIntersectionSplitterWithExternalWall)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::INTERSECTIONS_SPLIT;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(2.));
+
+
+    AddWall("block1", glm::vec2(0, 0), glm::vec2(10, 0), false);
+
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "name='block1- first point': position='0.0, 0.0' nextEdge1='10.0, 0.0, ",
+        "name='block1- second point': position='10.0, 0.0' nextEdge1='0.0, 0.0, ",
+        "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
+        "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
+        "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+        "before splitIntersectionWalls",
+        "after splitIntersectionWalls",
+        "name='block1- first point': position='0.0, 0.0' nextEdge1='10.0, 0.0, ",
+        "name='block1- second point': position='10.0, 0.0' nextEdge1='0.0, 0.0, ",
+        "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
+        "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
+        "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, -100.0, ",
+
+    };
+
+    CheckAndQuit(ss, expected);
+}
+
 TEST(Check1SpotAndATriangle)
 {
     std::stringstream ss;

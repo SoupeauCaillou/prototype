@@ -97,6 +97,8 @@ UPDATABLE_SYSTEM(Spot)
         const static int HIGHLIGHTED_WALLS_BEFORE_MERGE = 1 << 1; //todo
         const static int CALCULATION_ALGO = 1 << 2; //todo
         const static int ACTIVE_WALL = 1 << 3; //affiche le mur actif entre chaque point
+        const static int INTERSECTIONS_SPLIT = 1 << 4; //affiche les différents murs avant et après l'algo de split
+
         int FLAGS_ENABLED;
 #endif
 };
