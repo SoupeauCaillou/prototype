@@ -8,7 +8,7 @@ z = 0.1
 [Rendering]
 color = 1, 0, 0, 0.7
 
-[TextRendering]
+[Text]
 text = Cancel
 color%html= 0xffffff
 font = typo

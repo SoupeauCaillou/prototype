@@ -25,7 +25,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/RenderingSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/GraphSystem.h"
 
 #include "PrototypeGame.h"
@@ -62,10 +62,10 @@ struct SocialCenterScene : public StateHandler<Scene::Enum> {
 
         ADD_COMPONENT(graph, Rendering);
 
-        ADD_COMPONENT(graph, TextRendering);
-        TEXT_RENDERING(graph)->positioning = TextRenderingComponent::LEFT;
-        TEXT_RENDERING(graph)->maxCharHeight = 0.4;
-        TEXT_RENDERING(graph)->text = "Scores graphic";
+        ADD_COMPONENT(graph, Text);
+        TEXT(graph)->positioning = TextComponent::LEFT;
+        TEXT(graph)->maxCharHeight = 0.4;
+        TEXT(graph)->text = "Scores graphic";
 
         ADD_COMPONENT(graph, Graph);
         RENDERING(graph)->texture = theRenderingSystem.loadTextureFile("__scores_graph");
@@ -98,7 +98,7 @@ struct SocialCenterScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         BUTTON(menuBtn)->enabled =
-        TEXT_RENDERING(graph)->show =
+        TEXT(graph)->show =
         RENDERING(graph)->show =
         RENDERING(menuBtn)->show = true;
     }
@@ -119,7 +119,7 @@ struct SocialCenterScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onExit(Scene::Enum) override {
         BUTTON(menuBtn)->enabled =
-        TEXT_RENDERING(graph)->show =
+        TEXT(graph)->show =
         RENDERING(graph)->show =
         RENDERING(menuBtn)->show = false;
     }

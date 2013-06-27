@@ -9,7 +9,7 @@ z = 0.1
 color = 0, 1, 0, 0.7
 show = 0
 
-[TextRendering]
+[Text]
 text = Start
 show = 0
 color%html= 0xffffff

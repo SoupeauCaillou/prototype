@@ -32,7 +32,7 @@
 #include "systems/AutoDestroySystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/RenderingSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 
 #include <map>
@@ -95,15 +95,15 @@ struct SelectCharacterScene : public StateHandler<Scene::Enum> {
                     ADD_COMPONENT(e, Transformation);
                     TRANSFORM(e)->size = glm::vec2(1.f);
                     TRANSFORM(e)->z = 0.9;
-                    ADD_COMPONENT(e, TextRendering);
-                    TEXT_RENDERING(e)->color = Color(1,0,0,1);
-                    TEXT_RENDERING(e)->text = a.str();
-                    TEXT_RENDERING(e)->show = true;
+                    ADD_COMPONENT(e, Text);
+                    TEXT(e)->color = Color(1,0,0,1);
+                    TEXT(e)->text = a.str();
+                    TEXT(e)->show = true;
                     TRANSFORM(e)->position = game->grid.gridPosToPosition(b);
                     ADD_COMPONENT(e, AutoDestroy);
                     AUTO_DESTROY(e)->type = AutoDestroyComponent::LIFETIME;
                     AUTO_DESTROY(e)->params.lifetime.freq.value = 3;
-                    AUTO_DESTROY(e)->params.lifetime.map2AlphaTextRendering = true;
+                    AUTO_DESTROY(e)->params.lifetime.map2AlphaText = true;
                 }
             }
             std::vector<GridPos> m = game->grid.ringFinder(pos, 6, false);

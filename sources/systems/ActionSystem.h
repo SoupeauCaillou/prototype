@@ -23,7 +23,7 @@
 
 namespace Action {
     enum Enum {
-        None,
+        None = 0,
         MoveTo,
         Attack
     };

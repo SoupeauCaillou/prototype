@@ -30,7 +30,7 @@
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
 #include <systems/RenderingSystem.h>
-#include <systems/TextRenderingSystem.h>
+#include <systems/TextSystem.h>
 #include <systems/AutoDestroySystem.h>
 #include <systems/PhysicsSystem.h>
 
@@ -71,10 +71,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        TEXT_RENDERING(startSolo)->show =
+        TEXT(startSolo)->show =
 #if SAC_NETWORK
-        TEXT_RENDERING(startMulti)->show =
-        TEXT_RENDERING(serverIp)->show =
+        TEXT(startMulti)->show =
+        TEXT(serverIp)->show =
         BUTTON(startMulti)->enabled =
         RENDERING(startMulti)->show =
 #endif
@@ -96,7 +96,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         game->gameThreadContext->keyboardInputHandlerAPI->done(input);
         std::stringstream s;
         s << "Server: " << input;
-        TEXT_RENDERING(serverIp)->text = s.str();
+        TEXT(serverIp)->text = s.str();
 #endif
         if (BUTTON(startSolo)->clicked)
             return Scene::BeginTurn;
@@ -116,13 +116,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         game->visibilityManager.toggleVisibility(true);
 
 #if SAC_NETWORK
-        TEXT_RENDERING(startMulti)->show =
-        TEXT_RENDERING(serverIp)->show =
+        TEXT(startMulti)->show =
+        TEXT(serverIp)->show =
         RENDERING(startMulti)->show =
         RENDERING(serverIp)->show =
         BUTTON(startMulti)->enabled =
 #endif
-        TEXT_RENDERING(startSolo)->show =
+        TEXT(startSolo)->show =
         BUTTON(startSolo)->enabled =
         RENDERING(startSolo)->show = false;
 #if SAC_NETWORK
@@ -131,9 +131,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         if (to == Scene::BeginTurn) {
             RENDERING(game->banner)->show =
-            TEXT_RENDERING(game->banner)->show =
-            TEXT_RENDERING(game->turn)->show =
-            TEXT_RENDERING(game->points)->show =
+            TEXT(game->banner)->show =
+            TEXT(game->turn)->show =
+            TEXT(game->points)->show =
                 true;
         }
     }

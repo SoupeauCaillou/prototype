@@ -40,13 +40,13 @@ public class PrototypeActivity extends SacActivity {
     protected void onCreate(Bundle savedInstanceState) {
 		SacActivity.LogI("-> onCreate [" + savedInstanceState);
         super.onCreate(savedInstanceState);
-        
+
         // Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 	
 	@Override
 	public void initRequiredAPI() {
-		AssetAPI.Instance().init(getAssets());
+		AssetAPI.Instance().init(this, getAssets());
 		LocalizeAPI.Instance().init(this.getResources(), this.getPackageName());
 	}
 }

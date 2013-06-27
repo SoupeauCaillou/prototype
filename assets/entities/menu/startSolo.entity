@@ -9,7 +9,7 @@ z = 0.1
 color = 1, 1, 0, 1
 show = 1
 
-[TextRendering]
+[Text]
 text = Solo
 font = typo
 char_height = 1.5

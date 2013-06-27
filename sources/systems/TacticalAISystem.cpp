@@ -76,19 +76,23 @@ void TacticalAISystem::DoUpdate(float) {
             }
 
             std::shared_ptr<IterativeGameState> sptr(state), best;
-            int bestScore = 0;
+            int bestScore = -100000;
             bpa(game,
                 sptr,
                 glm::min(sc->actionPointsLeft, PLAYER(e)->actionPointsLeft),
                 &bestScore,
                 best);
             LOGI("bpa done for " << theEntityManager.entityName(entity) << ": bestScore = " << bestScore);
+            while (best.get()) {
+                LOGI(best->actionFromParent.type);
+                best = best->parent;
+            }
         });
     }
 }
 
 static int evaluate(IterativeGameState* state) {
-    return 0;
+    return glm::linearRand<float>(0, 10000);
 }
 
 static void bpa(PrototypeGame* game, std::shared_ptr<IterativeGameState> current, int actionPointsLeft, int* bestScore, std::shared_ptr<IterativeGameState>& best) {

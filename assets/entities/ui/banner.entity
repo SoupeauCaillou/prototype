@@ -11,7 +11,7 @@ positionN%screen = 0, 0.5
 [Button]
 enabled = 1
 
-[TextRendering]
+[Text]
 color%html = 0x00FF00
 text = END-TURN
 font_name = typo

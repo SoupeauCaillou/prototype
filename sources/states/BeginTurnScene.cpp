@@ -23,7 +23,7 @@
 #include "systems/PlayerSystem.h"
 #include "systems/SoldierSystem.h"
 #include "PrototypeGame.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/VisionSystem.h"
 
@@ -47,7 +47,7 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreEnter(Scene::Enum) override {
-        TEXT_RENDERING(game->banner)->color = Color(0, 1, 0);
+        TEXT(game->banner)->color = Color(0, 1, 0);
 
         for (auto wall: game->walls) {
             RENDERING(wall)-> show = true;
@@ -58,7 +58,7 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
         }
         theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent* sc) -> void {
             RENDERING(e)-> show = true;
-            TEXT_RENDERING(sc->apIndicator)-> show = true;
+            TEXT(sc->apIndicator)-> show = true;
         });
 
         RENDERING(game->background)->show = true;
@@ -106,11 +106,11 @@ struct BeginTurnScene : public StateHandler<Scene::Enum> {
         // update ui
         std::stringstream ss1;
         ss1 << "Turn: " << PLAYER(game->humanPlayer)->turn;
-        TEXT_RENDERING(game->turn)->text = ss1.str();
+        TEXT(game->turn)->text = ss1.str();
 
         std::stringstream ss2;
         ss2 << "AP left: " << PLAYER(game->humanPlayer)->actionPointsLeft;
-        TEXT_RENDERING(game->points)->text = ss2.str();
+        TEXT(game->points)->text = ss2.str();
 
         return Scene::SelectCharacter;
     }

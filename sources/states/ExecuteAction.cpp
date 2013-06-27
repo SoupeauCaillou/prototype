@@ -26,7 +26,7 @@
 #include "PrototypeGame.h"
 #include "CameraMoveManager.h"
 #include "systems/TransformationSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/VisionSystem.h"
 #include "systems/MemorySystem.h"
 
@@ -66,7 +66,7 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
         // Update UI
         std::stringstream ss2;
         ss2 << "AP left: " << PLAYER(game->humanPlayer)->actionPointsLeft;
-        TEXT_RENDERING(game->points)->text = ss2.str();
+        TEXT(game->points)->text = ss2.str();
 
         if (countAfter < countBefore) {
             // assign to grid
@@ -114,7 +114,7 @@ struct ExecuteActionScene : public StateHandler<Scene::Enum> {
         game->grid.autoAssignEntitiesToCell(game->players);
 
         if (PLAYER(game->humanPlayer)->actionPointsLeft == 0)
-            TEXT_RENDERING(game->banner)->color = Color(1, 0, 0);
+            TEXT(game->banner)->color = Color(1, 0, 0);
     }
 };
 

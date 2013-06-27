@@ -18,7 +18,7 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SoldierSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/TransformationSystem.h"
 
@@ -42,11 +42,11 @@ void SoldierSystem::DoUpdate(float) {
 
 void SoldierSystem::UpdateUI(Entity e, SoldierComponent* sc) {
     if (sc->maxActionPointsPerTurn <= 0) {
-        TEXT_RENDERING(sc->apIndicator)->show = false;
+        TEXT(sc->apIndicator)->show = false;
     } else {
         std::stringstream ss;
         ss << sc->actionPointsLeft << ' ' << sc->maxActionPointsPerTurn;
-        TEXT_RENDERING(sc->apIndicator)->text = ss.str();
+        TEXT(sc->apIndicator)->text = ss.str();
         ANCHOR(sc->apIndicator)->rotation = -TRANSFORM(e)->rotation;
     }
 }

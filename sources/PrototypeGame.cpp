@@ -89,8 +89,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     Game::sacInit(windowW, windowH);
 
-    PlacementHelper::GimpWidth = 0;
-    PlacementHelper::GimpHeight = 0;
+    PlacementHelper::GimpSize = glm::vec2(0);
 
     theActionSystem.game =
     theVisionSystem.game =
@@ -107,7 +106,6 @@ void PrototypeGame::init(const uint8_t*, int) {
 #else
     sceneStateMachine.setup(Scene::Logo);
 #endif
-    sceneStateMachine.reEnterCurrentState();
 
     // default camera
     camera = theEntityManager.CreateEntity("camera",
@@ -204,6 +202,7 @@ void PrototypeGame::init(const uint8_t*, int) {
         camera;
     LOGI("PrototypeGame initialisation done.");
 
+#if !ANDROID
     std::string outFolder = gameThreadContext->assetAPI->getWritableAppDatasPath();
     LOGI("Writable folder : '" << outFolder << "'");
     auto l = gameThreadContext->assetAPI->listContent(outFolder, ".test");
@@ -222,10 +221,11 @@ void PrototypeGame::init(const uint8_t*, int) {
         fclose(fd);
     }
     gameThreadContext->assetAPI->synchronize();
+#endif
 }
 
 void PrototypeGame::quickInit() {
-    sceneStateMachine.reEnterCurrentState();
+
 }
 
 void PrototypeGame::backPressed() {

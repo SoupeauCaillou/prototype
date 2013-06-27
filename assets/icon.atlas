@@ -1,0 +1,8 @@
+[image0]
+name=
+original_size=
+position_in_atlas=6304.7349 ERROR Main.cpp:11 : Usage: texture_packer file1.png file2.png ... fileN.png,6304.7349 ERROR Main.cpp:11 : Usage: texture_packer file1.png file2.png ... fileN.png
+size_in_atlas=6304.7349 ERROR Main.cpp:11 : Usage: texture_packer file1.png file2.png ... fileN.png,6304.7349 ERROR Main.cpp:11 : Usage: texture_packer file1.png file2.png ... fileN.png
+crop_offset=,
+rotated=6304.7349 ERROR Main.cpp:11 : Usage: texture_packer file1.png file2.png ... fileN.png
+opaque_rect=Need the image in arg1: ./image.py image.png

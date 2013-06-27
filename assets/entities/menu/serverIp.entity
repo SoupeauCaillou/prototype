@@ -7,7 +7,7 @@ z = 0.1
 color = 1, 1, 1, 1
 show = 1
 
-[TextRendering]
+[Text]
 font = typo
 char_height = 1.2
 color = 0,0,0,1

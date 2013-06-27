@@ -3,7 +3,7 @@ position%screen = 0, 0
 size%screen = 0.5,1
 z = 0.1
 
-[TextRendering]
+[Text]
 text = plop
 font = typo
 color = 0,0,0,1
