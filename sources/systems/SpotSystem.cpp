@@ -146,7 +146,8 @@ Wall getActiveWall(const std::list<Wall> & walls,
                 LOGI_IF(debugSpotSystem, "\t\t  A wall is at the same distance, " << (foundABetterWall ? "and is above" : "but is behind") << " the nearestwall");
             // le cas de base: s'il est plus proche, il est mieux
             } else if (minDist < nearestWallDistance - eps) {
-                LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance);
+                LOGI_IF(debugSpotSystem, "\t\t  Found a new nearest wall: " << wall << " for distance: " << minDist << " < " << nearestWallDistance <<
+                    "(" << minDist << "<" << nearestWallDistance - eps <<")");
                 foundABetterWall = true;
             }
 
@@ -295,7 +296,7 @@ void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 
             theEntityManager.entityName(block) + "- first point", bc->isDoubleFace));
         insertInPointsIfNotPresent(points, EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
             theEntityManager.entityName(block) + "- second point", bc->isDoubleFace));
-    }
+    END_FOR_EACH()
 
     // et les points des murs extérieurs - pas besoin de vérifier pour eux
     points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left", false));
@@ -433,7 +434,7 @@ float calculateHighlightedZone(std::list<Wall> & highlightedEdges) {
             // SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "current total: " << result);
             // LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tcurrent total: " << result);
         }
-    }
+    END_FOR_EACH()
     return result;
 }
 
@@ -622,7 +623,7 @@ void SpotSystem::DoUpdate(float) {
                 if (IntersectionUtil::pointRectangle(pointOfView, TRANSFORM(block))) {
                     LOGI_IF(debugSpotSystem, "Point of view is INSIDE the block " << theEntityManager.entityName(block));
                 }
-            }
+            END_FOR_EACH()
             int w = 0;
             LOGI_IF(debugSpotSystem, "Walls are: ");
             for (auto wall : walls) {
@@ -697,6 +698,7 @@ void SpotSystem::DoUpdate(float) {
             }
 
             //finalement on affiche notre zone à éclairer
+            LOGI_IF(debugSpotSystem, "registering " << Wall(startPoint, endPoint));
             sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
 
 
@@ -749,19 +751,24 @@ void SpotSystem::DoUpdate(float) {
         LOGI_IF(debugSpotSystem, "\tLast activeWall is " << activeWall << " so projeting " << startPoint << " and " << points.front().position << " on it.");
         IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
         IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
-
+        LOGI("registering " << Wall(startPoint, endPoint));
         sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
 
         //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
         points.pop_front();
-    }
+    END_FOR_EACH()
 
     //only debug
-    FOR_EACH_COMPONENT(Spot, sc)
+    FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
+        float totalDist = 0.f;
+        SPOT_SYSTEM_LOG(HIGHLIGHTED_WALLS_BEFORE_MERGE, "Spot at position " << TRANSFORM(e)->position);
         for (auto pair : sc->highlightedEdges) {
+            SPOT_SYSTEM_LOG(HIGHLIGHTED_WALLS_BEFORE_MERGE, pair)
             LOGI_IF(debugSpotSystem || debugDistanceCalculation, "highlighted: " << pair);
+            totalDist += glm::length2(pair.first - pair.second);
         }
-    }
+        SPOT_SYSTEM_LOG(HIGHLIGHTED_WALLS_BEFORE_MERGE, "Total distance: " << totalDist)
+    END_FOR_EACH()
 
     totalHighlightedDistance2Done = calculateHighlightedZone(highlightedEdgesFromAllSpots);
     SPOT_SYSTEM_LOG(CALCULATION_ALGO, "totalHighlightedDistance2Objective=" << totalHighlightedDistance2Objective
@@ -777,6 +784,6 @@ void SpotSystem::DoUpdate(float) {
         for (auto pair : sc->highlightedEdges) {
             Draw::DrawTriangle("SpotSystem", TRANSFORM(e)->position, pair.first, pair.second, sc->highlightColor);
         }
-    }
+    END_FOR_EACH()
 }
 

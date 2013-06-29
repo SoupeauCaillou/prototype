@@ -7,7 +7,7 @@
 #include <ostream>
 
 //used in the algorithm
-const float eps = 0.0001f;
+const float eps = 0.001f;
 
 struct Wall {
     Wall() : first(0.), second(0.) {}
