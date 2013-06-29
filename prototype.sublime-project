@@ -43,7 +43,8 @@
             "-I${project_path}/sources/**",
             "-I${project_path}/../sac_libs_dep/AntTweakBar/include",
 
-            "-DSAC_DEBUG=1"
+            "-DSAC_DEBUG=1",
+            "-DSAC_ENABLE_LOG=1"
         ]
     }
 }
