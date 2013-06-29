@@ -30,7 +30,7 @@
 #include <systems/TransformationSystem.h>
 #include <systems/ButtonSystem.h>
 #include <systems/RenderingSystem.h>
-#include <systems/TextRenderingSystem.h>
+#include <systems/TextSystem.h>
 #include <systems/AutoDestroySystem.h>
 #include <systems/PhysicsSystem.h>
 
@@ -64,12 +64,12 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         ADD_COMPONENT(timer, Transformation);
         TRANSFORM(timer)->z = .9;
         TRANSFORM(timer)->position = glm::vec2(9., -5);
-        ADD_COMPONENT(timer, TextRendering);
-        TEXT_RENDERING(timer)->show = true;
-        TEXT_RENDERING(timer)->text = "0";
-        TEXT_RENDERING(timer)->charHeight = 2;
-        TEXT_RENDERING(timer)->cameraBitMask = 0xffff;
-        TEXT_RENDERING(timer)->positioning = TextRenderingComponent::RIGHT;
+        ADD_COMPONENT(timer, Text);
+        TEXT(timer)->show = true;
+        TEXT(timer)->text = "0";
+        TEXT(timer)->charHeight = 2;
+        TEXT(timer)->cameraBitMask = 0xffff;
+        TEXT(timer)->positioning = TextComponent::RIGHT;
 
     }
 
@@ -80,7 +80,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        TEXT_RENDERING(timer)->show =
+        TEXT(timer)->show =
         BUTTON(socialBtn)->enabled =
         RENDERING(socialBtn)->show = true;
     }
@@ -98,7 +98,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         std::stringstream a;
         a << game->gameThreadContext->localizeAPI->text("time") << ": " <<
             std::fixed << std::setprecision(2) << timeElapsed << " s";
-        TEXT_RENDERING(timer)->text = a.str();
+        TEXT(timer)->text = a.str();
         }
 
         {
@@ -143,7 +143,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
-        TEXT_RENDERING(timer)->show =
+        TEXT(timer)->show =
         BUTTON(socialBtn)->enabled =
         RENDERING(socialBtn)->show = false;
     }

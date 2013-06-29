@@ -36,7 +36,7 @@
 #include "systems/AnimationSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/ADSRSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/SoundSystem.h"
 #include "systems/TaskAISystem.h"
 #include "systems/MusicSystem.h"
@@ -77,8 +77,6 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
     Game::sacInit(windowW, windowH);
-    PlacementHelper::GimpWidth = 0;
-    PlacementHelper::GimpHeight = 0;
 
     gameThreadContext->storageAPI->init(gameThreadContext->assetAPI, "Prototype");
     ScoreStorageProxy ssp;
