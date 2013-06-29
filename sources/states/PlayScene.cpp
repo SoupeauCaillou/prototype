@@ -29,7 +29,7 @@
 #include "util/Grid.h"
 
 #include "systems/ADSRSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
 #include "systems/TransformationSystem.h"
@@ -59,12 +59,12 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         objectiveProgression = theEntityManager.CreateEntity("objective",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TRANSFORM(objectiveProgression)->position = glm::vec2(7, 6);
-        TEXT_RENDERING(objectiveProgression)->text = "0.0\%";
+        TEXT(objectiveProgression)->text = "0.0\%";
 
         victory = theEntityManager.CreateEntity("Victory",
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
-        TEXT_RENDERING(victory)->text = "Victory!";
-        TRANSFORM(victory)->position = glm::vec2(0., PlacementHelper::ScreenHeight / 4.);
+        TEXT(victory)->text = "Victory!";
+        TRANSFORM(victory)->position = glm::vec2(0., PlacementHelper::ScreenSize.y / 4.);
         TRANSFORM(victory)->z = .95;
 
         fadeout = theEntityManager.CreateEntity("playscene fade out");
@@ -76,7 +76,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         ADSR(fadeout)->sustainValue = 1.;
         ADSR(fadeout)->decayTiming = ADSR(fadeout)->releaseTiming = 0.;
         ADD_COMPONENT(fadeout, Transformation);
-        TRANSFORM(fadeout)->size = glm::vec2(PlacementHelper::ScreenWidth, PlacementHelper::ScreenHeight);
+        TRANSFORM(fadeout)->size = PlacementHelper::ScreenSize;
         TRANSFORM(fadeout)->z = 0.93;
     }
 
@@ -90,7 +90,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         Grid::EnableGrid();
 #endif
 
-        TEXT_RENDERING(objectiveProgression)->show = true;
+        TEXT(objectiveProgression)->show = true;
     }
 
 
@@ -108,7 +108,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
             a << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Done << "/ "
             << std::fixed << std::setprecision(2) << theSpotSystem.totalHighlightedDistance2Objective << " %";
 
-            TEXT_RENDERING(objectiveProgression)->text = a.str();
+            TEXT(objectiveProgression)->text = a.str();
         }
 
         //if objective is done or right click, go back to menu
@@ -116,7 +116,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
             return Scene::Menu;
         } else if (theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done < 0.001) {
 #if ! SAC_DEBUG
-            ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT_RENDERING(victory)->show = true;
+            ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT(victory)->show = true;
 #endif
             return Scene::Menu;
         }
@@ -132,7 +132,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         //if adsr is active, wait for the end of it
         if (ADSR(fadeout)->active) {
             float value = ADSR(fadeout)->value;
-            TEXT_RENDERING(victory)->charHeight = 3 * value;
+            TEXT(victory)->charHeight = 3 * value;
             RENDERING(fadeout)->color.a = value;
             return (theTouchInputManager.isTouched(0) && value == ADSR(fadeout)->sustainValue);
         //else wait for right click
@@ -165,8 +165,8 @@ struct PlayScene : public StateHandler<Scene::Enum> {
 #endif
         ADSR(fadeout)->active =
         RENDERING(fadeout)->show =
-        TEXT_RENDERING(victory)->show =
-        TEXT_RENDERING(objectiveProgression)->show = false;
+        TEXT(victory)->show =
+        TEXT(objectiveProgression)->show = false;
     }
 };
 

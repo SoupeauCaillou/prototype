@@ -23,7 +23,7 @@
 #include "api/StringInputAPI.h"
 
 #include "systems/ButtonSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/BlockSystem.h"
 #include "systems/SpotSystem.h"
@@ -63,8 +63,8 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
         saveButton = theEntityManager.CreateEntity("save",
                     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TRANSFORM(saveButton)->position = glm::vec2(-9, -6);
-        TEXT_RENDERING(saveButton)->text = "save";
-        TEXT_RENDERING(saveButton)->color = Color(0., 0., 0.);
+        TEXT(saveButton)->text = "save";
+        TEXT(saveButton)->color = Color(0., 0., 0.);
 
         saveButtonContainer = theEntityManager.CreateEntity("save container",
                     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
@@ -74,8 +74,8 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
         goTryLevelButton = theEntityManager.CreateEntity("go_try_level",
                     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TRANSFORM(goTryLevelButton)->position = glm::vec2(-5, -6);
-        TEXT_RENDERING(goTryLevelButton)->text = "try it!";
-        TEXT_RENDERING(goTryLevelButton)->color = Color(0., 0., 0.);
+        TEXT(goTryLevelButton)->text = "try it!";
+        TEXT(goTryLevelButton)->color = Color(0., 0., 0.);
 
         goTryLevelButtonContainer = theEntityManager.CreateEntity("save container",
                     EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text_container"));
@@ -85,10 +85,10 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
         tip = theEntityManager.CreateEntity("objective",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
         TRANSFORM(tip)->position = glm::vec2(-5, -3);
-        TEXT_RENDERING(tip)->flags |= TextRenderingComponent::MultiLineBit;
-        TEXT_RENDERING(tip)->charHeight = .5f;
-        TEXT_RENDERING(tip)->color = Color(0., 0., 0.);
-        TEXT_RENDERING(tip)->show = false;
+        TEXT(tip)->flags |= TextComponent::MultiLineBit;
+        TEXT(tip)->charHeight = .5f;
+        TEXT(tip)->color = Color(0., 0., 0.);
+        TEXT(tip)->show = false;
         TRANSFORM(tip)->size.x = 10;
     }
 
@@ -102,24 +102,24 @@ struct LevelEditorScene : public StateHandler<Scene::Enum> {
     void selectTip(EnumTip e, const std::string & opt = "") {
         switch (e) {
             case NoSpot:
-                TEXT_RENDERING(tip)->text = "You need to create one spot at least!\n\
+                TEXT(tip)->text = "You need to create one spot at least!\n\
 (double select a white square -> it should became blue)";
-                TEXT_RENDERING(tip)->color = Color(1., 0., 0.);
+                TEXT(tip)->color = Color(1., 0., 0.);
                 break;
             case SelectLevelName:
-                TEXT_RENDERING(tip)->text = "Please write level name...";
-                TEXT_RENDERING(tip)->color = Color(0., 0., 0.);
+                TEXT(tip)->text = "Please write level name...";
+                TEXT(tip)->color = Color(0., 0., 0.);
                 break;
             case SelectedName:
-                TEXT_RENDERING(tip)->text =  "Level name is " + opt;
-                TEXT_RENDERING(tip)->color = Color(0., 0., 0.);
+                TEXT(tip)->text =  "Level name is " + opt;
+                TEXT(tip)->color = Color(0., 0., 0.);
                 break;
             default:
-                TEXT_RENDERING(tip)->text = "Left click: create a point. \n\
+                TEXT(tip)->text = "Left click: create a point. \n\
 Select it and it will be red (selectionned).\n\
 Then click again on it and it will be a Spot (blue)\n\
 or click on another point and you will create a wall.";
-                TEXT_RENDERING(tip)->color = Color(0., 0., 0.);
+                TEXT(tip)->color = Color(0., 0., 0.);
         }
     }
 
@@ -132,9 +132,9 @@ or click on another point and you will create a wall.";
         Grid::EnableGrid();
 #endif
 
-        TEXT_RENDERING(tip)->show =
-        TEXT_RENDERING(saveButton)->show = BUTTON(saveButtonContainer)->enabled =
-        TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButtonContainer)->enabled = true;
+        TEXT(tip)->show =
+        TEXT(saveButton)->show = BUTTON(saveButtonContainer)->enabled =
+        TEXT(goTryLevelButton)->show = BUTTON(goTryLevelButtonContainer)->enabled = true;
 
         selectTip(EnumTip::Default);
 
@@ -283,9 +283,9 @@ or click on another point and you will create a wall.";
         Grid::DisableGrid();
 #endif
 
-        TEXT_RENDERING(tip)->show =
-        TEXT_RENDERING(saveButton)->show = BUTTON(saveButtonContainer)->enabled =
-        TEXT_RENDERING(goTryLevelButton)->show = BUTTON(goTryLevelButtonContainer)->enabled = false;
+        TEXT(tip)->show =
+        TEXT(saveButton)->show = BUTTON(saveButtonContainer)->enabled =
+        TEXT(goTryLevelButton)->show = BUTTON(goTryLevelButtonContainer)->enabled = false;
 
         if (to == Scene::Play) {
             LevelLoader::LoadFromFile(userLevelName, game->gameThreadContext->assetAPI->loadFile(userLevelName));

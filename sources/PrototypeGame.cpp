@@ -40,7 +40,7 @@
 #include "systems/AnimationSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/ADSRSystem.h"
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/SoundSystem.h"
 #include "systems/TaskAISystem.h"
 #include "systems/MusicSystem.h"
@@ -56,10 +56,6 @@
 
 
 PrototypeGame::PrototypeGame() : Game() {
-    sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
-    sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
-    sceneStateMachine.registerState(Scene::Play, Scene::CreatePlaySceneHandler(this), "Scene::Play");
-    sceneStateMachine.registerState(Scene::LevelEditor, Scene::CreateLevelEditorSceneHandler(this), "Scene::LevelEditor");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -76,8 +72,12 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
     Game::sacInit(windowW, windowH);
-    PlacementHelper::GimpWidth = 0;
-    PlacementHelper::GimpHeight = 0;
+
+    sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
+    sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::Play, Scene::CreatePlaySceneHandler(this), "Scene::Play");
+    sceneStateMachine.registerState(Scene::LevelEditor, Scene::CreateLevelEditorSceneHandler(this), "Scene::LevelEditor");
+
     LOGI("SAC engine initialisation done.");
 }
 
@@ -86,12 +86,6 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     BlockSystem::CreateInstance();
     SpotSystem::CreateInstance();
-
-#if SAC_DEBUG
-    sceneStateMachine.setup(Scene::Menu);
-#else
-    sceneStateMachine.setup(Scene::Logo);
-#endif
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
@@ -113,12 +107,17 @@ void PrototypeGame::init(const uint8_t*, int) {
     Grid::CreateGrid();
 #endif
 
+#if SAC_DEBUG
+    sceneStateMachine.setup(Scene::Menu);
+#else
+    sceneStateMachine.setup(Scene::Logo);
+#endif
+
     quickInit();
     LOGI("PrototypeGame initialisation done.");
 }
 
 void PrototypeGame::quickInit() {
-    sceneStateMachine.reEnterCurrentState();
 }
 
 void PrototypeGame::backPressed() {

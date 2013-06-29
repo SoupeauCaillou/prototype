@@ -26,7 +26,7 @@
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
 
-#include "systems/TextRenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
 
@@ -50,9 +50,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         //create the text
         Entity btn = theEntityManager.CreateEntity(name,
         EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
-        TEXT_RENDERING(btn)->text = name;
+        TEXT(btn)->text = name;
         TRANSFORM(btn)->position = position;
-        TEXT_RENDERING(btn)->show = true;
+        TEXT(btn)->show = true;
 
         //and its container
         Entity container = theEntityManager.CreateEntity(name + " container",
@@ -96,7 +96,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         auto pair = createTextAndContainer(false, "Level editor", glm::vec2(0.));
         levelEditorButton = pair.first;
         levelEditorButtonContainer = pair.second;
-        TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = true;
+        TEXT(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = true;
     }
 
 
@@ -105,8 +105,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        float sx = PlacementHelper::ScreenWidth / 3.;
-        float sy = PlacementHelper::ScreenHeight / 3.;
+        float sx = PlacementHelper::ScreenSize.x / 3.;
+        float sy = PlacementHelper::ScreenSize.y / 3.;
 
 
         auto listOriginals = game->gameThreadContext->assetAPI->listAssetContent(".map", "levels");
@@ -136,7 +136,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         //update level editor btn
         TRANSFORM(levelEditorButton)->position = TRANSFORM(levelEditorButtonContainer)->position = glm::vec2(-sx + 2.f * sx * (current % sqrtTot) / sqrtTot, sy - 2.f * sy * (current / sqrtTot) / sqrtTot);
-        TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = true;
+        TEXT(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = true;
     }
 
 
@@ -150,7 +150,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         for (unsigned i = 0; i < levels.size(); i += 2) {
             if (BUTTON(levels[i+1])->clicked) {
-                choosenLevel = TEXT_RENDERING(levels[i])->text + ".map";
+                choosenLevel = TEXT(levels[i])->text + ".map";
 
                 return Scene::Play;
             }
@@ -171,7 +171,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         }
         levels.clear();
 
-        TEXT_RENDERING(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = false;
+        TEXT(levelEditorButton)->show = BUTTON(levelEditorButtonContainer)->enabled = false;
 
         if (to == Scene::Play) {
             bool isInAsset = LevelLoader::LoadFromFile(choosenLevel, game->gameThreadContext->assetAPI->loadAsset("levels/" + choosenLevel));

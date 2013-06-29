@@ -4,8 +4,8 @@
 #include "base/PlacementHelper.h"
 
 #include "systems/TransformationSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
-#include "systems/TextRenderingSystem.h"
 
 Grid & Grid::Instance() {
     static Grid _instance;
@@ -16,10 +16,10 @@ Grid & Grid::Instance() {
 void Grid::CreateGrid() {
     //create a grid
     int i = 0;
-    for (; i < PlacementHelper::ScreenHeight + 1; ++i) {
+    for (; i < PlacementHelper::ScreenSize.y + 1; ++i) {
         Entity e = theEntityManager.CreateEntity("grid_line",
           EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_line"));
-        TRANSFORM(e)->position.y = -.5 + PlacementHelper::ScreenHeight / 2. - i;
+        TRANSFORM(e)->position.y = -.5 + PlacementHelper::ScreenSize.y / 2. - i;
         TRANSFORM(e)->size.y = 1.;
         Instance()._gridEntities.push_back(e);
     }
@@ -30,13 +30,13 @@ void Grid::CreateGrid() {
 
         Entity e = theEntityManager.CreateEntity("grid_number_x " + ss.str(),
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
-        TEXT_RENDERING(e)->text = ss.str();
+        TEXT(e)->text = ss.str();
         TRANSFORM(e)->position.x = j;
         Instance()._gridTextEntities.push_back(e);
 
         e = theEntityManager.CreateEntity("grid_number_y " + ss.str(),
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("text"));
-        TEXT_RENDERING(e)->text = ss.str();
+        TEXT(e)->text = ss.str();
         TRANSFORM(e)->position.y = j;
         Instance()._gridTextEntities.push_back(e);
     }
@@ -44,7 +44,7 @@ void Grid::CreateGrid() {
 
 void Grid::EnableGrid() {
     for (auto e : Instance()._gridTextEntities) {
-        TEXT_RENDERING(e)->show = true;
+        TEXT(e)->show = true;
     }
     for (auto e : Instance()._gridEntities) {
         RENDERING(e)->show = true;
@@ -53,7 +53,7 @@ void Grid::EnableGrid() {
 
 void Grid::DisableGrid() {
     for (auto e : Instance()._gridTextEntities) {
-        TEXT_RENDERING(e)->show = false;
+        TEXT(e)->show = false;
     }
     for (auto e : Instance()._gridEntities) {
         RENDERING(e)->show = false;

@@ -301,7 +301,7 @@ void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 
     points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left", false));
     points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right", false));
     points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right", false));
-    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenWidth / 2., FAR_FAR_AWAY), "wall bottom left", false));
+    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenSize.x / 2., FAR_FAR_AWAY), "wall bottom left", false));
 }
 
 const Wall getUnion(const Wall & wall, const Wall & zone) {
@@ -448,8 +448,8 @@ void SpotSystem::PrepareAlgorithm() {
     points.clear();
 
     //external walls helper
-    float sx = PlacementHelper::ScreenWidth / 2.;
-    float sy = PlacementHelper::ScreenHeight / 2.;
+    float sx = PlacementHelper::ScreenSize.x / 2.;
+    float sy = PlacementHelper::ScreenSize.y / 2.;
 
     glm::vec2 externalWalls[4] = {
         glm::vec2(-sx, sy), // top left
@@ -519,8 +519,8 @@ void SpotSystem::DoUpdate(float) {
     LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\n\n\n");
 
     //external walls helper
-    float sx = PlacementHelper::ScreenWidth / 2.;
-    float sy = PlacementHelper::ScreenHeight / 2.;
+    float sx = PlacementHelper::ScreenSize.x / 2.;
+    float sy = PlacementHelper::ScreenSize.y / 2.;
 
     glm::vec2 externalWalls[4] = {
         glm::vec2(-sx, sy), // top left

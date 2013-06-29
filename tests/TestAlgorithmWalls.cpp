@@ -32,17 +32,16 @@ void AddWall(const std::string & name, const glm::vec2 & firstPoint, const glm::
 }
 
 static void Init(std::stringstream & ss) {
-    auto windowW = 900, windowH = 625;
-    if (windowW < windowH) {
-        PlacementHelper::ScreenHeight = 10;
-        PlacementHelper::ScreenWidth = PlacementHelper::ScreenHeight * windowW / (float)windowH;
+    auto windowSize = glm::vec2(900, 625);
+    if (windowSize.x < windowSize.y) {
+        PlacementHelper::ScreenSize.x = 10;
+        PlacementHelper::ScreenSize.y = PlacementHelper::ScreenSize.y * windowSize.x / (float)windowSize.y;
     } else {
-        PlacementHelper::ScreenWidth = 20;
-        PlacementHelper::ScreenHeight = PlacementHelper::ScreenWidth * windowH / (float)windowW;
+        PlacementHelper::ScreenSize.x = 20;
+        PlacementHelper::ScreenSize.y = PlacementHelper::ScreenSize.x * windowSize.y / (float)windowSize.x;
     }
 
-    PlacementHelper::WindowWidth = windowW;
-    PlacementHelper::WindowHeight = windowH;
+    PlacementHelper::WindowSize = windowSize;
 
 
     SpotSystem::CreateInstance();
