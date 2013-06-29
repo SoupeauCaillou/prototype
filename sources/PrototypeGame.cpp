@@ -56,9 +56,6 @@
 
 
 PrototypeGame::PrototypeGame() : Game() {
-    sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
-    sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
-    sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
 }
 
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
@@ -82,13 +79,15 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     ScoreStorageProxy ssp;
     gameThreadContext->storageAPI->createTable((IStorageProxy*)&ssp);
 
+    sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
+    sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::SocialCenter, Scene::CreateSocialCenterSceneHandler(this), "Scene::SocialCenter");
+
     LOGI("SAC engine initialisation done.");
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
-    sceneStateMachine.setup(Scene::Logo);
-    sceneStateMachine.reEnterCurrentState();
 
     // default camera
     camera = theEntityManager.CreateEntity("camera1");
@@ -106,12 +105,13 @@ void PrototypeGame::init(const uint8_t*, int) {
     PrototypeDebugConsole::init(this);
 #endif
 
+    sceneStateMachine.setup(Scene::Logo);
+
     quickInit();
     LOGI("PrototypeGame initialisation done.");
 }
 
 void PrototypeGame::quickInit() {
-    sceneStateMachine.reEnterCurrentState();
 }
 
 void PrototypeGame::backPressed() {
