@@ -70,28 +70,6 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
-        // auto v1 = glm::vec2(2, 2) - glm::vec2(1, 1);
-        // auto v2 = glm::vec2(1, 2) - glm::vec2(1, 1);
-        // auto v1 = glm::vec2(2.7, 1.2) - glm::vec2(-1.4631, 0.2058);
-        // auto v2 = glm::vec2(-1.4631, 0.2058) - glm::vec2(-2.8125, -.1164);
-        // auto dot =  glm::abs(glm::dot(v1, v2));
-        // LOGI(v1 << " " << v2 << " " << dot << " " << glm::orientedAngle(glm::normalize(v1), glm::normalize(v2)));
-        // LOGF_IF( glm::length(v1)*glm::length(v2) - dot < 0.001, "prout" <<   glm::length(v1) << " * " << glm::length(v2) << " == " << dot );
-
-        // LOGI("opening the file");
-        // std::ifstream file ("/sac_temp/test1.map");
-        // std::string s;
-        // while (std::getline(file, s)) {
-        //     LOGI(s);
-        // }
-
-
-
-
-
-
-
-
         //add a level editor button
         auto pair = createTextAndContainer(false, "Level editor", glm::vec2(0.));
         levelEditorButton = pair.first;
