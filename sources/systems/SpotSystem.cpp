@@ -20,10 +20,10 @@
 
 //activate or not logs (debug)
 #if SAC_DEBUG
-static bool debugSpotSystem = false;
-static bool debugDistanceCalculation = false;
-// static bool debugSpotSystem = true;
-// static bool debugDistanceCalculation = true;
+// static bool debugSpotSystem = false;
+// static bool debugDistanceCalculation = false;
+static bool debugSpotSystem = true;
+static bool debugDistanceCalculation = true;
 //we use this specific log function for unit tests
 #define SPOT_SYSTEM_LOG(lvl, x) {\
     if (lvl & theSpotSystem.FLAGS_ENABLED) {\
@@ -100,7 +100,7 @@ float distancePointToSegment(const glm::vec2 & v, const glm::vec2 & w, const glm
     return glm::length(projectionOnSegment - p);
 }
 
-// retourne le mur actif entre les 2 points, vus de la caméra
+// retourne le mur actif entre les 2 points vus de la caméra.
 Wall getActiveWall(const std::list<Wall> & walls,
     const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) {
 
@@ -587,7 +587,13 @@ void SpotSystem::DoUpdate(float) {
         points.sort([pointOfView] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
             float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep1.position - pointOfView));
             float secondAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(ep2.position - pointOfView));
-            return (firstAngle > secondAngle);
+
+            if (glm::abs(firstAngle - secondAngle) > eps) {
+                LOGI_IF(debugSpotSystem, "Angle sorting: " << ep1.position << " and " << ep2.position << ": " << std::fixed << std::setprecision(5) << firstAngle << " " << secondAngle);
+                return (firstAngle > secondAngle);
+            }
+            LOGI_IF(debugSpotSystem, "Angle sorting: that was close! " << ep1.position << " and " << ep2.position);
+            return (glm::length2(ep1.position - pointOfView) < glm::length2(ep2.position - pointOfView));
         });
         //on trie aussi les murs pour que le premier point rencontré soit le 1er en sens horaire
         for (auto & wall : walls) {
@@ -665,6 +671,7 @@ void SpotSystem::DoUpdate(float) {
             SPOT_SYSTEM_LOG(POINTS_ORDER, point.name);
 
             LOGI_IF(debugSpotSystem, "Current point is " << point.name << " ( " << point.position <<  " ) ");
+
 #if SAC_DEBUG
             Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);
 #endif
@@ -693,7 +700,7 @@ void SpotSystem::DoUpdate(float) {
                 if (isCurrentPointTheEndPoint) LOGI_IF(debugSpotSystem, "\t\tisCurrentPointTheEndPoint: true");
                 else LOGW_IF(debugSpotSystem, "\t\tisCurrentPointTheEndPoint: false -> " << activeWall.second << " != " << point.position);
 
-                LOGI_IF(debugSpotSystem, "\tCurrent point is not on the active wall! Projecting point " << point.position << " into the old active wall..." << activeWall);
+                LOGI_IF(debugSpotSystem, "\tCurrent point is not on the active wall! Projecting point " << point.position << " into the active wall..." << activeWall);
                 IntersectionUtil::lineLine(pointOfView, point.position, activeWall.first, activeWall.second, & endPoint, true);
             }
 
@@ -751,7 +758,7 @@ void SpotSystem::DoUpdate(float) {
         LOGI_IF(debugSpotSystem, "\tLast activeWall is " << activeWall << " so projeting " << startPoint << " and " << points.front().position << " on it.");
         IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
         IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
-        LOGI("registering " << Wall(startPoint, endPoint));
+        LOGI_IF(debugSpotSystem, "registering " << Wall(startPoint, endPoint));
         sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
 
         //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot

@@ -65,7 +65,7 @@ bool LevelLoader::LoadFromFile(const std::string& ctx, const FileBuffer& fb) {
         std::stringstream section;
         section << "spot_" << i;
 
-        Entity e = theEntityManager.CreateEntity("spot",
+        Entity e = theEntityManager.CreateEntity(section.str(),
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("spot"));
 
         dfp.get(section.str(), "position", &TRANSFORM(e)->position.x, 2, true);
@@ -80,7 +80,7 @@ bool LevelLoader::LoadFromFile(const std::string& ctx, const FileBuffer& fb) {
         dfp.get(section.str(), "pos1", &firstPoint.x, 2, true);
         dfp.get(section.str(), "pos2", &secondPoint.x, 2, true);
 
-        Entity e = theEntityManager.CreateEntity("block",
+        Entity e = theEntityManager.CreateEntity(section.str(),
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("block"));
         TRANSFORM(e)->position = (secondPoint + firstPoint) / 2.f;
         TRANSFORM(e)->size.x = glm::length(secondPoint - firstPoint);
