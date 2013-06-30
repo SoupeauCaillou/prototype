@@ -722,15 +722,44 @@ TEST(CheckBigMapMergedWallsAgainAndAgain)
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
-    };
+        "totalHighlightedDistance2Objective=159.8 and totalHighlightedDistance2Done=105.0",
+        "highlighted: 8.0, 4.0 <-> 10.0, 4.0",
+        "highlighted: -1.0, -1.0 <-> -2.0, -1.0",
+        "highlighted: -8.0, 1.0 <-> -10.0, 1.0",
+        "highlighted: 2.0, 5.8 <-> 2.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, 5.5",
+        "highlighted: 10.0, 4.0 <-> 10.0, -1.0",
+        "highlighted: 10.0, -1.0 <-> 7.0, -1.0",
+        "highlighted: 2.0, -1.0 <-> 1.0, -1.0",
+        "highlighted: 1.0, -1.0 <-> 1.0, 0.0",
+        "highlighted: 1.0, 0.0 <-> -1.0, 0.0",
+        "highlighted: 1.0, -2.0 <-> 2.0, -2.0",
+        "highlighted: 2.0, -2.0 <-> 2.0, -1.0",
+        "highlighted: 5.0, 4.0 <-> 5.0, 5.0",
+        "highlighted: 8.0, 5.0 <-> 8.0, 4.0",
+        "highlighted: 7.0, -1.0 <-> 7.0, -3.0",
+        "highlighted: 7.0, -3.0 <-> 8.0, -3.0",
+        "highlighted: 8.7, -2.0 <-> 10.0, -2.0",
+        "highlighted: 10.0, -2.0 <-> 10.0, -6.9",
+        "highlighted: 10.0, -6.9 <-> 1.0, -6.9",
+        "highlighted: 1.0, -6.9 <-> 1.0, -2.0",
+        "highlighted: -10.0, -1.0 <-> -8.0, -1.0",
+        "highlighted: -8.0, -1.0 <-> -8.0, 1.0",
+        "highlighted: -10.0, 1.0 <-> -10.0, 6.9",
+        "highlighted: -10.0, 6.9 <-> -3.0, 6.9",
+        "highlighted: -3.0, 6.9 <-> -3.0, 4.0",
+        "highlighted: -3.0, 4.0 <-> 5.0, 4.0",
+        "highlighted: 2.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: -1.0, 0.0 <-> -1.0, -0.4",
+        "highlighted: -2.0, -1.0 <-> -2.0, -2.0",
+        "highlighted: -2.0, -2.0 <-> -1.0, -2.0",
+        "highlighted: -1.0, -2.0 <-> -1.0, -6.9",
+        "highlighted: -1.0, -6.9 <-> -9.0, -6.9",
+        "highlighted: -9.0, -6.9 <-> -9.0, -5.0",
+        "highlighted: -9.0, -5.0 <-> -10.0, -5.0",
+        "highlighted: -10.0, -5.0 <-> -10.0, -1.0",
+   };
 
     CheckAndQuit(ss, expected);
 }
-
-
-
-
-
-
-
 #endif

@@ -114,7 +114,7 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         //if objective is done or right click, go back to menu
         if (theTouchInputManager.isTouched(1)) {
             return Scene::Menu;
-        } else if (theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done < 0.001) {
+        } else if (glm::abs(theSpotSystem.totalHighlightedDistance2Objective - theSpotSystem.totalHighlightedDistance2Done) < 0.01) {
 #if ! SAC_DEBUG
             ADSR(fadeout)->active = RENDERING(fadeout)->show = TEXT(victory)->show = true;
 #endif

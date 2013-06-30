@@ -20,10 +20,10 @@
 
 //activate or not logs (debug)
 #if SAC_DEBUG
-// static bool debugSpotSystem = false;
-// static bool debugDistanceCalculation = false;
-static bool debugSpotSystem = true;
-static bool debugDistanceCalculation = true;
+static bool debugSpotSystem = false;
+static bool debugDistanceCalculation = false;
+// static bool debugSpotSystem = true;
+// static bool debugDistanceCalculation = true;
 //we use this specific log function for unit tests
 #define SPOT_SYSTEM_LOG(lvl, x) {\
     if (lvl & theSpotSystem.FLAGS_ENABLED) {\
@@ -676,12 +676,14 @@ void SpotSystem::DoUpdate(float) {
             Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);
 #endif
 
-            // on cherche le mur actif (c'est à dire le mur le plus proche qui contient le startPoint ET le point actuel)
+            // on cherche le mur actif (c'est à dire le mur le plus proche qui contient la projection du startPoint ET du point courant)
             activeWall = getActiveWall(walls, pointOfView, startPoint, point.position);
             SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << activeWall);
-
             //si on a pas trouvé de mur actif il y a un bug quelque part ...
             LOGF_IF(activeWall.first == glm::vec2(0.f) && activeWall.second == glm::vec2(0.f), "active wall not found");
+
+            // maintenant qu'on a le mur, on projette le startPoint dessus
+            IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
 
 
             bool isFirstPointOnWall = IntersectionUtil::pointLine(startPoint, activeWall.first, activeWall.second);
@@ -707,53 +709,14 @@ void SpotSystem::DoUpdate(float) {
             //finalement on affiche notre zone à éclairer
             LOGI_IF(debugSpotSystem, "registering " << Wall(startPoint, endPoint));
             sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
-
-
-            // maintenant qu'on a fini le mur, il faut chercher le futur mur actif, et projeter notre point dessus
-            if (hasEndedCurrentActiveWall) {
-                LOGI_IF(debugSpotSystem, "\tWe ended a wall, searching for startPoint of next wall...");
-                auto nextPointIt = pointIt;
-                ++nextPointIt;
-
-                Wall nextActiveWall;
-                if (nextPointIt != points.end()) {
-                    glm::vec2 nextPoint = (pointIt == points.end() ? points.front().position : nextPointIt->position);
-                    nextActiveWall = getActiveWall(walls, pointOfView, point.position, nextPoint);
-                }
-
-                // si on est sur le point en bas à gauche du mur extérieur, il n'y a pas de mur actif après (même si y a d'autres blocks)
-                // on garde le point comme startPoint
-                if (nextActiveWall.first == glm::vec2(0.f) && nextActiveWall.second == glm::vec2(0.f)) {
-                    LOGI_IF(debugSpotSystem,  "\tNext active wall not found, meaning we are at bottom left external wall position");
-                    startPoint = point.position;
-                } else {
-                    // sinon si on arrive pas à projeter sur le mur suivant, il y a un problème
-                    if (! IntersectionUtil::lineLine(pointOfView, point.position, nextActiveWall.first, nextActiveWall.second, & startPoint, true)) {
-                        LOGF("could not project!!");
-                    }
-                }
-
-            //il faut regarder si le point courant est visible ou pas. S'il est derrière le mur actif, le point de départ reste sur le mur actif
-            } else {
-                glm::vec2 intersection;
-                bool isIntercepting = IntersectionUtil::lineLine(pointOfView, point.position, activeWall.first, activeWall.second, &intersection);
-                if (isIntercepting && glm::length2(intersection - point.position) > eps) {
-                    // LOGI_IF(debugSpotSystem, intersection << " != " << point.position);
-                    LOGI_IF(debugSpotSystem, "\tCurrent point is behind the activeWall, starting point is the projection point on the active wall");
-                    startPoint = intersection;
-                //sinon il est la base du nouveau mur actif, donc on met à jour le point de départ
-                } else {
-                    LOGI_IF(debugSpotSystem, "\tStarting point is now this point for next active wall");
-                    startPoint = point.position;
-                }
-            }
-            LOGI_IF(debugSpotSystem, "\tNext startPoint is " << startPoint);
+            startPoint = point.position;
         }
 
         // 2 cas pour le dernier point:
         // 1) soit le dernier point et le 1er point sont un seul mur, et dans ce cas on affiche le mur (mur extérieur par ex)
         // 2) soit ils sont sur 2 murs distincts, et dans ce cas on projete les 2 points sur le mur actif (2 blocks, 1 de chaque côté de l'axe des abcisses)
         activeWall = getActiveWall(walls, pointOfView, startPoint, points.front().position);
+
         SPOT_SYSTEM_LOG(ACTIVE_WALL, "Active wall is " << activeWall);
         LOGI_IF(debugSpotSystem, "\tLast activeWall is " << activeWall << " so projeting " << startPoint << " and " << points.front().position << " on it.");
         IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
