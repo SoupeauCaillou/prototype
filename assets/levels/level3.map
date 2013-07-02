@@ -26,6 +26,7 @@
 nb_spot = 4
 nb_wall = 29
 objective_distance = 113.56
+objective_distance_norm2 = 554.69
 
 [spot_1]
 position = 0, 2

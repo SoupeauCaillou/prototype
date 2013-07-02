@@ -40,24 +40,23 @@
 
 //activate or not logs (debug)
 #if SAC_DEBUG
-static bool debugSpotSystem = false;
-static bool debugDistanceCalculation = false;
-// static bool debugSpotSystem = true;
-// static bool debugDistanceCalculation = true;
-//we use this specific log function for unit tests
-#define SPOT_SYSTEM_LOG(lvl, x) {\
-    if (lvl & theSpotSystem.FLAGS_ENABLED) {\
-        std::ostream out(theSpotSystem.outputStream);\
-        out << std::fixed << std::setprecision(1) << x << "\n";\
-    }\
-}
-
+    static bool debugSpotSystem = false;
+    static bool debugDistanceCalculation = false;
+    // static bool debugSpotSystem = true;
+    // static bool debugDistanceCalculation = true;
+    //we use this specific log function for unit tests
+    #define SPOT_SYSTEM_LOG(lvl, x) {\
+        if (theSpotSystem.outputStream && (lvl & theSpotSystem.FLAGS_ENABLED) != 0) {\
+            std::ostream out(theSpotSystem.outputStream);\
+            out << std::fixed << std::setprecision(1) << x << "\n";\
+        }\
+    }
 #else
-static bool debugSpotSystem = false;
-static bool debugDistanceCalculation = false;
+    static bool debugSpotSystem = false;
+    static bool debugDistanceCalculation = false;
 
-//we use this specific log function for unit tests
-#define SPOT_SYSTEM_LOG(lvl, x) {}
+    //we use this specific log function for unit tests
+    #define SPOT_SYSTEM_LOG(lvl, x) {}
 #endif
 
 static float FAR_FAR_AWAY = 1000.f;
@@ -67,14 +66,13 @@ INSTANCE_IMPL(SpotSystem);
 
 
 SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
-#if SAC_DEBUG
-    //by default, outputStream is stdout
-    outputStream = std::cout.rdbuf();
-    FLAGS_ENABLED = 0;
-#endif
+    #if SAC_DEBUG
+        //by default, outputStream is stdout
+        outputStream = std::cout.rdbuf();
+        FLAGS_ENABLED = 0;
+    #endif
     totalHighlightedDistance2Objective = totalHighlightedDistance2Done = 0.f;
 }
-
 
 inline std::ostream & operator<<(std::ostream & o, const EnhancedPoint & ep) {
     o << "name='" << ep.name << "': position='" << ep.position;
@@ -300,7 +298,7 @@ bool splitIntersectionWalls(std::list<EnhancedPoint> & points) {
     return false;
 }
 
-void getAllWallsExtremities( std::list<EnhancedPoint> & points, const glm::vec2 externalWalls[4]) {
+void SpotSystem::getAllWallsExtremities( const glm::vec2 externalWalls[4]) {
     //Première étape : on ajoute les points des blocks
     FOR_EACH_ENTITY_COMPONENT(Block, block, bc)
         TransformationComponent * tc = TRANSFORM(block);
@@ -412,11 +410,11 @@ float calculateHighlightedZone(std::list<Wall> & highlightedEdges) {
                 Wall unionned = zone;
                 for (auto wall = wallsMatching.begin(); wall != wallsMatching.end(); ++wall) {
                     //utilisé plus bas pour connaître le gain
-#if SAC_DEBUG
-                    beforeUnionTotalDistance += glm::length(wall->first - wall->second);
-#else
-                    beforeUnionTotalDistance += glm::length2(wall->first - wall->second);
-#endif
+                    #if SAC_DEBUG
+                        beforeUnionTotalDistance += glm::length(wall->first - wall->second);
+                    #else
+                        beforeUnionTotalDistance += glm::length2(wall->first - wall->second);
+                    #endif
 
                     LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\tfusionning " << unionned << " and " << *wall);
                     unionned = getUnion(*wall, unionned);
@@ -425,11 +423,11 @@ float calculateHighlightedZone(std::list<Wall> & highlightedEdges) {
                 //on calcule le gain de distance, qui correspond à la  différence entre
                 //la distance de l'union des segments moins la somme des distances
                 //des anciennes segments séparés
-#if SAC_DEBUG
-                float afterUnionTotalDistance = glm::length(unionned.first - unionned.second);
-#else
-                float afterUnionTotalDistance = glm::length2(unionned.first - unionned.second);
-#endif
+                #if SAC_DEBUG
+                    float afterUnionTotalDistance = glm::length(unionned.first - unionned.second);
+                #else
+                    float afterUnionTotalDistance = glm::length2(unionned.first - unionned.second);
+                #endif
                 //finalement on rajoute le segment à la liste des murs éclairés
                 highlightedEdges.push_back(unionned);
 
@@ -443,11 +441,11 @@ float calculateHighlightedZone(std::list<Wall> & highlightedEdges) {
             //sinon il était tout seul sur ce mur, on l'ajoute normalement
             } else {
                 LOGI_IF(debugSpotSystem || debugDistanceCalculation, "***Added***" );
-#if SAC_DEBUG
-                result += glm::length(zone.first - zone.second);
-#else
-                result += glm::length2(zone.first - zone.second);
-#endif
+                #if SAC_DEBUG
+                    result += glm::length(zone.first - zone.second);
+                #else
+                    result += glm::length2(zone.first - zone.second);
+                #endif
 
                 highlightedEdges.push_back(Wall( zone.first, zone.second ));
             }
@@ -482,7 +480,7 @@ void SpotSystem::PrepareAlgorithm() {
     // distance total de mur éclairé réalisée
     totalHighlightedDistance2Done = 0.f;
 
-    getAllWallsExtremities(points, externalWalls);
+    getAllWallsExtremities(externalWalls);
 
     // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
     for (auto item : points) {
@@ -509,11 +507,11 @@ void SpotSystem::PrepareAlgorithm() {
                 if (shouldUpdateDistanceObjective) {
                     //double distance if the wall is visible from the 2 sides
                     int doubled = (point.isDoubleFace && std::find(points.begin(), points.end(), next)->isDoubleFace) ? 2 : 1;
-#if SAC_DEBUG
-                    totalHighlightedDistance2Objective += doubled * glm::length(next - point.position);
-#else
-                    totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
-#endif
+                    #if SAC_DEBUG
+                        totalHighlightedDistance2Objective += doubled * glm::length(next - point.position);
+                    #else
+                        totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
+                    #endif
                 }
             }
         }
@@ -521,13 +519,12 @@ void SpotSystem::PrepareAlgorithm() {
 
     if (shouldUpdateDistanceObjective) {
         auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
-
         // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
-#if SAC_DEBUG
-        totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0]);
-#else
-        totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
-#endif
+        #if SAC_DEBUG
+            totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0]);
+        #else
+            totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
+        #endif
     }
     LOGF_IF(totalHighlightedDistance2Objective < 0, "wut");
 }
@@ -550,7 +547,6 @@ void SpotSystem::DoUpdate(float) {
         glm::vec2(-sx, -sy), // bottom left
     };
 
-    PrepareAlgorithm();
 
     //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
     insertInWallsIfNotPresent(walls, glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]);
@@ -558,8 +554,9 @@ void SpotSystem::DoUpdate(float) {
     auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
     auto wallBotLeft = std::find(walls.begin(), walls.end(), Wall(externalWalls[3], glm::vec2(-sx, FAR_FAR_AWAY)));
     auto wallTopLeft = std::find(walls.begin(), walls.end(), Wall(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]));
+
     LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
-        "Can't find left wall?" << (wallBotLeft == walls.end() ? "bottom one" : "") << " && " <<  (wallTopLeft == walls.end() ? "top one" : ""));
+        "Can't find left wall? " << (wallBotLeft == walls.end() ? "bottom one" : "") <<  (wallTopLeft == walls.end() ? "top one" : ""));
 
 
     glm::vec2 mousePosition = theTouchInputManager.getTouchLastPosition(0);
@@ -675,9 +672,9 @@ void SpotSystem::DoUpdate(float) {
 
 
         LOGI_IF(debugSpotSystem, "Start point is " << startPoint);
-    #if SAC_DEBUG
-        Draw::DrawPoint("SpotSystem", points.begin()->position, Color(1., 1., 1.), points.begin()->name);
-    #endif
+        #if SAC_DEBUG
+            Draw::DrawPoint("SpotSystem", points.begin()->position, Color(1., 1., 1.), points.begin()->name);
+        #endif
 
         //le dernier point de l'éclairage courant
         glm::vec2 endPoint;
@@ -692,9 +689,9 @@ void SpotSystem::DoUpdate(float) {
 
             LOGI_IF(debugSpotSystem, "Current point is " << point.name << " ( " << point.position <<  " ) ");
 
-#if SAC_DEBUG
-            Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);
-#endif
+            #if SAC_DEBUG
+                Draw::DrawPoint("SpotSystem", point.position, Color(1., 1., 1.), point.name);
+            #endif
 
             // on cherche le mur actif (c'est à dire le mur le plus proche qui contient la projection du startPoint ET du point courant)
             activeWall = getActiveWall(walls, pointOfView, startPoint, point.position);
@@ -744,6 +741,8 @@ void SpotSystem::DoUpdate(float) {
         LOGI_IF(debugSpotSystem, "registering " << Wall(startPoint, endPoint));
         sc->highlightedEdges.push_back(Wall(startPoint, endPoint));
 
+        *wallBotLeft = Wall(externalWalls[3], glm::vec2(-sx, FAR_FAR_AWAY));
+        *wallTopLeft = Wall(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0]);
         //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
         points.pop_front();
     END_FOR_EACH()

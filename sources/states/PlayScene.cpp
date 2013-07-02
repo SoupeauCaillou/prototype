@@ -92,6 +92,8 @@ struct PlayScene : public StateHandler<Scene::Enum> {
         Grid::EnableGrid();
 #endif
 
+        theSpotSystem.PrepareAlgorithm();
+
         TEXT(objectiveProgression)->show = true;
     }
 

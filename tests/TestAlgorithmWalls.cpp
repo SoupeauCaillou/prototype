@@ -90,6 +90,7 @@ TEST(CheckWhenEmpty)
     AddSpot("spot1", glm::vec2(0.));
 
     //do the algorithm
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
@@ -126,6 +127,7 @@ TEST(CheckIntersectionSplitter2WallsAtOrigin)
     AddWall("block2", glm::vec2(0, -1), glm::vec2(0, 1), false);
 
     //do the algorithm
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
@@ -168,6 +170,7 @@ TEST(CheckIntersectionSplitterWithExternalWall)
     AddWall("block1", glm::vec2(0, 0), glm::vec2(10, 0), false);
 
     //do the algorithm
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
@@ -207,6 +210,7 @@ TEST(Check1SpotAndATriangle)
     AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
 
     //do the algorithm
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
@@ -248,6 +252,7 @@ TEST(Check2SpotsAndATriangle)
     AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
 
     //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
     theSpotSystem.Update(1);
 
@@ -287,6 +292,7 @@ TEST(Check2SpotsAndATriangleAgain)
     AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
 
     //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
     theSpotSystem.Update(1);
 
@@ -325,6 +331,7 @@ TEST(Check2SpotsAndATriangleAgainAgain)
     AddWall("block3", glm::vec2(2.7, 1.2), glm::vec2(-4, -.4), false);
 
     //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
     theSpotSystem.Update(1);
 
@@ -390,6 +397,7 @@ TEST(CheckBigMapDistance)
     AddWall("block29", glm::vec2(5, 5), glm::vec2(2, 5), false);
 
     //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
     theSpotSystem.Update(1);
 
@@ -638,6 +646,7 @@ TEST(CheckBigMapMergedWalls)
 
 
     //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
     theSpotSystem.Update(1);
 
@@ -714,6 +723,7 @@ TEST(CheckBigMapMergedWallsAgainAndAgain)
 
 
     //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
     theSpotSystem.Update(1);
     theSpotSystem.Update(1);
 

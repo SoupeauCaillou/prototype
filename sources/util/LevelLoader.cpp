@@ -79,7 +79,11 @@ bool LevelLoader::LoadFromFile(const std::string& ctx, const FileBuffer& fb) {
     dfp.get("", "nb_wall", &wallCount, 1, true);
     // objective distance
     theSpotSystem.totalHighlightedDistance2Objective = 0.;
+#if SAC_DEBUG
     dfp.get("", "objective_distance", &theSpotSystem.totalHighlightedDistance2Objective, 1, true);
+#else
+    dfp.get("", "objective_distance_norm2", &theSpotSystem.totalHighlightedDistance2Objective, 1, true);
+#endif
 
     for (int i = 1; i <= spotCount; ++i) {
         std::stringstream section;

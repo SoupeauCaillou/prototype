@@ -51,8 +51,6 @@ struct Wall {
     glm::vec2 first;
     glm::vec2 second;
 };
-/*inline bool operator!=(, const Wall & inWall2) {
-}*/
 
 struct EnhancedPoint {
     EnhancedPoint() :
@@ -108,6 +106,7 @@ UPDATABLE_SYSTEM(Spot)
         float totalHighlightedDistance2Objective, totalHighlightedDistance2Done;
 
         float recalculateTotalDistanceObjective();
+        void PrepareAlgorithm();
 
         // cette liste contient les morceaux de murs éclairés, on la remplit au fur et à mesure
         std::list<Wall> highlightedEdgesFromAllSpots;
@@ -124,7 +123,7 @@ UPDATABLE_SYSTEM(Spot)
         int FLAGS_ENABLED;
 #endif
     private:
-        void PrepareAlgorithm();
+        void getAllWallsExtremities( const glm::vec2 externalWalls[4]);
 
         // la liste de tous les points intéréssants pour l'algo (tous les sommets)
         std::list<EnhancedPoint> points;
