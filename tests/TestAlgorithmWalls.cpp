@@ -49,7 +49,9 @@ static void Init(std::stringstream & ss) {
     RenderingSystem::CreateInstance(); //needed because we do some stuff with drawSomething class..
     TransformationSystem::CreateInstance();
 
+
     theSpotSystem.outputStream = ss.rdbuf();
+    theSpotSystem.useOptimization = false;
 }
 
 static void CheckAndQuit(std::stringstream & ss, const std::vector<std::string> & expected) {

@@ -122,8 +122,14 @@ UPDATABLE_SYSTEM(Spot)
 
         int FLAGS_ENABLED;
 #endif
+        bool useOptimization;
     private:
         void getAllWallsExtremities( const glm::vec2 externalWalls[4]);
+        bool splitIntersectionWalls();
+        bool insertInWallsIfNotPresent(const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint);
+        const Wall & getActiveWall(const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) const;
+        bool insertInPointsIfNotPresentOtherwiseMerge(const EnhancedPoint & ep);
+        float calculateHighlightedZone();
 
         // la liste de tous les points intéréssants pour l'algo (tous les sommets)
         std::list<EnhancedPoint> points;
