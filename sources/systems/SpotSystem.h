@@ -30,26 +30,36 @@
 const float eps = 0.0001f;
 
 struct Wall {
-    Wall() : first(0.), second(0.) {}
-    Wall(const glm::vec2 & inF, const glm::vec2 & inS) : first(inF), second(inS) {}
-    Wall(const Wall & inW) : first(inW.first), second(inW.second) {}
+    Wall() : first(0.), second(0.), isDoubleFace(false), isVisibleFromTopOrLeft(false) {}
+    Wall(const glm::vec2 & inF, const glm::vec2 & inS, bool idf, bool ivftor) : first(inF), second(inS), isDoubleFace(idf), isVisibleFromTopOrLeft(ivftor) {}
+    Wall(const Wall & inW, bool idf, bool ivftor) : first(inW.first), second(inW.second), isDoubleFace(idf), isVisibleFromTopOrLeft(ivftor) {}
 
     Wall & operator=(const Wall & inWall) {
-        //if (inWall != *this) {
+        if (&inWall != this) {
             this->first = inWall.first;
             this->second = inWall.second;
-        //}
+            this->isDoubleFace = inWall.isDoubleFace;
+            this->isVisibleFromTopOrLeft = inWall.isVisibleFromTopOrLeft;
+        }
 
         return *this;
      }
 
     bool operator== (const Wall & inWall) const {
-        return (glm::length2(first - inWall.first ) + glm::length2(second - inWall.second)) < eps;
+        if (glm::length2(first - inWall.first ) + glm::length2(second - inWall.second) < eps) {
+            if (! (inWall.isDoubleFace == isDoubleFace)) LOGE("no double face");
+            if ( inWall.isVisibleFromTopOrLeft != isVisibleFromTopOrLeft ) LOGE("no vftor");
+        }
+        return (/*inWall.isDoubleFace == isDoubleFace && inWall.isVisibleFromTopOrLeft == isVisibleFromTopOrLeft
+        &&*/ glm::length2(first - inWall.first ) + glm::length2(second - inWall.second)) < eps;
     }
 
     //basically Wall struct is a std::pair...
     glm::vec2 first;
     glm::vec2 second;
+
+    //but with visibility
+    bool isDoubleFace, isVisibleFromTopOrLeft;
 };
 
 struct EnhancedPoint {
@@ -126,7 +136,8 @@ UPDATABLE_SYSTEM(Spot)
     private:
         void getAllWallsExtremities( const glm::vec2 externalWalls[4]);
         bool splitIntersectionWalls();
-        bool insertInWallsIfNotPresent(const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint);
+        bool insertInWallsIfNotPresent(const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint, bool isDoubleFace, bool isVisibleFromTopOrLeft);
+        void updateWallsVisibility(const glm::vec2 & pointOfView);
         const Wall & getActiveWall(const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) const;
         bool insertInPointsIfNotPresentOtherwiseMerge(const EnhancedPoint & ep);
         float calculateHighlightedZone();
