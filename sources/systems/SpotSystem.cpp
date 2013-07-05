@@ -42,6 +42,27 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
         outputStream = std::cout.rdbuf();
         FLAGS_ENABLED = 0;
     #endif
+    const float sx = PlacementHelper::ScreenSize.x / 2.;
+    const float sy = PlacementHelper::ScreenSize.y / 2.;
+
+    glm::vec2 externalWallsPos[4] = {
+        glm::vec2(-sx, sy), // top left
+        glm::vec2(sx, sy), // top right
+        glm::vec2(sx, -sy), // bottom right
+        glm::vec2(-sx, -sy), // bottom left
+    };
+
+    // et les points des murs extérieurs - pas besoin de vérifier pour eux
+    externalWalls.push_back(EnhancedPoint(externalWallsPos[0], "wall top left", false));
+    externalWalls.push_back(EnhancedPoint(externalWallsPos[1], "top right", false));
+    externalWalls.push_back(EnhancedPoint(externalWallsPos[2], "wall bottom right", false));
+    externalWalls.push_back(EnhancedPoint(externalWallsPos[3], "wall bottom left", false));
+    externalWalls.push_back(EnhancedPoint(glm::vec2(-sx, FAR_FAR_AWAY), "wall middle left (first point)", false));
+    externalWalls[0].nextEdges.push_back(externalWalls[1]);
+    externalWalls[1].nextEdges.push_back(externalWalls[2]);
+    externalWalls[2].nextEdges.push_back(externalWalls[3]);
+    externalWalls[3].nextEdges.push_back(externalWalls[0]);
+    externalWalls[4].nextEdges.push_back(externalWalls[0]);
 
     totalHighlightedDistance2Objective = 0.f;
     totalHighlightedDistance2Done = 0.f;
@@ -54,10 +75,13 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
 //////////////////////////////////////////////////////
     //activate or not logs (debug)
     #if SAC_DEBUG
+    #if 0
         static bool debugSpotSystem = false;
         static bool debugDistanceCalculation = false;
-        // static bool debugSpotSystem = true;
-        // static bool debugDistanceCalculation = true;
+    #else
+        static bool debugSpotSystem = !true;
+        static bool debugDistanceCalculation = true;
+    #endif
         //we use this specific log function for unit tests
         #define SPOT_SYSTEM_LOG(lvl, x) {\
             if (theSpotSystem.outputStream && (lvl & theSpotSystem.FLAGS_ENABLED) != 0) {\
@@ -77,7 +101,7 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
         o << "name='" << ep.name << "': position='" << ep.position;
         int i = 0;
         for (auto item : ep.nextEdges)
-            o << "' nextEdge" <<  ++i << "='" << item << ", ";
+            o << "' nextEdge" <<  ++i << "='" << item.position << ", ";
         return o;
     }
     inline std::ostream & operator<<(std::ostream & o, const Wall & wall) {
@@ -158,7 +182,7 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
 // End of Utilities
 //////////////////////////////////////////////////////
 
-void SpotSystem::getAllWallsExtremities( const glm::vec2 externalWalls[4]) {
+void SpotSystem::getAllWallsExtremities( ) {
     //Première étape : on ajoute les points des blocks
     FOR_EACH_ENTITY_COMPONENT(Block, block, bc)
         TransformationComponent * tc = TRANSFORM(block);
@@ -170,17 +194,21 @@ void SpotSystem::getAllWallsExtremities( const glm::vec2 externalWalls[4]) {
             tc->position - offset, //first point
             tc->position + offset, //second point
         };
-        insertInPointsIfNotPresentOtherwiseMerge(EnhancedPoint(rectanglePoints[0], rectanglePoints[1],
-            theEntityManager.entityName(block) + "- first point", bc->isDoubleFace));
-        insertInPointsIfNotPresentOtherwiseMerge(EnhancedPoint(rectanglePoints[1], rectanglePoints[0],
-            theEntityManager.entityName(block) + "- second point", bc->isDoubleFace));
+        auto firstPoint = EnhancedPoint(rectanglePoints[0],
+            theEntityManager.entityName(block) + "- first point", bc->isDoubleFace);
+
+        auto secondPoint = EnhancedPoint(rectanglePoints[1],
+            theEntityManager.entityName(block) + "- second point", bc->isDoubleFace);
+        firstPoint.nextEdges.push_back(secondPoint);
+        secondPoint.nextEdges.push_back(firstPoint);
+        insertInPointsIfNotPresentOtherwiseMerge(firstPoint);
+        insertInPointsIfNotPresentOtherwiseMerge(secondPoint);
     END_FOR_EACH()
 
-    // et les points des murs extérieurs - pas besoin de vérifier pour eux
-    points.push_back(EnhancedPoint(externalWalls[0], externalWalls[1], "wall top left", false));
-    points.push_back(EnhancedPoint(externalWalls[1], externalWalls[2], "top right", false));
-    points.push_back(EnhancedPoint(externalWalls[2], externalWalls[3], "wall bottom right", false));
-    points.push_back(EnhancedPoint(externalWalls[3], glm::vec2(-PlacementHelper::ScreenSize.x / 2., FAR_FAR_AWAY), "wall bottom left", false));
+    insertInPointsIfNotPresentOtherwiseMerge(externalWalls[0]);
+    insertInPointsIfNotPresentOtherwiseMerge(externalWalls[1]);
+    insertInPointsIfNotPresentOtherwiseMerge(externalWalls[2]);
+    insertInPointsIfNotPresentOtherwiseMerge(externalWalls[3]);
 }
 
 bool SpotSystem::insertInPointsIfNotPresentOtherwiseMerge(const EnhancedPoint & ep) {
@@ -193,7 +221,7 @@ bool SpotSystem::insertInPointsIfNotPresentOtherwiseMerge(const EnhancedPoint & 
     // sinon, on merge les sommets 'nextEdges' avec ceux déjà existants
     } else {
         for (auto next : ep.nextEdges) {
-            if (! doesVec2ListContainValue(it->nextEdges, next)) {
+            if (std::find(it->nextEdges.begin(), it->nextEdges.end(), next) == it->nextEdges.end()) {
                 it->nextEdges.push_back(next);
             }
         }
@@ -209,11 +237,12 @@ bool SpotSystem::splitIntersectionWalls() {
 
             glm::vec2 intersectionPoint;
 
-            for (auto & endPoint1 : it1->nextEdges) {
-                for (auto & endPoint2 : it2->nextEdges) {
-                    glm::vec2 startPoint1 = it1->position;
-                    glm::vec2 startPoint2 = it2->position;
-
+            for (auto & endPoint1EP : it1->nextEdges) {
+                for (auto & endPoint2EP : it2->nextEdges) {
+                    glm::vec2 & startPoint1 = it1->position;
+                    glm::vec2 & startPoint2 = it2->position;
+                    auto & endPoint1 = endPoint1EP.position;
+                    auto & endPoint2 = endPoint2EP.position;
 
                     if (IntersectionUtil::lineLine(startPoint1, endPoint1, startPoint2, endPoint2, &intersectionPoint)) {
                         if (glm::length2(intersectionPoint - startPoint1) > eps
@@ -230,28 +259,22 @@ bool SpotSystem::splitIntersectionWalls() {
                             if (it == points.end()) {
                                 LOGI_IF(debugSpotSystem, "Point " << intersectionPoint << " does not exist yet; creating it");
 
-                                std::vector<glm::vec2> nexts;
-                                nexts.push_back(endPoint1);
-                                nexts.push_back(endPoint2);
-                                insertInPointsIfNotPresentOtherwiseMerge(EnhancedPoint(intersectionPoint, nexts, "intersection point", true));
+                                std::vector<EnhancedPoint> nexts;
+                                nexts.push_back(endPoint1EP);
+                                nexts.push_back(endPoint2EP);
+                                insertInPointsIfNotPresentOtherwiseMerge(EnhancedPoint(intersectionPoint, nexts, "intersection point", it1->isDoubleFace && it2->isDoubleFace));
                             } else {
-
-                                // for (auto item : points) {
-                                //     LOGI(item.name << " and " << item.position);
-                                // }
-
-
                                 LOGI_IF(debugSpotSystem, "Point " << *it << " is already in list; adding next edges to it");
-                                if (! doesVec2ListContainValue(it->nextEdges, endPoint1)) {
+                                if (std::find(it->nextEdges.begin(), it->nextEdges.end(), endPoint1EP) == it->nextEdges.end()) {
                                     LOGI_IF(debugSpotSystem, "Point " << endPoint1 << " not in its list");
-                                    it->nextEdges.push_back(endPoint1);
+                                    it->nextEdges.push_back(endPoint1EP);
                                 } else {
                                     LOGI_IF(debugSpotSystem, "Point " << endPoint1 << " already in its list");
                                 }
 
-                                if (! doesVec2ListContainValue(it->nextEdges, endPoint2)) {
+                                if (std::find(it->nextEdges.begin(), it->nextEdges.end(), endPoint2EP) == it->nextEdges.end()) {
                                     LOGI_IF(debugSpotSystem, "Point " << endPoint2 << " not in its list");
-                                    it->nextEdges.push_back(endPoint2);
+                                    it->nextEdges.push_back(endPoint2EP);
                                 } else {
                                     LOGI_IF(debugSpotSystem, "Point " << endPoint2 << " already in its list");
                                 }
@@ -270,13 +293,13 @@ bool SpotSystem::splitIntersectionWalls() {
     }
     return false;
 }
-
-bool SpotSystem::insertInWallsIfNotPresent(const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint, bool isDoubleFace, bool isVisibleFromTopOrLeft) {
-    auto pair = Wall( firstPoint, secondPoint, false,false);//isDoubleFace, isVisibleFromTopOrLeft );
+bool SpotSystem::insertInWallsIfNotPresent(const glm::vec2 & firstPoint,
+    const glm::vec2 & secondPoint, bool isDoubleFace, const std::string & name) {
+    auto pair = Wall( firstPoint, secondPoint, isDoubleFace,false, name);
 
     //s'il n'est pas déjà présent, on l'insère dans la liste
     if (std::find(walls.begin(), walls.end(), pair) == walls.end() &&
-        std::find(walls.begin(), walls.end(), Wall( secondPoint, firstPoint, false,false)) == walls.end()) {
+        std::find(walls.begin(), walls.end(), Wall( secondPoint, firstPoint, isDoubleFace, false, name)) == walls.end()) {
 
         walls.push_back(pair);
         return true;
@@ -288,21 +311,10 @@ void SpotSystem::PrepareAlgorithm() {
     walls.clear();
     points.clear();
 
-    //external walls helper
-    float sx = PlacementHelper::ScreenSize.x / 2.;
-    float sy = PlacementHelper::ScreenSize.y / 2.;
-
-    glm::vec2 externalWalls[4] = {
-        glm::vec2(-sx, sy), // top left
-        glm::vec2(sx, sy), // top right
-        glm::vec2(sx, -sy), // bottom right
-        glm::vec2(-sx, -sy), // bottom left
-    };
-
     // distance total de mur éclairé réalisée
     totalHighlightedDistance2Done = 0.f;
 
-    getAllWallsExtremities(externalWalls);
+    getAllWallsExtremities();
 
     // si 2 murs se croisent, on crée le point d'intersection et on split les 2 murs en 4 demi-murs
     for (auto item : points) {
@@ -325,29 +337,32 @@ void SpotSystem::PrepareAlgorithm() {
 
     for (auto point : points) {
         for (auto next : point.nextEdges) {
-            if (insertInWallsIfNotPresent(point.position, next, false, false)) {
+            if (insertInWallsIfNotPresent(point.position, next.position, point.isDoubleFace && next.isDoubleFace, point.name + "/" + next.name)) {
                 if (shouldUpdateDistanceObjective) {
                     //double distance if the wall is visible from the 2 sides
-                    int doubled = (point.isDoubleFace && std::find(points.begin(), points.end(), next)->isDoubleFace) ? 2 : 1;
+                    int doubled = (point.isDoubleFace && next.isDoubleFace) ? 2 : 1;
+
                     #if SAC_DEBUG
-                        totalHighlightedDistance2Objective += doubled * glm::length(next - point.position);
+                        totalHighlightedDistance2Objective += doubled * glm::length(next.position - point.position);
                     #else
-                        totalHighlightedDistance2Objective += doubled * glm::length2(next - point.position);
+                        totalHighlightedDistance2Objective += doubled * glm::length2(next.position - point.position);
                     #endif
                 }
             }
         }
     }
 
-    if (shouldUpdateDistanceObjective) {
-        auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
-        // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
-        #if SAC_DEBUG
-            totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0]);
-        #else
-            totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
-        #endif
-    }
+    // if (shouldUpdateDistanceObjective) {
+    //     auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
+    //     // comme le mur 'wall bottom left' est spécial en Y, on recalcule à la main cette dernière distance
+    //     const float sy = PlacementHelper::ScreenSize.y / 2.;
+    //     #if SAC_DEBUG
+
+    //         totalHighlightedDistance2Objective += (2 * sy) - glm::length(bottomLeft->position - bottomLeft->nextEdges[0].position);
+    //     #else
+    //         totalHighlightedDistance2Objective += (2 * sy) * (2 * sy) - glm::length2(bottomLeft->position - bottomLeft->nextEdges[0]);
+    //     #endif
+    // }
     LOGF_IF(totalHighlightedDistance2Objective < 0, "wut");
 }
 
@@ -369,47 +384,6 @@ int pointLineSide(const glm::vec2 & a, const glm::vec2 & b, const glm::vec2 & c)
     // LOGI("code" << code);
 
     return code;
-     // return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) > 0;
-}
-
-void SpotSystem::updateWallsVisibility(const glm::vec2 & pointOfView) {
-    LOGF_IF(-1 != pointLineSide(glm::vec2(0,0), glm::vec2(0,1), glm::vec2(-1, 0)), "Fail at line " << __LINE__);
-    LOGF_IF(1 != pointLineSide(glm::vec2(0,0), glm::vec2(0,1), glm::vec2(1, 0)), "Fail at line " << __LINE__);
-    LOGF_IF(1 != pointLineSide(glm::vec2(0,0), glm::vec2(0,1), glm::vec2(1, -1)), "Fail at line " << __LINE__);
-    LOGF_IF(-1 != pointLineSide(glm::vec2(0,0), glm::vec2(0,1), glm::vec2(-1, -1)), "Fail at line " << __LINE__);
-    LOGF_IF(-1 != pointLineSide(glm::vec2(0,0), glm::vec2(0,1), glm::vec2(-1, 1)), "Fail at line " << __LINE__);
-    LOGF_IF(1 != pointLineSide(glm::vec2(0,0), glm::vec2(0,1), glm::vec2(1, 1)), "Fail at line " << __LINE__);
-
-    LOGF_IF(-2 != pointLineSide(glm::vec2(0,1), glm::vec2(1,1), glm::vec2(0,2)), "Fail at line " << __LINE__);
-    LOGF_IF(-2 != pointLineSide(glm::vec2(1,1), glm::vec2(0,1), glm::vec2(0, 2)), "Fail at line " << __LINE__);
-
-    LOGF_IF(-1 != pointLineSide(glm::vec2(0,1), glm::vec2(0,0), glm::vec2(-1, 0)), "Fail at line " << __LINE__);
-    LOGF_IF(1 != pointLineSide(glm::vec2(0,1), glm::vec2(0,0), glm::vec2(1, 0)), "Fail at line " << __LINE__);
-    LOGF_IF(1 != pointLineSide(glm::vec2(0,1), glm::vec2(0,0), glm::vec2(1, -1)), "Fail at line " << __LINE__);
-    LOGF_IF(-1 != pointLineSide(glm::vec2(0,1), glm::vec2(0,0), glm::vec2(-1, -1)), "Fail at line " << __LINE__);
-    LOGF_IF(-1 != pointLineSide(glm::vec2(0,1), glm::vec2(0,0), glm::vec2(-1, 1)), "Fail at line " << __LINE__);
-    LOGF_IF(1 != pointLineSide(glm::vec2(0,1), glm::vec2(0,0), glm::vec2(1, 1)), "Fail at line " << __LINE__);
-    for (auto & wall : walls) {
-        int res = pointLineSide(wall.first, wall.second, pointOfView);
-        switch (res) {
-            case -2:
-                LOGI(wall << ": " << "top");
-                wall.isVisibleFromTopOrLeft = true;
-                break;
-            case -1:
-                LOGI(wall << ": " << "left");
-                wall.isVisibleFromTopOrLeft = true;
-                break;
-            case 1:
-                LOGI(wall << ": " << "right");
-                wall.isVisibleFromTopOrLeft = false;
-                break;
-            case 2:
-                LOGI(wall << ": " << "bottom");
-                wall.isVisibleFromTopOrLeft = false;
-                break;
-        }
-    }
 }
 
 const Wall & SpotSystem::getActiveWall(const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) const {
@@ -483,13 +457,12 @@ float SpotSystem::calculateHighlightedZone() {
     // cette liste contient les morceaux de murs éclairés, on la remplit au fur et à mesure
     highlightedEdgesFromAllSpots.clear();
 
-
-    //on parcoure chaque spot
+    //on parcourt chaque spot
     FOR_EACH_ENTITY_COMPONENT(Spot, e, sc)
         auto position = TRANSFORM(e)->position;
         LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\n\nConsidering spot at position " << position);
 
-        //et l'ensemble des "zones" (murs à vrai dire) qu'il éclaire
+        //et l'ensemble des murs qu'il éclaire
         for (auto zone : sc->highlightedEdges) {
             LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\nConsidering zone " << zone);
 
@@ -497,13 +470,15 @@ float SpotSystem::calculateHighlightedZone() {
             //du mur actuel
             std::list<Wall> wallsMatching;
 
-
             //si la liste ci dessus est non vide, il va falloir merger tous ces segments en un unique
             bool needAMerge = false;
 
             //pour la remplir, on parcourt les segments déjà éclairés
             for (auto wall = highlightedEdgesFromAllSpots.begin(); wall != highlightedEdgesFromAllSpots.end(); ++wall) {
                 glm::vec2 intersectionPoint;
+
+
+
 
                 //et si ils sont paralléles ET coincidents, on l'ajoute à la liste
                 if (IntersectionUtil::lineLine(wall->first, wall->second, zone.first, zone.second, &intersectionPoint)) {
@@ -520,9 +495,11 @@ float SpotSystem::calculateHighlightedZone() {
                         continue;
                     }
 
-                    //s'ils éclairent le même mur mais pas du même côté, alors c'est pas les mêmes
-                    if (! zone.isDoubleFace && zone.isVisibleFromTopOrLeft != wall->isVisibleFromTopOrLeft) {
-                        LOGI_IF(debugSpotSystem || debugDistanceCalculation, "same wall but not from same side");
+                    //si c'est un mur double face, il faut vérifier qu'on est du même côté. si non, pas besoin de merger
+                    if (zone.isDoubleFace
+                        && pointLineSide(zone.first, zone.second, position)*(wall->isVisibleFromTopOrLeft ? 1 : -1) > 0) {
+                        LOGI("not the same side of the wall! (" <<pointLineSide(zone.first, zone.second, position) << " vs " << wall->isVisibleFromTopOrLeft << ")" );
+                        continue;
                     }
 
                     needAMerge = true;
@@ -581,7 +558,7 @@ float SpotSystem::calculateHighlightedZone() {
                     result += glm::length2(zone.first - zone.second);
                 #endif
 
-                highlightedEdgesFromAllSpots.push_back(Wall( zone.first, zone.second, false,false));//zone.isDoubleFace, zone.isVisibleFromTopOrLeft));
+                highlightedEdgesFromAllSpots.push_back(Wall( zone.first, zone.second, zone.isDoubleFace, zone.isVisibleFromTopOrLeft, ""));//zone.isDoubleFace, zone.isVisibleFromTopOrLeft));
             }
             // SPOT_SYSTEM_LOG(SpotSystem::CALCULATION_ALGO, "current total: " << result);
             // LOGI_IF(debugSpotSystem || debugDistanceCalculation, "\t\tcurrent total: " << result);
@@ -602,25 +579,6 @@ void SpotSystem::DoUpdate(float) {
     //external walls helper
     float sx = PlacementHelper::ScreenSize.x / 2.;
     float sy = PlacementHelper::ScreenSize.y / 2.;
-
-    glm::vec2 externalWalls[4] = {
-        glm::vec2(-sx, sy), // top left
-        glm::vec2(sx, sy), // top right
-        glm::vec2(sx, -sy), // bottom right
-        glm::vec2(-sx, -sy), // bottom left
-    };
-
-
-    //on ajoute le premier mur à la main parce qu'il est spécial (il va bouger au fil du temps, car il dépend de la caméra)
-    insertInWallsIfNotPresent(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0], false, false);
-
-    auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
-    auto wallBotLeft = std::find(walls.begin(), walls.end(), Wall(externalWalls[3], glm::vec2(-sx, FAR_FAR_AWAY), false, true));
-    auto wallTopLeft = std::find(walls.begin(), walls.end(), Wall(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0], false, true));
-
-    LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
-        "Can't find left wall? " << (wallBotLeft == walls.end() ? "bottom one" : "") <<  (wallTopLeft == walls.end() ? "top one" : ""));
-
 
     glm::vec2 mousePosition = theTouchInputManager.getTouchLastPosition(0);
     bool isTouched = theTouchInputManager.isTouched(0);
@@ -673,8 +631,27 @@ void SpotSystem::DoUpdate(float) {
 
 
 
+        auto middleLeft = EnhancedPoint(glm::vec2(-sx, pointOfView.y), externalWalls[0],
+            "wall middle left (first point)", false);
+        auto middleLeftWall = std::find(walls.begin(), walls.end(), "wall middle left/wall top left");
+        if (middleLeftWall == walls.end()) {
+            insertInWallsIfNotPresent(middleLeft.position, externalWalls[0].position, false, "wall middle left/wall top left");
+        } else {
+            middleLeftWall->first = middleLeft.position;
+        }
+
+
+
+        auto bottomLeft = std::find(points.begin(), points.end(), "wall bottom left");
+        auto wallBotLeft = std::find(walls.begin(), walls.end(), "wall bottom left/wall top left");
+        auto wallTopLeft = std::find(walls.begin(), walls.end(), "wall middle left/wall top left");
+        bottomLeft->nextEdges[0] = middleLeft;
+        LOGF_IF(wallBotLeft == walls.end() || wallTopLeft == walls.end(),
+            "Can't find left wall? " << (wallBotLeft == walls.end() ? "bottom one" : "") <<  (wallTopLeft == walls.end() ? "top one" : ""));
+
+
         //on change les 3 points qui dépendent de la caméra
-        wallTopLeft->first.y = wallBotLeft->second.y = bottomLeft->nextEdges[0].y = pointOfView.y;
+        wallTopLeft->first.y = wallBotLeft->second.y = bottomLeft->nextEdges[0].position.y = pointOfView.y;
 
         // on trie les points par angle, en sens horaire (min = max = (-1, 0))
         points.sort([pointOfView] (const EnhancedPoint & ep1, const EnhancedPoint & ep2) {
@@ -688,6 +665,10 @@ void SpotSystem::DoUpdate(float) {
             LOGI_IF(debugSpotSystem, "Angle sorting: that was close! " << ep1.position << " and " << ep2.position);
             return (glm::length2(ep1.position - pointOfView) < glm::length2(ep2.position - pointOfView));
         });
+
+        //on s'assure que le 1er point qui sera parcouru est le "wall middle left"
+        points.push_front(middleLeft);
+
         //on trie aussi les murs pour que le premier point rencontré soit le 1er en sens horaire
         for (auto & wall : walls) {
             float firstAngle = glm::orientedAngle(glm::vec2(1.f, 0.f), glm::normalize(wall.first - pointOfView));
@@ -704,9 +685,6 @@ void SpotSystem::DoUpdate(float) {
         auto tmp = wallBotLeft->first;
         wallBotLeft->first = wallBotLeft->second;
         wallBotLeft->second = tmp;
-
-        //on s'assure que le 1er point qui sera parcouru est le "wall middle left"
-        points.push_front(EnhancedPoint( glm::vec2(-sx, pointOfView.y), externalWalls[0], "wall middle left (first point)", false));
 
         // on trie les murs par distance à la caméra, du plus proche au plus lointain
         walls.sort([pointOfView] (Wall & w1, Wall & w2) {
@@ -801,9 +779,9 @@ void SpotSystem::DoUpdate(float) {
 
             //finalement on affiche notre zone à éclairer
             LOGI_IF(debugSpotSystem, "registering " << Wall(startPoint, endPoint, activeWall.isDoubleFace,
-                pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0));
+                pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0, ""));
             sc->highlightedEdges.push_back(Wall(startPoint, endPoint, activeWall.isDoubleFace,
-            pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0));
+            pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0, ""));
             startPoint = point.position;
         }
 
@@ -817,12 +795,12 @@ void SpotSystem::DoUpdate(float) {
         IntersectionUtil::lineLine(pointOfView, startPoint, activeWall.first, activeWall.second, & startPoint, true);
         IntersectionUtil::lineLine(pointOfView, points.front().position, activeWall.first, activeWall.second, & endPoint, true);
         LOGI_IF(debugSpotSystem, "registering " << Wall(startPoint, endPoint, activeWall.isDoubleFace,
-            pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0));
+            pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0, ""));
         sc->highlightedEdges.push_back(Wall(startPoint, endPoint, activeWall.isDoubleFace,
-            pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0));
+            pointLineSide(activeWall.first, activeWall.second, pointOfView) < 0, ""));
 
-        *wallBotLeft = Wall(externalWalls[3], glm::vec2(-sx, FAR_FAR_AWAY), false, false);
-        *wallTopLeft = Wall(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0], false, false);
+        // *wallBotLeft = Wall(externalWalls[3].position, glm::vec2(-sx, FAR_FAR_AWAY), false, false,"wall bottom left/wall top left");
+        // *wallTopLeft = Wall(glm::vec2(-sx, FAR_FAR_AWAY), externalWalls[0].position, false, false,"wall middle left (first point)/wall top left");
         //finalement, on supprime le premier point de la liste, qui correspond à "middle wall left", et qui dépend du Y de notre spot
         points.pop_front();
     END_FOR_EACH()

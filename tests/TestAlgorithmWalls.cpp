@@ -112,7 +112,7 @@ TEST(CheckWhenEmpty)
 
     CheckAndQuit(ss, expected);
 }
-
+#if 0
 TEST(CheckIntersectionSplitter2WallsAtOrigin)
 {
     std::stringstream ss;
@@ -140,7 +140,7 @@ TEST(CheckIntersectionSplitter2WallsAtOrigin)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 6.9, ",
         "before splitIntersectionWalls",
         "after splitIntersectionWalls",
         "name='block1- first point': position='-1.0, 0.0' nextEdge1='-0.0, 0.0, ",
@@ -150,13 +150,12 @@ TEST(CheckIntersectionSplitter2WallsAtOrigin)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 6.9, ",
         "name='intersection point': position='-0.0, 0.0' nextEdge1='1.0, 0.0, ' nextEdge2='-0.0, 1.0, ' nextEdge3='-1.0, 0.0, ' nextEdge4='0.0, -1.0, ",
     };
 
     CheckAndQuit(ss, expected);
 }
-
 TEST(CheckIntersectionSplitterWithExternalWall)
 {
     std::stringstream ss;
@@ -181,7 +180,7 @@ TEST(CheckIntersectionSplitterWithExternalWall)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 6.9, ",
         "before splitIntersectionWalls",
         "after splitIntersectionWalls",
         "name='block1- first point': position='0.0, 0.0' nextEdge1='10.0, 0.0, ",
@@ -189,7 +188,7 @@ TEST(CheckIntersectionSplitterWithExternalWall)
         "name='wall top left': position='-10.0, 6.9' nextEdge1='10.0, 6.9, ",
         "name='top right': position='10.0, 6.9' nextEdge1='10.0, -6.9, ",
         "name='wall bottom right': position='10.0, -6.9' nextEdge1='-10.0, -6.9, ",
-        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 1000.0, ",
+        "name='wall bottom left': position='-10.0, -6.9' nextEdge1='-10.0, 6.9, ",
 
     };
 
@@ -657,23 +656,23 @@ TEST(CheckBigMapMergedWalls)
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
-"totalHighlightedDistance2Objective=159.8 and totalHighlightedDistance2Done=36.3",
-"highlighted: 2.0, 6.9 <-> 10.0, 6.9",
-"highlighted: 10.0, 6.9 <-> 10.0, 5.0",
-"highlighted: 10.0, 5.0 <-> 8.0, 5.0",
-"highlighted: 8.0, 5.0 <-> 8.0, 4.0",
-"highlighted: 10.0, 0.3 <-> 10.0, -1.0",
-"highlighted: 10.0, -1.0 <-> 7.0, -1.0",
-"highlighted: 6.9, -6.9 <-> 1.0, -6.9",
-"highlighted: 1.0, -6.9 <-> 1.0, -3.5",
-"highlighted: 2.0, -2.0 <-> 2.0, -1.0",
-"highlighted: 2.0, -1.0 <-> 1.0, -1.0",
-"highlighted: 1.0, -1.0 <-> 1.0, 0.0",
-"highlighted: 1.0, 0.0 <-> 0.2, 0.0",
-"highlighted: 5.0, 4.0 <-> 5.0, 4.0", // these 2 lines may be weird, but it
-"highlighted: 5.0, 4.1 <-> 5.0, 5.0", // is only due to precision approximation, it's ok
-"highlighted: 5.0, 5.0 <-> 2.0, 5.0",
-"highlighted: 2.0, 5.0 <-> 2.0, 6.9",
+        "totalHighlightedDistance2Objective=144.8 and totalHighlightedDistance2Done=36.3",
+        "highlighted: 2.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, 5.0",
+        "highlighted: 10.0, 5.0 <-> 8.0, 5.0",
+        "highlighted: 8.0, 5.0 <-> 8.0, 4.0",
+        "highlighted: 10.0, 0.3 <-> 10.0, -1.0",
+        "highlighted: 10.0, -1.0 <-> 7.0, -1.0",
+        "highlighted: 6.9, -6.9 <-> 1.0, -6.9",
+        "highlighted: 1.0, -6.9 <-> 1.0, -3.5",
+        "highlighted: 2.0, -2.0 <-> 2.0, -1.0",
+        "highlighted: 2.0, -1.0 <-> 1.0, -1.0",
+        "highlighted: 1.0, -1.0 <-> 1.0, 0.0",
+        "highlighted: 1.0, 0.0 <-> 0.2, 0.0",
+        "highlighted: 5.0, 4.0 <-> 5.0, 4.0", // these 2 lines may be weird, but it
+        "highlighted: 5.0, 4.1 <-> 5.0, 5.0", // is only due to precision approximation, it's ok
+        "highlighted: 5.0, 5.0 <-> 2.0, 5.0",
+        "highlighted: 2.0, 5.0 <-> 2.0, 6.9",
     };
 
     CheckAndQuit(ss, expected);
@@ -734,7 +733,7 @@ TEST(CheckBigMapMergedWallsAgainAndAgain)
     theSpotSystem.Update(1);
 
     std::vector<std::string> expected = {
-        "totalHighlightedDistance2Objective=159.8 and totalHighlightedDistance2Done=105.0",
+        "totalHighlightedDistance2Objective=144.8 and totalHighlightedDistance2Done=105.0",
         "highlighted: 8.0, 4.0 <-> 10.0, 4.0",
         "highlighted: -1.0, -1.0 <-> -2.0, -1.0",
         "highlighted: -8.0, 1.0 <-> -10.0, 1.0",
@@ -774,4 +773,42 @@ TEST(CheckBigMapMergedWallsAgainAndAgain)
 
     CheckAndQuit(ss, expected);
 }
+#endif
+TEST(CheckDoubleFaceWall)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::CALCULATION_ALGO;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(0, 0));
+    AddSpot("spot2", glm::vec2(0, 2));
+
+    AddWall("block1", glm::vec2(-2, 1), glm::vec2(2, 1), true);
+
+    //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
+    theSpotSystem.Update(1);
+    theSpotSystem.Update(1);
+
+    ss.str("");
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "totalHighlightedDistance2Objective=75.8 and totalHighlightedDistance2Done=75.8",
+        "highlighted: -2.0, 1.0 <-> 2.0, 1.0",
+        "highlighted: 10.0, -6.9 <-> -10.0, -6.9",
+        "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -6.9",
+        "highlighted: 2.0, 1.0 <-> -2.0, 1.0",
+        "highlighted: -10.0, -6.9 <-> -10.0, 6.9",
+    };
+
+    CheckAndQuit(ss, expected);
+}
+
+
 #endif

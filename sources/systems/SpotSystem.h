@@ -30,9 +30,12 @@
 const float eps = 0.0001f;
 
 struct Wall {
-    Wall() : first(0.), second(0.), isDoubleFace(false), isVisibleFromTopOrLeft(false) {}
-    Wall(const glm::vec2 & inF, const glm::vec2 & inS, bool idf, bool ivftor) : first(inF), second(inS), isDoubleFace(idf), isVisibleFromTopOrLeft(ivftor) {}
-    Wall(const Wall & inW, bool idf, bool ivftor) : first(inW.first), second(inW.second), isDoubleFace(idf), isVisibleFromTopOrLeft(ivftor) {}
+    Wall() :
+        first(0.), second(0.), isDoubleFace(false), isVisibleFromTopOrLeft(false), name("") {}
+    Wall(const glm::vec2 & inF, const glm::vec2 & inS, bool idf, bool ivftor, const std::string & isn) :
+        first(inF), second(inS), isDoubleFace(idf), isVisibleFromTopOrLeft(ivftor), name(isn) {}
+    Wall(const Wall & inW, bool idf, bool ivftor, const std::string & isn) :
+        first(inW.first), second(inW.second), isDoubleFace(idf), isVisibleFromTopOrLeft(ivftor), name(isn) {}
 
     Wall & operator=(const Wall & inWall) {
         if (&inWall != this) {
@@ -44,14 +47,15 @@ struct Wall {
 
         return *this;
      }
+    bool operator== (const std::string& name) const {
+        return this->name == name;
+    }
 
     bool operator== (const Wall & inWall) const {
-        if (glm::length2(first - inWall.first ) + glm::length2(second - inWall.second) < eps) {
-            if (! (inWall.isDoubleFace == isDoubleFace)) LOGE("no double face");
-            if ( inWall.isVisibleFromTopOrLeft != isVisibleFromTopOrLeft ) LOGE("no vftor");
-        }
-        return (/*inWall.isDoubleFace == isDoubleFace && inWall.isVisibleFromTopOrLeft == isVisibleFromTopOrLeft
-        &&*/ glm::length2(first - inWall.first ) + glm::length2(second - inWall.second)) < eps;
+
+        return (inWall.isDoubleFace == isDoubleFace
+        && (isDoubleFace || inWall.isVisibleFromTopOrLeft == isVisibleFromTopOrLeft)
+        && glm::length2(first - inWall.first ) + glm::length2(second - inWall.second) < eps);
     }
 
     //basically Wall struct is a std::pair...
@@ -60,14 +64,18 @@ struct Wall {
 
     //but with visibility
     bool isDoubleFace, isVisibleFromTopOrLeft;
+
+    std::string name;
 };
 
 struct EnhancedPoint {
     EnhancedPoint() :
         position(0.), name("unknown"), isDoubleFace(false) {}
-    EnhancedPoint(const glm::vec2& inp, const glm::vec2 & ne, const std::string & iname, bool isD) :
+    EnhancedPoint(const glm::vec2& inp, const std::string & iname, bool isD) :
+        position(inp), name(iname), isDoubleFace(isD) { }
+    EnhancedPoint(const glm::vec2& inp, const EnhancedPoint & ne, const std::string & iname, bool isD) :
         position(inp), name(iname), isDoubleFace(isD) { nextEdges.push_back(ne); }
-    EnhancedPoint(const glm::vec2& inp, const std::vector<glm::vec2> & ine, const std::string & iname, bool isD) :
+    EnhancedPoint(const glm::vec2& inp, const std::vector<EnhancedPoint> & ine, const std::string & iname, bool isD) :
         position(inp), nextEdges(ine), name(iname), isDoubleFace(isD) {}
 
 
@@ -75,7 +83,7 @@ struct EnhancedPoint {
     glm::vec2 position;
 
     //list of all connected points
-    std::vector<glm::vec2> nextEdges;
+    std::vector<EnhancedPoint> nextEdges;
 
     //only for debug
     std::string name;
@@ -134,9 +142,10 @@ UPDATABLE_SYSTEM(Spot)
 #endif
         bool useOptimization;
     private:
-        void getAllWallsExtremities( const glm::vec2 externalWalls[4]);
+        void getAllWallsExtremities( );
         bool splitIntersectionWalls();
-        bool insertInWallsIfNotPresent(const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint, bool isDoubleFace, bool isVisibleFromTopOrLeft);
+        bool insertInWallsIfNotPresent(const glm::vec2 & firstPoint,  const glm::vec2 & secondPoint,
+            bool isDoubleFace, const std::string & name);
         void updateWallsVisibility(const glm::vec2 & pointOfView);
         const Wall & getActiveWall(const glm::vec2 & pointOfView, const glm::vec2 & firstPoint, const glm::vec2 & secondPoint) const;
         bool insertInPointsIfNotPresentOtherwiseMerge(const EnhancedPoint & ep);
@@ -146,5 +155,5 @@ UPDATABLE_SYSTEM(Spot)
         std::list<EnhancedPoint> points;
         // la liste de tous les murs disponibles
         std::list<Wall> walls;
-
+        std::vector<EnhancedPoint> externalWalls;
 };
