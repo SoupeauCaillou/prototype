@@ -75,13 +75,13 @@ SpotSystem::SpotSystem() : ComponentSystemImpl <SpotComponent>("Spot") {
 //////////////////////////////////////////////////////
     //activate or not logs (debug)
     #if SAC_DEBUG
-    #if 0
-        static bool debugSpotSystem = false;
-        static bool debugDistanceCalculation = false;
-    #else
-        static bool debugSpotSystem = !true;
-        static bool debugDistanceCalculation = true;
-    #endif
+        #if 1
+            static bool debugSpotSystem = false;
+            static bool debugDistanceCalculation = false;
+        #else
+            static bool debugSpotSystem = true;
+            static bool debugDistanceCalculation = true;
+        #endif
         //we use this specific log function for unit tests
         #define SPOT_SYSTEM_LOG(lvl, x) {\
             if (theSpotSystem.outputStream && (lvl & theSpotSystem.FLAGS_ENABLED) != 0) {\

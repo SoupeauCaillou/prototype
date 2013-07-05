@@ -10,19 +10,19 @@ position = 4.5, 0
 [wall_1]
 pos1 = -4., -4
 pos2 = -4, 4
-two_sided = false
+two_sided = 0
 
 [wall_2]
 pos1 = -4, 4
 pos2 = 4, 4
-two_sided = false
+two_sided = 0
 
 [wall_3]
 pos1 = 4, 4
 pos2 = 4, -4
-two_sided = false
+two_sided = 0
 
 [wall_4]
 pos1 = 4, -4
 pos2 = -4., -4
-two_sided = false
+two_sided = 0

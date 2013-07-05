@@ -810,5 +810,47 @@ TEST(CheckDoubleFaceWall)
     CheckAndQuit(ss, expected);
 }
 
+TEST(CheckDoubleFaceWallMultiple)
+{
+    std::stringstream ss;
+    Init(ss);
+
+    //choose the flags
+    theSpotSystem.FLAGS_ENABLED = SpotSystem::CALCULATION_ALGO;
+
+    //create the map
+    AddSpot("spot1", glm::vec2(0, 0));
+    AddSpot("spot2", glm::vec2(0, 2));
+
+    AddWall("block1", glm::vec2(-2, 1), glm::vec2(2, 1), true);
+    AddWall("block1", glm::vec2(-2, 1), glm::vec2(-2, -1), true);
+    AddWall("block1", glm::vec2(2, 1), glm::vec2(2, -1), true);
+
+    //ensure that multiple updates does not broke the system
+    theSpotSystem.PrepareAlgorithm();
+    theSpotSystem.Update(1);
+    theSpotSystem.Update(1);
+
+    ss.str("");
+    //do the algorithm
+    theSpotSystem.Update(1);
+
+    std::vector<std::string> expected = {
+        "totalHighlightedDistance2Objective=83.8 and totalHighlightedDistance2Done=75.8",
+        "highlighted: -2.0, 1.0 <-> 2.0, 1.0",
+        "highlighted: 2.0, 1.0 <-> 2.0, -1.0",
+        "highlighted: 10.0, -5.0 <-> 10.0, -6.9",
+        "highlighted: 10.0, -6.9 <-> -10.0, -6.9",
+        "highlighted: -10.0, -6.9 <-> -10.0, -5.0",
+        "highlighted: -2.0, -1.0 <-> -2.0, 1.0",
+        "highlighted: -10.0, 6.9 <-> 10.0, 6.9",
+        "highlighted: 10.0, 6.9 <-> 10.0, -3.0",
+        "highlighted: 2.0, 1.0 <-> -2.0, 1.0",
+        "highlighted: -10.0, -3.0 <-> -10.0, 6.9",
+   };
+
+    CheckAndQuit(ss, expected);
+}
+
 
 #endif

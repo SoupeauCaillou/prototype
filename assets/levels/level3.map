@@ -45,17 +45,17 @@ position = 3, 2
 [wall_1]
 pos1 = -10, 1
 pos2 = -8, 1
-two_sided = false
+two_sided = 0
 
 [wall_2]
 pos1 = -8, 1
 pos2 = -8, -1
-two_sided = false
+two_sided = 0
 
 [wall_3]
 pos1 = -10, -1
 pos2 = -8, -1
-two_sided = false
+two_sided = 0
 ##########################################
 ############# Endof Wall '1' #############
 
@@ -64,12 +64,12 @@ two_sided = false
 [wall_4]
 pos1 = -10, -5
 pos2 = -9, -5
-two_sided = false
+two_sided = 0
 
 [wall_5]
 pos1 = -9, -5
 pos2 = -9, -7
-two_sided = false
+two_sided = 0
 ##########################################
 ############# Endof Wall '2' #############
 
@@ -78,57 +78,57 @@ two_sided = false
 [wall_6]
 pos1 = -1, -7
 pos2 = -1, -2
-two_sided = false
+two_sided = 0
 
 [wall_7]
 pos1 = -2, -2
 pos2 = -1, -2
-two_sided = false
+two_sided = 0
 
 [wall_8]
 pos1 = -2, -2
 pos2 = -2, -1
-two_sided = false
+two_sided = 0
 
 [wall_9]
 pos1 = -2, -1
 pos2 = -1, -1
-two_sided = false
+two_sided = 0
 
 [wall_10]
 pos1 = -1, -1
 pos2 = -1, 0
-two_sided = false
+two_sided = 0
 
 [wall_11]
 pos1 = -1, 0
 pos2 = 1, 0
-two_sided = false
+two_sided = 0
 
 [wall_12]
 pos1 = 1, -1
 pos2 = 1, 0
-two_sided = false
+two_sided = 0
 
 [wall_13]
 pos1 = 2, -1
 pos2 = 1, -1
-two_sided = false
+two_sided = 0
 
 [wall_14]
 pos1 = 2, -2
 pos2 = 2, -1
-two_sided = false
+two_sided = 0
 
 [wall_15]
 pos1 = 2, -2
 pos2 = 1, -2
-two_sided = false
+two_sided = 0
 
 [wall_16]
 pos1 = 1, -7
 pos2 = 1, -2
-two_sided = false
+two_sided = 0
 ##########################################
 ############# Endof Wall '3' #############
 
@@ -137,27 +137,27 @@ two_sided = false
 [wall_17]
 pos1 = 10, -2
 pos2 = 8, -2
-two_sided = false
+two_sided = 0
 
 [wall_18]
 pos1 = 8, -2
 pos2 = 8, -3
-two_sided = false
+two_sided = 0
 
 [wall_19]
 pos1 = 8, -3
 pos2 = 7, -3
-two_sided = false
+two_sided = 0
 
 [wall_20]
 pos1 = 7, -3
 pos2 = 7, -1
-two_sided = false
+two_sided = 0
 
 [wall_21]
 pos1 = 7, -1
 pos2 = 10, -1
-two_sided = false
+two_sided = 0
 ##########################################
 ############# Endof Wall '4' #############
 
@@ -166,17 +166,17 @@ two_sided = false
 [wall_22]
 pos1 = 10, 4
 pos2 = 8, 4
-two_sided = false
+two_sided = 0
 
 [wall_23]
 pos1 = 8, 4
 pos2 = 8, 5
-two_sided = false
+two_sided = 0
 
 [wall_24]
 pos1 = 8, 5
 pos2 = 10, 5
-two_sided = false
+two_sided = 0
 ##########################################
 ############# Endof Wall '5' #############
 
@@ -185,27 +185,27 @@ two_sided = false
 [wall_25]
 pos1 = 2, 5
 pos2 = 2, 7
-two_sided = false
+two_sided = 0
 
 [wall_26]
 pos1 = -3, 7
 pos2 = -3, 4
-two_sided = false
+two_sided = 0
 
 [wall_27]
 pos1 = -3, 4
 pos2 = 5, 4
-two_sided = false
+two_sided = 0
 
 [wall_28]
 pos1 = 5, 4
 pos2 = 5, 5
-two_sided = false
+two_sided = 0
 
 [wall_29]
 pos1 = 5, 5
 pos2 = 2, 5
-two_sided = false
+two_sided = 0
 ##########################################
 ############# Endof Wall '6' #############
 

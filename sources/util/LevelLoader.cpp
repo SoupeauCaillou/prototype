@@ -58,7 +58,7 @@ void LevelLoader::SaveInFile(const std::string & filename, const std::vector<Ent
         myfile << "\n[wall_" << i+1 << "]\n";
         myfile << "pos1 = " << std::setprecision(2) << TRANSFORM(wallList[i].first)->position << "\n";
         myfile << "pos2 = " << std::setprecision(2) << TRANSFORM(wallList[i].second)->position << "\n";
-        myfile << "two_sided = false\n";
+        myfile << "two_sided = 0\n";
     }
 
     myfile.close();
