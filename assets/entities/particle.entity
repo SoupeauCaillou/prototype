@@ -1,0 +1,19 @@
+[Transformation]
+size = .5, .5
+z = 0.5
+
+[Rendering]
+show = 1
+cameraBitMask = 0xffff
+
+[Physics]
+mass = 1
+gravity = 0, -1
+
+[Anchor]
+
+[AutoDestroy]
+type = 0
+area/position = 0, 0
+area/size%screen_w = 1, 1
+

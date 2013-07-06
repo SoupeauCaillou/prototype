@@ -42,7 +42,7 @@
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity socialBtn, timer;
+    Entity socialBtn, rotateBtn, timer;
     float timeElapsed;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
@@ -51,13 +51,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
-        socialBtn = theEntityManager.CreateEntity("socialBtn");
-        ADD_COMPONENT(socialBtn, Transformation);
-        TRANSFORM(socialBtn)->z = .9;
-        TRANSFORM(socialBtn)->position = glm::vec2(9., -5);
-        ADD_COMPONENT(socialBtn, Button);
-        ADD_COMPONENT(socialBtn, Rendering);
+        rotateBtn = theEntityManager.CreateEntity("rotateBtn",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("button"));
+        RENDERING(rotateBtn)->color = Color::random();
+        TRANSFORM(rotateBtn)->position = glm::vec2(-9., -5);
+
+        socialBtn = theEntityManager.CreateEntity("socialBtn",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("button"));
         RENDERING(socialBtn)->color = Color::random();
+        TRANSFORM(socialBtn)->position = glm::vec2(9., -5);
+
 
 
         timer = theEntityManager.CreateEntity("timer");
@@ -82,7 +85,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         TEXT(timer)->show =
         BUTTON(socialBtn)->enabled =
-        RENDERING(socialBtn)->show = true;
+        RENDERING(socialBtn)->show =
+        BUTTON(rotateBtn)->enabled =
+        RENDERING(rotateBtn)->show = true;
     }
 
 
@@ -92,41 +97,32 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     Scene::Enum update(float dt) override {
         //update the timer
         {
-        timeElapsed += dt;
+            timeElapsed += dt;
 
-        //update the text from the entity
-        std::stringstream a;
-        a << game->gameThreadContext->localizeAPI->text("time") << ": " <<
-            std::fixed << std::setprecision(2) << timeElapsed << " s";
-        TEXT(timer)->text = a.str();
+            //update the text from the entity
+            std::stringstream a;
+            a << game->gameThreadContext->localizeAPI->text("time") << ": " <<
+                std::fixed << std::setprecision(2) << timeElapsed << " s";
+            TEXT(timer)->text = a.str();
         }
 
         {
             //static int i=0;
             //LOGV(1, "Nombre d'entité = " << ++i);
 
-            Entity eq = theEntityManager.CreateEntity();
-            ADD_COMPONENT(eq, Transformation);
-            TRANSFORM(eq)->z = 0.5;
-            TRANSFORM(eq)->size = glm::vec2(0.5,0.5);
+            Entity eq = theEntityManager.CreateEntity("particle",
+            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("particle"));
             TRANSFORM(eq)->position = glm::vec2(glm::linearRand(-10.0f, 10.0f), glm::linearRand(-10.0f, 10.0f));
-            ADD_COMPONENT(eq, Rendering);
             RENDERING(eq)->color = Color::random();
-            RENDERING(eq)->show = true;
-            RENDERING(eq)->cameraBitMask = 0xffff;
-            ADD_COMPONENT(eq, Physics);
-            PHYSICS(eq)->mass = 1;
-            PHYSICS(eq)->gravity = glm::vec2(0, -1);
-            ADD_COMPONENT(eq, Anchor);
-
-            ADD_COMPONENT(eq, AutoDestroy);
-            AUTO_DESTROY(eq)->type = AutoDestroyComponent::OUT_OF_AREA;
-            AUTO_DESTROY(eq)->params.area.position = glm::vec2(0.f);
-            AUTO_DESTROY(eq)->params.area.size = TRANSFORM(game->camera)->size;
         }
 
-       if (BUTTON(socialBtn)->clicked)
+        if (BUTTON(rotateBtn)->clicked) {
+            theRenderingSystem.reverseRendering = ! theRenderingSystem.reverseRendering;
+        }
+
+        if (BUTTON(socialBtn)->clicked) {
             return Scene::SocialCenter;
+        }
 
         return Scene::Menu;
     }
@@ -145,7 +141,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onExit(Scene::Enum) override {
         TEXT(timer)->show =
         BUTTON(socialBtn)->enabled =
-        RENDERING(socialBtn)->show = false;
+        RENDERING(socialBtn)->show =
+        BUTTON(rotateBtn)->enabled =
+        RENDERING(rotateBtn)->show = false;
     }
 };
 
