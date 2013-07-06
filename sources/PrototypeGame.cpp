@@ -105,7 +105,11 @@ void PrototypeGame::init(const uint8_t*, int) {
     PrototypeDebugConsole::init(this);
 #endif
 
+#if SAC_DEBUG
+    sceneStateMachine.setup(Scene::Menu);
+#else
     sceneStateMachine.setup(Scene::Logo);
+#endif
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");
