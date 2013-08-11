@@ -35,6 +35,10 @@
 PrototypeGame::PrototypeGame(int, char**) : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
+    sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
+    sceneStateMachine.registerState(Scene::TurnStart, Scene::CreateTurnStartSceneHandler(this), "Scene::TurnStart");
+    sceneStateMachine.registerState(Scene::TurnEnd, Scene::CreateTurnEndSceneHandler(this), "Scene::TurnEnd");
+    sceneStateMachine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(this), "Scene::GameEnd");
     LOGF_IF(sceneStateMachine.getStateCount() != (int)Scene::Count,
         "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
 }

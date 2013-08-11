@@ -21,11 +21,16 @@
 #pragma once
 
 class PrototypeGame;
+template <class T> class StateHandler;
 
 namespace Scene {
    enum Enum {
       Logo,
       Menu,
+      GameStart,
+      TurnStart,
+      TurnEnd,
+      GameEnd,
       Count,
    };
 
@@ -34,5 +39,8 @@ namespace Scene {
 
   DECLARE_SCENE_HANDLER_FACTORY(Logo)
   DECLARE_SCENE_HANDLER_FACTORY(Menu)
-  DECLARE_SCENE_HANDLER_FACTORY(SocialCenter)
+  DECLARE_SCENE_HANDLER_FACTORY(GameStart)
+  DECLARE_SCENE_HANDLER_FACTORY(TurnStart)
+  DECLARE_SCENE_HANDLER_FACTORY(TurnEnd)
+  DECLARE_SCENE_HANDLER_FACTORY(GameEnd)
 }

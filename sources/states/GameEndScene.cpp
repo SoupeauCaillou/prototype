@@ -25,11 +25,10 @@
 
 #include "PrototypeGame.h"
 
-struct MenuScene : public StateHandler<Scene::Enum> {
+struct GameEndScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity startBtn;
 
-    MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    GameEndScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
@@ -51,7 +50,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
 
-        return Scene::Menu;
+        return Scene::GameEnd;
     }
 
 
@@ -66,7 +65,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game) {
-        return new MenuScene(game);
+    StateHandler<Scene::Enum>* CreateGameEndSceneHandler(PrototypeGame* game) {
+        return new GameEndScene(game);
     }
 }
