@@ -27,6 +27,8 @@ void PrototypeDebugConsole::init(PrototypeGame* game) {
     _game = game;
 
     TwEnumVal numberToGenerate[] = { {1, "1"}, {10, "10"}, {100, "100"} };
-    REGISTER_ONE_ARG(SubmitRandomScore, numberToGenerate)
+    static int submitRandomScoreInt = 1;
+    DebugConsole::RegisterMethod("SubmitRandomScore", callbackSubmitRandomScore, "Number to generate", numberToGenerate,
+        sizeof(numberToGenerate) / sizeof(TwEnumVal), &submitRandomScoreInt);
 }
 #endif

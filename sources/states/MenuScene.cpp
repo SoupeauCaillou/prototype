@@ -42,7 +42,7 @@
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity socialBtn, rotateBtn, timer;
+    Entity socialBtn, timer;
     float timeElapsed;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
@@ -51,17 +51,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
-        rotateBtn = theEntityManager.CreateEntity("rotateBtn",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("button"));
-        RENDERING(rotateBtn)->color = Color::random();
-        TRANSFORM(rotateBtn)->position = glm::vec2(-9., -5);
-
         socialBtn = theEntityManager.CreateEntity("socialBtn",
             EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("button"));
         RENDERING(socialBtn)->color = Color::random();
         TRANSFORM(socialBtn)->position = glm::vec2(9., -5);
-
-
 
         timer = theEntityManager.CreateEntity("timer");
         ADD_COMPONENT(timer, Transformation);
@@ -85,9 +78,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         TEXT(timer)->show =
         BUTTON(socialBtn)->enabled =
-        RENDERING(socialBtn)->show =
-        BUTTON(rotateBtn)->enabled =
-        RENDERING(rotateBtn)->show = true;
+        RENDERING(socialBtn)->show = true;
     }
 
 
@@ -116,10 +107,6 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             RENDERING(eq)->color = Color::random();
         }
 
-        if (BUTTON(rotateBtn)->clicked) {
-            theRenderingSystem.reverseRendering = ! theRenderingSystem.reverseRendering;
-        }
-
         if (BUTTON(socialBtn)->clicked) {
             return Scene::SocialCenter;
         }
@@ -141,9 +128,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onExit(Scene::Enum) override {
         TEXT(timer)->show =
         BUTTON(socialBtn)->enabled =
-        RENDERING(socialBtn)->show =
-        BUTTON(rotateBtn)->enabled =
-        RENDERING(rotateBtn)->show = false;
+        RENDERING(socialBtn)->show = false;
     }
 };
 
