@@ -42,6 +42,9 @@ struct TurnEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        game->currentPlayer = (game->currentPlayer == game->player1) ?
+            game->player2
+            : game->player1;
     }
 
 
@@ -50,7 +53,7 @@ struct TurnEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
 
-        return Scene::TurnEnd;
+        return Scene::TurnStart;
     }
 
 

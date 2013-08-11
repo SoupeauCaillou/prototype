@@ -47,6 +47,7 @@ class PrototypeGame : public Game {
         void backPressed();
 
         Entity camera;
+        Entity player1, player2, currentPlayer, grid[81];
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

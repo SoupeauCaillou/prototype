@@ -23,6 +23,9 @@
 
 #include "base/EntityManager.h"
 
+#include "systems/RenderingSystem.h"
+#include "systems/ButtonSystem.h"
+
 #include "PrototypeGame.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
@@ -34,6 +37,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
+        startBtn = theEntityManager.CreateEntity("startBtn",
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("button"));
     }
 
 
@@ -43,6 +48,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        RENDERING(startBtn)->show =
+        BUTTON(startBtn)->enabled = true;
     }
 
 
@@ -50,6 +57,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        if (BUTTON(startBtn)->clicked) {
+            return Scene::GameStart;
+        }
 
         return Scene::Menu;
     }
@@ -62,6 +72,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        RENDERING(startBtn)->show =
+        BUTTON(startBtn)->enabled = false;
     }
 };
 

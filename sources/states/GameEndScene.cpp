@@ -23,6 +23,9 @@
 
 #include "base/EntityManager.h"
 
+#include "systems/RenderingSystem.h"
+#include "systems/ButtonSystem.h"
+
 #include "PrototypeGame.h"
 
 struct GameEndScene : public StateHandler<Scene::Enum> {
@@ -42,6 +45,10 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        for (int cell = 0; cell < 81; ++cell) {
+            RENDERING(game->grid[cell])->show =
+            BUTTON(game->grid[cell])->enabled = false;
+        }
     }
 
 
@@ -50,7 +57,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
 
-        return Scene::GameEnd;
+        return Scene::Menu;
     }
 
 

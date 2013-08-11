@@ -23,6 +23,9 @@
 
 #include "base/EntityManager.h"
 
+#include "systems/RenderingSystem.h"
+#include "systems/ButtonSystem.h"
+
 #include "PrototypeGame.h"
 
 struct TurnStartScene : public StateHandler<Scene::Enum> {
@@ -42,6 +45,7 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        LOGI("Your turn player" << (game->currentPlayer == game->player1 ? "1" : "2"));
     }
 
 
@@ -49,6 +53,15 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        for (int i = 0; i < 81; ++i) {
+            if (BUTTON(game->grid[i])->clicked && RENDERING(game->grid[i])->color == Color(0., 0., 0.)) {
+                RENDERING(game->grid[i])->color = (game->currentPlayer == game->player1 ?
+                    Color(1., 0., 0.)
+                    : Color(0., 1., 0.));
+
+                return Scene::TurnEnd;
+            }
+        }
 
         return Scene::TurnStart;
     }

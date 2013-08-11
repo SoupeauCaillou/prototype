@@ -23,6 +23,7 @@
 #include "base/PlacementHelper.h"
 
 #include "systems/CameraSystem.h"
+#include "systems/TransformationSystem.h"
 
 #define ZOOM 1
 
@@ -46,14 +47,6 @@ PrototypeGame::PrototypeGame(int, char**) : Game() {
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
-        case ContextAPI::Localize:
-        case ContextAPI::Communication:
-        case ContextAPI::Sound:
-#if SAC_NETWORK
-        case ContextAPI::Network:
-#endif
-        case ContextAPI::KeyboardInputHandler:
-        case ContextAPI::WWW:
             return true;
         default:
             return false;
@@ -71,6 +64,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation done.");
 }
 
+glm::vec2 gridCellToPosition(int i, int j) {
+    auto s = PlacementHelper::ScreenSize;
+    return glm::vec2(i / 9. * s.x, j / 9. * s.y) - .5f * s + .05f * s;
+}
+
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
@@ -84,6 +82,18 @@ void PrototypeGame::init(const uint8_t*, int) {
     // default camera
     camera = theEntityManager.CreateEntity("camera",
         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("camera"));
+
+    currentPlayer = 0;
+    player1 = theEntityManager.CreateEntity("player1");
+    player2 = theEntityManager.CreateEntity("player2");
+
+    for (int i = 0; i < 81; ++i) {
+        std::stringstream name;
+        name << "grid_cell" << i;
+        grid[i] = theEntityManager.CreateEntity(name.str(),
+        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("grid_cell"));
+        TRANSFORM(grid[i])->position = gridCellToPosition(i / 9, i % 9);
+    }
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");
