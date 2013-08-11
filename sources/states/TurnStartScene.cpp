@@ -25,11 +25,14 @@
 
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/MorpionGridSystem.h"
 
 #include "PrototypeGame.h"
 
 struct TurnStartScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+
+    std::vector<Entity> playableGridCells;
 
     TurnStartScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -46,6 +49,11 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         LOGI("Your turn player" << (game->currentPlayer == game->player1 ? "1" : "2"));
+
+        playableGridCells = theMorpionGridSystem.nextPlayableCells(game->lastPlayedCell);
+        for (auto e : playableGridCells) {
+            RENDERING(e)->color.a = .5;
+        }
     }
 
 
@@ -53,11 +61,13 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        for (int i = 0; i < 81; ++i) {
-            if (BUTTON(game->grid[i])->clicked && RENDERING(game->grid[i])->color == Color(0., 0., 0.)) {
-                RENDERING(game->grid[i])->color = (game->currentPlayer == game->player1 ?
+        for (auto e : playableGridCells) {
+            if (BUTTON(e)->clicked) {
+                RENDERING(e)->color = (game->currentPlayer == game->player1 ?
                     Color(1., 0., 0.)
                     : Color(0., 1., 0.));
+
+                game->lastPlayedCell = e;
 
                 return Scene::TurnEnd;
             }
@@ -74,6 +84,9 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        for (auto e : playableGridCells) {
+            RENDERING(e)->color.a = 1.;
+        }
     }
 };
 
