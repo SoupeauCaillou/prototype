@@ -32,19 +32,28 @@ MorpionGridSystem::MorpionGridSystem() : ComponentSystemImpl<MorpionGridComponen
     componentSerializer.add(new Property<int>("j", OFFSET(j, tc)));
 }
 
+std::vector<Entity> MorpionGridSystem::getCellsForMiniMorpion(int inI, int inJ, MorpionGridComponent::E_Type type) {
+    std::vector<Entity> v;
+
+    int startI = (inI / 3) * 3;
+    int startJ = (inJ / 3) * 3;
+    for (int i = startI; i < startI + 3; ++i) {
+        for (int j = startJ; j < startJ + 3; ++j) {
+            if (MORPION_GRID(game->grid[i * 9 + j])->type == type) {
+                v.push_back(game->grid[i * 9 + j]);
+            }
+        }
+    }
+    return v;
+}
+
 std::vector<Entity> MorpionGridSystem::nextPlayableCells(Entity currentCell) {
     std::vector<Entity> v;
 
     if (currentCell) {
         int startI = (MORPION_GRID(currentCell)->i % 3) * 3;
         int startJ = (MORPION_GRID(currentCell)->j % 3) * 3;
-        for (int i = startI; i < startI + 3; ++i) {
-            for (int j = startJ; j < startJ + 3; ++j) {
-                if (MORPION_GRID(game->grid[i * 9 + j])->type == MorpionGridComponent::Available) {
-                    v.push_back(game->grid[i * 9 + j]);
-                }
-            }
-        }
+        v = getCellsForMiniMorpion(startI, startJ, MorpionGridComponent::Available);
     }
 
     //if currentCell is null (first turn) OR if all the next cells are already played, next player can play everywhere!
@@ -65,6 +74,20 @@ glm::vec2 MorpionGridSystem::gridCellToPosition(int i, int j) {
     return topLeftOriginMinusOffset + glm::vec2(i / 9. * s.x, - j / 9. * s.y);
 }
 
+bool MorpionGridSystem::isMiniMorpionFinished(int i, int j) {
+    //todo
+    return true;
+}
+
+bool MorpionGridSystem::isMaxiMorpionFinished() {
+    for (auto it: components) {
+        auto* mgc = it.second;
+        if (mgc->type == MorpionGridComponent::Available) {
+            return false;
+        }
+    }
+    return true;
+}
 
 void MorpionGridSystem::DoUpdate(float ) {
     for (auto it: components) {
@@ -85,8 +108,11 @@ void MorpionGridSystem::DoUpdate(float ) {
                 RENDERING(e)->color = Color(0., 1., 0., 1.);
                 break;
             case MorpionGridComponent::Lost:
-                RENDERING(e)->color = Color(0.5, 0.5, 0.5, 1.);
+                RENDERING(e)->color = Color(0.9, 0.5, 0.5, 1.);
                 break;
+            default:
+                break;
+
         }
     }
 }

@@ -30,11 +30,12 @@ struct MorpionGridComponent {
     int j;
 
     enum E_Type {
-        Available,
-        Playable,
-        Player1,
-        Player2,
-        Lost
+        Available = 1 << 1,
+        Playable = 1 << 2,
+        Player1 = 1 << 3,
+        Player2 = 1 << 4,
+        Lost = 1 << 5,
+        All = Available | Playable | Player1 | Player2 | Lost,
     };
 
     E_Type type;
@@ -46,8 +47,12 @@ struct MorpionGridComponent {
 UPDATABLE_SYSTEM(MorpionGrid)
     public:
         Entity positionToGridCell(const glm::vec2 & position);
+        std::vector<Entity> getCellsForMiniMorpion(int inI, int inJ, MorpionGridComponent::E_Type type);
         std::vector<Entity> nextPlayableCells(Entity currentCell);
         glm::vec2 gridCellToPosition(int i, int j);
+
+        bool isMiniMorpionFinished(int i, int j);
+        bool isMaxiMorpionFinished();
 
         PrototypeGame* game;
 
