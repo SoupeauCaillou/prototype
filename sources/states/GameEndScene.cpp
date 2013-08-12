@@ -23,6 +23,7 @@
 
 #include "base/EntityManager.h"
 
+#include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
 
@@ -31,11 +32,23 @@
 struct GameEndScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
+    Entity wonText;
+    Entity goToMenuBtn, restartBtn;
+
     GameEndScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
+        wonText = theEntityManager.CreateEntity("text_won",
+        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("text"));
+
+        goToMenuBtn =  theEntityManager.CreateEntity("button_gotomenu",
+        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("button_gotomenu"));
+
+        restartBtn = theEntityManager.CreateEntity("button_restart",
+        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("button_restart"));
+
     }
 
 
@@ -49,6 +62,11 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             RENDERING(game->grid[cell])->show =
             BUTTON(game->grid[cell])->enabled = false;
         }
+        TEXT(wonText)->text = "Player ??todo?? has won the match!";
+
+        TEXT(wonText)->show =
+        RENDERING(goToMenuBtn)->show = BUTTON(goToMenuBtn)->enabled =
+        RENDERING(restartBtn)->show = BUTTON(restartBtn)->enabled = true;
     }
 
 
@@ -56,8 +74,12 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-
-        return Scene::Menu;
+        if (BUTTON(restartBtn)->clicked) {
+            return Scene::GameStart;
+        } else if (BUTTON(goToMenuBtn)->clicked) {
+            return Scene::Menu;
+        }
+        return Scene::GameEnd;
     }
 
 
@@ -68,6 +90,9 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        TEXT(wonText)->show =
+        RENDERING(goToMenuBtn)->show = BUTTON(goToMenuBtn)->enabled =
+        RENDERING(restartBtn)->show = BUTTON(restartBtn)->enabled = false;
     }
 };
 
