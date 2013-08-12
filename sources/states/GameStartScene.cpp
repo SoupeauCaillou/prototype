@@ -25,6 +25,7 @@
 
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/MorpionGridSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -46,11 +47,14 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         game->currentPlayer = game->player1;
+        game->lastPlayedCell = 0;
 
         for (int cell = 0; cell < 81; ++cell) {
             RENDERING(game->grid[cell])->color = Color(0., 0., 0.);
             RENDERING(game->grid[cell])->show =
             BUTTON(game->grid[cell])->enabled = true;
+
+            MORPION_GRID(game->grid[cell])->type = MorpionGridComponent::Available;
         }
     }
 
