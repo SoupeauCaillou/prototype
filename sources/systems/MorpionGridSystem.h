@@ -50,6 +50,7 @@ UPDATABLE_SYSTEM(MorpionGrid)
         std::vector<Entity> getCellsForMiniMorpion(int inI, int inJ, MorpionGridComponent::E_Type type);
         std::vector<Entity> nextPlayableCells(Entity currentCell);
         glm::vec2 gridCellToPosition(int i, int j);
+        Entity getEntityAtPosition(int i, int j);
 
         bool isMiniMorpionFinished(int i, int j);
         bool isMaxiMorpionFinished();

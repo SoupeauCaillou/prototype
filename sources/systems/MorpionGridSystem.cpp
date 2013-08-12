@@ -39,12 +39,21 @@ std::vector<Entity> MorpionGridSystem::getCellsForMiniMorpion(int inI, int inJ, 
     int startJ = (inJ / 3) * 3;
     for (int i = startI; i < startI + 3; ++i) {
         for (int j = startJ; j < startJ + 3; ++j) {
-            if (MORPION_GRID(game->grid[i * 9 + j])->type == type) {
+            if (MORPION_GRID(game->grid[i * 9 + j])->type & type) {
                 v.push_back(game->grid[i * 9 + j]);
             }
         }
     }
     return v;
+}
+
+Entity MorpionGridSystem::getEntityAtPosition(int i, int j) {
+    Entity result = 0;
+    theMorpionGridSystem.forEachECDo([&] (Entity e, MorpionGridComponent *mc) -> void {
+        if (mc->i == i && mc->j == j)
+            result = e;
+    });
+    return result;
 }
 
 std::vector<Entity> MorpionGridSystem::nextPlayableCells(Entity currentCell) {
@@ -75,8 +84,40 @@ glm::vec2 MorpionGridSystem::gridCellToPosition(int i, int j) {
 }
 
 bool MorpionGridSystem::isMiniMorpionFinished(int i, int j) {
-    //todo
-    return true;
+    static int lookingFor[] =  {0,0,1,0,2,0,
+                                0,0,0,1,0,2,
+                                0,0,1,1,2,2,
+                                1,0,1,1,1,2,
+                                2,0,1,1,0,2,
+                                2,0,2,1,2,2,
+                                0,1,1,1,2,1,
+                                0,2,1,2,2,2};
+    int startI = (i / 3) * 3;
+    int startJ = (j / 3) * 3;
+    //Looking for 2 players
+    for (int player=0; player<2; ++player) {
+        std::vector<Entity> v = getCellsForMiniMorpion(i, j, player ? MorpionGridComponent::Player1:MorpionGridComponent::Player2);
+        // 8 possibilities
+        for (int t=0; t<8; ++t) {
+            int found=0;
+            // We check cell by cell
+            for (int u=0; u<6; u+=2) {
+                for (auto e : v){
+                    if (MORPION_GRID(e)->i == startI+lookingFor[t*6 + u] && MORPION_GRID(e)->j == startJ+lookingFor[t*6 + u + 1]) {
+                        ++found;
+                        break;
+                    }    
+                }
+                // if we don't have a 100% rate we stop the try
+                if (found != (u/2)+1)
+                    break;
+            }
+            // if we found a full line
+            if (found == 3)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool MorpionGridSystem::isMaxiMorpionFinished() {
