@@ -52,7 +52,7 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
 
         playableGridCells = theMorpionGridSystem.nextPlayableCells(game->lastPlayedCell);
         for (auto e : playableGridCells) {
-            RENDERING(e)->color.a = .5;
+            MORPION_GRID(e)->type = MorpionGridComponent::Playable;
         }
     }
 
@@ -63,9 +63,9 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     Scene::Enum update(float) override {
         for (auto e : playableGridCells) {
             if (BUTTON(e)->clicked) {
-                RENDERING(e)->color = (game->currentPlayer == game->player1 ?
-                    Color(1., 0., 0.)
-                    : Color(0., 1., 0.));
+                MORPION_GRID(e)->type = (game->currentPlayer == game->player1) ?
+                    MorpionGridComponent::Player1
+                    : MorpionGridComponent::Player2;
 
                 game->lastPlayedCell = e;
 
@@ -85,7 +85,9 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         for (auto e : playableGridCells) {
-            RENDERING(e)->color.a = 1.;
+            if (e != game->lastPlayedCell) {
+                MORPION_GRID(e)->type = MorpionGridComponent::Available;
+            }
         }
     }
 };

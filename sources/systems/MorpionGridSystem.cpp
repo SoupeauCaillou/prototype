@@ -40,7 +40,7 @@ std::vector<Entity> MorpionGridSystem::nextPlayableCells(Entity currentCell) {
         int startJ = (MORPION_GRID(currentCell)->j % 3) * 3;
         for (int i = startI; i < startI + 3; ++i) {
             for (int j = startJ; j < startJ + 3; ++j) {
-                if (RENDERING(game->grid[i * 9 + j])->color == Color(0., 0., 0.)) {
+                if (MORPION_GRID(game->grid[i * 9 + j])->type == MorpionGridComponent::Available) {
                     v.push_back(game->grid[i * 9 + j]);
                 }
             }
@@ -50,7 +50,7 @@ std::vector<Entity> MorpionGridSystem::nextPlayableCells(Entity currentCell) {
     //if currentCell is null (first turn) OR if all the next cells are already played, next player can play everywhere!
     if (v.empty()) {
         for (int i = 0; i < 81; ++i) {
-            if (RENDERING(game->grid[i])->color == Color(0., 0., 0.)) {
+            if (MORPION_GRID(game->grid[i])->type == MorpionGridComponent::Available) {
                 v.push_back(game->grid[i]);
             }
         }
@@ -67,4 +67,26 @@ glm::vec2 MorpionGridSystem::gridCellToPosition(int i, int j) {
 
 
 void MorpionGridSystem::DoUpdate(float ) {
+    for (auto it: components) {
+        const Entity e = it.first;
+        auto* mgc = it.second;
+
+        switch (mgc->type) {
+            case MorpionGridComponent::Playable:
+                RENDERING(e)->color = Color(0., 0., 1., .5);
+                break;
+            case MorpionGridComponent::Available:
+                RENDERING(e)->color = Color(0., 0., 0., 1.);
+                break;
+            case MorpionGridComponent::Player1:
+                RENDERING(e)->color = Color(1., 0., 0., 1.);
+                break;
+            case MorpionGridComponent::Player2:
+                RENDERING(e)->color = Color(0., 1., 0., 1.);
+                break;
+            case MorpionGridComponent::Lost:
+                RENDERING(e)->color = Color(0.5, 0.5, 0.5, 1.);
+                break;
+        }
+    }
 }

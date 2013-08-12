@@ -24,10 +24,20 @@
 class PrototypeGame;
 
 struct MorpionGridComponent {
-    MorpionGridComponent() : i(0), j(0) {}
+    MorpionGridComponent() : i(0), j(0), type(Available) {}
 
     int i;
     int j;
+
+    enum E_Type {
+        Available,
+        Playable,
+        Player1,
+        Player2,
+        Lost
+    };
+
+    E_Type type;
 };
 
 #define theMorpionGridSystem MorpionGridSystem::GetInstance()

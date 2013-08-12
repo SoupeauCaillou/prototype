@@ -114,6 +114,8 @@ void PrototypeGame::togglePause(bool) {
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
+
+    theMorpionGridSystem.Update(dt);
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
