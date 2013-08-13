@@ -48,7 +48,6 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
         restartBtn = theEntityManager.CreateEntity("button_restart",
         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("button_restart"));
-
     }
 
 

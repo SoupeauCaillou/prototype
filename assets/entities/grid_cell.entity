@@ -7,3 +7,6 @@ z = 0.1
 [Rendering]
 
 [MorpionGrid]
+
+[Network]
+sync = Rendering, MorpionGrid

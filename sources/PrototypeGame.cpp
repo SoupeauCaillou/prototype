@@ -20,12 +20,16 @@
 
 #include "PrototypeGame.h"
 
+#include "api/NetworkAPI.h"
+
 #include "base/PlacementHelper.h"
 #include "util/IntersectionUtil.h"
 
 #include "systems/CameraSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/ActionSystem.h"
 #include "systems/MorpionGridSystem.h"
+#include "systems/PlayerSystem.h"
 
 #define ZOOM 1
 
@@ -35,7 +39,24 @@
     #include <emscripten/emscripten.h>
 #endif
 
-PrototypeGame::PrototypeGame(int, char**) : Game() {
+PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
+    networkMode = false;
+    lobbyAddress = "127.0.0.1";
+    for (int i=1; i<argc; i++) {
+        if (argv[i][0] != '-') {
+            LOGI("Your networkNickname is '" << argv[i] << "'");
+            networkNickname = argv[i];
+            networkMode = true;
+        } else {
+            if (strcmp(argv[i], "-server") == 0) {
+                LOGF_IF(argc < (i+1), "Missing param to -server arg");
+                lobbyAddress = argv[i + 1];
+                LOGI("Using lobby at: '" << lobbyAddress << "'");
+                i++;
+            }
+        }
+    }
+
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
@@ -50,6 +71,8 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
             return true;
+        case ContextAPI::Network:
+            return networkMode;
         default:
             return false;
     }
@@ -69,7 +92,9 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
+    ActionSystem::CreateInstance();
     MorpionGridSystem::CreateInstance();
+    PlayerSystem::CreateInstance();
     theMorpionGridSystem.game = this;
 
 #if SAC_DEBUG
@@ -83,19 +108,7 @@ void PrototypeGame::init(const uint8_t*, int) {
         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("camera"));
 
     currentPlayer = 0;
-    player1 = theEntityManager.CreateEntity("player1");
-    player2 = theEntityManager.CreateEntity("player2");
-
     lastPlayedCell = 0;
-    for (int i = 0; i < 81; ++i) {
-        std::stringstream name;
-        name << "grid_cell" << i / 9 << "/" << i % 9;
-        grid[i] = theEntityManager.CreateEntity(name.str(),
-        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("grid_cell"));
-        MORPION_GRID(grid[i])->i = i / 9;
-        MORPION_GRID(grid[i])->j = i % 9;
-        TRANSFORM(grid[i])->position = theMorpionGridSystem.gridCellToPosition(i / 9, i % 9);
-    }
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");
@@ -113,9 +126,14 @@ void PrototypeGame::togglePause(bool) {
 }
 
 void PrototypeGame::tick(float dt) {
-    sceneStateMachine.update(dt);
-
-    theMorpionGridSystem.Update(dt);
+    bool gameMaster = (!networkMode || gameThreadContext->networkAPI->amIGameMaster());
+    if (dt > 0) {
+        sceneStateMachine.update(dt);
+        if (gameMaster) {
+            theActionSystem.Update(dt);
+            theMorpionGridSystem.Update(dt);
+        }
+    }
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

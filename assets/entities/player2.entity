@@ -1,0 +1,7 @@
+[Player]
+id = 1
+
+[Action]
+
+[Network]
+sync = Player, Action, Network
