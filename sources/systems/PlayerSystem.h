@@ -2,6 +2,8 @@
 
 #include "systems/System.h"
 
+class NetworkAPI;
+
 struct PlayerComponent {
 	PlayerComponent():id(-1),score(0){};
 
@@ -14,4 +16,6 @@ struct PlayerComponent {
 #define PLAYER(e) thePlayerSystem.Get(e)
 
 UPDATABLE_SYSTEM(Player)
+    public:
+        Entity GetMyself(bool networkMode, const NetworkAPI* networkAPI);
 };

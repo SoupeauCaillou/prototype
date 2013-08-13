@@ -47,8 +47,6 @@ class PrototypeGame : public Game {
         void backPressed();
 
         Entity camera;
-        Entity player1, player2, currentPlayer;
-        Entity grid[81], lastPlayedCell;
 
         //network stuff
         bool networkMode;

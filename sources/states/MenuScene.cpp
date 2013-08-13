@@ -33,6 +33,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/NetworkSystem.h"
 #include "systems/PlayerSystem.h"
+#include "systems/TicTacToeSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -71,11 +72,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         }
         LOGI("I am the master! " << game->networkNickname);
 
+        //create the meta game entity
+        Entity superGame = theEntityManager.CreateEntity("game",
+            EntityType::Volatile,
+            theEntityManager.entityTemplateLibrary.load("game"));
+
         for (int i=0; i<2; i++) {
             #define __(b) (std::string(b) + (i ? "2" : "1"))
 
             Entity player = theEntityManager.CreateEntity(__("player"),
-                EntityType::Persistent,
+                EntityType::Volatile,
                 theEntityManager.entityTemplateLibrary.load(__("player")));
 
             //yup, it's a bit uggly..
@@ -83,24 +89,24 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 if (game->networkMode) {
                     NETWORK(player)->newOwnerShipRequest = 1;
                 }
-                game->player1 = player;
+                TTT(superGame)->player1 = player;
             } else {
-                game->player2 = player;
+                TTT(superGame)->player2 = player;
             }
             #undef __
         }
 
         networkTestBtn = theEntityManager.CreateEntity("testBtn",
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("button_testnetwork"));
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("button_testnetwork"));
 
         for (int i = 0; i < 81; ++i) {
             std::stringstream name;
             name << "grid_cell" << i / 9 << "/" << i % 9;
-            game->grid[i] = theEntityManager.CreateEntity(name.str(),
-            EntityType::Persistent, theEntityManager.entityTemplateLibrary.load("grid_cell"));
-            MORPION_GRID(game->grid[i])->i = i / 9;
-            MORPION_GRID(game->grid[i])->j = i % 9;
-            TRANSFORM(game->grid[i])->position = theMorpionGridSystem.gridCellToPosition(i / 9, i % 9);
+            TTT(superGame)->grid[i] = theEntityManager.CreateEntity(name.str(),
+            EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("grid_cell"));
+            MORPION_GRID(TTT(superGame)->grid[i])->i = i / 9;
+            MORPION_GRID(TTT(superGame)->grid[i])->j = i % 9;
+            TRANSFORM(TTT(superGame)->grid[i])->position = theMorpionGridSystem.gridCellToPosition(i / 9, i % 9);
         }
     }
 
@@ -121,31 +127,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 }
             }
         } else {
-            if (BUTTON(networkTestBtn)->clicked) {
-                ac->action = EAction::ClickButton;
-                ac->ClickButtonParams.button = networkTestBtn;
-                ac->ClickButtonParams.color = Color::random();
-            }
+            // if (BUTTON(networkTestBtn)->clicked) {
+            //     ac->action = EAction::ClickButton;
+            //     ac->ClickButtonParams.button = networkTestBtn;
+            //     ac->ClickButtonParams.color = Color::random();
+            // }
         }
     }
 
     Scene::Enum update(float) override {
-        // Retrieve all players
-        std::vector<Entity> players = thePlayerSystem.RetrieveAllEntityWithComponent();
-        Entity myPlayer = 0;
-
-        // Pick mine
-        bool gameMaster = (!game->networkMode || game->gameThreadContext->networkAPI->amIGameMaster());
-
-        for_each(players.begin(), players.end(), [&myPlayer, gameMaster] (Entity e) -> void {
-            if (PLAYER(e)->id == (gameMaster ? 0 : 1)) myPlayer = e;
-        });
-        LOGW_IF(myPlayer == 0, "Cannot find my player :'( (" << players.size());
-        if (myPlayer == 0)
-            return Scene::Menu;
-
-        LOGI_EVERY_N(100, "Found my player. Entity: " << myPlayer);
-
+        Entity myPlayer = thePlayerSystem.GetMyself(game->networkMode, game->gameThreadContext->networkAPI);
         ActionComponent* ac = ACTION(myPlayer);
         ac->action = EAction::None;
 

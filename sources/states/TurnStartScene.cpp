@@ -26,6 +26,9 @@
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/MorpionGridSystem.h"
+#include "systems/PlayerSystem.h"
+#include "systems/TicTacToeSystem.h"
+#include "systems/ActionSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -48,9 +51,11 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        LOGI("Your turn player" << (game->currentPlayer == game->player1 ? "1" : "2"));
+        auto * ttt = theTicTacToeSystem.getAllComponents().begin()->second;
+        LOGI("Your turn player" << (ttt->currentPlayer == ttt->player1 ? "1" : "2"));
 
-        playableGridCells = theMorpionGridSystem.nextPlayableCells(game->lastPlayedCell);
+        playableGridCells = theMorpionGridSystem.nextPlayableCells(theTicTacToeSystem.getAllComponents()
+            .begin()->second->lastPlayedCell);
         for (auto e : playableGridCells) {
             MORPION_GRID(e)->type = MorpionGridComponent::Playable;
         }
@@ -61,14 +66,20 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        auto * ttt = theTicTacToeSystem.getAllComponents().begin()->second;
         for (auto e : playableGridCells) {
+            //only the current player can select the grid!
             if (BUTTON(e)->clicked) {
-                MORPION_GRID(e)->type = (game->currentPlayer == game->player1) ?
-                    MorpionGridComponent::Player1
-                    : MorpionGridComponent::Player2;
-
-                game->lastPlayedCell = e;
-
+                if (ttt->currentPlayer == thePlayerSystem.GetMyself(game->networkMode,
+                game->gameThreadContext->networkAPI)) {
+                    LOGE("It's not your turn to play!");
+                } else {
+                    Entity myPlayer = thePlayerSystem.GetMyself(game->networkMode, game->gameThreadContext->networkAPI);
+                    ActionComponent* ac = ACTION(myPlayer);
+                    ac->action = EAction::SelectedCell;
+                    ac->SelectedCellParams.cell = e;
+                    ac->SelectedCellParams.player = myPlayer;
+                }
                 return Scene::TurnEnd;
             }
         }
@@ -85,7 +96,7 @@ struct TurnStartScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         for (auto e : playableGridCells) {
-            if (e != game->lastPlayedCell) {
+            if (e != theTicTacToeSystem.getAllComponents().begin()->second->lastPlayedCell) {
                 MORPION_GRID(e)->type = MorpionGridComponent::Available;
             }
         }

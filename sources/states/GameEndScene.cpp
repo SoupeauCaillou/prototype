@@ -26,6 +26,7 @@
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/TicTacToeSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -57,9 +58,10 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        auto * ttt = theTicTacToeSystem.getAllComponents().begin()->second;
         for (int cell = 0; cell < 81; ++cell) {
-            RENDERING(game->grid[cell])->show =
-            BUTTON(game->grid[cell])->enabled = false;
+            RENDERING(ttt->grid[cell])->show =
+            BUTTON(ttt->grid[cell])->enabled = false;
         }
         TEXT(wonText)->text = "Player ??todo?? has won the match!";
 

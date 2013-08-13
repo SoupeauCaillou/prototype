@@ -26,6 +26,7 @@
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/MorpionGridSystem.h"
+#include "systems/TicTacToeSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -46,15 +47,16 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        game->currentPlayer = game->player1;
-        game->lastPlayedCell = 0;
+        auto * ttt = theTicTacToeSystem.getAllComponents().begin()->second;
+        ttt->currentPlayer = ttt->player1;
+        ttt->lastPlayedCell = 0;
 
         for (int cell = 0; cell < 81; ++cell) {
-            RENDERING(game->grid[cell])->color = Color(0., 0., 0.);
-            RENDERING(game->grid[cell])->show =
-            BUTTON(game->grid[cell])->enabled = true;
+            RENDERING(ttt->grid[cell])->color = Color(0., 0., 0.);
+            RENDERING(ttt->grid[cell])->show =
+            BUTTON(ttt->grid[cell])->enabled = true;
 
-            MORPION_GRID(game->grid[cell])->type = MorpionGridComponent::Available;
+            MORPION_GRID(ttt->grid[cell])->type = MorpionGridComponent::Available;
         }
     }
 

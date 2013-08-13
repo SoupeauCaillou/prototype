@@ -9,4 +9,4 @@ z = 0.1
 [MorpionGrid]
 
 [Network]
-sync = Rendering, MorpionGrid
+sync = Rendering, MorpionGrid, Button, Transformation

@@ -21,6 +21,7 @@
 #include "PrototypeGame.h"
 
 #include "systems/TransformationSystem.h"
+#include "systems/TicTacToeSystem.h"
 
 #include "base/PlacementHelper.h"
 
@@ -35,12 +36,14 @@ MorpionGridSystem::MorpionGridSystem() : ComponentSystemImpl<MorpionGridComponen
 std::vector<Entity> MorpionGridSystem::getCellsForMiniMorpion(int inI, int inJ, MorpionGridComponent::E_Type type) {
     std::vector<Entity> v;
 
+    auto * ttt = theTicTacToeSystem.getAllComponents().begin()->second;
+
     int startI = (inI / 3) * 3;
     int startJ = (inJ / 3) * 3;
     for (int i = startI; i < startI + 3; ++i) {
         for (int j = startJ; j < startJ + 3; ++j) {
-            if (MORPION_GRID(game->grid[i * 9 + j])->type & type) {
-                v.push_back(game->grid[i * 9 + j]);
+            if (MORPION_GRID(ttt->grid[i * 9 + j])->type & type) {
+                v.push_back(ttt->grid[i * 9 + j]);
             }
         }
     }
@@ -67,9 +70,10 @@ std::vector<Entity> MorpionGridSystem::nextPlayableCells(Entity currentCell) {
 
     //if currentCell is null (first turn) OR if all the next cells are already played, next player can play everywhere!
     if (v.empty()) {
+        auto * ttt = theTicTacToeSystem.getAllComponents().begin()->second;
         for (int i = 0; i < 81; ++i) {
-            if (MORPION_GRID(game->grid[i])->type == MorpionGridComponent::Available) {
-                v.push_back(game->grid[i]);
+            if (MORPION_GRID(ttt->grid[i])->type == MorpionGridComponent::Available) {
+                v.push_back(ttt->grid[i]);
             }
         }
     }
@@ -106,7 +110,7 @@ bool MorpionGridSystem::isMiniMorpionFinished(int i, int j) {
                     if (MORPION_GRID(e)->i == startI+lookingFor[t*6 + u] && MORPION_GRID(e)->j == startJ+lookingFor[t*6 + u + 1]) {
                         ++found;
                         break;
-                    }    
+                    }
                 }
                 // if we don't have a 100% rate we stop the try
                 if (found != (u/2)+1)

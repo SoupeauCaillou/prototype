@@ -5,20 +5,20 @@
 namespace EAction {
     enum Enum {
         None,
-        ClickButton
+        SelectedCell
     };
 }
 
 struct ActionComponent {
     ActionComponent() : action(EAction::None) {
-        memset(&ClickButtonParams, 0, sizeof(ClickButtonParams));
+        memset(&SelectedCellParams, 0, sizeof(SelectedCellParams));
     }
 
     EAction::Enum action;
     struct {
-        Entity button;
-        Color color;
-    } ClickButtonParams;
+        Entity cell;
+        Entity player;
+    } SelectedCellParams;
 };
 
 #define theActionSystem ActionSystem::GetInstance()

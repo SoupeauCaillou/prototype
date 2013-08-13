@@ -21,16 +21,20 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
+#include "api/NetworkAPI.h"
 #include "base/EntityManager.h"
 
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/MorpionGridSystem.h"
+#include "systems/TicTacToeSystem.h"
 
 #include "PrototypeGame.h"
 
 struct TurnEndScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+
+    bool gameMaster;
 
     TurnEndScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -46,13 +50,6 @@ struct TurnEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        int i = MORPION_GRID(game->lastPlayedCell)->i;
-        int j = MORPION_GRID(game->lastPlayedCell)->j;
-        if (theMorpionGridSystem.isMiniMorpionFinished(i, j)) {
-            for (auto e : theMorpionGridSystem.getCellsForMiniMorpion(i, j, MorpionGridComponent::Available)) {
-                MORPION_GRID(e)->type = MorpionGridComponent::Lost;
-            }
-        }
     }
 
 
@@ -73,9 +70,6 @@ struct TurnEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
-        game->currentPlayer = (game->currentPlayer == game->player1) ?
-            game->player2
-            : game->player1;
     }
 
     void onExit(Scene::Enum) override {

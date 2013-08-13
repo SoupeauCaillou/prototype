@@ -54,7 +54,4 @@ UPDATABLE_SYSTEM(MorpionGrid)
 
         bool isMiniMorpionFinished(int i, int j);
         bool isMaxiMorpionFinished();
-
-        PrototypeGame* game;
-
 };

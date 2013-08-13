@@ -30,6 +30,7 @@
 #include "systems/ActionSystem.h"
 #include "systems/MorpionGridSystem.h"
 #include "systems/PlayerSystem.h"
+#include "systems/TicTacToeSystem.h"
 
 #define ZOOM 1
 
@@ -95,7 +96,7 @@ void PrototypeGame::init(const uint8_t*, int) {
     ActionSystem::CreateInstance();
     MorpionGridSystem::CreateInstance();
     PlayerSystem::CreateInstance();
-    theMorpionGridSystem.game = this;
+    TicTacToeSystem::CreateInstance();
 
 #if SAC_DEBUG
     sceneStateMachine.setup(Scene::Menu);
@@ -106,9 +107,6 @@ void PrototypeGame::init(const uint8_t*, int) {
     // default camera
     camera = theEntityManager.CreateEntity("camera",
         EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("camera"));
-
-    currentPlayer = 0;
-    lastPlayedCell = 0;
 
     quickInit();
     LOGI("PrototypeGame initialisation done.");
