@@ -28,8 +28,7 @@ namespace Scene {
       Logo,
       Menu,
       GameStart,
-      TurnStart,
-      TurnEnd,
+      InGame,
       GameEnd,
       Count,
    };
@@ -40,7 +39,6 @@ namespace Scene {
   DECLARE_SCENE_HANDLER_FACTORY(Logo)
   DECLARE_SCENE_HANDLER_FACTORY(Menu)
   DECLARE_SCENE_HANDLER_FACTORY(GameStart)
-  DECLARE_SCENE_HANDLER_FACTORY(TurnStart)
-  DECLARE_SCENE_HANDLER_FACTORY(TurnEnd)
+  DECLARE_SCENE_HANDLER_FACTORY(InGame)
   DECLARE_SCENE_HANDLER_FACTORY(GameEnd)
 }

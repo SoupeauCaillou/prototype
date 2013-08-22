@@ -22,6 +22,9 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
+#include "systems/ActionSystem.h"
+#include "systems/NetworkSystem.h"
+#include "api/NetworkAPI.h"
 
 #include "PrototypeGame.h"
 
@@ -49,6 +52,19 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        // wait for a locally-owned entity w/ Action component to exist
+        bool locallyOwnedOrcExists = false;
+
+        theActionSystem.forEachEntityDo([&locallyOwnedOrcExists, this] (Entity e) -> void {
+            if (theNetworkSystem.isOwnedLocally(e)) {
+                game->myOrcAction = e;
+                locallyOwnedOrcExists = true;
+            }
+        });
+
+        if (locallyOwnedOrcExists) {
+            return Scene::InGame;
+        }
 
         return Scene::GameStart;
     }

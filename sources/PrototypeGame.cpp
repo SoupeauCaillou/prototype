@@ -32,12 +32,27 @@
     #include <emscripten/emscripten.h>
 #endif
 
-PrototypeGame::PrototypeGame(int, char**) : Game() {
+#include "systems/ActionSystem.h"
+#include "systems/OrcSystem.h"
+#include "systems/CollisionSystem.h"
+
+#include "api/NetworkAPI.h"
+
+PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe") {
+    for (int i=1; i<argc; i++) {
+        if (strcmp(argv[i], "-server") == 0) {
+            LOGF_IF(i + 1 >= argc, "Incorrect #args");
+            serverIp = argv[++i];
+        }
+        else if (strcmp(argv[i], "-nick") == 0) {
+            LOGF_IF(i + 1 >= argc, "Incorrect #args");
+            nickName = argv[++i];
+        }
+    }
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
-    sceneStateMachine.registerState(Scene::TurnStart, Scene::CreateTurnStartSceneHandler(this), "Scene::TurnStart");
-    sceneStateMachine.registerState(Scene::TurnEnd, Scene::CreateTurnEndSceneHandler(this), "Scene::TurnEnd");
+    sceneStateMachine.registerState(Scene::InGame, Scene::CreateInGameSceneHandler(this), "Scene::InGame");
     sceneStateMachine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(this), "Scene::GameEnd");
     LOGF_IF(sceneStateMachine.getStateCount() != (int)Scene::Count,
         "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
@@ -63,6 +78,8 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
+    ActionSystem::CreateInstance();
+    OrcSystem::CreateInstance();
     Game::sacInit(windowW, windowH);
 
     PlacementHelper::GimpSize = glm::vec2(1280, 800);
@@ -74,7 +91,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
-
+    theCollisionSystem.worldSize = PlacementHelper::ScreenSize * 2.0f;
 #if SAC_DEBUG
     sceneStateMachine.setup(Scene::Menu);
 #else
@@ -90,7 +107,14 @@ void PrototypeGame::init(const uint8_t*, int) {
 }
 
 void PrototypeGame::quickInit() {
-
+    if (!serverIp.empty()) {
+        // init network connection
+        auto* api = gameThreadContext->networkAPI;
+        // connect to lobby
+        api->connectToLobby(nickName, serverIp.c_str());
+    } else {
+        LOGI("Solo game");
+    }
 }
 
 void PrototypeGame::backPressed() {

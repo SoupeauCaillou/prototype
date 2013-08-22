@@ -49,4 +49,7 @@ class PrototypeGame : public Game {
         Entity camera;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
+        std::string serverIp, nickName;
+    public:
+        Entity myOrcAction;
 };

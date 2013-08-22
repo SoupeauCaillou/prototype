@@ -1,0 +1,13 @@
+[Rendering]
+color = 0.0,0.0,0.0,1, 0.3,0.3, 0.3, 1.0
+show = 1
+
+[Transformation]
+size = 1, 1, 5, 2
+rotation%degrees = 0, 360
+position%screen = -0.5, -0.5, 0.5, 0.5
+z = 0.1
+
+[Collision]
+group = 1
+collide_with = 2

@@ -1,0 +1,17 @@
+[Transformation]
+size = 0.1, 0.1
+z = 0.5
+
+[Particule]
+emission_rate = 50
+duration = 0.1
+lifetime = 0.2
+initial_size = 0.03, 0.1
+final_size = 0.03, 0.1
+force_direction = -3.94, -2.2
+force_amplitude = 40
+mass = 1
+
+[AutoDestroy]
+type = 1
+lifetime/value = 0.5

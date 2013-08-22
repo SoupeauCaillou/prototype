@@ -22,8 +22,12 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
+#include "systems/ButtonSystem.h"
+#include "systems/TextSystem.h"
+#include "api/NetworkAPI.h"
 
 #include "PrototypeGame.h"
+#include "systems/ActionSystem.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -34,6 +38,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
+        startBtn = theEntityManager.CreateEntityFromTemplate("menu/startbtn");
     }
 
 
@@ -43,6 +48,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        RENDERING(startBtn)->show = TEXT(startBtn)->show = true;
+        BUTTON(startBtn)->enabled = false;
     }
 
 
@@ -50,7 +57,35 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        // update button
+        switch (game->gameThreadContext->networkAPI->getStatus()) {
+            case NetworkStatus::ConnectingToLobby:
+                TEXT(startBtn)->text = "Connecting";
+                break;
+            case NetworkStatus::ConnectedToLobby:
+                TEXT(startBtn)->text = "In lobby";
+                BUTTON(startBtn)->enabled = true;
+                break;
+            case NetworkStatus::None:
+            case NetworkStatus::ConnectionToLobbyFailed:
+                TEXT(startBtn)->text = "Single pl";
+                BUTTON(startBtn)->enabled = true;
+                break;
+            case NetworkStatus::ConnectingToServer:
+                TEXT(startBtn)->text = "Connecting";
+                break;
+            case NetworkStatus::ConnectedToServer:
+                TEXT(startBtn)->text = "Connected";
+                BUTTON(startBtn)->enabled = true;
+                RENDERING(startBtn)->color = Color(0, 1, 0);
+                break;
+            case NetworkStatus::ConnectionToServerFailed:
+                LOGF("Failed to connect to server");
+                break;
+        }
 
+        if (BUTTON(startBtn)->clicked)
+            return Scene::GameStart;
         return Scene::Menu;
     }
 
@@ -62,6 +97,22 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        // create game entities, if game master
+        if (!game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer() ||
+            game->gameThreadContext->networkAPI->amIGameMaster()) {
+            Entity orc = theEntityManager.CreateEntityFromTemplate("ingame/soldier");
+            Entity action = theEntityManager.CreateEntityFromTemplate("ingame/action");
+            ACTION(action)->orc = orc;
+
+            // create 10 blocks
+            for (int i=0; i<10; i++) {
+                theEntityManager.CreateEntityFromTemplate("ingame/block");
+            }
+        }
+
+        RENDERING(startBtn)->show =
+            TEXT(startBtn)->show = 
+            BUTTON(startBtn)->enabled = false;
     }
 };
 

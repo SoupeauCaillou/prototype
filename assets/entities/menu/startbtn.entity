@@ -1,0 +1,13 @@
+[Rendering]
+color%html=0xff5070
+
+[Transformation]
+size%screen=0.2, 0.2
+z = 0.5
+
+[Button]
+
+[Text]
+color = 0, 0, 0, 1
+font = typo
+char_height%screenH = 0.9
