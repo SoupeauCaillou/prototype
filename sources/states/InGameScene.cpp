@@ -24,8 +24,9 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
-    
+
 #include "PrototypeGame.h"
+#include "api/KeyboardInputHandlerAPI.h"
 #include "api/NetworkAPI.h"
 #include "api/KeyboardInputHandlerAPI.h"
 
@@ -61,19 +62,37 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
         fire = false;
 
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(122, [this] () -> void {
+
+        FileBuffer file = game->gameThreadContext->assetAPI->loadAsset("key_config.cfg");
+        LOGF_IF(! file.data, "Unable to load key config file");
+
+        DataFileParser dfp;
+        dfp.load(file, "key_config.cfg");
+
+        std::string templateKeyboard;
+        dfp.get("", "template", &templateKeyboard);
+
+        const std::map<std::string, int> keyNameToCodeValue = KeyboardInputHandler::keyNameToCodeValue;
+
+        std::string key;
+        dfp.get("Binding", "forward", &key);
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
             ZSQD(orc)->directions.push_back(glm::vec2(0, 1));
         });
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(115, [this] () -> void {
+        dfp.get("Binding", "backward", &key);
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
             ZSQD(orc)->directions.push_back(glm::vec2(0, -1));
         });
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(113, [this] () -> void {
+        dfp.get("Binding", "left", &key);
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
             ZSQD(orc)->directions.push_back(glm::vec2(-1, 0));
         });
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(100, [this] () -> void {
+        dfp.get("Binding", "right", &key);
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
             ZSQD(orc)->directions.push_back(glm::vec2(1, 0));
         });
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(32, [this] () -> void {
+        dfp.get("Binding", "fire", &key);
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
             fire = true;
         });
     }
