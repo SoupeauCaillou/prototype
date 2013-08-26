@@ -1,0 +1,15 @@
+[Rendering]
+color = 1, 0, 0, 1
+show = 1
+
+[Transformation]
+size = 0.1, 0.1
+z = 0.79
+
+[Physics]
+mass = 1
+
+[AutoDestroy]
+type = 0
+area/position = 0, 0
+area/size = 20, 20

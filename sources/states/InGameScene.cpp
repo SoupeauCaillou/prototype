@@ -34,6 +34,7 @@
 #include "systems/ActionSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/ZSQDSystem.h"
+#include "systems/PhysicsSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/ParticuleSystem.h"
 
@@ -92,7 +93,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
             ZSQD(orc)->directions.push_back(glm::vec2(1, 0));
         });
         dfp.get("Binding", "fire", &key);
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(keyNameToCodeValue.at(templateKeyboard + "_" + key), [this] () -> void {
             fire = true;
         });
     }
@@ -113,32 +114,14 @@ struct InGameScene : public StateHandler<Scene::Enum> {
         if (fire) {
             // fire point
             Entity weapon = ORC(orc)->weapon;
-            const glm::vec2& firePoint = TRANSFORM(weapon)->position;
-            const glm::vec2 endPoint = firePoint + glm::rotate(glm::vec2(1000, 0), TRANSFORM(weapon)->rotation);
-            glm::vec2 intersection;
-            float distance = 1000000;
-            Entity target;
-            theCollisionSystem.forEachEntityDo([firePoint, endPoint, &intersection, &distance, &target] (Entity e) -> void {
-                const auto* rect = TRANSFORM(e);
-                glm::vec2 inter[2];
-                int count = IntersectionUtil::lineRectangle(firePoint, endPoint,
-                    rect->position, rect->size, rect->rotation, inter);
+            const glm::vec2& firePoint = TRANSFORM(weapon)->position +
+                glm::rotate(glm::vec2(TRANSFORM(weapon)->size.x * 0.5f, 0.0f), TRANSFORM(weapon)->rotation);
 
-                for (int i=0; i<count; i++) {
-                    const float d = glm::length(inter[i] - firePoint);
-                    if (d < distance) {
-                        distance = d;
-                        intersection = inter[i];
-                        target = e;
-                    }
-                }
-            });
-            if (distance < 10000) {
-                Entity hit = theEntityManager.CreateEntityFromTemplate("ingame/hit");
-                TRANSFORM(hit)->position = intersection;
-                TRANSFORM(hit)->rotation = TRANSFORM(weapon)->rotation;
-                PARTICULE(hit)->initialColor = PARTICULE(hit)->finalColor = Interval<Color>(RENDERING(target)->color);
-            }
+            Entity bullet = theEntityManager.CreateEntityFromTemplate("ingame/bullet");
+            TRANSFORM(bullet)->position = firePoint;
+            PHYSICS(bullet)->addForce(
+                Force(glm::rotate(glm::vec2(1000, 0), TRANSFORM(weapon)->rotation), glm::vec2(0.0f)),
+                1.0f/60.0f);
             fire = false;
         }
 
