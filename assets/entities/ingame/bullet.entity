@@ -13,3 +13,11 @@ mass = 1
 type = 0
 area/position = 0, 0
 area/size = 20, 20
+
+[Collision]
+group = 2
+# collide with blocks (group 1) and soldier (group 4) = 1 | 4 => 5
+collide_with = 5
+restore_position_on_collision = 1
+
+[Bullet]

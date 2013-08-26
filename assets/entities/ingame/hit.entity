@@ -3,13 +3,13 @@ size = 0.1, 0.1
 z = 0.5
 
 [Particule]
-emission_rate = 50
-duration = 0.1
+emission_rate = 150
+duration = 0.05
 lifetime = 0.2
-initial_size = 0.03, 0.1
-final_size = 0.03, 0.1
-force_direction = -3.94, -2.2
-force_amplitude = 40
+initial_size = 0.07, 0.15
+final_size = 0.07, 0.15
+force_direction = 0, 6.28
+force_amplitude = 70
 mass = 1
 
 [AutoDestroy]

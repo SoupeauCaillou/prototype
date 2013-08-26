@@ -34,6 +34,7 @@
 
 #include "systems/ActionSystem.h"
 #include "systems/OrcSystem.h"
+#include "systems/BulletSystem.h"
 #include "systems/CollisionSystem.h"
 
 #include "api/NetworkAPI.h"
@@ -80,6 +81,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     ActionSystem::CreateInstance();
     OrcSystem::CreateInstance();
+    BulletSystem::CreateInstance();
     Game::sacInit(windowW, windowH);
 
     PlacementHelper::GimpSize = glm::vec2(1280, 800);

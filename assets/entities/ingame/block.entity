@@ -10,4 +10,5 @@ z = 0.1
 
 [Collision]
 group = 1
-collide_with = 2
+collide_with = 6
+restore_position_on_collision = 0

@@ -37,6 +37,7 @@
 #include "systems/PhysicsSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/ParticuleSystem.h"
+#include "systems/BulletSystem.h"
 
 #include "util/IntersectionUtil.h"
 #include <glm/gtx/rotate_vector.hpp>
@@ -109,6 +110,15 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
             theActionSystem.Update(dt);
             theOrcSystem.Update(dt);
+            theBulletSystem.Update(dt);
+
+            static float timer = 3.0f;
+            timer -= dt;
+            if (timer <= 0) {
+                timer = glm::linearRand(2.0f, 4.0f);
+                Entity enemy = theEntityManager.CreateEntityFromTemplate("ingame/soldier");
+                RENDERING(enemy)->color = Color(0,0,0,1);
+            }
         }
 
         if (fire) {

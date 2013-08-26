@@ -1,7 +1,7 @@
 [Transformation]
 size = 0.7, .7
 z = 0.8
-positionS%screen = 0, -0.5
+position%screen = -0.45, -0.45, 0.45, 0.45
 
 [Rendering]
 color = 0.0,0.0,0.0,1.0, 1.0, 1.0, 1.0, 1.0
@@ -18,3 +18,9 @@ weapon%template = ingame/hammer
 
 [Network]
 sync = Transformation, Rendering
+
+[Collision]
+group = 4
+# collide with blocks (group 1) and bullet (group 2) = 1 | 2 => 3
+collide_with = 3
+restore_position_on_collision = 0
