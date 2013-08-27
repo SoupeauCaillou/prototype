@@ -24,3 +24,20 @@ group = 4
 # collide with blocks (group 1) and bullet (group 2) = 1 | 2 => 3
 collide_with = 3
 restore_position_on_collision = 0
+
+[Particule]
+emission_rate = 400
+duration = 0
+lifetime = 0.2
+initial_size = 0.15, 0.2
+final_size = 0.15, 0.2
+force_direction = 0, 6.28
+force_amplitude = 150
+initial_color = 1, 0, 0, 1
+final_color = 1, 0, 0, 1
+mass = 1
+
+[AutoDestroy]
+type = 2
+lifetime/value = 0.2
+lifetime/map2AlphaRendering = 1
