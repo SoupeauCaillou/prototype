@@ -84,17 +84,16 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
-    sceneStateMachine.setup();
-#if SAC_DEBUG
-    sceneStateMachine.start(Scene::Menu);
-#else
-    sceneStateMachine.start(Scene::Logo);
-#endif
-
-
     // default camera
     camera = theEntityManager.CreateEntityFromTemplate("camera");
     faderHelper.init(camera);
+
+    sceneStateMachine.setup();
+#if SAC_DEBUG
+    sceneStateMachine.start(Scene::Logo);
+#else
+    sceneStateMachine.start(Scene::Logo);
+#endif
 
     LOGI("PrototypeGame initialisation done.");
 
