@@ -28,10 +28,7 @@
 #include "base/Game.h"
 #include "base/GameContext.h"
 
-#include "systems/RenderingSystem.h"
-
-#include "api/LocalizeAPI.h"
-#include "api/AdAPI.h"
+#include "util/FaderHelper.h"
 
 class PrototypeGame : public Game {
     public:
@@ -40,16 +37,15 @@ class PrototypeGame : public Game {
         bool wantsAPI(ContextAPI::Enum api) const;
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
-        void quickInit();
         void tick(float dt);
         void togglePause(bool activate);
         bool willConsumeBackEvent();
         void backPressed();
+        void quickInit() {}
 
         Entity camera;
+        FaderHelper faderHelper;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
         std::string serverIp, nickName;
-    public:
-        Entity myOrcAction;
 };

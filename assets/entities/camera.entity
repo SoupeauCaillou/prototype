@@ -1,14 +1,6 @@
 [Transformation]
-position = 0,0
-#size = 40,25
-size%screen = 1,1
-z = 0.99
+size%screen = 1, 1
+z = 0
 
 [Camera]
-enable = 1
-order = 100
-id= 0
-clear_color = 0.9,0.8,0.6,1
-
-[Rendering]
-fbo = 1
+clear_color = .58, .58, .58

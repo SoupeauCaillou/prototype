@@ -24,10 +24,10 @@
 #include "base/EntityManager.h"
 #include "systems/ButtonSystem.h"
 #include "systems/TextSystem.h"
+#include "systems/RenderingSystem.h"
 #include "api/NetworkAPI.h"
 
 #include "PrototypeGame.h"
-#include "systems/ActionSystem.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -100,14 +100,6 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         // create game entities, if game master
         if (!game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer() ||
             game->gameThreadContext->networkAPI->amIGameMaster()) {
-            Entity orc = theEntityManager.CreateEntityFromTemplate("ingame/soldier");
-            Entity action = theEntityManager.CreateEntityFromTemplate("ingame/action");
-            ACTION(action)->orc = orc;
-
-            // create 10 blocks
-            for (int i=0; i<10; i++) {
-                theEntityManager.CreateEntityFromTemplate("ingame/block");
-            }
         }
 
         RENDERING(startBtn)->show =

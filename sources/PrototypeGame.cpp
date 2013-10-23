@@ -32,10 +32,6 @@
     #include <emscripten/emscripten.h>
 #endif
 
-#include "systems/ActionSystem.h"
-#include "systems/OrcSystem.h"
-#include "systems/CollisionSystem.h"
-
 #include "api/NetworkAPI.h"
 
 PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe") {
@@ -78,35 +74,30 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
-    ActionSystem::CreateInstance();
-    OrcSystem::CreateInstance();
     Game::sacInit(windowW, windowH);
 
     PlacementHelper::GimpSize = glm::vec2(1280, 800);
 
-    theRenderingSystem.createFramebuffer("ui_fb", windowW, windowH);
     LOGI("SAC engine initialisation done.");
 }
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
-    theCollisionSystem.worldSize = PlacementHelper::ScreenSize * 2.0f;
+    sceneStateMachine.setup();
 #if SAC_DEBUG
-    sceneStateMachine.setup(Scene::Menu);
+    sceneStateMachine.start(Scene::Menu);
 #else
-    sceneStateMachine.setup(Scene::Logo);
+    sceneStateMachine.start(Scene::Logo);
 #endif
 
+
     // default camera
-    camera = theEntityManager.CreateEntity("camera",
-        EntityType::Volatile, theEntityManager.entityTemplateLibrary.load("camera"));
+    camera = theEntityManager.CreateEntityFromTemplate("camera");
+    faderHelper.init(camera);
 
-    quickInit();
     LOGI("PrototypeGame initialisation done.");
-}
 
-void PrototypeGame::quickInit() {
     if (!serverIp.empty()) {
         // init network connection
         auto* api = gameThreadContext->networkAPI;
