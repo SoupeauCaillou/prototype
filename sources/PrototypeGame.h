@@ -45,7 +45,9 @@ class PrototypeGame : public Game {
 
         Entity camera;
         FaderHelper faderHelper;
+
+        Entity robot;
+        std::string serverIp, nickName;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
-        std::string serverIp, nickName;
 };

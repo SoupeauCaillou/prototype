@@ -2,14 +2,12 @@
 color%html=0xff5070
 
 [Transformation]
-positionS%screen = 0, 0.1
-size%screen=0.2, 0.15
+positionNE%screen = 0.5,0.5
+size%screen=0., 0.05
 z = 0.5
 
-[Button]
-
 [Text]
-color = 0, 0, 0, 1
+color = 0.2, 0.2, 0, 1
 font = typo
+positioning = 1
 char_height%screen_h = 0.05
-text = Start Solo

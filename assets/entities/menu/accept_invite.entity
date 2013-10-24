@@ -1,8 +1,8 @@
 [Rendering]
-color%html=0xff5070
+color%html=0x0f5f75
 
 [Transformation]
-positionS%screen = 0, 0.1
+positionN%screen = 0, -0.1
 size%screen=0.2, 0.15
 z = 0.5
 
@@ -12,4 +12,4 @@ z = 0.5
 color = 0, 0, 0, 1
 font = typo
 char_height%screen_h = 0.05
-text = Start Solo
+text = Accept invite

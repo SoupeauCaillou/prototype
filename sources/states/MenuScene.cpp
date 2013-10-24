@@ -26,12 +26,15 @@
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 #include "api/NetworkAPI.h"
+#include "api/linux/NetworkAPILinuxImpl.h"
 
 #include "PrototypeGame.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity startBtn;
+    Entity startBtn, networkStatus, createRoom, acceptInvite;
+
+    NetworkAPILinuxImpl* net;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -39,6 +42,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void setup() {
         startBtn = theEntityManager.CreateEntityFromTemplate("menu/startbtn");
+        networkStatus = theEntityManager.CreateEntityFromTemplate("menu/network_status");
+        createRoom = theEntityManager.CreateEntityFromTemplate("menu/create_room");
+        acceptInvite = theEntityManager.CreateEntityFromTemplate("menu/accept_invite");
     }
 
 
@@ -47,9 +53,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onEnter(Scene::Enum) override {
-        RENDERING(startBtn)->show = TEXT(startBtn)->show = true;
+    void onPreEnter(Scene::Enum) override {
+        RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
         BUTTON(startBtn)->enabled = false;
+
+        net = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
+        net->init();
+        net->login(game->nickName);
     }
 
 
@@ -58,34 +68,60 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         // update button
-        switch (game->gameThreadContext->networkAPI->getStatus()) {
+        const auto state = game->gameThreadContext->networkAPI->getStatus();
+        switch (state) {
             case NetworkStatus::ConnectingToLobby:
-                TEXT(startBtn)->text = "Connecting";
+                TEXT(networkStatus)->text = "ConnectingToLobby";
                 break;
             case NetworkStatus::ConnectedToLobby:
-                TEXT(startBtn)->text = "In lobby";
-                BUTTON(startBtn)->enabled = true;
+                TEXT(networkStatus)->text = "ConnectedToLobby";
                 break;
-            case NetworkStatus::None:
             case NetworkStatus::ConnectionToLobbyFailed:
-                TEXT(startBtn)->text = "Single pl";
-                BUTTON(startBtn)->enabled = true;
+                TEXT(networkStatus)->text = "ConnectionToLobbyFailed";
                 break;
-            case NetworkStatus::ConnectingToServer:
-                TEXT(startBtn)->text = "Connecting";
+            case NetworkStatus::LoginInProgress:
+                TEXT(networkStatus)->text = "LoginInProgress";
+                break;
+            case NetworkStatus::Logged:
+                TEXT(networkStatus)->text = "Logged";
+                break;
+            case NetworkStatus::LoginFailed:
+                TEXT(networkStatus)->text = "LoginFailed";
+                break;
+            case NetworkStatus::CreatingRoom:
+                TEXT(networkStatus)->text = "CreatingRoom";
+                break;
+            case NetworkStatus::InRoomAsMaster:
+                TEXT(networkStatus)->text = "InRoomAsMaster";
+                break;
+            case NetworkStatus::JoiningRoom:
+                TEXT(networkStatus)->text = "JoiningRoom";
                 break;
             case NetworkStatus::ConnectedToServer:
-                TEXT(startBtn)->text = "Connected";
-                BUTTON(startBtn)->enabled = true;
-                RENDERING(startBtn)->color = Color(0, 1, 0);
-                break;
-            case NetworkStatus::ConnectionToServerFailed:
-                LOGF("Failed to connect to server");
+                TEXT(networkStatus)->text = "ConnectedToServer";
                 break;
         }
 
-        if (BUTTON(startBtn)->clicked)
+        TEXT(createRoom)->show =
+            RENDERING(createRoom)->show =
+            BUTTON(createRoom)->enabled = (state == NetworkStatus::Logged);
+
+        TEXT(acceptInvite)->show =
+            RENDERING(acceptInvite)->show =
+            BUTTON(acceptInvite)->enabled = (state == NetworkStatus::Logged && net->getPendingInvitationCount() > 0);
+
+        if (BUTTON(startBtn)->clicked) {
             return Scene::GameStart;
+        }
+
+        if (BUTTON(createRoom)->clicked) {
+            net->createRoom();
+        }
+
+        if (BUTTON(acceptInvite)->clicked) {
+            net->acceptInvitation();
+        }
+
         return Scene::Menu;
     }
 
@@ -103,7 +139,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         }
 
         RENDERING(startBtn)->show =
-            TEXT(startBtn)->show = 
+            TEXT(startBtn)->show =
+            TEXT(networkStatus)->show =
             BUTTON(startBtn)->enabled = false;
     }
 };

@@ -33,8 +33,17 @@
 #endif
 
 #include "api/NetworkAPI.h"
+#if SAC_LINUX && SAC_DESKTOP
+#include <unistd.h>
+#endif
 
-PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe") {
+PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe"){
+#if SAC_LINUX && SAC_DESKTOP
+    char* nick = getlogin();
+    if (nick)
+        nickName = nick;
+#endif
+
     for (int i=1; i<argc; i++) {
         if (strcmp(argv[i], "-server") == 0) {
             LOGF_IF(i + 1 >= argc, "Incorrect #args");
@@ -90,7 +99,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     sceneStateMachine.setup();
 #if SAC_DEBUG
-    sceneStateMachine.start(Scene::Logo);
+    sceneStateMachine.start(Scene::Menu);
 #else
     sceneStateMachine.start(Scene::Logo);
 #endif
