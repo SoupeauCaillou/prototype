@@ -23,6 +23,7 @@
 
 #include "base/EntityManager.h"
 #include "systems/ButtonSystem.h"
+#include "systems/TransformationSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 #include "api/NetworkAPI.h"
@@ -33,6 +34,7 @@
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity startBtn, networkStatus, createRoom, acceptInvite;
+    std::vector<Entity> players;
 
     NetworkAPILinuxImpl* net;
 
@@ -60,6 +62,12 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         net = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
         net->init();
         net->login(game->nickName);
+
+        for (int i=0; i<4; i++) {
+            Entity p = theEntityManager.CreateEntityFromTemplate("menu/net_player");
+            players.push_back(p);
+            TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
+        }
     }
 
 
@@ -110,8 +118,33 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             RENDERING(acceptInvite)->show =
             BUTTON(acceptInvite)->enabled = (state == NetworkStatus::Logged && net->getPendingInvitationCount() > 0);
 
+        {
+            auto playersInRoom = net->getPlayersInRoom();
+            int i=0;
+            for (auto it=playersInRoom.begin(); it != playersInRoom.end(); ++it, i++) {
+                TEXT(players[i])->show = RENDERING(players[i])->show = true;
+                std::stringstream s;
+                s << it->first << ':';
+                switch (it->second) {
+                    case NetworkStatus::InRoomAsMaster:
+                        s << " master";
+                        break;
+                    case NetworkStatus::JoiningRoom:
+                        s << " joining";
+                        break;
+                    case NetworkStatus::ConnectedToServer:
+                        s << " connected";
+                        break;
+                    default:
+                        s << " ERROR";
+                }
+                TEXT(players[i])->text = s.str();
+            }
+        }
+
         if (BUTTON(startBtn)->clicked) {
-            return Scene::GameStart;
+            // return Scene::GameStart;
+            theEntityManager.CreateEntityFromTemplate("game/square");
         }
 
         if (BUTTON(createRoom)->clicked) {
