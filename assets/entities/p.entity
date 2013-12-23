@@ -18,4 +18,3 @@ restore_position_on_collision = 1
 enabled = 1
 
 [Soldier]
-weapon%template = shotgun

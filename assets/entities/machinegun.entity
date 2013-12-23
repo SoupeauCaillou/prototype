@@ -1,0 +1,19 @@
+[Rendering]
+color%html = 0202a5
+show = 1
+
+[Transformation]
+size = 0.4, 0.09
+
+[Anchor]
+z = 0.1
+position = 0.2, -0.12
+
+[Weapon]
+fire_speed = 50
+reload_speed = 1
+bullet_speed = 8
+bullet_per_shot = 1
+precision = 0.3
+bullet_template = shotgun_bullet
+ammo_left_in_clip = 1000

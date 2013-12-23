@@ -32,6 +32,8 @@
 #include "api/linux/NetworkAPILinuxImpl.h"
 
 #include "PrototypeGame.h"
+#include "SoldierSystem.h"
+#include "util/Random.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -73,8 +75,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         net->init();
         net->login(game->nickName);
 #endif
+        const std::string weapons[] = {"shotgun", "machinegun"};
         for (int i=0; i<4; i++) {
             Entity p = theEntityManager.CreateEntityFromTemplate("p");
+            SOLDIER(p)->weapon = theEntityManager.CreateEntityFromTemplate(weapons[Random::Int(0, 1)]);
             game->players.push_back(p);
             TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
         }
