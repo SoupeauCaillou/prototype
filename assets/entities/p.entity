@@ -1,0 +1,21 @@
+[Transformation]
+size = 0.5,0.5
+z = 0.5
+
+[Rendering]
+show = 1
+color = 1, 0, 0.2
+
+#[Spot]
+#resolution = 36
+
+[Collision]
+group = 2
+collide_with = 1
+restore_position_on_collision = 1
+
+[Button]
+enabled = 1
+
+[Soldier]
+weapon%template = shotgun

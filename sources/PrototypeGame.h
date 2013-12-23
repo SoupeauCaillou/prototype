@@ -22,6 +22,8 @@
 
 #include <string>
 #include <vector>
+#include "CameraMoveManager.h"
+
 #include "base/StateMachine.h"
 #include "states/Scenes.h"
 
@@ -45,6 +47,8 @@ class PrototypeGame : public Game {
 
         Entity camera;
         FaderHelper faderHelper;
+        CameraMoveManager cameraMoveManager;
+        std::vector<Entity> players;
 
         Entity robot;
         std::string serverIp, nickName;

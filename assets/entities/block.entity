@@ -1,0 +1,12 @@
+[Transformation]
+z = 0.5
+size = 0.2, 0.2, 2, 2
+rotation = 0, 6.26
+position%screen_w = -0.5,-0.5, 0.5, 0.5
+
+[Rendering]
+show = 1
+color = 1, 0, 0.2, 1, 0.2, 1, 1,1
+
+[Collision]
+group = 1

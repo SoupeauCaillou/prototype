@@ -1,0 +1,7 @@
+[Transformation]
+z = 0.4
+
+[Rendering]
+show = 1
+color = 0.1, 0.1, 0.1
+shape = 3

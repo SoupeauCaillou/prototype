@@ -1,0 +1,12 @@
+[Transformation]
+size = 0.1, 0.05
+z = 0.8
+
+[Rendering]
+color = 0.1, 0.1, 0.1, 1, 0.3, 0.3, 0.3, 1
+show = 0
+
+[AutoDestroy]
+type = 1
+lifetime/value = 0.5
+lifetime/map2AlphaRendering = 1

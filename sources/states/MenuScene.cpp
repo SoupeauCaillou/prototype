@@ -22,7 +22,9 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
+#include "base/TouchInputManager.h"
 #include "systems/ButtonSystem.h"
+#include "systems/SpotSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
@@ -34,19 +36,26 @@
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity startBtn, networkStatus, createRoom, acceptInvite;
-    std::vector<Entity> players;
 
     NetworkAPILinuxImpl* net;
+
+    Entity p,p2;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
-        startBtn = theEntityManager.CreateEntityFromTemplate("menu/startbtn");
+        // startBtn = theEntityManager.CreateEntityFromTemplate("menu/startbtn");
         networkStatus = theEntityManager.CreateEntityFromTemplate("menu/network_status");
         createRoom = theEntityManager.CreateEntityFromTemplate("menu/create_room");
         acceptInvite = theEntityManager.CreateEntityFromTemplate("menu/accept_invite");
+
+        for (int i=0; i<30; i++) {
+            theEntityManager.CreateEntityFromTemplate("block");
+        }
+
+        theRenderingSystem.shapes.push_back(Polygon());
     }
 
 
@@ -56,16 +65,17 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onPreEnter(Scene::Enum) override {
-        RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
-        BUTTON(startBtn)->enabled = false;
+        // RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
+        // BUTTON(startBtn)->enabled = false;
 
+#if 0
         net = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
         net->init();
         net->login(game->nickName);
-
+#endif
         for (int i=0; i<4; i++) {
-            Entity p = theEntityManager.CreateEntityFromTemplate("menu/net_player");
-            players.push_back(p);
+            Entity p = theEntityManager.CreateEntityFromTemplate("p");
+            game->players.push_back(p);
             TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
         }
     }
@@ -74,7 +84,14 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
+        if (!game->cameraMoveManager.update(dt)) {
+            if (theTouchInputManager.hasClicked()) {
+                TRANSFORM(p)->position = theTouchInputManager.getTouchLastPosition();
+            }
+        }
+
+#if 0
         // update button
         const auto state = game->gameThreadContext->networkAPI->getStatus();
         switch (state) {
@@ -154,8 +171,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         if (BUTTON(acceptInvite)->clicked) {
             net->acceptInvitation();
         }
-
-        return Scene::Menu;
+#endif
+        return Scene::Active;
     }
 
 
@@ -170,7 +187,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         if (!game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer() ||
             game->gameThreadContext->networkAPI->amIGameMaster()) {
         }
-
+        return;
         RENDERING(startBtn)->show =
             TEXT(startBtn)->show =
             TEXT(networkStatus)->show =

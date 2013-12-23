@@ -1,0 +1,8 @@
+[Collision]
+group = 4
+collide_with = 3
+is_a_ray = 1
+
+[Bullet]
+
+[Transformation]

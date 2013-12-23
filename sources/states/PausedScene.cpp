@@ -21,14 +21,27 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
-struct InGameScene : public StateHandler<Scene::Enum> {
+#include "base/EntityManager.h"
+#include "base/TouchInputManager.h"
+#include "systems/ButtonSystem.h"
+#include "systems/SpotSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/TextSystem.h"
+#include "systems/RenderingSystem.h"
+#include "api/NetworkAPI.h"
+#include "api/linux/NetworkAPILinuxImpl.h"
+
+#include "PrototypeGame.h"
+
+struct PausedScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
-    InGameScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
-        this->game = game;
+    PausedScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+      this->game = game;
     }
 
     void setup() {
+
     }
 
 
@@ -37,7 +50,8 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onEnter(Scene::Enum) override {
+    void onPreEnter(Scene::Enum) override {
+
     }
 
 
@@ -45,8 +59,10 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        if (!game->cameraMoveManager.update(dt)) {
 
-        return Scene::InGame;
+        }
+        return Scene::Paused;
     }
 
 
@@ -57,11 +73,12 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+
     }
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateInGameSceneHandler(PrototypeGame* game) {
-        return new InGameScene(game);
+    StateHandler<Scene::Enum>* CreatePausedSceneHandler(PrototypeGame* game) {
+        return new PausedScene(game);
     }
 }

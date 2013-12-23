@@ -1,0 +1,8 @@
+[Rendering]
+color%html = 61C361
+show = 1
+shape = 2
+
+[Transformation]
+size = 0.2, 0.2
+z = 0.3
