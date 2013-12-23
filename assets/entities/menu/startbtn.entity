@@ -13,7 +13,3 @@ color = 0, 0, 0, 1
 font = typo
 char_height%screen_h = 0.05
 text = Start Solo
-
-[Particule]
-duration = -1
-emission_rate = 1000

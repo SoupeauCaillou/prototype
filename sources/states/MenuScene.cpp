@@ -38,24 +38,18 @@
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity startBtn, networkStatus, createRoom, acceptInvite;
-
+    std::vector<Entity> players;
     NetworkAPILinuxImpl* net;
-
-    Entity p,p2;
 
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
-        // startBtn = theEntityManager.CreateEntityFromTemplate("menu/startbtn");
+        startBtn = theEntityManager.CreateEntityFromTemplate("menu/startbtn");
         networkStatus = theEntityManager.CreateEntityFromTemplate("menu/network_status");
         createRoom = theEntityManager.CreateEntityFromTemplate("menu/create_room");
         acceptInvite = theEntityManager.CreateEntityFromTemplate("menu/accept_invite");
-
-        for (int i=0; i<30; i++) {
-            theEntityManager.CreateEntityFromTemplate("block");
-        }
 
         theRenderingSystem.shapes.push_back(Polygon());
     }
@@ -67,20 +61,17 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onPreEnter(Scene::Enum) override {
-        // RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
-        // BUTTON(startBtn)->enabled = false;
+        RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
+        BUTTON(startBtn)->enabled = true;
 
-#if 0
+#if 1
         net = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
         net->init();
         net->login(game->nickName);
 #endif
-        const std::string weapons[] = {"shotgun", "machinegun"};
+
         for (int i=0; i<4; i++) {
-            Entity p = theEntityManager.CreateEntityFromTemplate("p");
-            SOLDIER(p)->weapon = theEntityManager.CreateEntityFromTemplate(weapons[Random::Int(0, 1)]);
-            game->players.push_back(p);
-            TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
+            players.push_back(theEntityManager.CreateEntityFromTemplate("menu/net_player"));
         }
     }
 
@@ -89,13 +80,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        if (!game->cameraMoveManager.update(dt)) {
-            if (theTouchInputManager.hasClicked()) {
-                TRANSFORM(p)->position = theTouchInputManager.getTouchLastPosition();
-            }
-        }
-
-#if 0
+#if 1
         // update button
         const auto state = game->gameThreadContext->networkAPI->getStatus();
         switch (state) {
@@ -164,8 +149,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         }
 
         if (BUTTON(startBtn)->clicked) {
-            // return Scene::GameStart;
-            theEntityManager.CreateEntityFromTemplate("game/square");
+            return Scene::GameStart;
         }
 
         if (BUTTON(createRoom)->clicked) {
@@ -176,7 +160,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             net->acceptInvitation();
         }
 #endif
-        return Scene::Active;
+        return Scene::Menu;
     }
 
 
@@ -191,7 +175,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         if (!game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer() ||
             game->gameThreadContext->networkAPI->amIGameMaster()) {
         }
-        return;
+
         RENDERING(startBtn)->show =
             TEXT(startBtn)->show =
             TEXT(networkStatus)->show =

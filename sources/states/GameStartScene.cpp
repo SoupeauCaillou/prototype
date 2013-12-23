@@ -51,7 +51,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        return Scene::GameStart;
+        return Scene::Active;
     }
 
 

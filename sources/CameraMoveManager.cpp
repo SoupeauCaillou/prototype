@@ -33,7 +33,7 @@ void CameraMoveManager::init(Entity pCamera, const glm::vec2& maxCamSize, float 
 	camera = pCamera;
     mode = CameraMode::None;
     speed = glm::vec2(0.0f);
-    zoomValue = 3;
+    zoomValue = 1;
 
     maxCameraSize = maxCamSize;
     maxZoom = pMaxZoom;
