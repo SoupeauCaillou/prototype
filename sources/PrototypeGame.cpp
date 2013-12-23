@@ -157,13 +157,15 @@ bool PrototypeGame::willConsumeBackEvent() {
     return false;
 }
 
-void PrototypeGame::initGame(int playerCount) {
-    for (int i=0; i<30; i++) {
-        theEntityManager.CreateEntityFromTemplate("block");
+void PrototypeGame::initGame(int playerCount, bool master) {
+    if (master) {
+        for (int i=0; i<30; i++) {
+            theEntityManager.CreateEntityFromTemplate("block");
+        }
     }
 
     const std::string weapons[] = {"shotgun", "machinegun"};
-    for (int i=0; i<playerCount; i++) {
+    for (int i=0; i<1; i++) {
         Color c = Color::random();
         for (int i=0; i<4; i++) {
             Entity p = theEntityManager.CreateEntityFromTemplate("p");

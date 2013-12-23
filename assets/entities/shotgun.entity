@@ -17,3 +17,6 @@ bullet_per_shot = 5
 precision = 0.7
 bullet_template = shotgun_bullet
 ammo_left_in_clip = 100
+
+[Network]
+sync = Transformation, Rendering, Weapon

@@ -10,3 +10,6 @@ show = 0
 type = 1
 lifetime/value = 0.25
 lifetime/map2AlphaRendering = 1
+
+[Network]
+sync = Transformation, Rendering

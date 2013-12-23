@@ -6,9 +6,6 @@ z = 0.5
 show = 1
 color = 1, 0, 0.2
 
-#[Spot]
-#resolution = 36
-
 [Collision]
 group = 2
 collide_with = 1
@@ -18,3 +15,6 @@ restore_position_on_collision = 1
 enabled = 1
 
 [Soldier]
+
+[Network]
+sync = Transformation, Rendering, Collision, Button, Soldier

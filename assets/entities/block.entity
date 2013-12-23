@@ -10,3 +10,6 @@ color = 1, 0, 0.2, 1, 0.2, 1, 1,1
 
 [Collision]
 group = 1
+
+[Network]
+sync = Transformation, Rendering, Collision

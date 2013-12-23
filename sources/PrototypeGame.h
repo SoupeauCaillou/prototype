@@ -45,7 +45,7 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
-        void initGame(int playerCount);
+        void initGame(int playerCount, bool master);
 
         Entity camera;
         FaderHelper faderHelper;

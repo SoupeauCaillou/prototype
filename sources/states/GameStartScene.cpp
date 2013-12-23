@@ -57,8 +57,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        unsigned count = 0;
-        thePlayerSystem.forEachECDo([this, &count] (Entity, PlayerComponent* pc) -> void {
+        unsigned count = 0, ready = 0;
+        thePlayerSystem.forEachECDo([this, &count, &ready] (Entity, PlayerComponent* pc) -> void {
             if (players.size() <= count) {
                 players.push_back(theEntityManager.CreateEntityFromTemplate("menu/net_player"));
                 TEXT(players.back())->show = RENDERING(players.back())->show = true;
@@ -68,6 +68,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             ss << pc->name << ": " << (pc->ready ? "ready" : "not");
             TEXT(players[count])->text = ss.str();
             RENDERING(players[count])->color = pc->ready ? Color(0, 1, 0) : Color(1, 0, 0);
+            if (pc->ready)
+                ready++;
             count++;
         });
 
@@ -79,6 +81,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             PLAYER(game->myPlayer)->ready = !PLAYER(game->myPlayer)->ready;
         }
 
+        if (ready == count)
+            return Scene::Active;
         return Scene::GameStart;
     }
 
