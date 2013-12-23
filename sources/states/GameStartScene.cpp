@@ -22,9 +22,11 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
-#include "systems/NetworkSystem.h"
-#include "api/NetworkAPI.h"
-
+#include "PlayerSystem.h"
+#include "systems/RenderingSystem.h"
+#include "systems/TextSystem.h"
+#include "systems/TransformationSystem.h"
+#include "base/TouchInputManager.h"
 #include "PrototypeGame.h"
 
 struct GameStartScene : public StateHandler<Scene::Enum> {
@@ -34,6 +36,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         this->game = game;
     }
 
+    std::vector<Entity> players;
     void setup() {
     }
 
@@ -44,6 +47,9 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        // create my player
+        game->myPlayer = theEntityManager.CreateEntityFromTemplate("player");
+        PLAYER(game->myPlayer)->name = game->nickName;
     }
 
 
@@ -51,7 +57,29 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        return Scene::Active;
+        unsigned count = 0;
+        thePlayerSystem.forEachECDo([this, &count] (Entity, PlayerComponent* pc) -> void {
+            if (players.size() <= count) {
+                players.push_back(theEntityManager.CreateEntityFromTemplate("menu/net_player"));
+                TEXT(players.back())->show = RENDERING(players.back())->show = true;
+            }
+
+            std::stringstream ss;
+            ss << pc->name << ": " << (pc->ready ? "ready" : "not");
+            TEXT(players[count])->text = ss.str();
+            RENDERING(players[count])->color = pc->ready ? Color(0, 1, 0) : Color(1, 0, 0);
+            count++;
+        });
+
+        for (unsigned i=1; i<players.size(); i++) {
+            TRANSFORM(players[i])->position = TRANSFORM(players[i-1])->position + TRANSFORM(players[i-1])->size * glm::vec2(1.1f, .0f);
+        }
+
+        if (theTouchInputManager.hasClicked()) {
+            PLAYER(game->myPlayer)->ready = !PLAYER(game->myPlayer)->ready;
+        }
+
+        return Scene::GameStart;
     }
 
 
@@ -59,6 +87,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
+        for (auto p: players)
+            theEntityManager.DeleteEntity(p);
     }
 
     void onExit(Scene::Enum) override {

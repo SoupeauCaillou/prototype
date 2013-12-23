@@ -28,6 +28,9 @@
 #include "WeaponSystem.h"
 #include "SoldierSystem.h"
 #include "BulletSystem.h"
+#include "MessageSystem.h"
+#include "PlayerSystem.h"
+#include "util/Random.h"
 
 #define ZOOM 1
 
@@ -96,6 +99,10 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     orderedSystemsToUpdate.push_back(SoldierSystem::GetInstancePointer());
     BulletSystem::CreateInstance();
     orderedSystemsToUpdate.push_back(BulletSystem::GetInstancePointer());
+    MessageSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(MessageSystem::GetInstancePointer());
+    PlayerSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(PlayerSystem::GetInstancePointer());
 
     Game::sacInit(windowW, windowH);
 
@@ -148,4 +155,22 @@ void PrototypeGame::tick(float dt) {
 
 bool PrototypeGame::willConsumeBackEvent() {
     return false;
+}
+
+void PrototypeGame::initGame(int playerCount) {
+    for (int i=0; i<30; i++) {
+        theEntityManager.CreateEntityFromTemplate("block");
+    }
+
+    const std::string weapons[] = {"shotgun", "machinegun"};
+    for (int i=0; i<playerCount; i++) {
+        Color c = Color::random();
+        for (int i=0; i<4; i++) {
+            Entity p = theEntityManager.CreateEntityFromTemplate("p");
+            RENDERING(p)->color = c;
+            SOLDIER(p)->weapon = theEntityManager.CreateEntityFromTemplate(weapons[Random::Int(0, 1)]);
+            players.push_back(p);
+            TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
+        }
+    }
 }

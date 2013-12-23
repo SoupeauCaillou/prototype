@@ -27,7 +27,7 @@
 #include "systems/TransformationSystem.h"
 #include "WeaponSystem.h"
 #include "SoldierSystem.h"
-#include "util/Random.h"
+
 #include <glm/gtx/norm.hpp>
 #include "PrototypeGame.h"
 #include "steering/SteeringBehavior.h"
@@ -53,17 +53,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onPreEnter(Scene::Enum) override {
-        for (int i=0; i<30; i++) {
-            theEntityManager.CreateEntityFromTemplate("block");
-        }
 
-        const std::string weapons[] = {"shotgun", "machinegun"};
-        for (int i=0; i<4; i++) {
-            Entity p = theEntityManager.CreateEntityFromTemplate("p");
-            SOLDIER(p)->weapon = theEntityManager.CreateEntityFromTemplate(weapons[Random::Int(0, 1)]);
-            game->players.push_back(p);
-            TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
-        }
     }
 
 

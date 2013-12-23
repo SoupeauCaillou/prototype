@@ -35,6 +35,8 @@
 #include "SoldierSystem.h"
 #include "util/Random.h"
 
+#include "MessageSystem.h"
+
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity startBtn, networkStatus, createRoom, acceptInvite;
@@ -71,7 +73,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 #endif
 
         for (int i=0; i<4; i++) {
-            players.push_back(theEntityManager.CreateEntityFromTemplate("menu/net_player"));
+            Entity p = theEntityManager.CreateEntityFromTemplate("menu/net_player");
+            if (i > 0)
+                TRANSFORM(p)->position = TRANSFORM(players[i-1])->position + TRANSFORM(players[i-1])->size * glm::vec2(1.1f, .0f);
+            players.push_back(p);
         }
     }
 
@@ -80,7 +85,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-#if 1
+
         // update button
         const auto state = game->gameThreadContext->networkAPI->getStatus();
         switch (state) {
@@ -159,7 +164,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         if (BUTTON(acceptInvite)->clicked) {
             net->acceptInvitation();
         }
-#endif
+
+        for (auto p: theMessageSystem.getAllComponents()) {
+            switch (p.second->type) {
+                case Message::ChangeState: {
+                    if (p.second->newState == Scene::GameStart)
+                        return Scene::GameStart;
+                }
+            }
+        }
+
         return Scene::Menu;
     }
 
@@ -174,12 +188,21 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         // create game entities, if game master
         if (!game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer() ||
             game->gameThreadContext->networkAPI->amIGameMaster()) {
+            game->initGame(glm::max(1, (int)net->getPlayersInRoom().size()));
         }
+
+        // notify everyone
+        Entity msg = theEntityManager.CreateEntityFromTemplate("message");
+        MESSAGE(msg)->type = Message::ChangeState;
+        MESSAGE(msg)->newState = Scene::GameStart;
 
         RENDERING(startBtn)->show =
             TEXT(startBtn)->show =
             TEXT(networkStatus)->show =
             BUTTON(startBtn)->enabled = false;
+        for (auto p: players) {
+            TEXT(p)->show = RENDERING(p)->show = false;
+        }
     }
 };
 

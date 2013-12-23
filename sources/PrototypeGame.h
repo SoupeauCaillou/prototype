@@ -45,12 +45,14 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
+        void initGame(int playerCount);
+
         Entity camera;
         FaderHelper faderHelper;
         CameraMoveManager cameraMoveManager;
         std::vector<Entity> players;
 
-        Entity robot;
+        Entity myPlayer;
         std::string serverIp, nickName;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
