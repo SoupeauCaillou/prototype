@@ -19,4 +19,4 @@ bullet_template = shotgun_bullet
 ammo_left_in_clip = 1000
 
 [Network]
-sync = Transformation, Rendering
+sync = Transformation, Rendering, Weapon

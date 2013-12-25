@@ -32,6 +32,8 @@
 #include "PrototypeGame.h"
 #include "steering/SteeringBehavior.h"
 
+#include "api/linux/NetworkAPILinuxImpl.h"
+
 struct ActiveScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity selected, waypoint;
@@ -74,7 +76,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         }
 
         if (selected) {
-            // MOVe
+            // MOVE
             if (theTouchInputManager.hasClicked()) {
                 TRANSFORM(waypoint)->position =
                     target = theTouchInputManager.getTouchLastPosition();
@@ -108,13 +110,10 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             }
         }
         
-        #if 0
-        if (!game->cameraMoveManager.update(dt)) {
-            if (theTouchInputManager.hasClicked()) {
-                TRANSFORM(p)->position = theTouchInputManager.getTouchLastPosition();
-            }
-        }
-        #endif
+        auto* n  = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
+        if (!n || n->getStatus() == NetworkStatus::InRoomAsMaster)
+            theWeaponSystem.Update(dt);
+
         return Scene::Active;
     }
 

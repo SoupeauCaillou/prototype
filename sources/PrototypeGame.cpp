@@ -32,8 +32,6 @@
 #include "PlayerSystem.h"
 #include "util/Random.h"
 
-#define ZOOM 1
-
 #include <ostream>
 #include <fstream>
 #if SAC_EMSCRIPTEN
@@ -94,7 +92,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
     WeaponSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(WeaponSystem::GetInstancePointer());
+    // only updated by game's host
+    // orderedSystemsToUpdate.push_back(WeaponSystem::GetInstancePointer());
     SoldierSystem::CreateInstance();
     orderedSystemsToUpdate.push_back(SoldierSystem::GetInstancePointer());
     BulletSystem::CreateInstance();
