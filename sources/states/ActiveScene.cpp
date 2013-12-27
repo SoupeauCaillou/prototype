@@ -111,7 +111,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         }
         
         auto* n  = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
-        if (!n || n->getStatus() == NetworkStatus::InRoomAsMaster)
+        if (!n || n->getStatus() != NetworkStatus::ConnectedToServer)
             theWeaponSystem.Update(dt);
 
         return Scene::Active;
