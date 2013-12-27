@@ -29,7 +29,7 @@
 
 #include "base/Game.h"
 #include "base/GameContext.h"
-
+#include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
 class PrototypeGame : public Game {
@@ -54,6 +54,10 @@ class PrototypeGame : public Game {
 
         Entity myPlayer;
         std::string serverIp, nickName;
+
+        bool isGameHost;
+        DataFileParser config;
+        Entity timer;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

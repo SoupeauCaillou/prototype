@@ -139,6 +139,12 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     cameraMoveManager.init(camera, TRANSFORM(camera)->size, 5, 
         glm::vec4(glm::vec2(-PlacementHelper::ScreenSize.x * 0.5f), glm::vec2(PlacementHelper::ScreenSize.x * 0.5f)));
+
+    FileBuffer fb = gameThreadContext->assetAPI->loadAsset("config.ini");
+    config.load(fb, "config.ini");
+    delete[] fb.data;
+
+    timer = theEntityManager.CreateEntityFromTemplate("timer");
 }
 
 void PrototypeGame::backPressed() {

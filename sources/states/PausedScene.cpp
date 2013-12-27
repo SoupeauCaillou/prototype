@@ -28,13 +28,16 @@
 #include "systems/TransformationSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
+#include "MessageSystem.h"
 #include "api/NetworkAPI.h"
 #include "api/linux/NetworkAPILinuxImpl.h"
 
 #include "PrototypeGame.h"
+#include <iomanip>
 
 struct PausedScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+    float accum;
 
     PausedScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
       this->game = game;
@@ -50,8 +53,8 @@ struct PausedScene : public StateHandler<Scene::Enum> {
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onPreEnter(Scene::Enum) override {
-
+    void onEnter(Scene::Enum) override {
+        accum = 0;
     }
 
 
@@ -62,6 +65,37 @@ struct PausedScene : public StateHandler<Scene::Enum> {
         if (!game->cameraMoveManager.update(dt)) {
 
         }
+        
+        float duration = 5;
+        game->config.get("", "paused_duration", &duration);
+        accum = glm::min(duration, accum + dt);
+
+        std::stringstream ss;
+        ss.precision(1);
+        ss << "PAUSE " << accum << " s";
+        TRANSFORM(game->timer)->size = TRANSFORM(game->camera)->size;
+        TRANSFORM(game->timer)->size *= glm::vec2(accum / duration, 0.05);
+        TRANSFORM(game->timer)->position =
+            AnchorSystem::adjustPositionWithCardinal(TRANSFORM(game->camera)->position + TRANSFORM(game->camera)->size * glm::vec2(0.0f, 0.5f),
+            TRANSFORM(game->timer)->size,
+            Cardinal::N);
+        TEXT(game->timer)->text = ss.str();
+        TEXT(game->timer)->charHeight = TRANSFORM(game->timer)->size.y;
+
+        if (game->isGameHost) {
+            if (accum >= duration) {
+                Entity msg = theEntityManager.CreateEntityFromTemplate("message");
+                MESSAGE(msg)->type = Message::ChangeState;
+                MESSAGE(msg)->newState = Scene::Active;
+                return Scene::Active;
+            }
+        } else {
+            for (auto p: theMessageSystem.getAllComponents()) {
+                if (p.second->type == Message::ChangeState)
+                    return p.second->newState;
+            }
+        }
+
         return Scene::Paused;
     }
 

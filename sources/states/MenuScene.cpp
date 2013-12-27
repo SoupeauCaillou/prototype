@@ -186,8 +186,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         // create game entities, if game master
-        game->initGame(glm::max(1, (int)net->getPlayersInRoom().size()),
-            (net->getStatus() == NetworkStatus::Logged || net->getStatus() == NetworkStatus::ConnectingToLobby || net->getStatus() == NetworkStatus::InRoomAsMaster));
+        game->isGameHost = (net->getStatus() == NetworkStatus::Logged || net->getStatus() == NetworkStatus::ConnectingToLobby || net->getStatus() == NetworkStatus::InRoomAsMaster);
+        game->initGame(glm::max(1, (int)net->getPlayersInRoom().size()), game->isGameHost);
+            
 
         // notify everyone
         Entity msg = theEntityManager.CreateEntityFromTemplate("message");

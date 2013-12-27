@@ -24,9 +24,11 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "systems/ButtonSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "WeaponSystem.h"
 #include "SoldierSystem.h"
+#include "MessageSystem.h"
 
 #include <glm/gtx/norm.hpp>
 #include "PrototypeGame.h"
@@ -38,6 +40,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity selected, waypoint;
     glm::vec2 speed, target;
+    float accum;
 
     ActiveScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
       this->game = game;
@@ -58,11 +61,47 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
 
     }
 
+    void onEnter(Scene::Enum) override {
+        accum = 0;
+    }
+
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        if (game->isGameHost)
+            theWeaponSystem.Update(dt);
+
+        float duration = 5;
+        game->config.get("", "active_duration", &duration);
+        accum = glm::min(duration, accum + dt);
+
+        std::stringstream ss;
+        ss.precision(1);
+        ss << "GO " << accum << " s";
+        TRANSFORM(game->timer)->size = TRANSFORM(game->camera)->size;
+        TRANSFORM(game->timer)->size *= glm::vec2(1.0f - accum / duration, 0.05);
+        TEXT(game->timer)->text = ss.str();
+        TEXT(game->timer)->charHeight = TRANSFORM(game->timer)->size.y;
+        TRANSFORM(game->timer)->position =
+            AnchorSystem::adjustPositionWithCardinal(TRANSFORM(game->camera)->position + TRANSFORM(game->camera)->size * glm::vec2(0.0f, 0.5f),
+            TRANSFORM(game->timer)->size,
+            Cardinal::N);
+        if (game->isGameHost) {
+            if (accum >= duration) {
+                Entity msg = theEntityManager.CreateEntityFromTemplate("message");
+                MESSAGE(msg)->type = Message::ChangeState;
+                MESSAGE(msg)->newState = Scene::Paused;
+                return Scene::Paused;
+            }
+        } else {
+            for (auto p: theMessageSystem.getAllComponents()) {
+                if (p.second->type == Message::ChangeState)
+                    return p.second->newState;
+            }
+        }
+
         if (game->cameraMoveManager.update(dt))
             return Scene::Active;
 
@@ -109,10 +148,6 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 }
             }
         }
-        
-        auto* n  = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
-        if (!n || n->getStatus() != NetworkStatus::ConnectedToServer)
-            theWeaponSystem.Update(dt);
 
         return Scene::Active;
     }

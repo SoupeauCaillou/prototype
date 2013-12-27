@@ -2,3 +2,7 @@
 
 [Network]
 sync = Message
+
+[AutoDestroy]
+type = 1
+lifetime/value = 0.5
