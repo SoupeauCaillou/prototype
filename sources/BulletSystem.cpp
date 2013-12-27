@@ -49,12 +49,12 @@ void BulletSystem::DoUpdate(float dt) {
             TRANSFORM(bullet)->size.x = glm::length(cc->collisionAt - weaponNose);
             TRANSFORM(bullet)->rotation = TRANSFORM(entity)->rotation;
 
+            // damage
             auto* sc = theSoldierSystem.Get(cc->collidedWithLastFrame, false);
             if (sc) {
-                sc->health -= p.second->damage;
-            } else {
-
+                sc->health = glm::max(0, (int)(sc->health - p.second->damage));
             }
+
             toDelete.push_back(entity);
         }
     }

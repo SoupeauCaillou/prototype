@@ -28,12 +28,12 @@
 #include "base/Frequency.h"
 
 struct WeaponComponent {
-    WeaponComponent(): fireSpeed(0), reloadSpeed(0), bulletPerShot(1), bulletSpeed(5), precision(0), fire(false), reload(false), ammoLeftInClip(0) {}
+    WeaponComponent(): fireSpeed(0), reloadSpeed(0), bulletPerShot(1), bulletDamage(0.1), precision(0), fire(false), reload(false), ammoLeftInClip(0) {}
 
     Frequency<float> fireSpeed;
     Frequency<float> reloadSpeed;
     int bulletPerShot;
-    float bulletSpeed;
+    float bulletDamage;
 
     float precision;
     std::string bulletTemplate;

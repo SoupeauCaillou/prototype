@@ -12,7 +12,7 @@ position = 0.2, -0.12
 [Weapon]
 fire_speed = 1.5
 reload_speed = 1
-bullet_speed = 8
+bullet_damage = 30
 bullet_per_shot = 5
 precision = 0.7
 bullet_template = shotgun_bullet

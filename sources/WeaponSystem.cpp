@@ -34,7 +34,7 @@ WeaponSystem::WeaponSystem() : ComponentSystemImpl<WeaponComponent>("Weapon") {
     componentSerializer.add(new Property<float>("fire_speed", OFFSET(fireSpeed.value, tc), 0.001));
     componentSerializer.add(new Property<float>("reload_speed", OFFSET(reloadSpeed.value, tc), 0.001));
     componentSerializer.add(new Property<int>("bullet_per_shot", OFFSET(bulletPerShot, tc)));
-    componentSerializer.add(new Property<float>("bullet_speed", OFFSET(bulletSpeed, tc), 0.001));
+    componentSerializer.add(new Property<float>("bullet_damage", OFFSET(bulletDamage, tc), 0.001));
     componentSerializer.add(new Property<float>("precision", OFFSET(precision, tc), 0.001));
     componentSerializer.add(new StringProperty("bullet_template", OFFSET(bulletTemplate, tc)));
     componentSerializer.add(new Property<bool>("fire", OFFSET(fire, tc)));
@@ -68,6 +68,7 @@ void WeaponSystem::DoUpdate(float dt) {
                         Entity bColl = theEntityManager.CreateEntityFromTemplate("bullet");
                         TRANSFORM(bColl)->position = nose;
                         TRANSFORM(bColl)->rotation = tc->rotation + Random::Float(-0.5f * wc->precision, 0.5f * wc->precision);
+                        BULLET(bColl)->damage = wc->bulletDamage;
 
                         Entity b = BULLET(bColl)->display = theEntityManager.CreateEntityFromTemplate(wc->bulletTemplate);
                         TRANSFORM(b)->position = nose;

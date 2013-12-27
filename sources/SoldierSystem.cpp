@@ -23,6 +23,10 @@
 #include "SoldierSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/AnchorSystem.h"
+#include "systems/ButtonSystem.h"
+#include "systems/CollisionSystem.h"
+#include "systems/RenderingSystem.h"
+#include "systems/TextSystem.h"
 
 INSTANCE_IMPL(SoldierSystem);
 
@@ -40,6 +44,15 @@ void SoldierSystem::DoUpdate(float dt) {
         if (sc->weapon)
             ANCHOR(sc->weapon)->parent = entity;
 
+        std::stringstream ss;
+        ss << (int)sc->health;
+        TEXT(entity)->text = ss.str();
+
+        if (sc->health == 0) {
+            RENDERING(entity)->shape = Shape::Triangle;
+            COLLISION(entity)->group = 0;
+            BUTTON(entity)->enabled = false;
+        }
     }
 }
 

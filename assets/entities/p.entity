@@ -15,6 +15,11 @@ restore_position_on_collision = 1
 enabled = 1
 
 [Soldier]
+health = 100
 
 [Network]
 sync = Transformation, Rendering, Collision, Button, Soldier
+
+[Text]
+char_height = 0.4
+show = 1
