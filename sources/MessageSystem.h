@@ -31,18 +31,21 @@ namespace Message {
     enum Enum {
         ChangeState,
         Ready,
+        NewHealth,
     };
 }
 
 struct MessageComponent {
-    MessageComponent() {}
+    MessageComponent() : soldier(0), health(0) {}
 
     Message::Enum type;
 
-    union {
-        struct {
-            Scene::Enum newState;
-        };
+    struct {
+        Scene::Enum newState;
+    };
+    struct {
+        Entity soldier;
+        float health;
     };
 };
 

@@ -25,6 +25,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/CollisionSystem.h"
 #include "SoldierSystem.h"
+#include "MessageSystem.h"
 
 INSTANCE_IMPL(BulletSystem);
 
@@ -52,7 +53,11 @@ void BulletSystem::DoUpdate(float dt) {
             // damage
             auto* sc = theSoldierSystem.Get(cc->collidedWithLastFrame, false);
             if (sc) {
-                sc->health = glm::max(0, (int)(sc->health - p.second->damage));
+                float newHealth = glm::max(0, (int)(sc->health - p.second->damage));
+                Entity msg = theEntityManager.CreateEntityFromTemplate("message");
+                MESSAGE(msg)->type = Message::NewHealth;
+                MESSAGE(msg)->soldier = cc->collidedWithLastFrame;
+                MESSAGE(msg)->health = newHealth;
             }
 
             toDelete.push_back(entity);

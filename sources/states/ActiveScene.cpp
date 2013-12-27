@@ -95,13 +95,17 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 MESSAGE(msg)->newState = Scene::Paused;
                 return Scene::Paused;
             }
-        } else {
-            for (auto p: theMessageSystem.getAllComponents()) {
-                if (p.second->type == Message::ChangeState)
-                    return p.second->newState;
-            }
         }
 
+        for (auto p: theMessageSystem.getAllComponents()) {
+            switch (p.second->type) {
+                case Message::ChangeState:
+                    return p.second->newState;
+                case Message::NewHealth:
+                    SOLDIER(p.second->soldier)->health = p.second->health;
+                    break;
+            }
+        }
         if (game->cameraMoveManager.update(dt))
             return Scene::Active;
 

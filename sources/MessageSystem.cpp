@@ -28,6 +28,8 @@ MessageSystem::MessageSystem() : ComponentSystemImpl<MessageComponent>("Message"
     MessageComponent tc;
     componentSerializer.add(new Property<int>("type", OFFSET(type, tc)));
     componentSerializer.add(new Property<int>("new_state", OFFSET(newState, tc)));
+    componentSerializer.add(new EntityProperty("soldier", OFFSET(soldier, tc)));
+    componentSerializer.add(new Property<float>("health", OFFSET(health, tc)));
 }
 
 void MessageSystem::DoUpdate(float) {
