@@ -18,7 +18,7 @@ enabled = 1
 health = 100
 
 [Network]
-sync = Transformation, Rendering, Collision, Button, Soldier
+sync = Transformation, Rendering, Collision, Button, Soldier, Text
 
 [Text]
 char_height = 0.4
