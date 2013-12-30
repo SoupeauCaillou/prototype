@@ -198,6 +198,8 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        if (selected)
+            WEAPON(SOLDIER(selected)->weapon)->fire = false;
         RENDERING(selection)->show = RENDERING(waypoint)->show = false;
     }
 };
