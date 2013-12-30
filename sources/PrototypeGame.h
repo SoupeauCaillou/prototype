@@ -32,6 +32,8 @@
 #include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
+#include "api/NetworkAPI.h"
+
 class PrototypeGame : public Game {
     public:
         PrototypeGame(int argc, char** argv);
@@ -45,7 +47,7 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
-        void initGame(int playerCount, bool master);
+        void initGame(const std::map<std::string, NetworkStatus::Enum>& playersInGame, bool master);
 
         Entity camera;
         FaderHelper faderHelper;

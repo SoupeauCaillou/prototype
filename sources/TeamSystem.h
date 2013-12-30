@@ -17,30 +17,26 @@
     You should have received a copy of the GNU General Public License
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-
 #pragma once
 
 #include <glm/glm.hpp>
 
 #include "systems/System.h"
-#include "base/Frequency.h"
 
-struct SoldierComponent {
-    SoldierComponent() : weapon(0), health(1.0),team(0) {}
+struct TeamComponent {
+    TeamComponent() : index(0), score(0) {}
 
-    Entity weapon;
-    float health;
-    Entity team;
+    int index, score;
+    std::string name;
+    Color color;
 };
 
-#define theSoldierSystem SoldierSystem::GetInstance()
+#define theTeamSystem TeamSystem::GetInstance()
 #if SAC_DEBUG
-#define SOLDIER(e) theSoldierSystem.Get(e,true,__FILE__,__LINE__)
+#define TEAM(e) theTeamSystem.Get(e,true,__FILE__,__LINE__)
 #else
-#define SOLDIER(e) theSoldierSystem.Get(e)
+#define TEAM(e) theTeamSystem.Get(e)
 #endif
 
-UPDATABLE_SYSTEM(Soldier)
+UPDATABLE_SYSTEM(Team)
 };

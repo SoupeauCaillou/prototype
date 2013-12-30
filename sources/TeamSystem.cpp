@@ -18,29 +18,18 @@
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "TeamSystem.h"
 
+INSTANCE_IMPL(TeamSystem);
 
-#pragma once
+TeamSystem::TeamSystem() : ComponentSystemImpl<TeamComponent>("Team") {
+    TeamComponent tc;
+    componentSerializer.add(new Property<int>("index", OFFSET(index, tc)));
+    componentSerializer.add(new Property<int>("score", OFFSET(score, tc)));
+    componentSerializer.add(new StringProperty("name", OFFSET(name, tc)));
+    componentSerializer.add(new Property<Color>("color", OFFSET(color, tc)));
+}
 
-#include <glm/glm.hpp>
+void TeamSystem::DoUpdate(float) {
+}
 
-#include "systems/System.h"
-#include "base/Frequency.h"
-
-struct SoldierComponent {
-    SoldierComponent() : weapon(0), health(1.0),team(0) {}
-
-    Entity weapon;
-    float health;
-    Entity team;
-};
-
-#define theSoldierSystem SoldierSystem::GetInstance()
-#if SAC_DEBUG
-#define SOLDIER(e) theSoldierSystem.Get(e,true,__FILE__,__LINE__)
-#else
-#define SOLDIER(e) theSoldierSystem.Get(e)
-#endif
-
-UPDATABLE_SYSTEM(Soldier)
-};

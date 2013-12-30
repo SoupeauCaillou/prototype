@@ -30,6 +30,7 @@
 #include "BulletSystem.h"
 #include "MessageSystem.h"
 #include "PlayerSystem.h"
+#include "TeamSystem.h"
 #include "util/Random.h"
 
 #include <ostream>
@@ -102,6 +103,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     orderedSystemsToUpdate.push_back(MessageSystem::GetInstancePointer());
     PlayerSystem::CreateInstance();
     orderedSystemsToUpdate.push_back(PlayerSystem::GetInstancePointer());
+    TeamSystem::CreateInstance();
 
     Game::sacInit(windowW, windowH);
 
@@ -162,19 +164,49 @@ bool PrototypeGame::willConsumeBackEvent() {
     return false;
 }
 
-void PrototypeGame::initGame(int playerCount, bool master) {
+void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& playersInGame, bool master) {
     if (master) {
         for (int i=0; i<30; i++) {
             theEntityManager.CreateEntityFromTemplate("block");
         }
+
+        Color colors[] = {
+            Color(0.8, 0.2, 0.2),
+            Color(0.2, 0.2, 0.8),
+            Color(0.2, 0.8, 0.2),
+            Color(0.6, 0.3, 0.6)
+        };
+        // create teams
+        int index = 0;
+        if (playersInGame.empty()) {
+            Entity t = theEntityManager.CreateEntityFromTemplate("team");
+            TEAM(t)->index = 0;
+            TEAM(t)->color = colors[0];
+            TEAM(t)->name = nickName;
+        } else {
+            for (auto it=playersInGame.begin(); it!=playersInGame.end(); ++it, index++) {
+                Entity t = theEntityManager.CreateEntityFromTemplate("team");
+                TEAM(t)->index = index;
+                TEAM(t)->color = colors[index];
+                TEAM(t)->name = it->first;
+            }
+        }
     }
+
+    Entity team = 0;
+    theTeamSystem.forEachECDo([this, &team] (Entity e, TeamComponent* tc) -> void {
+        if (tc->name == nickName) {
+            team = e;
+        }
+    });
+    LOGF_IF(team == 0, "Unable to find my team");
 
     const std::string weapons[] = {"shotgun", "machinegun"};
     for (int i=0; i<1; i++) {
-        Color c = Color::random();
         for (int i=0; i<4; i++) {
             Entity p = theEntityManager.CreateEntityFromTemplate("p");
-            RENDERING(p)->color = c;
+            RENDERING(p)->color = TEAM(team)->color;
+            SOLDIER(p)->team = team;
             SOLDIER(p)->weapon = theEntityManager.CreateEntityFromTemplate(weapons[Random::Int(0, 1)]);
             players.push_back(p);
             TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;

@@ -33,6 +33,7 @@
 
 #include "PrototypeGame.h"
 #include "SoldierSystem.h"
+#include "TeamSystem.h"
 #include "util/Random.h"
 
 #include "MessageSystem.h"
@@ -182,14 +183,26 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
+        game->isGameHost = (net->getStatus() == NetworkStatus::Logged || net->getStatus() == NetworkStatus::ConnectingToLobby || net->getStatus() == NetworkStatus::InRoomAsMaster);
+        if (game->isGameHost)
+            game->initGame(net->getPlayersInRoom(), game->isGameHost);
     }
 
-    void onExit(Scene::Enum) override {
-        // create game entities, if game master
-        game->isGameHost = (net->getStatus() == NetworkStatus::Logged || net->getStatus() == NetworkStatus::ConnectingToLobby || net->getStatus() == NetworkStatus::InRoomAsMaster);
-        game->initGame(glm::max(1, (int)net->getPlayersInRoom().size()), game->isGameHost);
-            
+    bool updatePreExit(Scene::Enum, float) override {
+        if (game->isGameHost) {
+            return true;
+        }
+        else {
+            if (theTeamSystem.entityCount() > 0) {
+                game->initGame(net->getPlayersInRoom(), game->isGameHost);
+                return true;
+            }
+        }
 
+        return false;
+    }
+
+    void onExit(Scene::Enum) override {            
         // notify everyone
         Entity msg = theEntityManager.CreateEntityFromTemplate("message");
         MESSAGE(msg)->type = Message::ChangeState;
