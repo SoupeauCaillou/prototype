@@ -1,1 +1,4 @@
 [Team]
+
+[Network]
+sync = Team
