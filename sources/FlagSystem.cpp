@@ -33,6 +33,7 @@ FlagSystem::FlagSystem() : ComponentSystemImpl<FlagComponent>("Flag") {
 }
 
 void FlagSystem::DoUpdate(float) {
+    auto& soldiers = theSoldierSystem.getAllComponents();
     for (auto& p: components) {
         Entity e = p.first;
 
@@ -41,6 +42,14 @@ void FlagSystem::DoUpdate(float) {
             Entity spawn = TEAM(SOLDIER(owner)->team)->spawn;
             if (IntersectionUtil::rectangleRectangle(TRANSFORM(e), TRANSFORM(spawn))) {
                 TEAM(SOLDIER(owner)->team)->flagCaptured = true;
+            }
+        } else {
+            for (auto it: soldiers) {
+                const auto* tc = TRANSFORM(it.first);
+                if (IntersectionUtil::rectangleRectangle(TRANSFORM(e), tc)) {
+                    ANCHOR(e)->parent = it.first;
+                    break;
+                }
             }
         }
     }

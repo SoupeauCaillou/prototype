@@ -8,5 +8,10 @@ show = 1
 opaque_type = 0
 color = 0,0,0,0.5
 
+[Text]
+char_height = 1
+show = 1
+text = 0
+
 [Network]
 sync = Transformation, Rendering

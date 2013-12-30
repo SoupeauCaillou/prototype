@@ -198,12 +198,21 @@ void PrototypeGame::oneTimeGameSetup(const std::map<std::string, NetworkStatus::
             TEAM(t)->index = 0;
             TEAM(t)->color = colors[0];
             TEAM(t)->name = nickName;
+
+            Entity spawn = theEntityManager.CreateEntityFromTemplate("spawn");
+            RENDERING(spawn)->color = TEAM(t)->color * 0.5;
+            TEAM(t)->spawn = spawn;
         } else {
             for (auto it=playersInGame.begin(); it!=playersInGame.end(); ++it, index++) {
                 Entity t = theEntityManager.CreateEntityFromTemplate("team");
                 TEAM(t)->index = index;
                 TEAM(t)->color = colors[index];
                 TEAM(t)->name = it->first;
+
+                Entity spawn = theEntityManager.CreateEntityFromTemplate("spawn");
+                RENDERING(spawn)->color = TEAM(t)->color * 0.5;
+                TRANSFORM(spawn)->position = glm::rotate(TRANSFORM(spawn)->position, (TEAM(t)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
+                TEAM(t)->spawn = spawn;
             }
         }
         theEntityManager.CreateEntityFromTemplate("flag");
@@ -220,7 +229,9 @@ void PrototypeGame::eachTimeGameSetup() {
             theEntityManager.CreateEntityFromTemplate("block");
         }
         // reset flag position
-        TRANSFORM(theEntityManager.getEntityByName("flag"))->position = glm::vec2(0.0f);
+        Entity flag = theEntityManager.getEntityByName("flag");
+        ANCHOR(flag)->parent = 0;
+        TRANSFORM(flag)->position = glm::vec2(0.0f);
     }
 
 
@@ -247,10 +258,5 @@ void PrototypeGame::eachTimeGameSetup() {
 
         TRANSFORM(p)->position = glm::rotate(TRANSFORM(p)->position, (TEAM(team)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
         LOGI(theEntityManager.entityName(p) << ":" << TRANSFORM(p)->position);
-
-        Entity spawn = theEntityManager.CreateEntityFromTemplate("spawn");
-        RENDERING(spawn)->color = TEAM(team)->color * 0.5;
-        TRANSFORM(spawn)->position = glm::rotate(TRANSFORM(spawn)->position, (TEAM(team)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
-        TEAM(team)->spawn = spawn;
     }
 }

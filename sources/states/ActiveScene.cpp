@@ -112,6 +112,10 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 auto* tc = pteam.second;
                 if (tc->flagCaptured) {
                     tc->score++;
+                    tc->flagCaptured = false;
+                    std::stringstream ss;
+                    ss << tc->score;
+                    TEXT(tc->spawn)->text = ss.str();
                     return Scene::GameStart;
                 }
             }

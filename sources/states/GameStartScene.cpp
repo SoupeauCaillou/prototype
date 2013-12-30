@@ -56,6 +56,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             PLAYER(game->myPlayer)->name = game->nickName;
         }
         PLAYER(game->myPlayer)->ready = false;
+        game->cameraMoveManager.centerOn(glm::vec2(0.0f));
+        game->cameraMoveManager.setZoom(1);
     }
 
 

@@ -7,4 +7,6 @@ z = 0.1
 [Rendering]
 shape = 1
 show = 1
-color = 0, 0, 0
+color = 1, 1, 0
+
+[Flag]
