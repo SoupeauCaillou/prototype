@@ -24,6 +24,7 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "systems/ButtonSystem.h"
+#include "systems/CollisionSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "WeaponSystem.h"
@@ -63,6 +64,9 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
 
     void onEnter(Scene::Enum) override {
         accum = 0;
+        for (Entity p: game->players) {
+            COLLISION(p)->restorePositionOnCollision = true;
+        }
     }
 
 

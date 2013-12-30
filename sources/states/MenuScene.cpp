@@ -200,7 +200,11 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         return false;
     }
 
-    void onExit(Scene::Enum) override {            
+    void onExit(Scene::Enum) override {   
+        theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent*) -> void {
+            LOGI(theEntityManager.entityName(e) << ':' << TRANSFORM(e)->position);
+        });
+
         // notify everyone
         Entity msg = theEntityManager.CreateEntityFromTemplate("message");
         MESSAGE(msg)->type = Message::ChangeState;

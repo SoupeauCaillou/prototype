@@ -23,6 +23,8 @@
 
 #include "base/EntityManager.h"
 #include "PlayerSystem.h"
+#include "SoldierSystem.h"
+#include "systems/CollisionSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
@@ -93,6 +95,23 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     void onPreExit(Scene::Enum) override {
         for (auto p: players)
             theEntityManager.DeleteEntity(p);
+    }
+
+    bool updatePreExit(Scene::Enum, float) override {
+        // remove blocks colliding with soldiers
+        if (game->isGameHost) {
+            auto count = theCollisionSystem.entityCount();
+            theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent*) -> void {
+                Entity c = COLLISION(e)->collidedWithLastFrame;
+                auto* bc = theCollisionSystem.Get(c, false);
+                if (bc && bc->group == 1) {
+                    theEntityManager.DeleteEntity(c);
+                }
+            });
+            return count == theCollisionSystem.entityCount();
+        } else {
+            return true;
+        }
     }
 
     void onExit(Scene::Enum) override {

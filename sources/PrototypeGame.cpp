@@ -45,6 +45,9 @@
 #include <unistd.h>
 #endif
 
+#include <glm/gtc/constants.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
 PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe"){
 #if SAC_LINUX && SAC_DESKTOP
     char* nick = getlogin();
@@ -173,7 +176,7 @@ bool PrototypeGame::willConsumeBackEvent() {
 
 void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& playersInGame, bool master) {
     if (master) {
-        for (int i=0; i<30; i++) {
+        for (int i=0; i<45; i++) {
             theEntityManager.CreateEntityFromTemplate("block");
         }
 
@@ -208,15 +211,14 @@ void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& p
     });
     LOGF_IF(team == 0, "Unable to find my team");
 
-    const std::string weapons[] = {"shotgun", "machinegun"};
-    for (int i=0; i<1; i++) {
-        for (int i=0; i<4; i++) {
-            Entity p = theEntityManager.CreateEntityFromTemplate("p");
-            RENDERING(p)->color = TEAM(team)->color;
-            SOLDIER(p)->team = team;
-            SOLDIER(p)->weapon = theEntityManager.CreateEntityFromTemplate(weapons[Random::Int(0, 1)]);
-            players.push_back(p);
-            TRANSFORM(p)->position.x += TRANSFORM(p)->size.x * 1.1 * i;
-        }
+    const std::string soldier[] = {"gunman", "shotgunman", "machinegunman"};
+    for (int i=0; i<3; i++) {
+        Entity p = theEntityManager.CreateEntityFromTemplate(soldier[i]);
+        RENDERING(p)->color = TEAM(team)->color;
+        SOLDIER(p)->team = team;
+        players.push_back(p);
+
+        TRANSFORM(p)->position = glm::rotate(TRANSFORM(p)->position, (TEAM(team)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
+        LOGI(theEntityManager.entityName(p) << ":" << TRANSFORM(p)->position);
     }
 }

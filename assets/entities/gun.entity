@@ -1,0 +1,22 @@
+[Rendering]
+color%html = 121235
+show = 1
+
+[Transformation]
+size = 0.15, 0.05
+
+[Anchor]
+z = 0.1
+position = 0.1, -0.12
+
+[Weapon]
+fire_speed = 2
+reload_speed = 1
+bullet_damage = 30
+bullet_per_shot = 1
+precision = 0.2
+bullet_template = shotgun_bullet
+ammo_left_in_clip = 100
+
+[Network]
+sync = Transformation, Rendering, Weapon

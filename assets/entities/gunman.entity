@@ -1,0 +1,8 @@
+extends = p
+
+[Transformation]
+position = 9.75, 0
+size = 0.2,0.4
+
+[Soldier]
+weapon%template = gun
