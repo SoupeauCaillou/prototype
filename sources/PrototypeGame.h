@@ -47,7 +47,8 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
-        void initGame(const std::map<std::string, NetworkStatus::Enum>& playersInGame, bool master);
+        void oneTimeGameSetup(const std::map<std::string, NetworkStatus::Enum>& playersInGame);
+        void eachTimeGameSetup();
 
         Entity camera;
         FaderHelper faderHelper;

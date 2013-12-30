@@ -49,9 +49,13 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        // create my player
-        game->myPlayer = theEntityManager.CreateEntityFromTemplate("player");
-        PLAYER(game->myPlayer)->name = game->nickName;
+        game->eachTimeGameSetup();
+        if (!game->myPlayer) {
+            // create my player
+            game->myPlayer = theEntityManager.CreateEntityFromTemplate("player");
+            PLAYER(game->myPlayer)->name = game->nickName;
+        }
+        PLAYER(game->myPlayer)->ready = false;
     }
 
 
@@ -95,6 +99,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     void onPreExit(Scene::Enum) override {
         for (auto p: players)
             theEntityManager.DeleteEntity(p);
+        players.clear();
     }
 
     bool updatePreExit(Scene::Enum, float) override {

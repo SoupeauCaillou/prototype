@@ -17,28 +17,23 @@
     You should have received a copy of the GNU General Public License
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #pragma once
 
 #include <glm/glm.hpp>
 
 #include "systems/System.h"
 
-struct TeamComponent {
-    TeamComponent() : spawn(0), index(0), score(0), flagCaptured(false) {}
-
-    Entity spawn;
-    int index, score;
-    std::string name;
-    Color color;
-    bool flagCaptured;
+struct FlagComponent {
+    FlagComponent() {}
 };
 
-#define theTeamSystem TeamSystem::GetInstance()
+#define theFlagSystem FlagSystem::GetInstance()
 #if SAC_DEBUG
-#define TEAM(e) theTeamSystem.Get(e,true,__FILE__,__LINE__)
+#define FLAG(e) theFlagSystem.Get(e,true,__FILE__,__LINE__)
 #else
-#define TEAM(e) theTeamSystem.Get(e)
+#define FLAG(e) theFlagSystem.Get(e)
 #endif
 
-UPDATABLE_SYSTEM(Team)
+UPDATABLE_SYSTEM(Flag)
 };

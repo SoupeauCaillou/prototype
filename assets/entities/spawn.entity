@@ -1,0 +1,12 @@
+[Transformation]
+size = 1, 3
+position = 9.5, 0
+z = 0.02
+
+[Rendering]
+show = 1
+opaque_type = 0
+color = 0,0,0,0.5
+
+[Network]
+sync = Transformation, Rendering

@@ -1,0 +1,10 @@
+[Transformation]
+size = 0.3, 0.3
+
+[Anchor]
+z = 0.1
+
+[Rendering]
+shape = 1
+show = 1
+color = 0, 0, 0

@@ -31,6 +31,8 @@
 #include "WeaponSystem.h"
 #include "SoldierSystem.h"
 #include "MessageSystem.h"
+#include "FlagSystem.h"
+#include "TeamSystem.h"
 
 #include <glm/gtx/norm.hpp>
 #include "PrototypeGame.h"
@@ -44,12 +46,13 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     Entity selected, waypoint;
     glm::vec2 speed, target;
     float accum;
-    Entity selection;
+    Entity selection, restart;
 
     int latestSelectEntityKbEvents;
 
     ActiveScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
       this->game = game;
+      restart = 0;
     }
 
     void setup() {
@@ -66,6 +69,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(12, [this] () -> void {
                 latestSelectEntityKbEvents = 2;
         });
+        restart = theEntityManager.CreateEntityFromTemplate("restart");
     }
 
 
@@ -92,11 +96,26 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        if (game->isGameHost && BUTTON(restart)->clicked) {
+            return Scene::GameStart;
+        }
+
         RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
         ANCHOR(selection)->rotation += dt * 3;
 
-        if (game->isGameHost)
+        if (game->isGameHost) {
             theWeaponSystem.Update(dt);
+            theFlagSystem.Update(dt);
+
+            // check point condition
+            for (auto& pteam: theTeamSystem.getAllComponents()) {
+                auto* tc = pteam.second;
+                if (tc->flagCaptured) {
+                    tc->score++;
+                    return Scene::GameStart;
+                }
+            }
+        }
 
         float duration = 5;
         game->config.get("", "active_duration", &duration);
@@ -115,9 +134,6 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             Cardinal::N);
         if (game->isGameHost) {
             if (accum >= duration) {
-                Entity msg = theEntityManager.CreateEntityFromTemplate("message");
-                MESSAGE(msg)->type = Message::ChangeState;
-                MESSAGE(msg)->newState = Scene::Paused;
                 return Scene::Paused;
             }
         }
@@ -194,12 +210,18 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
+    void onPreExit(Scene::Enum to) override {
+        if (game->isGameHost) {
+            Entity msg = theEntityManager.CreateEntityFromTemplate("message");
+            MESSAGE(msg)->type = Message::ChangeState;
+            MESSAGE(msg)->newState = to;
+        }
     }
 
     void onExit(Scene::Enum) override {
         if (selected)
             WEAPON(SOLDIER(selected)->weapon)->fire = false;
+        ANCHOR(selection)->parent = 0;
         RENDERING(selection)->show = RENDERING(waypoint)->show = false;
     }
 };

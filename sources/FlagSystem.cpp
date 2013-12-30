@@ -17,28 +17,32 @@
     You should have received a copy of the GNU General Public License
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
-#pragma once
 
-#include <glm/glm.hpp>
+#include "FlagSystem.h"
+#include "systems/AnchorSystem.h"
+#include "systems/TransformationSystem.h"
+#include "SoldierSystem.h"
+#include "TeamSystem.h"
 
-#include "systems/System.h"
+#include "util/IntersectionUtil.h"
 
-struct TeamComponent {
-    TeamComponent() : spawn(0), index(0), score(0), flagCaptured(false) {}
+INSTANCE_IMPL(FlagSystem);
 
-    Entity spawn;
-    int index, score;
-    std::string name;
-    Color color;
-    bool flagCaptured;
-};
+FlagSystem::FlagSystem() : ComponentSystemImpl<FlagComponent>("Flag") {
 
-#define theTeamSystem TeamSystem::GetInstance()
-#if SAC_DEBUG
-#define TEAM(e) theTeamSystem.Get(e,true,__FILE__,__LINE__)
-#else
-#define TEAM(e) theTeamSystem.Get(e)
-#endif
+}
 
-UPDATABLE_SYSTEM(Team)
-};
+void FlagSystem::DoUpdate(float) {
+    for (auto& p: components) {
+        Entity e = p.first;
+
+        auto owner = ANCHOR(e)->parent;
+        if (owner) {
+            Entity spawn = TEAM(SOLDIER(owner)->team)->spawn;
+            if (IntersectionUtil::rectangleRectangle(TRANSFORM(e), TRANSFORM(spawn))) {
+                TEAM(SOLDIER(owner)->team)->flagCaptured = true;
+            }
+        }
+    }
+}
+

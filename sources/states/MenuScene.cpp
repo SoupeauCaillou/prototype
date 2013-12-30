@@ -183,7 +183,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     void onPreExit(Scene::Enum) override {
         game->isGameHost = (net->getStatus() == NetworkStatus::Logged || net->getStatus() == NetworkStatus::ConnectingToLobby || net->getStatus() == NetworkStatus::InRoomAsMaster);
         if (game->isGameHost)
-            game->initGame(net->getPlayersInRoom(), game->isGameHost);
+            game->oneTimeGameSetup(net->getPlayersInRoom());
     }
 
     bool updatePreExit(Scene::Enum, float) override {
@@ -192,7 +192,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         }
         else {
             if (theTeamSystem.entityCount() > 0) {
-                game->initGame(net->getPlayersInRoom(), game->isGameHost);
+                game->oneTimeGameSetup(net->getPlayersInRoom());
                 return true;
             }
         }

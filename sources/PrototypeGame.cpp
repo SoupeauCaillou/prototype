@@ -31,6 +31,7 @@
 #include "MessageSystem.h"
 #include "PlayerSystem.h"
 #include "TeamSystem.h"
+#include "FlagSystem.h"
 #include "util/Random.h"
 
 #include <ostream>
@@ -65,6 +66,8 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nick
             nickName = argv[++i];
         }
     }
+    myPlayer = 0;
+
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
@@ -106,7 +109,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     orderedSystemsToUpdate.push_back(MessageSystem::GetInstancePointer());
     PlayerSystem::CreateInstance();
     orderedSystemsToUpdate.push_back(PlayerSystem::GetInstancePointer());
-    TeamSystem::CreateInstance();
+    TeamSystem::CreateInstance(); // only on game's host
+    FlagSystem::CreateInstance(); // only on game's host
 
     Game::sacInit(windowW, windowH);
 
@@ -179,12 +183,8 @@ bool PrototypeGame::willConsumeBackEvent() {
     return false;
 }
 
-void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& playersInGame, bool master) {
-    if (master) {
-        for (int i=0; i<45; i++) {
-            theEntityManager.CreateEntityFromTemplate("block");
-        }
-
+void PrototypeGame::oneTimeGameSetup(const std::map<std::string, NetworkStatus::Enum>& playersInGame) {
+    if (isGameHost) {
         Color colors[] = {
             Color(0.8, 0.2, 0.2),
             Color(0.2, 0.2, 0.8),
@@ -206,7 +206,30 @@ void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& p
                 TEAM(t)->name = it->first;
             }
         }
+        theEntityManager.CreateEntityFromTemplate("flag");
     }
+}
+
+void PrototypeGame::eachTimeGameSetup() {
+    if (isGameHost) {
+        Entity b = 0;
+        while ((b = theEntityManager.getEntityByName("block"))) {
+            theEntityManager.DeleteEntity(b);
+        }
+        for (int i=0; i<45; i++) {
+            theEntityManager.CreateEntityFromTemplate("block");
+        }
+        // reset flag position
+        TRANSFORM(theEntityManager.getEntityByName("flag"))->position = glm::vec2(0.0f);
+    }
+
+
+    // destroy soldiers
+    for (unsigned i=0; i<players.size(); i++) {
+        theEntityManager.DeleteEntity(SOLDIER(players[i])->weapon);
+        theEntityManager.DeleteEntity(players[i]);
+    }
+    players.clear();
 
     Entity team = 0;
     theTeamSystem.forEachECDo([this, &team] (Entity e, TeamComponent* tc) -> void {
@@ -214,7 +237,6 @@ void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& p
             team = e;
         }
     });
-    LOGF_IF(team == 0, "Unable to find my team");
 
     const std::string soldier[] = {"gunman", "shotgunman", "machinegunman"};
     for (int i=0; i<3; i++) {
@@ -225,5 +247,10 @@ void PrototypeGame::initGame(const std::map<std::string, NetworkStatus::Enum>& p
 
         TRANSFORM(p)->position = glm::rotate(TRANSFORM(p)->position, (TEAM(team)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
         LOGI(theEntityManager.entityName(p) << ":" << TRANSFORM(p)->position);
+
+        Entity spawn = theEntityManager.CreateEntityFromTemplate("spawn");
+        RENDERING(spawn)->color = TEAM(team)->color * 0.5;
+        TRANSFORM(spawn)->position = glm::rotate(TRANSFORM(spawn)->position, (TEAM(team)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
+        TEAM(team)->spawn = spawn;
     }
 }

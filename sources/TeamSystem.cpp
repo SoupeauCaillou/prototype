@@ -24,6 +24,7 @@ INSTANCE_IMPL(TeamSystem);
 
 TeamSystem::TeamSystem() : ComponentSystemImpl<TeamComponent>("Team") {
     TeamComponent tc;
+    componentSerializer.add(new EntityProperty("spawn", OFFSET(spawn, tc)));
     componentSerializer.add(new Property<int>("index", OFFSET(index, tc)));
     componentSerializer.add(new Property<int>("score", OFFSET(score, tc)));
     componentSerializer.add(new StringProperty("name", OFFSET(name, tc)));
