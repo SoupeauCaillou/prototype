@@ -1,0 +1,7 @@
+[Transformation]
+z = 0.01
+size = 20, 20
+
+[Rendering]
+show = 1
+color%html = CA935A

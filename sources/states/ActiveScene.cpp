@@ -125,8 +125,10 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         if (selected) {
             // MOVE
             if (theTouchInputManager.hasClicked()) {
-                TRANSFORM(waypoint)->position =
-                    target = theTouchInputManager.getTouchLastPosition();
+                const auto& p = theTouchInputManager.getTouchLastPosition();
+                if (glm::abs(p.x) <= 10 && glm::abs(p.y) <= 10) {
+                    TRANSFORM(waypoint)->position = target = p;
+                }
             }
             auto* tc = TRANSFORM(selected);
 

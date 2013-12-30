@@ -135,10 +135,15 @@ void PrototypeGame::init(const uint8_t*, int) {
         LOGI("Solo game");
     }
 
+    theEntityManager.CreateEntityFromTemplate("arena");
+
     theCollisionSystem.worldSize = glm::vec2(PlacementHelper::ScreenSize.x, PlacementHelper::ScreenSize.x);
 
-    cameraMoveManager.init(camera, TRANSFORM(camera)->size, 5, 
-        glm::vec4(glm::vec2(-PlacementHelper::ScreenSize.x * 0.5f), glm::vec2(PlacementHelper::ScreenSize.x * 0.5f)));
+    glm::vec2 maxSize(
+        TRANSFORM(camera)->size.x * (TRANSFORM(camera)->size.x / TRANSFORM(camera)->size.y),
+        TRANSFORM(camera)->size.x);
+    cameraMoveManager.init(camera, maxSize, 5, 
+        glm::vec4(maxSize * -0.5f, maxSize * 0.5f));
 
     FileBuffer fb = gameThreadContext->assetAPI->loadAsset("config.ini");
     config.load(fb, "config.ini");
