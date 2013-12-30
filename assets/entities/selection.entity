@@ -1,0 +1,9 @@
+[Anchor]
+z = -0.1
+
+[Transformation]
+size = 0.8, 0.8
+
+[Rendering]
+shape = 2
+color = 0.8, 0.8, 0.8

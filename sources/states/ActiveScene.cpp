@@ -25,6 +25,7 @@
 #include "base/TouchInputManager.h"
 #include "systems/ButtonSystem.h"
 #include "systems/CollisionSystem.h"
+#include "systems/RenderingSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "WeaponSystem.h"
@@ -43,6 +44,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     Entity selected, waypoint;
     glm::vec2 speed, target;
     float accum;
+    Entity selection;
 
     int latestSelectEntityKbEvents;
 
@@ -53,6 +55,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     void setup() {
         selected = 0;
         waypoint = theEntityManager.CreateEntityFromTemplate("waypoint");
+        selection = theEntityManager.CreateEntityFromTemplate("selection");
 
         game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(10, [this] () -> void {
                 latestSelectEntityKbEvents = 0;
@@ -81,6 +84,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             COLLISION(p)->restorePositionOnCollision = true;
         }
         latestSelectEntityKbEvents = -1;
+        selected = 0;
     }
 
 
@@ -88,6 +92,9 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
+        ANCHOR(selection)->rotation += dt * 3;
+
         if (game->isGameHost)
             theWeaponSystem.Update(dt);
 
@@ -133,6 +140,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 selected = p;
                 speed = glm::vec2(0.0f);
                 target = TRANSFORM(selected)->position;
+                ANCHOR(selection)->parent = selected;
 
                 if (latestSelectEntityKbEvents == i) {
                     game->cameraMoveManager.centerOn(target);
@@ -190,7 +198,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
-
+        RENDERING(selection)->show = RENDERING(waypoint)->show = false;
     }
 };
 
