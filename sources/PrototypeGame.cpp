@@ -120,11 +120,6 @@ void PrototypeGame::init(const uint8_t*, int) {
     faderHelper.init(camera);
 
     sceneStateMachine.setup();
-#if SAC_DEBUG
-    sceneStateMachine.start(Scene::Menu);
-#else
-    sceneStateMachine.start(Scene::Logo);
-#endif
 
     LOGI("PrototypeGame initialisation done.");
 
@@ -146,7 +141,19 @@ void PrototypeGame::init(const uint8_t*, int) {
     config.load(fb, "config.ini");
     delete[] fb.data;
 
+    if (serverIp.empty()) {
+        if (!config.get("", "server", &serverIp, 1)) {
+            serverIp = "127.0.0.1";
+        }
+    }
+
     timer = theEntityManager.CreateEntityFromTemplate("timer");
+
+#if SAC_DEBUG
+    sceneStateMachine.start(Scene::Menu);
+#else
+    sceneStateMachine.start(Scene::Logo);
+#endif
 }
 
 void PrototypeGame::backPressed() {

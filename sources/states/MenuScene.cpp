@@ -67,11 +67,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
         BUTTON(startBtn)->enabled = true;
 
-#if 1
         net = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
         net->init();
-        net->login(game->nickName);
-#endif
+        net->login(game->nickName, game->serverIp);
 
         for (int i=0; i<4; i++) {
             Entity p = theEntityManager.CreateEntityFromTemplate("menu/net_player");

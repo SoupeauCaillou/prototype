@@ -4,7 +4,7 @@ show = 1
 color = 0,0,0
 
 [Rendering]
-show = 1
+show = 0
 
 [Transformation]
 positionN%screen=0,0.5

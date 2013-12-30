@@ -96,6 +96,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        RENDERING(game->timer)->show = 1;
     }
 };
 
