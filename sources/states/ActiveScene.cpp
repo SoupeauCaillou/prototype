@@ -36,12 +36,15 @@
 #include "steering/SteeringBehavior.h"
 
 #include "api/linux/NetworkAPILinuxImpl.h"
+#include "api/KeyboardInputHandlerAPI.h"
 
 struct ActiveScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity selected, waypoint;
     glm::vec2 speed, target;
     float accum;
+
+    int latestSelectEntityKbEvents;
 
     ActiveScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
       this->game = game;
@@ -50,6 +53,16 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     void setup() {
         selected = 0;
         waypoint = theEntityManager.CreateEntityFromTemplate("waypoint");
+
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(10, [this] () -> void {
+                latestSelectEntityKbEvents = 0;
+        });
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(11, [this] () -> void {
+                latestSelectEntityKbEvents = 1;
+        });
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(12, [this] () -> void {
+                latestSelectEntityKbEvents = 2;
+        });
     }
 
 
@@ -67,6 +80,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         for (Entity p: game->players) {
             COLLISION(p)->restorePositionOnCollision = true;
         }
+        latestSelectEntityKbEvents = -1;
     }
 
 
@@ -113,11 +127,17 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         if (game->cameraMoveManager.update(dt))
             return Scene::Active;
 
-        for (Entity p: game->players) {
-            if (BUTTON(p)->clicked) {
+        for (unsigned i=0; i<game->players.size(); i++) {
+            auto p = game->players[i];
+            if (BUTTON(p)->clicked || latestSelectEntityKbEvents == i) {
                 selected = p;
                 speed = glm::vec2(0.0f);
                 target = TRANSFORM(selected)->position;
+
+                if (latestSelectEntityKbEvents == i) {
+                    game->cameraMoveManager.centerOn(target);
+                    latestSelectEntityKbEvents = -1;
+                }
                 break;
             }
         }
