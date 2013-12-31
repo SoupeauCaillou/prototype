@@ -53,6 +53,7 @@ void SoldierSystem::DoUpdate(float dt) {
             RENDERING(entity)->shape = Shape::Triangle;
             COLLISION(entity)->group = 0;
             BUTTON(entity)->enabled = false;
+            WEAPON(entity)->fire = false;
         }
     }
 }
