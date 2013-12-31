@@ -33,6 +33,7 @@ INSTANCE_IMPL(SoldierSystem);
 SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier") {
     SoldierComponent tc;
     componentSerializer.add(new EntityProperty("weapon", OFFSET(weapon, tc)));
+    componentSerializer.add(new EntityProperty("team", OFFSET(team, tc)));
     componentSerializer.add(new Property<float>("health", OFFSET(health, tc), 0.001));
 }
 
