@@ -71,8 +71,7 @@ struct PausedScene : public StateHandler<Scene::Enum> {
         accum = glm::min(duration, accum + dt);
 
         std::stringstream ss;
-        ss.precision(1);
-        ss << "PAUSE " << accum << " s";
+        ss << "PAUSE " << std::ceil(accum) << " s";
         TRANSFORM(game->timer)->size = TRANSFORM(game->camera)->size;
         TRANSFORM(game->timer)->size *= glm::vec2(accum / duration, 0.05);
         TRANSFORM(game->timer)->position =

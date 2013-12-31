@@ -103,6 +103,9 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             return Scene::GameStart;
         }
 
+        if (SOLDIER(selected)->health <= 0)
+            selected = 0;
+
         RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
         ANCHOR(selection)->rotation += dt * 3;
 
@@ -129,8 +132,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         accum = glm::min(duration, accum + dt);
 
         std::stringstream ss;
-        ss.precision(1);
-        ss << "GO " << accum << " s";
+        ss << "GO " << std::ceil(accum) << " s";
         TRANSFORM(game->timer)->size = TRANSFORM(game->camera)->size;
         TRANSFORM(game->timer)->size *= glm::vec2(1.0f - accum / duration, 0.05);
         TEXT(game->timer)->text = ss.str();
