@@ -103,7 +103,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             return Scene::GameStart;
         }
 
-        if (SOLDIER(selected)->health <= 0)
+        if (selected && SOLDIER(selected)->health <= 0)
             selected = 0;
 
         RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
