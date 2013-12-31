@@ -225,7 +225,7 @@ void PrototypeGame::eachTimeGameSetup() {
         while ((b = theEntityManager.getEntityByName("block"))) {
             theEntityManager.DeleteEntity(b);
         }
-        for (int i=0; i<45; i++) {
+        for (int i=0; i<60; i++) {
             theEntityManager.CreateEntityFromTemplate("block");
         }
         // reset flag position
