@@ -39,9 +39,13 @@ void FlagSystem::DoUpdate(float) {
 
         auto owner = ANCHOR(e)->parent;
         if (owner) {
-            Entity spawn = TEAM(SOLDIER(owner)->team)->spawn;
-            if (IntersectionUtil::rectangleRectangle(TRANSFORM(e), TRANSFORM(spawn))) {
-                TEAM(SOLDIER(owner)->team)->flagCaptured = true;
+            if (SOLDIER(owner)->health <= 0) {
+                ANCHOR(e)->parent = 0;
+            } else {
+                Entity spawn = TEAM(SOLDIER(owner)->team)->spawn;
+                if (IntersectionUtil::rectangleRectangle(TRANSFORM(e), TRANSFORM(spawn))) {
+                    TEAM(SOLDIER(owner)->team)->flagCaptured = true;
+                }
             }
         } else {
             for (auto it: soldiers) {
