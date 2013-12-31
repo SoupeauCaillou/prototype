@@ -49,7 +49,12 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        ANCHOR(theEntityManager.getEntityByName("flag"))->parent = 0;
+        if (game->isGameHost) {
+            Entity flag = theEntityManager.getEntityByName("flag");
+            if (flag) {
+                ANCHOR(flag)->parent = 0;
+            }
+        }
 
         game->eachTimeGameSetup();
         if (!game->myPlayer) {
