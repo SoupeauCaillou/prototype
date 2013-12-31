@@ -88,7 +88,10 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             COLLISION(p)->restorePositionOnCollision = true;
         }
         latestSelectEntityKbEvents = -1;
-        selected = 0;
+        // selected = 0;
+        if (selected) {
+            ANCHOR(selection)->parent = selected;
+        }
     }
 
 
