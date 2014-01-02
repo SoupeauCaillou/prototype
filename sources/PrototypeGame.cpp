@@ -223,7 +223,17 @@ void PrototypeGame::oneTimeGameSetup(const std::map<std::string, NetworkStatus::
     }
 }
 
-void PrototypeGame::eachTimeGameSetup() {
+bool PrototypeGame::eachTimeGameSetup() {
+    Entity team = 0;
+    theTeamSystem.forEachECDo([this, &team] (Entity e, TeamComponent* tc) -> void {
+        if (tc->name == nickName) {
+            team = e;
+        }
+    });
+
+    if (!team || !TEAM(team)->spawn)
+        return false;
+
     if (isGameHost) {
         Entity b = 0;
         while ((b = theEntityManager.getEntityByName("block"))) {
@@ -248,13 +258,6 @@ void PrototypeGame::eachTimeGameSetup() {
     }
     players.clear();
 
-    Entity team = 0;
-    theTeamSystem.forEachECDo([this, &team] (Entity e, TeamComponent* tc) -> void {
-        if (tc->name == nickName) {
-            team = e;
-        }
-    });
-
     auto* spawn = TRANSFORM(TEAM(team)->spawn);
     int soldierCount = 3;
     config.get("", "soldier_count", &soldierCount);
@@ -264,6 +267,7 @@ void PrototypeGame::eachTimeGameSetup() {
         RENDERING(p)->color = TEAM(team)->color;
         SOLDIER(p)->team = team;
         SELECTION(p)->keyScanCode = 10 + i;
+        ANCHOR(SOLDIER(p)->weapon)->parent = p;
         players.push_back(p);
 
         // position randomly in the spawn arena

@@ -44,9 +44,6 @@ void SoldierSystem::DoUpdate(float dt) {
         auto entity = p.first;
         auto* sc = p.second;
 
-        if (sc->weapon)
-            ANCHOR(sc->weapon)->parent = entity;
-
         std::stringstream ss;
         ss << (int)sc->health;
         TEXT(entity)->text = ss.str();

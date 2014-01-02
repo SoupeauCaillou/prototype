@@ -49,6 +49,9 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
+    bool updatePreEnter(Scene::Enum, float) override {
+        return game->eachTimeGameSetup();
+    }
 
     void onEnter(Scene::Enum) override {
         if (game->isGameHost) {
@@ -58,7 +61,6 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        game->eachTimeGameSetup();
         if (!game->myPlayer) {
             // create my player
             game->myPlayer = theEntityManager.CreateEntityFromTemplate("player");
@@ -152,7 +154,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     void onExit(Scene::Enum) override {
         RENDERING(game->timer)->show = 1;
 
-        theSoldierSystem.forEachEntityDo([] (Entity e) -> void {
+        theSelectionSystem.forEachEntityDo([] (Entity e) -> void {
             SELECTION(e)->enabled = true;
         });
     }
