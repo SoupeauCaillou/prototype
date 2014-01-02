@@ -274,4 +274,5 @@ bool PrototypeGame::eachTimeGameSetup() {
         TRANSFORM(p)->position = spawn->position +
             glm::rotate(spawn->size * glm::vec2(Random::Float(-0.45, 0.45), Random::Float(-0.45, 0.45)), spawn->rotation);
     }
+    return true;
 }
