@@ -109,7 +109,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         }
 
         for (Entity p: game->players) {
-            SELECTION(p)->enabled = (SOLDIER(p)->health >= 0);
+            SELECTION(p)->enabled = (SOLDIER(p)->health > 0);
         }
 
         // RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
