@@ -33,6 +33,7 @@
 #include "MessageSystem.h"
 #include "FlagSystem.h"
 #include "TeamSystem.h"
+#include "SelectionSystem.h"
 
 #include <glm/gtx/norm.hpp>
 #include "PrototypeGame.h"
@@ -43,10 +44,11 @@
 
 struct ActiveScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
-    Entity selected, waypoint;
+    Entity waypoint;
     glm::vec2 speed, target;
+    bool targetSet;
     float accum;
-    Entity selection, restart;
+    Entity restart;
 
     int latestSelectEntityKbEvents;
 
@@ -56,19 +58,25 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
-        selected = 0;
         waypoint = theEntityManager.CreateEntityFromTemplate("waypoint");
-        selection = theEntityManager.CreateEntityFromTemplate("selection");
 
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(10, [this] () -> void {
-                latestSelectEntityKbEvents = 0;
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(25, [this] () -> void {
+                // up
+                game->cameraMoveManager.addSpeed(glm::vec2(0.0f, 1.0f));
         });
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(11, [this] () -> void {
-                latestSelectEntityKbEvents = 1;
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(39, [this] () -> void {
+                // down
+                game->cameraMoveManager.addSpeed(glm::vec2(0.0f, -1.0f));
         });
-        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyRelease(12, [this] () -> void {
-                latestSelectEntityKbEvents = 2;
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(38, [this] () -> void {
+                // left
+                game->cameraMoveManager.addSpeed(glm::vec2(-1.0f, 0.0f));
         });
+        game->gameThreadContext->keyboardInputHandlerAPI->registerToKeyPress(40, [this] () -> void {
+                // right
+                game->cameraMoveManager.addSpeed(glm::vec2(1.0f, 0.0f));
+        });
+        
         restart = theEntityManager.CreateEntityFromTemplate("restart");
     }
 
@@ -88,10 +96,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             COLLISION(p)->restorePositionOnCollision = true;
         }
         latestSelectEntityKbEvents = -1;
-        // selected = 0;
-        if (selected) {
-            ANCHOR(selection)->parent = selected;
-        }
+        targetSet = false;
     }
 
 
@@ -103,11 +108,12 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             return Scene::GameStart;
         }
 
-        if (selected && SOLDIER(selected)->health <= 0)
-            selected = 0;
+        for (Entity p: game->players) {
+            SELECTION(p)->enabled = (SOLDIER(p)->health >= 0);
+        }
 
-        RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
-        ANCHOR(selection)->rotation += dt * 3;
+        // RENDERING(selection)->show = RENDERING(waypoint)->show = (selected != 0);
+        // ANCHOR(selection)->rotation += dt * 3;
 
         if (game->isGameHost) {
             theWeaponSystem.Update(dt);
@@ -127,6 +133,9 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             }
         }
 
+        //------------- TIMER
+        //
+        //
         float duration = 5;
         game->config.get("", "active_duration", &duration);
         accum = glm::min(duration, accum + dt);
@@ -146,7 +155,9 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 return Scene::Paused;
             }
         }
+        //-------------------
 
+        //--------- Messaging
         for (auto p: theMessageSystem.getAllComponents()) {
             switch (p.second->type) {
                 case Message::ChangeState:
@@ -156,61 +167,63 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                     break;
             }
         }
+        //-------------------
+
+        //------------ Camera
         if (game->cameraMoveManager.update(dt))
             return Scene::Active;
+        //-------------------
 
-        for (unsigned i=0; i<game->players.size(); i++) {
-            auto p = game->players[i];
-            if (BUTTON(p)->clicked || latestSelectEntityKbEvents == i) {
-                selected = p;
-                speed = glm::vec2(0.0f);
-                target = TRANSFORM(selected)->position;
-                ANCHOR(selection)->parent = selected;
+        //--------- Selection
+        theSelectionSystem.Update(dt);
+        //-------------------
 
-                if (latestSelectEntityKbEvents == i) {
-                    game->cameraMoveManager.centerOn(target);
-                    latestSelectEntityKbEvents = -1;
-                }
+        //--- Soldiers action
+        for (auto p: game->players) {
+            const auto* selc = SELECTION(p);
+            if (!selc->enabled || !selc->selected)
+                continue;
+            if (selc->newlySelected) {
+                game->cameraMoveManager.centerOn(TRANSFORM(p)->position);
+                targetSet = false;
                 break;
-            }
-        }
-
-        if (selected) {
-            // MOVE
-            if (theTouchInputManager.hasClicked()) {
-                const auto& p = theTouchInputManager.getTouchLastPosition();
-                if (glm::abs(p.x) <= 10 && glm::abs(p.y) <= 10) {
-                    TRANSFORM(waypoint)->position = target = p;
-                }
-            }
-            auto* tc = TRANSFORM(selected);
-
-            if (glm::distance2(tc->position, target) > 0.0001) {
-                glm::vec2 accel = SteeringBehavior::arrive(
-                        tc->position, speed, target , 5, 0.1);
-                speed += accel;
-
-                //glm::vec2 newPosition = tc->position + speed * dt;
-
-                tc->position += speed * dt;
-                if (speed.x != 0)
-                    tc->rotation = glm::atan2(speed.y, speed.x);
-                else
-                    tc->rotation = 0;
             } else {
-                speed = glm::vec2(0.0f);
-            }
+                // MOVE
+                if (theTouchInputManager.hasClicked()) {
+                    const auto& p = theTouchInputManager.getTouchLastPosition();
+                    if (glm::abs(p.x) <= theCollisionSystem.worldSize.x && glm::abs(p.y) <= theCollisionSystem.worldSize.y) {
+                        TRANSFORM(waypoint)->position = target = p;
+                        targetSet = true;
+                    }
+                }
+                auto* tc = TRANSFORM(p);
 
-            // SHOT
-            if (SOLDIER(selected)->weapon) {
-                WEAPON(SOLDIER(selected)->weapon)->fire = theTouchInputManager.isTouched(1);
+                if (targetSet && glm::distance2(tc->position, target) > 0.0001) {
+                    glm::vec2 accel = SteeringBehavior::arrive(
+                            tc->position, speed, target , 5, 0.1);
+                    speed += accel;
 
-                if (theTouchInputManager.isTouched(1)) {
-                    const glm::vec2 shoot = theTouchInputManager.getTouchLastPosition(1) - TRANSFORM(selected)->position;
-                    tc->rotation = glm::atan2(shoot.y, shoot.x);
+                    tc->position += speed * dt;
+                    if (speed.x != 0)
+                        tc->rotation = glm::atan2(speed.y, speed.x);
+                    else
+                        tc->rotation = 0;
+                } else {
+                    speed = glm::vec2(0.0f);
+                }
+
+                // SHOT
+                if (SOLDIER(p)->weapon) {
+                    WEAPON(SOLDIER(p)->weapon)->fire = theTouchInputManager.isTouched(1);
+
+                    if (theTouchInputManager.isTouched(1)) {
+                        const glm::vec2 shoot = theTouchInputManager.getTouchLastPosition(1) - TRANSFORM(p)->position;
+                        tc->rotation = glm::atan2(shoot.y, shoot.x);
+                    }
                 }
             }
         }
+        //-------------------
 
         return Scene::Active;
     }
@@ -225,13 +238,10 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             MESSAGE(msg)->type = Message::ChangeState;
             MESSAGE(msg)->newState = to;
         }
-    }
 
-    void onExit(Scene::Enum) override {
-        if (selected)
-            WEAPON(SOLDIER(selected)->weapon)->fire = false;
-        ANCHOR(selection)->parent = 0;
-        RENDERING(selection)->show = RENDERING(waypoint)->show = false;
+        for (Entity p: game->players) {
+            WEAPON(SOLDIER(p)->weapon)->fire = false;
+        }
     }
 };
 

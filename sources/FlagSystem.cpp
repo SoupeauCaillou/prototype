@@ -49,7 +49,7 @@ void FlagSystem::DoUpdate(float) {
             }
         } else {
             for (auto it: soldiers) {
-                if (p.second->health <= 0)
+                if (it.second->health <= 0)
                     continue;
                 const auto* tc = TRANSFORM(it.first);
                 if (IntersectionUtil::rectangleRectangle(TRANSFORM(e), tc)) {

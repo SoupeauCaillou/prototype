@@ -32,6 +32,7 @@
 #include "PlayerSystem.h"
 #include "TeamSystem.h"
 #include "FlagSystem.h"
+#include "SelectionSystem.h"
 #include "util/Random.h"
 
 #include <ostream>
@@ -111,6 +112,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     orderedSystemsToUpdate.push_back(PlayerSystem::GetInstancePointer());
     TeamSystem::CreateInstance(); // only on game's host
     FlagSystem::CreateInstance(); // only on game's host
+    SelectionSystem::CreateInstance();
+    theSelectionSystem.kbApi = gameThreadContext->keyboardInputHandlerAPI;
 
     Game::sacInit(windowW, windowH);
 
@@ -141,13 +144,14 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     theEntityManager.CreateEntityFromTemplate("arena");
 
-    theCollisionSystem.worldSize = glm::vec2(PlacementHelper::ScreenSize.x, PlacementHelper::ScreenSize.x);
+    theCollisionSystem.worldSize = glm::vec2(40, 40);//PlacementHelper::ScreenSize.x, PlacementHelper::ScreenSize.x);
 
     glm::vec2 maxSize(
-        TRANSFORM(camera)->size.x * (TRANSFORM(camera)->size.x / TRANSFORM(camera)->size.y),
-        TRANSFORM(camera)->size.x);
-    cameraMoveManager.init(camera, maxSize, 5, 
+        theCollisionSystem.worldSize.x * (TRANSFORM(camera)->size.x / TRANSFORM(camera)->size.y),
+        theCollisionSystem.worldSize.x);
+    cameraMoveManager.init(camera, maxSize * 0.5f, 5, 
         glm::vec4(maxSize * -0.5f, maxSize * 0.5f));
+    cameraMoveManager.setZoom(2);
 
     FileBuffer fb = gameThreadContext->assetAPI->loadAsset("config.ini");
     config.load(fb, "config.ini");
@@ -225,7 +229,9 @@ void PrototypeGame::eachTimeGameSetup() {
         while ((b = theEntityManager.getEntityByName("block"))) {
             theEntityManager.DeleteEntity(b);
         }
-        for (int i=0; i<60; i++) {
+        int bCount = 10;
+        config.get("Arena", "block_count", &bCount);
+        for (int i=0; i<bCount; i++) {
             theEntityManager.CreateEntityFromTemplate("block");
         }
         // reset flag position
@@ -249,14 +255,19 @@ void PrototypeGame::eachTimeGameSetup() {
         }
     });
 
+    auto* spawn = TRANSFORM(TEAM(team)->spawn);
+    int soldierCount = 3;
+    config.get("", "soldier_count", &soldierCount);
     const std::string soldier[] = {"gunman", "shotgunman", "machinegunman"};
-    for (int i=0; i<3; i++) {
-        Entity p = theEntityManager.CreateEntityFromTemplate(soldier[i]);
+    for (int i=0; i<soldierCount; i++) {
+        Entity p = theEntityManager.CreateEntityFromTemplate(soldier[i % 3]);
         RENDERING(p)->color = TEAM(team)->color;
         SOLDIER(p)->team = team;
+        SELECTION(p)->keyScanCode = 10 + i;
         players.push_back(p);
 
-        TRANSFORM(p)->position = glm::rotate(TRANSFORM(p)->position, (TEAM(team)->index * 2.0f * glm::pi<float>()) / theTeamSystem.entityCount());
-        LOGI(theEntityManager.entityName(p) << ":" << TRANSFORM(p)->position);
+        // position randomly in the spawn arena
+        TRANSFORM(p)->position = spawn->position +
+            glm::rotate(spawn->size * glm::vec2(Random::Float(-0.45, 0.45), Random::Float(-0.45, 0.45)), spawn->rotation);
     }
 }

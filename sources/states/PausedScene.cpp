@@ -21,6 +21,7 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
+#include "SelectionSystem.h"
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "systems/ButtonSystem.h"
@@ -63,7 +64,9 @@ struct PausedScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
         if (!game->cameraMoveManager.update(dt)) {
-
+            //--------- Selection
+            theSelectionSystem.Update(dt);
+            //-------------------
         }
         
         float duration = 5;

@@ -45,6 +45,10 @@ void CameraMoveManager::reset() {
 	mode = CameraMode::None;
 }
 
+void CameraMoveManager::addSpeed(const glm::vec2& move) {
+    speed += move;
+}
+
 bool CameraMoveManager::update(float dt, bool inputEnabled) {
 	auto* tc = TRANSFORM(camera);
 

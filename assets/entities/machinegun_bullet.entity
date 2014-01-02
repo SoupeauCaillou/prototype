@@ -13,3 +13,6 @@ lifetime/map2AlphaRendering = 1
 
 [Network]
 sync = Transformation, Rendering
+
+[Sound]
+sound = sounds/machinegun.ogg

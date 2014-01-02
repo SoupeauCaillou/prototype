@@ -24,12 +24,14 @@
 #include "base/EntityManager.h"
 #include "PlayerSystem.h"
 #include "SoldierSystem.h"
+#include "SelectionSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "base/TouchInputManager.h"
 #include "PrototypeGame.h"
+#include "util/IntersectionUtil.h"
 
 struct GameStartScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -112,8 +114,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     }
 
     bool updatePreExit(Scene::Enum, float) override {
-        // remove blocks colliding with soldiers
         if (game->isGameHost) {
+            // remove blocks colliding with soldiers
             auto count = theCollisionSystem.entityCount();
             theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent*) -> void {
                 Entity c = COLLISION(e)->collidedWithLastFrame;
@@ -122,6 +124,25 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
                     theEntityManager.DeleteEntity(c);
                 }
             });
+            // remove blocks at the center
+            float freeZone = 1;
+            game->config.get("Arena", "free_central_zone", &freeZone);
+            std::vector<Entity> toRemove;
+            auto& mp = theCollisionSystem.getAllComponents();
+            auto it = mp.begin();
+            const auto ite = mp.end();
+
+            for (; it != ite;) {
+                Entity e = (*it).first;
+                auto* cc = (*it++).second;
+                if (cc->group == 1) {
+                    const auto* tc = TRANSFORM(e);
+                    if (IntersectionUtil::rectangleRectangle(
+                        tc, glm::vec2(0.0f), glm::vec2(freeZone), 0.0f)) {
+                        theEntityManager.DeleteEntity(e);
+                    }
+                }
+            }
             return count == theCollisionSystem.entityCount();
         } else {
             return true;
@@ -130,6 +151,10 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         RENDERING(game->timer)->show = 1;
+
+        theSoldierSystem.forEachEntityDo([] (Entity e) -> void {
+            SELECTION(e)->enabled = true;
+        });
     }
 };
 

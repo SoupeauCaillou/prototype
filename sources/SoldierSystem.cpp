@@ -28,6 +28,8 @@
 #include "systems/RenderingSystem.h"
 #include "systems/TextSystem.h"
 
+#include "WeaponSystem.h"
+
 INSTANCE_IMPL(SoldierSystem);
 
 SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier") {
@@ -53,7 +55,7 @@ void SoldierSystem::DoUpdate(float dt) {
             RENDERING(entity)->shape = Shape::Triangle;
             COLLISION(entity)->group = 0;
             BUTTON(entity)->enabled = false;
-            WEAPON(entity)->fire = false;
+            WEAPON(sc->weapon)->fire = false;
         }
     }
 }

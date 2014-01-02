@@ -1,5 +1,4 @@
 [Transformation]
-size = 0.5,0.5
 z = 0.5
 
 [Rendering]
@@ -14,6 +13,7 @@ restore_position_on_collision = 0
 
 [Button]
 enabled = 1
+over_size = 1.2
 
 [Soldier]
 health = 100
@@ -24,3 +24,6 @@ sync = Transformation, Rendering, Collision, Button, Soldier, Text
 [Text]
 char_height = 0.4
 show = 1
+
+[Selection]
+icon%template = selection

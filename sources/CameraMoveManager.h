@@ -46,6 +46,8 @@ public:
 
     void centerOn(const glm::vec2& position);
 
+    void addSpeed(const glm::vec2& move);
+
     void setZoom(float value);
 
     bool isAtLimit(Cardinal::Enum e, float epsilon = 0.001);
