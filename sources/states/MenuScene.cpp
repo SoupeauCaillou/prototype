@@ -23,6 +23,7 @@
 
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
+#include "base/JoystickManager.h"
 #include "systems/ButtonSystem.h"
 #include "systems/SpotSystem.h"
 #include "systems/TransformationSystem.h"
@@ -83,7 +84,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
 
         // update button
         const auto state = game->gameThreadContext->networkAPI->getStatus();
@@ -117,6 +118,8 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 break;
             case NetworkStatus::ConnectedToServer:
                 TEXT(networkStatus)->text = "ConnectedToServer";
+                break;
+            default:
                 break;
         }
 
@@ -152,7 +155,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        if (BUTTON(startBtn)->clicked) {
+        if (BUTTON(startBtn)->clicked || theJoystickManager.hasClicked(0, JoystickButton::RED)) {
             return Scene::GameStart;
         }
 
@@ -169,6 +172,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 case Message::ChangeState: {
                     if (p.second->newState == Scene::GameStart)
                         return Scene::GameStart;
+                }
+                default: {
+                    break;
                 }
             }
         }
