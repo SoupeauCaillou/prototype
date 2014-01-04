@@ -120,10 +120,11 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         if (game->isGameHost) {
             // remove blocks colliding with soldiers
             auto count = theCollisionSystem.entityCount();
-            theSoldierSystem.forEachECDo([] (Entity e, SoldierComponent*) -> void {
+            theSoldierSystem.forEachECDo([this] (Entity e, SoldierComponent*) -> void {
                 Entity c = COLLISION(e)->collidedWithLastFrame;
                 auto* bc = theCollisionSystem.Get(c, false);
                 if (bc && bc->group == 1) {
+                    game->blocks.erase(std::find(game->blocks.begin(), game->blocks.end(), c));
                     theEntityManager.DeleteEntity(c);
                 }
             });
@@ -142,6 +143,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
                     const auto* tc = TRANSFORM(e);
                     if (IntersectionUtil::rectangleRectangle(
                         tc, glm::vec2(0.0f), glm::vec2(freeZone), 0.0f)) {
+                        game->blocks.erase(std::find(game->blocks.begin(), game->blocks.end(), e));
                         theEntityManager.DeleteEntity(e);
                     }
                 }

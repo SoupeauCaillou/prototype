@@ -53,7 +53,7 @@ class PrototypeGame : public Game {
         Entity camera;
         FaderHelper faderHelper;
         CameraMoveManager cameraMoveManager;
-        std::vector<Entity> players;
+        std::vector<Entity> players, blocks;
 
         Entity myPlayer;
         std::string serverIp, nickName;

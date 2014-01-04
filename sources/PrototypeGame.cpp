@@ -235,14 +235,14 @@ bool PrototypeGame::eachTimeGameSetup() {
         return false;
 
     if (isGameHost) {
-        Entity b = 0;
-        while ((b = theEntityManager.getEntityByName("block"))) {
+        for (auto b: blocks) {
             theEntityManager.DeleteEntity(b);
         }
+        blocks.clear();
         int bCount = 10;
         config.get("Arena", "block_count", &bCount);
         for (int i=0; i<bCount; i++) {
-            theEntityManager.CreateEntityFromTemplate("block");
+            blocks.push_back(theEntityManager.CreateEntityFromTemplate("block"));
         }
         // reset flag position
         Entity flag = theEntityManager.getEntityByName("flag");
