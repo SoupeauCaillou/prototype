@@ -254,6 +254,7 @@ bool PrototypeGame::eachTimeGameSetup() {
     // destroy soldiers
     for (unsigned i=0; i<players.size(); i++) {
         theEntityManager.DeleteEntity(SOLDIER(players[i])->weapon);
+        theEntityManager.DeleteEntity(SELECTION(players[i])->icon);
         theEntityManager.DeleteEntity(players[i]);
     }
     players.clear();
