@@ -231,7 +231,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                     if (theTouchInputManager.isTouched(1)) {
                         shoot = theTouchInputManager.getTouchLastPosition(1) - TRANSFORM(p)->position;
                         WEAPON(SOLDIER(p)->weapon)->fire = true;
-                    } else if (glm::length2(theJoystickManager.getPadDirection(0, JoystickPad::RIGHT))) {
+                    } else if (glm::length2(theJoystickManager.getPadDirection(0, JoystickPad::RIGHT)) > 0.01) {
                         shoot = theJoystickManager.getPadDirection(0, JoystickPad::RIGHT);
                         WEAPON(SOLDIER(p)->weapon)->fire = true;
                     }
