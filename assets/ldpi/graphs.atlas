@@ -1,0 +1,9 @@
+atlas_size=128,8
+[image0]
+name=bullet_gradient
+original_size=64,4
+position_in_atlas=1,1
+size_in_atlas=64,4
+crop_offset=0,0
+rotated=0
+opaque_rect=44,0,20,4
