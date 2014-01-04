@@ -267,6 +267,8 @@ bool PrototypeGame::eachTimeGameSetup() {
         RENDERING(p)->color = TEAM(team)->color;
         SOLDIER(p)->team = team;
         SELECTION(p)->keyScanCode = 10 + i;
+        LOGF_IF(i > JoystickButton::TOTAL, "We do support only " << JoystickButton::TOTAL << " soldiers");
+        SELECTION(p)->joystickBtn = (JoystickButton::Enum)i;
         ANCHOR(SOLDIER(p)->weapon)->parent = p;
         players.push_back(p);
 

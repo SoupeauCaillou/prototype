@@ -23,6 +23,7 @@
 
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
+#include "base/JoystickManager.h"
 #include "systems/ButtonSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/RenderingSystem.h"
@@ -165,6 +166,8 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 case Message::NewHealth:
                     SOLDIER(p.second->soldier)->health = p.second->health;
                     break;
+                default:
+                    break;
             }
         }
         //-------------------
@@ -190,10 +193,18 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
             } else {
                 // MOVE
                 if (theTouchInputManager.hasClicked()) {
-                    const auto& p = theTouchInputManager.getTouchLastPosition();
-                    if (glm::abs(p.x) <= theCollisionSystem.worldSize.x && glm::abs(p.y) <= theCollisionSystem.worldSize.y) {
-                        TRANSFORM(waypoint)->position = target = p;
+                    const auto& pos = theTouchInputManager.getTouchLastPosition();
+                    if (glm::abs(pos.x) <= theCollisionSystem.worldSize.x && glm::abs(pos.y) <= theCollisionSystem.worldSize.y) {
+                        TRANSFORM(waypoint)->position = target = pos;
                         targetSet = true;
+                    }
+                } else {
+                    glm::vec2 pos = theJoystickManager.getPadDirection(0, JoystickPad::LEFT);
+                    if (glm::length2(pos) > 0.01f) {
+                        pos += TRANSFORM(p)->position;
+
+                        TRANSFORM(waypoint)->position = target = pos;
+                        targetSet = true;                        
                     }
                 }
                 auto* tc = TRANSFORM(p);
@@ -214,10 +225,18 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
 
                 // SHOT
                 if (SOLDIER(p)->weapon) {
-                    WEAPON(SOLDIER(p)->weapon)->fire = theTouchInputManager.isTouched(1);
-
+                    WEAPON(SOLDIER(p)->weapon)->fire = false;
+                    
+                    glm::vec2 shoot;
                     if (theTouchInputManager.isTouched(1)) {
-                        const glm::vec2 shoot = theTouchInputManager.getTouchLastPosition(1) - TRANSFORM(p)->position;
+                        shoot = theTouchInputManager.getTouchLastPosition(1) - TRANSFORM(p)->position;
+                        WEAPON(SOLDIER(p)->weapon)->fire = true;
+                    } else if (glm::length2(theJoystickManager.getPadDirection(0, JoystickPad::RIGHT))) {
+                        shoot = theJoystickManager.getPadDirection(0, JoystickPad::RIGHT);
+                        WEAPON(SOLDIER(p)->weapon)->fire = true;
+                    }
+
+                    if (WEAPON(SOLDIER(p)->weapon)->fire) {
                         tc->rotation = glm::atan2(shoot.y, shoot.x);
                     }
                 }

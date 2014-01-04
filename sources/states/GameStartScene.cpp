@@ -30,6 +30,7 @@
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "base/TouchInputManager.h"
+#include "base/JoystickManager.h"
 #include "PrototypeGame.h"
 #include "util/IntersectionUtil.h"
 
@@ -96,7 +97,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             TRANSFORM(players[i])->position = TRANSFORM(players[i-1])->position + TRANSFORM(players[i-1])->size * glm::vec2(1.1f, .0f);
         }
 
-        if (theTouchInputManager.hasClicked()) {
+        if (theTouchInputManager.hasClicked() || theJoystickManager.hasClicked(0, JoystickButton::RED)) {
             PLAYER(game->myPlayer)->ready = !PLAYER(game->myPlayer)->ready;
         }
 

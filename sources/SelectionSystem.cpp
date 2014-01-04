@@ -51,7 +51,8 @@ void SelectionSystem::DoUpdate(float dt) {
         } else {
             // exclusive selection
             if (BUTTON(entity)->clicked
-                || (kbApi && sc->keyScanCode >= 0 && kbApi->isKeyReleased(sc->keyScanCode))) {
+                || (kbApi && sc->keyScanCode >= 0 && kbApi->isKeyReleased(sc->keyScanCode))
+                || (theJoystickManager.hasClicked(0, sc->joystickBtn))) {
                 if (!sc->selected) {
                     newSelection = entity;
                     if (sc->icon) {

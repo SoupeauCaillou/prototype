@@ -154,16 +154,18 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 TEXT(players[i])->text = s.str();
             }
         }
-
-        if (BUTTON(startBtn)->clicked || theJoystickManager.hasClicked(0, JoystickButton::RED)) {
+        if (BUTTON(startBtn)->enabled &&
+            (BUTTON(startBtn)->clicked || theJoystickManager.hasClicked(0, JoystickButton::GREEN))) {
             return Scene::GameStart;
         }
 
-        if (BUTTON(createRoom)->clicked) {
+        if (BUTTON(createRoom)->enabled &&
+            (BUTTON(createRoom)->clicked || theJoystickManager.hasClicked(0, JoystickButton::BLUE))) {
             net->createRoom();
         }
 
-        if (BUTTON(acceptInvite)->clicked) {
+        if (BUTTON(acceptInvite)->enabled &&
+            (BUTTON(acceptInvite)->clicked || theJoystickManager.hasClicked(0, JoystickButton::YELLOW))) {
             net->acceptInvitation();
         }
 
@@ -218,8 +220,18 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         RENDERING(startBtn)->show =
             TEXT(startBtn)->show =
-            TEXT(networkStatus)->show =
-            BUTTON(startBtn)->enabled = false;
+            BUTTON(startBtn)->enabled =
+        
+        TEXT(networkStatus)->show =
+
+        RENDERING(createRoom)->show =
+            TEXT(createRoom)->show =
+            BUTTON(createRoom)->enabled =
+
+        RENDERING(acceptInvite)->show =
+            TEXT(acceptInvite)->show =
+            BUTTON(acceptInvite)->enabled = false;
+
         for (auto p: players) {
             TEXT(p)->show = RENDERING(p)->show = false;
         }

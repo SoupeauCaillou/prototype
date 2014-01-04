@@ -22,6 +22,8 @@
 
 #include "systems/System.h"
 
+#include "base/JoystickManager.h"
+
 #if !SAC_SELECTION_SYSTEM
 #define SELECTION_CONST const
 #endif
@@ -34,6 +36,8 @@ struct SelectionComponent {
     bool enabled;
     Entity icon;
     int keyScanCode;
+
+    JoystickButton::Enum joystickBtn;
 
     /*SELECTION_CONST*/ bool selected, newlySelected;
 };
