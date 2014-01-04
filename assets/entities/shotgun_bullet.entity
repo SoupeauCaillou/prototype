@@ -4,7 +4,9 @@ z = 0.8
 
 [Rendering]
 color = 0.8, 0.8, 0.1, 1, 0.8, 0.3, 0., 1
+texture = bullet_gradient
 show = 0
+opaque_type = 0
 
 [AutoDestroy]
 type = 1
