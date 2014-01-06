@@ -33,6 +33,7 @@
 #include "TeamSystem.h"
 #include "FlagSystem.h"
 #include "SelectionSystem.h"
+#include "FOVSystem.h"
 #include "util/Random.h"
 
 #include <ostream>
@@ -114,6 +115,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     FlagSystem::CreateInstance(); // only on game's host
     SelectionSystem::CreateInstance();
     theSelectionSystem.kbApi = gameThreadContext->keyboardInputHandlerAPI;
+    FOVSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(FOVSystem::GetInstancePointer());
 
     Game::sacInit(windowW, windowH);
 

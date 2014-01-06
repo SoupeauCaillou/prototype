@@ -35,6 +35,7 @@
 #include "FlagSystem.h"
 #include "TeamSystem.h"
 #include "SelectionSystem.h"
+#include "FOVSystem.h"
 
 #include <glm/gtx/norm.hpp>
 #include "PrototypeGame.h"
@@ -50,6 +51,8 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
     bool targetSet;
     float accum;
     Entity restart;
+
+    std::vector<Entity> debugVision;
 
     int latestSelectEntityKbEvents;
 
@@ -184,8 +187,30 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         //--- Soldiers action
         for (auto p: game->players) {
             const auto* selc = SELECTION(p);
+
+            FOV(p)->groupsImpactingFOV = 0;
             if (!selc->enabled || !selc->selected)
                 continue;
+
+            FOV(p)->groupsImpactingFOV = 1;
+            // show vision
+            {
+                const auto* fov = FOV(p);
+                while (debugVision.size() < fov->polygons.size()) {
+                    createDebugVision();
+                }
+                for (unsigned i=0; i<fov->polygons.size(); i++) {
+                    theRenderingSystem.defineDynamicVertices(i, fov->polygons[i].vertices);
+                    auto* rc = RENDERING(debugVision[i]);
+                    rc->show = true;
+                    rc->color.r = (i % 2);
+                    rc->dynamicVertices = i;
+                }
+                for (unsigned i=fov->polygons.size(); i<debugVision.size(); i++) {
+                    RENDERING(debugVision[i])->show = false;
+                }
+            }
+
             if (selc->newlySelected) {
                 game->cameraMoveManager.centerOn(TRANSFORM(p)->position);
                 targetSet = false;
@@ -261,6 +286,18 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         for (Entity p: game->players) {
             WEAPON(SOLDIER(p)->weapon)->fire = false;
         }
+    }
+
+    Entity createDebugVision() {
+        Entity e = theEntityManager.CreateEntity("__debug_vision");
+        ADD_COMPONENT(e, Rendering);
+        RENDERING(e)->color = Color(0.8, 0.8, 0.8, 0.9);
+        RENDERING(e)->opaqueType = RenderingComponent::NON_OPAQUE;
+        RENDERING(e)->shape = Shape::Triangle;
+        ADD_COMPONENT(e, Transformation);
+        TRANSFORM(e)->z = 0.99;
+        debugVision.push_back(e);
+        return e;
     }
 };
 

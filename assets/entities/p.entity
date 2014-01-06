@@ -27,3 +27,6 @@ show = 1
 
 [Selection]
 icon%template = selection
+
+[FOV]
+groups_impacting_fov = 0
