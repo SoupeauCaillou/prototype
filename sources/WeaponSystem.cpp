@@ -47,19 +47,19 @@ void WeaponSystem::DoUpdate(float dt) {
         auto entity = p.first;
         auto* wc = p.second;
 
+        wc->fireSpeed.accum = glm::min(wc->fireSpeed.accum + wc->fireSpeed.value * dt, 1.0f);
+
         if (wc->fire) {
             wc->reload = false;
             wc->reloadSpeed.accum = 0;
-            if (!wc->ammoLeftInClip) {
+            if (!wc->ammoLeftInClip && false) {
                 LOGI_EVERY_N(60, "No more ammo");
             } else {
-                wc->fireSpeed.accum += wc->fireSpeed.value * dt;
-
                 // nose
                 const auto* tc = TRANSFORM(entity);
                 glm::vec2 nose = tc->position + glm::rotate(tc->size * glm::vec2(0.5f, 0.0f), tc->rotation);
 
-                while (wc->fireSpeed.accum > 1 && wc->ammoLeftInClip) {
+                while (wc->fireSpeed.accum >= 1 && wc->ammoLeftInClip) {
                     wc->fireSpeed.accum -= 1;
                     wc->ammoLeftInClip -= 1;
 

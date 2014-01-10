@@ -172,9 +172,6 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         }
         //-------------------
 
-        //------------ Camera
-        if (game->cameraMoveManager.update(dt))
-            return Scene::Active;
         //-------------------
 
         //--------- Selection
@@ -182,12 +179,17 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
         //-------------------
 
         //--- Soldiers action
+        bool someoneSelected = false;
         for (auto p: game->players) {
             const auto* selc = SELECTION(p);
-            if (!selc->enabled || !selc->selected)
+            WEAPON(SOLDIER(p)->weapon)->fire = false;
+            if (!selc->enabled || !selc->selected) {
                 continue;
+            }
+            someoneSelected = true;
+            game->cameraMoveManager.setZoom(3.0f);
+
             if (selc->newlySelected) {
-                game->cameraMoveManager.centerOn(TRANSFORM(p)->position);
                 targetSet = false;
                 break;
             } else {
@@ -224,9 +226,7 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                 }
 
                 // SHOT
-                if (SOLDIER(p)->weapon) {
-                    WEAPON(SOLDIER(p)->weapon)->fire = false;
-                    
+                if (SOLDIER(p)->weapon) {                    
                     glm::vec2 shoot;
                     if (theTouchInputManager.isTouched(1)) {
                         shoot = theTouchInputManager.getTouchLastPosition(1) - TRANSFORM(p)->position;
@@ -241,6 +241,16 @@ struct ActiveScene : public StateHandler<Scene::Enum> {
                     }
                 }
             }
+            TRANSFORM(game->camera)->position = TRANSFORM(p)->position;
+        }
+        //-------------------
+
+        //------------ Camera
+        if (!someoneSelected) {
+            /// game->cameraMoveManager.setZoom(1.0f);
+
+            if (game->cameraMoveManager.update(dt))
+                return Scene::Active;
         }
         //-------------------
 
