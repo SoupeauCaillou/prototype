@@ -1,0 +1,9 @@
+[Transformation]
+size = 0.25, 0.25
+z = 0.1
+
+[Rendering]
+show = 1
+color = 1, 1, 1, 1
+
+[Soldier]

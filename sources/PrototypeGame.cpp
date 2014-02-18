@@ -25,7 +25,8 @@
 
 #include "systems/CameraSystem.h"
 
-#define ZOOM 1
+#include "systems/PlayerSystem.h"
+#include "systems/SoldierSystem.h"
 
 #include <ostream>
 #include <fstream>
@@ -84,6 +85,9 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
 void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
+    PlayerSystem::CreateInstance();
+    SoldierSystem::CreateInstance();
+
     Game::sacInit(windowW, windowH);
 
     PlacementHelper::GimpSize = glm::vec2(1280, 800);
@@ -130,4 +134,13 @@ void PrototypeGame::tick(float dt) {
 
 bool PrototypeGame::willConsumeBackEvent() {
     return false;
+}
+
+void PrototypeGame::initGame() {
+    thePlayerSystem.forEachEntityDo([] (Entity p) -> void {
+        for (int i=0; i<4; i++) {
+            Entity s = theEntityManager.CreateEntityFromTemplate("game/soldier");
+            SOLDIER(s)->player = p;
+        }
+    });
 }

@@ -43,10 +43,12 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
+        void initGame();
+
         Entity camera;
         FaderHelper faderHelper;
 
-        Entity robot;
+        Entity player;
         std::string serverIp, nickName;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;

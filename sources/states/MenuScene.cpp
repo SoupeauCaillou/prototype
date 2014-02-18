@@ -21,6 +21,8 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
+#include "systems/PlayerSystem.h"
+
 #include "base/EntityManager.h"
 #include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
@@ -57,7 +59,6 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onPreEnter(Scene::Enum) override {
         RENDERING(startBtn)->show = TEXT(startBtn)->show = TEXT(networkStatus)->show = true;
-        BUTTON(startBtn)->enabled = false;
 
         net = static_cast<NetworkAPILinuxImpl*>(game->gameThreadContext->networkAPI);
         net->init();
@@ -80,33 +81,43 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         switch (state) {
             case NetworkStatus::ConnectingToLobby:
                 TEXT(networkStatus)->text = "ConnectingToLobby";
+                BUTTON(startBtn)->enabled = true;
                 break;
             case NetworkStatus::ConnectedToLobby:
                 TEXT(networkStatus)->text = "ConnectedToLobby";
+                BUTTON(startBtn)->enabled = false;
                 break;
             case NetworkStatus::ConnectionToLobbyFailed:
                 TEXT(networkStatus)->text = "ConnectionToLobbyFailed";
+                BUTTON(startBtn)->enabled = true;
                 break;
             case NetworkStatus::LoginInProgress:
                 TEXT(networkStatus)->text = "LoginInProgress";
+                BUTTON(startBtn)->enabled = true;
                 break;
             case NetworkStatus::Logged:
                 TEXT(networkStatus)->text = "Logged";
+                BUTTON(startBtn)->enabled = true;
                 break;
             case NetworkStatus::LoginFailed:
                 TEXT(networkStatus)->text = "LoginFailed";
+                BUTTON(startBtn)->enabled = true;
                 break;
             case NetworkStatus::CreatingRoom:
                 TEXT(networkStatus)->text = "CreatingRoom";
+                BUTTON(startBtn)->enabled = false;
                 break;
             case NetworkStatus::InRoomAsMaster:
                 TEXT(networkStatus)->text = "InRoomAsMaster";
+                BUTTON(startBtn)->enabled = true;
                 break;
             case NetworkStatus::JoiningRoom:
                 TEXT(networkStatus)->text = "JoiningRoom";
+                BUTTON(startBtn)->enabled = false;
                 break;
             case NetworkStatus::ConnectedToServer:
                 TEXT(networkStatus)->text = "ConnectedToServer";
+                BUTTON(startBtn)->enabled = true;
                 break;
         }
 
@@ -143,8 +154,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         }
 
         if (BUTTON(startBtn)->clicked) {
-            // return Scene::GameStart;
-            theEntityManager.CreateEntityFromTemplate("game/square");
+            return Scene::GameStart;
         }
 
         if (BUTTON(createRoom)->clicked) {
@@ -163,18 +173,30 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
+        TEXT(startBtn)->text = "Loading...";
+        BUTTON(startBtn)->enabled = false;            
+
+        game->player = theEntityManager.CreateEntityFromTemplate("game/player");
+        PLAYER(game->player)->name = game->nickName;
+    }
+
+    bool updatePreExit(Scene::Enum, float) override {
+        if (net->getStatus() != NetworkStatus::ConnectedToServer) {
+            // only proceed when all players exist
+            return (thePlayerSystem.entityCount()
+                >= net->getPlayersInRoom().size());
+        } else {
+            return true;
+        }
     }
 
     void onExit(Scene::Enum) override {
-        // create game entities, if game master
-        if (!game->gameThreadContext->networkAPI->isConnectedToAnotherPlayer() ||
-            game->gameThreadContext->networkAPI->amIGameMaster()) {
+        if (net->getStatus() != NetworkStatus::ConnectedToServer) {
+            game->initGame();
         }
-
         RENDERING(startBtn)->show =
             TEXT(startBtn)->show =
-            TEXT(networkStatus)->show =
-            BUTTON(startBtn)->enabled = false;
+            TEXT(networkStatus)->show = false;
     }
 };
 
