@@ -24,6 +24,7 @@
 #include "base/StateMachine.inl"
 
 #include "systems/CameraSystem.h"
+#include "systems/CollisionSystem.h"
 
 #include "systems/PlayerSystem.h"
 #include "systems/SoldierSystem.h"
@@ -95,6 +96,7 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
     Game::sacInit(windowW, windowH);
 
+    theCollisionSystem.worldSize = PlacementHelper::ScreenSize;
     PlacementHelper::GimpSize = glm::vec2(1280, 800);
 
     LOGI("SAC engine initialisation done.");

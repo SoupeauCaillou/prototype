@@ -26,9 +26,11 @@
 
 
 struct SoldierComponent {
-    SoldierComponent(): player (0) {}
+    SoldierComponent(): player (0), alive(true), maxSpeedCollision(0.1) {}
 
     Entity player;
+    bool alive;
+    float maxSpeedCollision;
 };
 
 #define theSoldierSystem SoldierSystem::GetInstance()
