@@ -73,7 +73,7 @@ void FlickSystem::DoUpdate(float dt) {
             }
         } else {
             if (!theTouchInputManager.wasTouched(0)) {
-                if (glm::distance(theTouchInputManager.getTouchLastPosition(), TRANSFORM(e)->position) <= fc->activationDistance.t2) {
+                if (glm::distance(theTouchInputManager.getTouchLastPosition(), TRANSFORM(e)->position) <= fc->activationDistance.t1) {
                     fc->inProgress = true;
                 }
             }
