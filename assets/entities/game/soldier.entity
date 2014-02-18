@@ -7,3 +7,12 @@ show = 1
 color = 1, 1, 1, 1
 
 [Soldier]
+
+[Flick]
+max_force = 250
+min_distance = 0.1
+max_distance = 3
+enabled = 1
+
+[Physics]
+mass = 1

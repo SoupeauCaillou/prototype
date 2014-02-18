@@ -27,6 +27,7 @@
 
 #include "systems/PlayerSystem.h"
 #include "systems/SoldierSystem.h"
+#include "systems/FlickSystem.h"
 
 #include <ostream>
 #include <fstream>
@@ -86,7 +87,11 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
     PlayerSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(PlayerSystem::GetInstancePointer());
     SoldierSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(SoldierSystem::GetInstancePointer());
+    FlickSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(FlickSystem::GetInstancePointer());
 
     Game::sacInit(windowW, windowH);
 
