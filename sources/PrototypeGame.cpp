@@ -21,6 +21,7 @@
 #include "PrototypeGame.h"
 
 #include "base/PlacementHelper.h"
+#include "base/StateMachine.inl"
 
 #include "systems/CameraSystem.h"
 
