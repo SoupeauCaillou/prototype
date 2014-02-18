@@ -16,3 +16,4 @@ enabled = 1
 
 [Physics]
 mass = 1
+frottement = 0.4
