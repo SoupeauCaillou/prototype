@@ -36,10 +36,11 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
     componentSerializer.add(new EntityProperty("player", OFFSET(player, tc)));
     componentSerializer.add(new Property<bool>("health", OFFSET(health, tc)));
     componentSerializer.add(new Property<float>("max_speed_collision", OFFSET(maxSpeedCollision, tc)));
+    componentSerializer.add(new Property<float>("braking_force", OFFSET(brakingForce, tc)));
     componentSerializer.add(new Property<int>("attack_status", OFFSET(attackStatus, tc)));
 }
 
-void SoldierSystem::DoUpdate(float) {
+void SoldierSystem::DoUpdate(float dt) {
     std::map<PhysicsComponent*, glm::vec2> velocityFixes;
 
     for (auto p: components) {
@@ -57,6 +58,7 @@ void SoldierSystem::DoUpdate(float) {
                 linearVel = 0.0f;
             } else {
                 FLICK(e)->enabled = false;
+                pc->addForce(glm::normalize(pc->linearVelocity) * sc->brakingForce, glm::vec2(0.0f), dt);
             }
 
             auto* cc = COLLISION(e);

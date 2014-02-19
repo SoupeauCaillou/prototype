@@ -9,6 +9,7 @@ color = 1, 1, 1, 1
 
 [Soldier]
 max_speed_collision = 0.5
+braking_force = -5
 
 [Flick]
 max_force = 750
@@ -18,7 +19,7 @@ enabled = 1
 
 [Physics]
 mass = 1
-frottement = 1
+# frottement = 1
 
 [Collision]
 group = 2

@@ -34,10 +34,11 @@ namespace AttackStatus
 }
 
 struct SoldierComponent {
-    SoldierComponent(): player (0), health(1.0f), maxSpeedCollision(0.1), attackStatus(AttackStatus::Cannot) {}
+    SoldierComponent(): player (0), health(1.0f), brakingForce(-5.0f), maxSpeedCollision(0.1), attackStatus(AttackStatus::Cannot) {}
 
     Entity player;
     float health;
+    float brakingForce;
     float maxSpeedCollision;
     AttackStatus::Enum attackStatus;
 };
