@@ -1,7 +1,7 @@
 [Transformation]
 size = 0.35, 0.35
 z = 0.1
-position%screen = -0.5, -0.5, 0.5, 0.5
+position%screen = -0.4, -0.4, 0.4, 0.4
 
 [Rendering]
 show = 1
@@ -12,7 +12,7 @@ max_speed_collision = 0.5
 
 [Flick]
 max_force = 750
-min_distance = 0.1
+min_distance = 0.2
 max_distance = 3
 enabled = 1
 
@@ -23,3 +23,4 @@ frottement = 1
 [Collision]
 group = 2
 collide_with = 2
+restore_position_on_collision = 1

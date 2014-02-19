@@ -26,10 +26,10 @@
 
 
 struct SoldierComponent {
-    SoldierComponent(): player (0), alive(true), maxSpeedCollision(0.1) {}
+    SoldierComponent(): player (0), health(1.0f), maxSpeedCollision(0.1) {}
 
     Entity player;
-    bool alive;
+    float health;
     float maxSpeedCollision;
 };
 
