@@ -30,6 +30,7 @@
 #include "systems/SoldierSystem.h"
 #include "systems/FlickSystem.h"
 #include "systems/KnightSystem.h"
+#include "systems/ArcherSystem.h"
 
 #include <ostream>
 #include <fstream>
@@ -96,6 +97,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     orderedSystemsToUpdate.push_back(FlickSystem::GetInstancePointer());
     KnightSystem::CreateInstance();
     orderedSystemsToUpdate.push_back(KnightSystem::GetInstancePointer());
+    ArcherSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(ArcherSystem::GetInstancePointer());
 
     Game::sacInit(windowW, windowH);
 
@@ -150,6 +153,10 @@ void PrototypeGame::initGame() {
     thePlayerSystem.forEachEntityDo([] (Entity p) -> void {
         for (int i=0; i<4; i++) {
             Entity s = theEntityManager.CreateEntityFromTemplate("game/knight");
+            SOLDIER(s)->player = p;
+        }
+        for (int i=0; i<4; i++) {
+            Entity s = theEntityManager.CreateEntityFromTemplate("game/archer");
             SOLDIER(s)->player = p;
         }
     });

@@ -45,13 +45,13 @@ void KnightSystem::DoUpdate(float) {
             if (FLICK(e)->enabled) {
                 const auto* tc = TRANSFORM(e);
                 // attack all targets within range
-                theSoldierSystem.forEachECDo([tc, kc, e] (Entity f, SoldierComponent* sc) -> void {
-                    if (sc->health <= 0 || f == e)
+                theSoldierSystem.forEachECDo([tc, kc, e] (Entity f, SoldierComponent* sc2) -> void {
+                    if (sc2->health <= 0 || f == e)
                         return;
 
                     if (glm::distance(tc->position, TRANSFORM(f)->position) <= kc->attackRange) {
                         // instant kill
-                        sc->health = 0;
+                        sc2->health = 0;
                         RENDERING(f)->color = Color(1, 0, 0);
                     }
                 });

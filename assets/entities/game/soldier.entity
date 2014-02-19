@@ -22,5 +22,5 @@ frottement = 1
 
 [Collision]
 group = 2
-collide_with = 2
+collide_with = 5
 restore_position_on_collision = 1

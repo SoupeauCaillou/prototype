@@ -1,0 +1,15 @@
+[Rendering]
+color = 1, 1, 0, 1
+show = 1
+
+[Transformation]
+size = 0.2, 0.05
+z = 0.5
+
+[Physics]
+mass = 1
+frottement = 0.3
+
+[Collision]
+group = 3
+collide_with = 6
