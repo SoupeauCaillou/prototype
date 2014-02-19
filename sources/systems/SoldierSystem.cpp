@@ -69,14 +69,13 @@ void SoldierSystem::DoUpdate(float dt) {
 
             // simple bump
             glm::vec2 vel = pc->linearVelocity * 0.5f;
-            float ratio = pc2->mass / (pc->mass + pc2->mass);
+            float ratio = (pc2->mass > 0) ? (pc2->mass / (pc->mass + pc2->mass)) : 1.0f;
             glm::vec2 newVelocity1 = direct * (- ratio * glm::dot(vel, direct)) + ortho * (ratio * glm::dot(vel, ortho));
             velocityFixes[pc] += newVelocity1;
 
             velocityFixes[pc2] += vel * (1.0f - ratio);
 
             if (sc->attackStatus == AttackStatus::Preparing) {
-                LOGI(glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity));
                 if (glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity) > 1) {
                     sc->attackStatus = AttackStatus::Cannot;
                 }

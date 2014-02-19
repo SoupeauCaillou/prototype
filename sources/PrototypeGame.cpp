@@ -153,6 +153,10 @@ bool PrototypeGame::willConsumeBackEvent() {
 }
 
 void PrototypeGame::initGame() {
+    for (int i=0; i<20; i++) {
+        theEntityManager.CreateEntityFromTemplate("game/block");
+    }
+
     thePlayerSystem.forEachEntityDo([] (Entity p) -> void {
         for (int i=0; i<4; i++) {
             Entity s = theEntityManager.CreateEntityFromTemplate("game/knight");
