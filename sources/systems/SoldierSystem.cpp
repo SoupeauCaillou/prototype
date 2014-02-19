@@ -34,7 +34,7 @@ INSTANCE_IMPL(SoldierSystem);
 SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier") {
     SoldierComponent tc;
     componentSerializer.add(new EntityProperty("player", OFFSET(player, tc)));
-    componentSerializer.add(new Property<bool>("health", OFFSET(health, tc)));
+    componentSerializer.add(new Property<float>("health", OFFSET(health, tc)));
     componentSerializer.add(new Property<float>("max_speed_collision", OFFSET(maxSpeedCollision, tc)));
     componentSerializer.add(new Property<float>("braking_force", OFFSET(brakingForce, tc)));
     componentSerializer.add(new Property<int>("attack_status", OFFSET(attackStatus, tc)));
@@ -48,39 +48,37 @@ void SoldierSystem::DoUpdate(float dt) {
         auto* sc = p.second;
 
         // check for collision
-        if (sc->health > 0) {
-            auto* pc = PHYSICS(e);
-            float linearVel = glm::length(pc->linearVelocity);
+        auto* pc = PHYSICS(e);
+        float linearVel = glm::length(pc->linearVelocity);
 
-            if (linearVel <= 0.1) {
-                FLICK(e)->enabled = true;
-                pc->linearVelocity = glm::vec2(0.0f);
-                linearVel = 0.0f;
-            } else {
-                FLICK(e)->enabled = false;
-                pc->addForce(glm::normalize(pc->linearVelocity) * sc->brakingForce, glm::vec2(0.0f), dt);
-            }
+        if (linearVel <= 0.1) {
+            FLICK(e)->enabled = (sc->health > 0);
+            pc->linearVelocity = glm::vec2(0.0f);
+            linearVel = 0.0f;
+        } else {
+            FLICK(e)->enabled = false;
+            pc->addForce(glm::normalize(pc->linearVelocity) * sc->brakingForce, glm::vec2(0.0f), dt);
+        }
 
-            auto* cc = COLLISION(e);
-            if (cc->collidedWithLastFrame) {
-                auto* pc2 = PHYSICS(cc->collidedWithLastFrame);
-                glm::vec2 direct = TRANSFORM(cc->collidedWithLastFrame)->position - TRANSFORM(e)->position;
-                direct /= (glm::length(direct) + 0.0001);
-                const glm::vec2 ortho (direct.y, -direct.x);
+        auto* cc = COLLISION(e);
+        if (cc->collidedWithLastFrame) {
+            auto* pc2 = PHYSICS(cc->collidedWithLastFrame);
+            glm::vec2 direct = TRANSFORM(cc->collidedWithLastFrame)->position - TRANSFORM(e)->position;
+            direct /= (glm::length(direct) + 0.0001);
+            const glm::vec2 ortho (direct.y, -direct.x);
 
-                // simple bump
-                glm::vec2 vel = pc->linearVelocity * 0.5f;
-                float ratio = pc2->mass / (pc->mass + pc2->mass);
-                glm::vec2 newVelocity1 = direct * (- ratio * glm::dot(vel, direct)) + ortho * (ratio * glm::dot(vel, ortho));
-                velocityFixes[pc] += newVelocity1;
+            // simple bump
+            glm::vec2 vel = pc->linearVelocity * 0.5f;
+            float ratio = pc2->mass / (pc->mass + pc2->mass);
+            glm::vec2 newVelocity1 = direct * (- ratio * glm::dot(vel, direct)) + ortho * (ratio * glm::dot(vel, ortho));
+            velocityFixes[pc] += newVelocity1;
 
-                velocityFixes[pc2] += vel * (1.0f - ratio);
+            velocityFixes[pc2] += vel * (1.0f - ratio);
 
-                if (sc->attackStatus == AttackStatus::Preparing) {
-                    LOGI(glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity));
-                    if (glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity) > 1) {
-                        sc->attackStatus = AttackStatus::Cannot;
-                    }
+            if (sc->attackStatus == AttackStatus::Preparing) {
+                LOGI(glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity));
+                if (glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity) > 1) {
+                    sc->attackStatus = AttackStatus::Cannot;
                 }
             }
         }

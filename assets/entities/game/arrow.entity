@@ -13,3 +13,6 @@ frottement = 0.3
 [Collision]
 group = 3
 collide_with = 6
+
+[Projectile]
+damage = 30, 50

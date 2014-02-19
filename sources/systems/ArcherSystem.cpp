@@ -63,6 +63,8 @@ void ArcherSystem::DoUpdate(float) {
                 });
 
                 if (target) {
+                    LOGI("Archer " << theEntityManager.entityName(e) << " aims " << theEntityManager.entityName(target));
+
                     // fire arrow
                     glm::vec2 nDif = glm::normalize(TRANSFORM(target)->position - TRANSFORM(e)->position);
                     const float angle = glm::atan2(nDif.y, nDif.x);

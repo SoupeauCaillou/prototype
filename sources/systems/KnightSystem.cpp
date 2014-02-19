@@ -50,6 +50,7 @@ void KnightSystem::DoUpdate(float) {
                         return;
 
                     if (glm::distance(tc->position, TRANSFORM(f)->position) <= kc->attackRange) {
+                        LOGI("Knight " << theEntityManager.entityName(e) << " killed " << theEntityManager.entityName(f));
                         // instant kill
                         sc2->health = 0;
                         RENDERING(f)->color = Color(1, 0, 0);

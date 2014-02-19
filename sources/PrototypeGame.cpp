@@ -31,6 +31,7 @@
 #include "systems/FlickSystem.h"
 #include "systems/KnightSystem.h"
 #include "systems/ArcherSystem.h"
+#include "systems/ProjectileSystem.h"
 
 #include <ostream>
 #include <fstream>
@@ -99,6 +100,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     orderedSystemsToUpdate.push_back(KnightSystem::GetInstancePointer());
     ArcherSystem::CreateInstance();
     orderedSystemsToUpdate.push_back(ArcherSystem::GetInstancePointer());
+    ProjectileSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(ProjectileSystem::GetInstancePointer());
 
     Game::sacInit(windowW, windowH);
 
