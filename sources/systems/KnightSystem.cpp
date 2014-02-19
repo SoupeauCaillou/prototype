@@ -24,7 +24,9 @@
 
 #include "FlickSystem.h"
 #include "SoldierSystem.h"
+#include "systems/CollisionSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
 
 INSTANCE_IMPL(KnightSystem);
 
@@ -37,15 +39,15 @@ void KnightSystem::DoUpdate(float) {
     for (auto p: components) {
         Entity e = p.first;
         auto* kc = p.second;
-
-        if (readyToAttack) {
+        auto* sc = SOLDIER(e);
+        if (sc->attackStatus == AttackStatus::Can) {
             // 1st condition
             if (FLICK(e)->enabled) {
                 const auto* tc = TRANSFORM(e);
                 // attack all targets within range
-                theSoldierSystem.forEachECDo([tc, kc] (Entity f, SoldierComponent* sc) -> void {
-                    if (sc->health <= 0)
-                        continue;
+                theSoldierSystem.forEachECDo([tc, kc, e] (Entity f, SoldierComponent* sc) -> void {
+                    if (sc->health <= 0 || f == e)
+                        return;
 
                     if (glm::distance(tc->position, TRANSFORM(f)->position) <= kc->attackRange) {
                         // instant kill
@@ -54,7 +56,7 @@ void KnightSystem::DoUpdate(float) {
                     }
                 });
             }
-
+            sc->attackStatus = AttackStatus::Cannot;
         }
     }
 }

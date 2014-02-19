@@ -24,13 +24,22 @@
 
 #include "systems/System.h"
 
+namespace AttackStatus
+{
+    enum Enum {
+        Cannot,
+        Preparing,
+        Can,
+    };
+}
 
 struct SoldierComponent {
-    SoldierComponent(): player (0), health(1.0f), maxSpeedCollision(0.1) {}
+    SoldierComponent(): player (0), health(1.0f), maxSpeedCollision(0.1), attackStatus(AttackStatus::Cannot) {}
 
     Entity player;
     float health;
     float maxSpeedCollision;
+    AttackStatus::Enum attackStatus;
 };
 
 #define theSoldierSystem SoldierSystem::GetInstance()

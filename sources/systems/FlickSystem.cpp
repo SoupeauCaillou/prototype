@@ -35,6 +35,7 @@ FlickSystem::FlickSystem() : ComponentSystemImpl<FlickComponent>("Flick") {
     componentSerializer.add(new Property<float>("min_distance", OFFSET(activationDistance.t1, tc)));
     componentSerializer.add(new Property<float>("max_distance", OFFSET(activationDistance.t2, tc)));
     componentSerializer.add(new Property<bool>("enabled", OFFSET(enabled, tc)));
+    componentSerializer.add(new Property<int>("status", OFFSET(status, tc)));
 }
 
 void FlickSystem::DoUpdate(float dt) {
@@ -46,13 +47,21 @@ void FlickSystem::DoUpdate(float dt) {
         Entity e = cpt.first;
         auto* fc = cpt.second;
 
-        if (!fc->enabled)
+        if (!fc->enabled) {
+            fc->status = FlickStatus::NotPossible;
             continue;
+        }
 
-        if (!fc->inProgress && !touching)
+        if (fc->status == FlickStatus::NotPossible ||
+            (fc->status == FlickStatus::Moving && glm::length(PHYSICS(e)->linearVelocity) < 0.1)) {
+            fc->status = FlickStatus::Idle;
+        }
+
+        if (fc->status == FlickStatus::Idle && !touching) {
             continue;
+        }
 
-        if (fc->inProgress) {
+        if (fc->status == FlickStatus::UserInput) {
             glm::vec2 diff (theTouchInputManager.getTouchLastPosition() - TRANSFORM(e)->position);
             float l = glm::length(diff);
             if (l > fc->activationDistance.t2) {
@@ -65,7 +74,7 @@ void FlickSystem::DoUpdate(float dt) {
                 DrawSomething::DrawVec2("flick", TRANSFORM(e)->position, diff, false);
             } else {
                 // apply force
-                fc->inProgress = false;
+                fc->status = FlickStatus::Moving; // (transitory state)
                 if (l >= fc->activationDistance.t1) {
                     float forceMag = - glm::lerp(0.0f, fc->maxForce, (l - fc->activationDistance.t1) / (fc->activationDistance.t2 - fc->activationDistance.t1));
                     PHYSICS(e)->addForce(diff * forceMag / l, glm::vec2(0.0f), 0.016);
@@ -74,7 +83,7 @@ void FlickSystem::DoUpdate(float dt) {
         } else {
             if (!theTouchInputManager.wasTouched(0)) {
                 if (glm::distance(theTouchInputManager.getTouchLastPosition(), TRANSFORM(e)->position) <= fc->activationDistance.t1) {
-                    fc->inProgress = true;
+                    fc->status = FlickStatus::UserInput;
                 }
             }
         }

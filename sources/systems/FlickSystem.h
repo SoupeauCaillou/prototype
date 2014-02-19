@@ -24,14 +24,23 @@
 
 #include "systems/System.h"
 
+namespace FlickStatus
+{
+    enum Enum {
+        NotPossible,
+        Idle,
+        UserInput,
+        Moving,
+    };
+}
 struct FlickComponent {
-    FlickComponent(): maxForce(100), activationDistance(0.5, 3), enabled(false), inProgress(false) {}
+    FlickComponent(): maxForce(100), activationDistance(0.5, 3), enabled(false), status(FlickStatus::Idle) {}
 
     float maxForce;
     Interval<float> activationDistance;
     bool enabled;
 
-    bool inProgress;
+    FlickStatus::Enum status;
 };
 
 #define theFlickSystem FlickSystem::GetInstance()

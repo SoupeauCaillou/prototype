@@ -25,11 +25,11 @@
 #include "systems/System.h"
 
 
+
 struct KnightComponent {
-    KnightComponent() : attackRange(1.0f), readyToAttack(false) {}
+    KnightComponent() : attackRange(1.0f) {}
 
     float attackRange;
-    bool readyToAttack;
 };
 
 #define theKnightSystem KnightSystem::GetInstance()

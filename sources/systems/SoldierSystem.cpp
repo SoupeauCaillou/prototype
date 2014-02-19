@@ -36,6 +36,7 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
     componentSerializer.add(new EntityProperty("player", OFFSET(player, tc)));
     componentSerializer.add(new Property<bool>("health", OFFSET(health, tc)));
     componentSerializer.add(new Property<float>("max_speed_collision", OFFSET(maxSpeedCollision, tc)));
+    componentSerializer.add(new Property<int>("attack_status", OFFSET(attackStatus, tc)));
 }
 
 void SoldierSystem::DoUpdate(float) {
@@ -72,13 +73,39 @@ void SoldierSystem::DoUpdate(float) {
                 velocityFixes[pc] += newVelocity1;
 
                 velocityFixes[pc2] += vel * (1.0f - ratio);
+
+                if (sc->attackStatus == AttackStatus::Preparing) {
+                    LOGI(glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity));
+                    if (glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity) > 1) {
+                        sc->attackStatus = AttackStatus::Cannot;
+                    }
+                }
             }
         }
 
         if (sc->health <= 0) {
             FLICK(e)->enabled = false;
             RENDERING(e)->color = Color(1, 0, 0);
-            PHYSICS(e)->mass = 0;
+            PHYSICS(e)->mass = 2;
+        }
+
+        switch (sc->attackStatus) {
+            case AttackStatus::Can: {
+                // attack are handled in subsystem (knight, archer, ...)
+                break;
+            }
+            case AttackStatus::Cannot: {
+                if (FLICK(e)->status == FlickStatus::Moving) {
+                    sc->attackStatus = AttackStatus::Preparing;
+                }
+                break;
+            }
+            case AttackStatus::Preparing: {
+                if (FLICK(e)->status == FlickStatus::Idle) {
+                    sc->attackStatus = AttackStatus::Can;
+                }
+                break;
+            }
         }
     }
 

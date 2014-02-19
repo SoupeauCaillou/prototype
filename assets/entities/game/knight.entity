@@ -1,0 +1,7 @@
+extends = game/soldier
+
+[Knight]
+attack_range = 0.75
+
+[Rendering]
+color = 0.7, 0.7, 0.7
