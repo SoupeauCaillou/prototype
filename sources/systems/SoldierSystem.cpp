@@ -110,7 +110,7 @@ void SoldierSystem::DoUpdate(float dt) {
             case Status::Bouncing: {
                 FLICK(e)->enabled = false;
                 if (linearVel <= 0) {
-                    sc->status = Status::Idle;
+                    sc->status = Status::CoolDown;
                 }
                 break;
             }
