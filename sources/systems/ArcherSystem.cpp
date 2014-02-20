@@ -33,7 +33,7 @@ INSTANCE_IMPL(ArcherSystem);
 
 ArcherSystem::ArcherSystem() : ComponentSystemImpl<ArcherComponent>("Archer") {
     ArcherComponent tc;
-    componentSerializer.add(new Property<float>("attack_range", OFFSET(attackRange, tc)));
+    componentSerializer.add(new Property<float>("range_coeff", OFFSET(rangeCoeff, tc)));
     componentSerializer.add(new Property<float>("arrow_force", OFFSET(arrowForce, tc)));
 }
 
@@ -52,9 +52,10 @@ void ArcherSystem::DoUpdate(float) {
                 if (sc2->health <= 0 || f == e) //  || sc->player == sc2->player)
                     return;
 
-                float d = glm::distance(tc->position, TRANSFORM(f)->position);
+                const float d = glm::distance(tc->position, TRANSFORM(f)->position);
+                const float atkRange = sc->flickingDistance * kc->rangeCoeff;
 
-                if (d <= kc->attackRange && (d < nearest || target == 0)) {
+                if (d <= atkRange && (d < nearest || target == 0)) {
                     nearest = d;
                     target = f;
                 }

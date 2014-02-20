@@ -27,9 +27,9 @@
 
 
 struct ArcherComponent {
-    ArcherComponent() : attackRange(1.0f), arrowForce(100.0f) {}
+    ArcherComponent() : rangeCoeff(1.0f), arrowForce(100.0f) {}
 
-    float attackRange;
+    float rangeCoeff;
     float arrowForce;
 };
 
