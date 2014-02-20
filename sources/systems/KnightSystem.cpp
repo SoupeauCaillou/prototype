@@ -41,32 +41,28 @@ void KnightSystem::DoUpdate(float) {
         Entity e = p.first;
         auto* kc = p.second;
         auto* sc = SOLDIER(e);
-        if (sc->attackStatus == AttackStatus::Can) {
-            // 1st condition
-            if (FLICK(e)->enabled) {
-                const auto* tc = TRANSFORM(e);
+        if (sc->status == Status::Attack) {
+            const auto* tc = TRANSFORM(e);
 
-                std::vector<Entity> targets;
-                // attack all targets within range
-                theSoldierSystem.forEachECDo([tc, kc, e, &targets] (Entity f, SoldierComponent* sc2) -> void {
-                    if (sc2->health <= 0 || f == e)
-                        return;
+            std::vector<Entity> targets;
+            // attack all targets within range
+            theSoldierSystem.forEachECDo([tc, kc, e, &targets] (Entity f, SoldierComponent* sc2) -> void {
+                if (sc2->health <= 0 || f == e)
+                    return;
 
-                    if (glm::distance(tc->position, TRANSFORM(f)->position) <= kc->attackRange) {
-                        targets.push_back(f);
-                    }
-                });
+                if (glm::distance(tc->position, TRANSFORM(f)->position) <= kc->attackRange) {
+                    targets.push_back(f);
+                }
+            });
 
-                if (!targets.empty()) {
-                    float damage = sc->flickingDistance * kc->attackCoeff / targets.size();
-                    for (Entity f: targets) {
-                        LOGI("Knight " << theEntityManager.entityName(e) << " attacks " << theEntityManager.entityName(f) << ": " << damage) ;
-                        auto* sc2 = SOLDIER(f);
-                        sc2->health = glm::max(0.0f, sc2->health - damage);
-                    }
+            if (!targets.empty()) {
+                float damage = sc->flickingDistance * kc->attackCoeff / targets.size();
+                for (Entity f: targets) {
+                    LOGI("Knight " << theEntityManager.entityName(e) << " attacks " << theEntityManager.entityName(f) << ": " << damage) ;
+                    auto* sc2 = SOLDIER(f);
+                    sc2->health = glm::max(0.0f, sc2->health - damage);
                 }
             }
-            sc->attackStatus = AttackStatus::Cannot;
         }
     }
 }

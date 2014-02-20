@@ -1,5 +1,8 @@
 extends = game/soldier
 
+[Soldier]
+cooldown = 2
+
 [Knight]
 attack_range = 0.75
 attack_coeff = 40

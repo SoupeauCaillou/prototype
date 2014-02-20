@@ -24,24 +24,31 @@
 
 #include "systems/System.h"
 
-namespace AttackStatus
+namespace Status
 {
     enum Enum {
-        Cannot,
-        Preparing,
-        Can,
+        Idle,
+        Moving,
+        Bouncing,
+        CanAttack,
+        Attack,
+        CoolDown,
     };
 }
 
 struct SoldierComponent {
-    SoldierComponent(): player (0), health(1.0f), brakingForce(-5.0f), maxSpeedCollision(0.1), attackStatus(AttackStatus::Cannot), flickingDistance(0.0f) {}
+    SoldierComponent(): player (0), health(1.0f), brakingForce(-5.0f), maxSpeedCollision(0.1), status(Status::Idle), flickingDistance(0.0f) { cd.accum = 0; cd.duration = 1.0f;}
 
     Entity player;
     float health;
     float brakingForce;
     float maxSpeedCollision;
-    AttackStatus::Enum attackStatus;
+    Status::Enum status;
     float flickingDistance;
+    struct {
+        float accum;
+        float duration;
+    } cd;
 };
 
 #define theSoldierSystem SoldierSystem::GetInstance()

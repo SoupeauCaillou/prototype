@@ -37,7 +37,8 @@ SoldierSystem::SoldierSystem() : ComponentSystemImpl<SoldierComponent>("Soldier"
     componentSerializer.add(new Property<float>("health", OFFSET(health, tc)));
     componentSerializer.add(new Property<float>("max_speed_collision", OFFSET(maxSpeedCollision, tc)));
     componentSerializer.add(new Property<float>("braking_force", OFFSET(brakingForce, tc)));
-    componentSerializer.add(new Property<int>("attack_status", OFFSET(attackStatus, tc)));
+    componentSerializer.add(new Property<int>("status", OFFSET(status, tc)));
+    componentSerializer.add(new Property<float>("cooldown", OFFSET(cd.duration, tc)));
 }
 
 void SoldierSystem::DoUpdate(float dt) {
@@ -52,7 +53,6 @@ void SoldierSystem::DoUpdate(float dt) {
         float linearVel = glm::length(pc->linearVelocity);
 
         if (linearVel <= 0.1) {
-            FLICK(e)->enabled = (sc->health > 0);
             pc->linearVelocity = glm::vec2(0.0f);
             linearVel = 0.0f;
         } else {
@@ -75,9 +75,9 @@ void SoldierSystem::DoUpdate(float dt) {
 
             velocityFixes[pc2] += vel * (1.0f - ratio);
 
-            if (sc->attackStatus == AttackStatus::Preparing) {
+            if (sc->status == Status::Moving) {
                 if (glm::length(pc->linearVelocity) + glm::length(pc2->linearVelocity) > 1) {
-                    sc->attackStatus = AttackStatus::Cannot;
+                    sc->status = Status::Bouncing;
                 }
             }
         }
@@ -88,21 +88,46 @@ void SoldierSystem::DoUpdate(float dt) {
             PHYSICS(e)->mass = 2;
         }
 
-        switch (sc->attackStatus) {
-            case AttackStatus::Can: {
-                // attack are handled in subsystem (knight, archer, ...)
+        switch (sc->status) {
+            case Status::CanAttack: {
+                FLICK(e)->enabled = false;
+                sc->status = Status::Attack;
+                // attacks are handled in subsystem (knight, archer, ...)
                 break;
             }
-            case AttackStatus::Cannot: {
+            case Status::Attack: {
+                FLICK(e)->enabled = false;
+                sc->status = Status::CoolDown;
+                break;
+            }
+            case Status::Idle: {
+                FLICK(e)->enabled = (sc->health > 0);
                 if (FLICK(e)->status == FlickStatus::Moving) {
-                    sc->attackStatus = AttackStatus::Preparing;
+                    sc->status = Status::Moving;
                 }
                 break;
             }
-            case AttackStatus::Preparing: {
-                if (FLICK(e)->status == FlickStatus::Idle) {
+            case Status::Bouncing: {
+                FLICK(e)->enabled = false;
+                if (linearVel <= 0) {
+                    sc->status = Status::Idle;
+                }
+                break;
+            }
+            case Status::Moving: {
+                FLICK(e)->enabled = false;
+                if (linearVel <= 0) {
                     sc->flickingDistance = glm::distance(TRANSFORM(e)->position, FLICK(e)->flickingStartedAt);
-                    sc->attackStatus = AttackStatus::Can;
+                    sc->status = Status::CanAttack;
+                }
+                break;
+            }
+            case Status::CoolDown: {
+                FLICK(e)->enabled = false;
+                sc->cd.accum += dt;
+                if (sc->cd.accum >= sc->cd.duration) {
+                    sc->cd.accum = 0;
+                    sc->status = Status::Idle;
                 }
                 break;
             }

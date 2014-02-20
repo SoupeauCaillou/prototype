@@ -1,5 +1,8 @@
 extends = game/soldier
 
+[Soldier]
+cooldown = 3
+
 [Archer]
 attack_range = 5
 arrow_force = 800

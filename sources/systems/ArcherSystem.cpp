@@ -42,39 +42,35 @@ void ArcherSystem::DoUpdate(float) {
         Entity e = p.first;
         auto* kc = p.second;
         auto* sc = SOLDIER(e);
-        if (sc->attackStatus == AttackStatus::Can) {
-            // 1st condition
-            if (FLICK(e)->enabled) {
-                const auto* tc = TRANSFORM(e);
+        if (sc->status == Status::Attack) {
+            const auto* tc = TRANSFORM(e);
 
-                // find nearest target within range
-                Entity target = 0;
-                float nearest = -1;
-                theSoldierSystem.forEachECDo([tc, kc, sc, e, &target, &nearest] (Entity f, SoldierComponent* sc2) -> void {
-                    if (sc2->health <= 0 || f == e) //  || sc->player == sc2->player)
-                        return;
+            // find nearest target within range
+            Entity target = 0;
+            float nearest = -1;
+            theSoldierSystem.forEachECDo([tc, kc, sc, e, &target, &nearest] (Entity f, SoldierComponent* sc2) -> void {
+                if (sc2->health <= 0 || f == e) //  || sc->player == sc2->player)
+                    return;
 
-                    float d = glm::distance(tc->position, TRANSFORM(f)->position);
+                float d = glm::distance(tc->position, TRANSFORM(f)->position);
 
-                    if (d <= kc->attackRange && (d < nearest || target == 0)) {
-                        nearest = d;
-                        target = f;
-                    }
-                });
-
-                if (target) {
-                    LOGI("Archer " << theEntityManager.entityName(e) << " aims " << theEntityManager.entityName(target));
-
-                    // fire arrow
-                    glm::vec2 nDif = glm::normalize(TRANSFORM(target)->position - TRANSFORM(e)->position);
-                    const float angle = glm::atan2(nDif.y, nDif.x);
-                    Entity arrow = theEntityManager.CreateEntityFromTemplate("game/arrow");
-                    TRANSFORM(arrow)->position = TRANSFORM(e)->position + nDif * (glm::length(TRANSFORM(e)->size) + glm::length(TRANSFORM(arrow)->size)) * 0.6f;
-                    TRANSFORM(arrow)->rotation = angle;
-                    PHYSICS(arrow)->addForce(nDif * kc->arrowForce, glm::vec2(0.0f), 0.016);
+                if (d <= kc->attackRange && (d < nearest || target == 0)) {
+                    nearest = d;
+                    target = f;
                 }
+            });
+
+            if (target) {
+                LOGI("Archer " << theEntityManager.entityName(e) << " aims " << theEntityManager.entityName(target));
+
+                // fire arrow
+                glm::vec2 nDif = glm::normalize(TRANSFORM(target)->position - TRANSFORM(e)->position);
+                const float angle = glm::atan2(nDif.y, nDif.x);
+                Entity arrow = theEntityManager.CreateEntityFromTemplate("game/arrow");
+                TRANSFORM(arrow)->position = TRANSFORM(e)->position + nDif * (glm::length(TRANSFORM(e)->size) + glm::length(TRANSFORM(arrow)->size)) * 0.6f;
+                TRANSFORM(arrow)->rotation = angle;
+                PHYSICS(arrow)->addForce(nDif * kc->arrowForce, glm::vec2(0.0f), 0.016);
             }
-            sc->attackStatus = AttackStatus::Cannot;
         }
     }
 }
