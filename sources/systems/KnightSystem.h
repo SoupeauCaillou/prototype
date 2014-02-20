@@ -27,9 +27,10 @@
 
 
 struct KnightComponent {
-    KnightComponent() : attackRange(1.0f) {}
+    KnightComponent() : attackRange(1.0f), attackCoeff(10.0f) {}
 
     float attackRange;
+    float attackCoeff;
 };
 
 #define theKnightSystem KnightSystem::GetInstance()

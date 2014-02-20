@@ -2,6 +2,7 @@ extends = game/soldier
 
 [Knight]
 attack_range = 0.75
+attack_coeff = 40
 
 [Rendering]
 color = 0.2, 0.2, 0.7

@@ -76,6 +76,8 @@ void FlickSystem::DoUpdate(float dt) {
                 // apply force
                 fc->status = FlickStatus::Moving; // (transitory state)
                 if (l >= fc->activationDistance.t1) {
+                    fc->flickingStartedAt = TRANSFORM(e)->position;
+
                     float forceMag = glm::lerp(0.0f, fc->maxForce, (l - fc->activationDistance.t1) / (fc->activationDistance.t2 - fc->activationDistance.t1));
                     PHYSICS(e)->addForce(diff * forceMag / l, glm::vec2(0.0f), 0.016);
                 }

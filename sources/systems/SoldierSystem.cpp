@@ -101,6 +101,7 @@ void SoldierSystem::DoUpdate(float dt) {
             }
             case AttackStatus::Preparing: {
                 if (FLICK(e)->status == FlickStatus::Idle) {
+                    sc->flickingDistance = glm::distance(TRANSFORM(e)->position, FLICK(e)->flickingStartedAt);
                     sc->attackStatus = AttackStatus::Can;
                 }
                 break;

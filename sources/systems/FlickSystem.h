@@ -34,12 +34,13 @@ namespace FlickStatus
     };
 }
 struct FlickComponent {
-    FlickComponent(): maxForce(100), activationDistance(0.5, 3), enabled(false), status(FlickStatus::Idle) {}
+    FlickComponent(): maxForce(100), activationDistance(0.5, 3), enabled(false), flickingStartedAt(0.0f), status(FlickStatus::Idle) {}
 
     float maxForce;
     Interval<float> activationDistance;
     bool enabled;
 
+    glm::vec2 flickingStartedAt;
     FlickStatus::Enum status;
 };
 
