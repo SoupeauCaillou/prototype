@@ -8,4 +8,4 @@ attack_range = 5
 arrow_force = 800
 
 [Rendering]
-color = 0.7, 0.2, 0.2
+shape = 2

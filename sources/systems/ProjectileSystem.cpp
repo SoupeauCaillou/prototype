@@ -45,7 +45,7 @@ void ProjectileSystem::DoUpdate(float) {
         // check for collision
         auto* cc = COLLISION(e);
         if (cc->collidedWithLastFrame) {
-            auto* sc = theSoldierSystem.Get(cc->collidedWithLastFrame);
+            auto* sc = theSoldierSystem.Get(cc->collidedWithLastFrame, false);
             if (sc) {
                 LOGI("Projectile " << theEntityManager.entityName(e) << " hit " << theEntityManager.entityName(cc->collidedWithLastFrame));
                 sc->health -= pc->damage;
@@ -53,7 +53,7 @@ void ProjectileSystem::DoUpdate(float) {
 
             ADD_COMPONENT(e, Anchor);
             ANCHOR(e)->parent = cc->collidedWithLastFrame;
-            ANCHOR(e)->position = TRANSFORM(e)->position - TRANSFORM(cc->collidedWithLastFrame)->position;
+            ANCHOR(e)->position = glm::rotate(TRANSFORM(e)->position - TRANSFORM(cc->collidedWithLastFrame)->position, TRANSFORM(cc->collidedWithLastFrame)->rotation);
             ANCHOR(e)->rotation = TRANSFORM(e)->rotation - TRANSFORM(cc->collidedWithLastFrame)->rotation;
 
             toRemove.push_back(e);

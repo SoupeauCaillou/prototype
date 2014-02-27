@@ -25,6 +25,8 @@
 
 #include "systems/CameraSystem.h"
 #include "systems/CollisionSystem.h"
+#include "systems/TransformationSystem.h"
+#include "util/DataFileParser.h"
 
 #include "systems/PlayerSystem.h"
 #include "systems/SoldierSystem.h"
@@ -153,18 +155,56 @@ bool PrototypeGame::willConsumeBackEvent() {
 }
 
 void PrototypeGame::initGame() {
-    for (int i=0; i<20; i++) {
+    for (int i=0; i<15; i++) {
         theEntityManager.CreateEntityFromTemplate("game/block");
     }
 
-    thePlayerSystem.forEachEntityDo([] (Entity p) -> void {
-        for (int i=0; i<4; i++) {
-            Entity s = theEntityManager.CreateEntityFromTemplate("game/knight");
-            SOLDIER(s)->player = p;
+    if (thePlayerSystem.entityCount() == 1) {
+        Entity ai = theEntityManager.CreateEntityFromTemplate("game/player");
+        PLAYER(ai)->name = "ai";
+    }
+
+    LOGF_IF(thePlayerSystem.entityCount() != 2, "Only 2 player map");
+    FileBuffer fb = gameThreadContext->assetAPI->loadAsset("placement.ini");
+    DataFileParser dfp;
+    dfp.load(fb, "placement.ini");
+
+    const auto players = thePlayerSystem.RetrieveAllEntityWithComponent();
+    for (int i=0; i<2; i++) {
+        std::stringstream section;
+        section << "team" << (i+1);
+
+        int archers, knights;
+        dfp.get(section.str(), "archer_count", &archers);
+        dfp.get(section.str(), "knight_count", &knights);
+
+        Color c;
+        dfp.get(section.str(), "color", &c.r, 4);
+        for (int j=0; j<archers; j++) {
+            Entity a = theEntityManager.CreateEntityFromTemplate("game/archer");
+            SOLDIER(a)->player = players[i];
+
+            std::stringstream pos;
+            pos << "pos_a" << (j+1);
+            dfp.get(section.str(), pos.str(), &TRANSFORM(a)->position.x, 2);
+            TRANSFORM(a)->position = PlacementHelper::GimpPositionToScreen(TRANSFORM(a)->position);
+            RENDERING(a)->color = c;
         }
-        for (int i=0; i<4; i++) {
-            Entity s = theEntityManager.CreateEntityFromTemplate("game/archer");
-            SOLDIER(s)->player = p;
+
+        for (int j=0; j<knights; j++) {
+            Entity a = theEntityManager.CreateEntityFromTemplate("game/knight");
+            SOLDIER(a)->player = players[i];
+
+            std::stringstream pos;
+            pos << "pos_k" << (j+1);
+            dfp.get(section.str(), pos.str(), &TRANSFORM(a)->position.x, 2);
+            TRANSFORM(a)->position = PlacementHelper::GimpPositionToScreen(TRANSFORM(a)->position);
+            RENDERING(a)->color = c;
         }
+    }
+
+    theSoldierSystem.forEachEntityDo([] (Entity e) -> void {
+        glm::vec2 d(TRANSFORM(e)->position);
+        TRANSFORM(e)->rotation = glm::atan(d.y, d.x) + glm::pi<float>() * 0.5f;
     });
 }
