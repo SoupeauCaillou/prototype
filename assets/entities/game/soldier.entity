@@ -26,3 +26,6 @@ mass = 1
 group = 2
 collide_with = 7
 restore_position_on_collision = 1
+
+[Network]
+sync = Soldier, Transformation, Rendering

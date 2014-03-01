@@ -43,13 +43,14 @@ void ArcherSystem::DoUpdate(float) {
         auto* kc = p.second;
         auto* sc = SOLDIER(e);
         if (sc->status == Status::Attack) {
+            LOGI("ATK");
             const auto* tc = TRANSFORM(e);
 
             // find nearest target within range
             Entity target = 0;
             float nearest = -1;
             theSoldierSystem.forEachECDo([tc, kc, sc, e, &target, &nearest] (Entity f, SoldierComponent* sc2) -> void {
-                if (sc2->health <= 0 || f == e) //  || sc->player == sc2->player)
+                if (sc2->health <= 0 || f == e || sc->player == sc2->player)
                     return;
 
                 const float d = glm::distance(tc->position, TRANSFORM(f)->position);

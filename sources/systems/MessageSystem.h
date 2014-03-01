@@ -23,32 +23,39 @@
 #pragma once
 
 #include "systems/System.h"
+#include "../states/Scenes.h"
 
-namespace FlickStatus
+namespace MessageType
 {
     enum Enum {
-        Idle,
-        UserInput,
-        Moving,
+        None,
+        NewScene,
+        Flick,
     };
 }
-struct FlickComponent {
-    FlickComponent(): maxForce(100), activationDistance(0.5, 3), enabled(false), flickingStartedAt(0.0f), status(FlickStatus::Idle) {}
 
-    float maxForce;
-    Interval<float> activationDistance;
-    bool enabled;
+struct MessageComponent {
+    MessageComponent(): type(MessageType::None), ttl(1) {
+        flick.target = 0;
+        flick.force = glm::vec2(0.0f);
+    }
 
-    glm::vec2 flickingStartedAt;
-    FlickStatus::Enum status;
+    MessageType::Enum type;
+    Scene::Enum newScene;
+    struct {
+        Entity target;
+        glm::vec2 force;
+    } flick;
+
+    int ttl;
 };
 
-#define theFlickSystem FlickSystem::GetInstance()
+#define theMessageSystem MessageSystem::GetInstance()
 #if SAC_DEBUG
-#define FLICK(e) theFlickSystem.Get(e,true,__FILE__,__LINE__)
+#define MESSAGE(e) theMessageSystem.Get(e,true,__FILE__,__LINE__)
 #else
-#define FLICK(e) theFlickSystem.Get(e)
+#define MESSAGE(e) theMessageSystem.Get(e)
 #endif
 
-UPDATABLE_SYSTEM(Flick)
+UPDATABLE_SYSTEM(Message)
 };

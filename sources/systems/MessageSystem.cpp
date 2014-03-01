@@ -20,35 +20,24 @@
 
 
 
-#pragma once
+#include "MessageSystem.h"
 
-#include "systems/System.h"
+INSTANCE_IMPL(MessageSystem);
 
-namespace FlickStatus
-{
-    enum Enum {
-        Idle,
-        UserInput,
-        Moving,
-    };
+MessageSystem::MessageSystem() : ComponentSystemImpl<MessageComponent>("Message") {
+    MessageComponent tc;
+    componentSerializer.add(new Property<int>("type", OFFSET(type, tc)));
+    componentSerializer.add(new Property<int>("new_scene", OFFSET(newScene, tc)));
+    componentSerializer.add(new EntityProperty("flick.target", OFFSET(flick.target, tc)));
+    componentSerializer.add(new Property<glm::vec2>("flick.force", OFFSET(flick.force, tc), glm::vec2(0.001, 0)));
 }
-struct FlickComponent {
-    FlickComponent(): maxForce(100), activationDistance(0.5, 3), enabled(false), flickingStartedAt(0.0f), status(FlickStatus::Idle) {}
 
-    float maxForce;
-    Interval<float> activationDistance;
-    bool enabled;
+void MessageSystem::DoUpdate(float) {
+    for (auto it=components.begin(); it!=components.end();) {
+        auto jt = it++;
+        if (--jt->second->ttl < 0) {
+            theEntityManager.DeleteEntity(jt->first);
+        }
+    }
+}
 
-    glm::vec2 flickingStartedAt;
-    FlickStatus::Enum status;
-};
-
-#define theFlickSystem FlickSystem::GetInstance()
-#if SAC_DEBUG
-#define FLICK(e) theFlickSystem.Get(e,true,__FILE__,__LINE__)
-#else
-#define FLICK(e) theFlickSystem.Get(e)
-#endif
-
-UPDATABLE_SYSTEM(Flick)
-};

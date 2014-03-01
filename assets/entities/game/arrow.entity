@@ -16,3 +16,6 @@ collide_with = 7
 
 [Projectile]
 damage = 30, 50
+
+[Network]
+Rendering, Transformation

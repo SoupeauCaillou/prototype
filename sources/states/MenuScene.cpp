@@ -22,6 +22,7 @@
 #include "Scenes.h"
 
 #include "systems/PlayerSystem.h"
+#include "systems/MessageSystem.h"
 
 #include "base/EntityManager.h"
 #include "systems/ButtonSystem.h"
@@ -165,6 +166,14 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             net->acceptInvitation();
         }
 
+        for (auto p: theMessageSystem.getAllComponents()) {
+            if (p.second->type == MessageType::NewScene) {
+                if (p.second->newScene == Scene::GameStart) {
+                    return Scene::GameStart;
+                }
+            }
+        }
+
         return Scene::Menu;
     }
 
@@ -178,13 +187,27 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
         game->player = theEntityManager.CreateEntityFromTemplate("game/player");
         PLAYER(game->player)->name = game->nickName;
+        LOGI("Created local player: " << game->player);
+
+        for (auto p: players) {
+            theEntityManager.DeleteEntity(p);
+        }
+        players.clear();
     }
 
-    bool updatePreExit(Scene::Enum, float) override {
+    bool updatePreExit(Scene::Enum to, float) override {
         if (net->getStatus() != NetworkStatus::ConnectedToServer) {
             // only proceed when all players exist
-            return (thePlayerSystem.entityCount()
-                >= net->getPlayersInRoom().size());
+            if (thePlayerSystem.entityCount() < net->getPlayersInRoom().size()) {
+                // resend message
+                Entity e = theEntityManager.CreateEntityFromTemplate("message");
+                MESSAGE(e)->type = MessageType::NewScene;
+                MESSAGE(e)->newScene = to;
+
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return true;
         }
@@ -192,6 +215,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         if (net->getStatus() != NetworkStatus::ConnectedToServer) {
+            LOGI("Init game");
             game->initGame();
         }
         RENDERING(startBtn)->show =

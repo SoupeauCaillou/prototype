@@ -21,6 +21,23 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
+
+#include "base/EntityManager.h"
+#include "systems/MessageSystem.h"
+#include "systems/PhysicsSystem.h"
+#include "systems/TransformationSystem.h"
+#include "api/NetworkAPI.h"
+
+#include "PrototypeGame.h"
+
+#include "systems/PlayerSystem.h"
+#include "systems/SoldierSystem.h"
+#include "systems/FlickSystem.h"
+#include "systems/KnightSystem.h"
+#include "systems/ArcherSystem.h"
+#include "systems/ProjectileSystem.h"
+#include "systems/MessageSystem.h"
+
 struct InGameScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
@@ -38,6 +55,21 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        theSoldierSystem.forEachECDo([this] (Entity e, SoldierComponent* sc) -> void {
+            const auto* fc = theFlickSystem.Get(e, false);
+            if (sc->player == game->player) {
+                if (!fc) {
+                    ADD_COMPONENT(e, Flick);
+                    FLICK(e)->maxForce = 750;
+                    FLICK(e)->activationDistance = Interval<float>(0.2, 3);
+                    FLICK(e)->enabled = true;
+                }
+            } else {
+                if (fc) {
+                 //   theEntityManager.RemoveComponent(e, &theFlickSystem);
+                }
+            }
+        });
     }
 
 
@@ -45,6 +77,30 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        theFlickSystem.Update(dt);
+
+        if (game->gameThreadContext->networkAPI->getStatus() != NetworkStatus::ConnectedToServer) {
+            auto& mpc = theMessageSystem.getAllComponents();
+            for (auto it=mpc.begin(); it!=mpc.end(); ) {
+                if (it->second->type == MessageType::Flick) {
+                    Entity e = it->second->flick.target;
+                    FLICK(e)->flickingStartedAt = TRANSFORM(e)->position;
+                    FLICK(e)->status = FlickStatus::Moving;
+                    PHYSICS(e)->addForce(it->second->flick.force, glm::vec2(0.0f), 0.016);
+                    Entity m = it->first;
+                    ++it;
+                    theEntityManager.DeleteEntity(m);
+                } else {
+                    ++it;
+                }
+            }
+
+            thePlayerSystem.Update(dt);
+            theSoldierSystem.Update(dt);
+            theKnightSystem.Update(dt);
+            theArcherSystem.Update(dt);
+            theProjectileSystem.Update(dt);
+        }
 
         return Scene::InGame;
     }

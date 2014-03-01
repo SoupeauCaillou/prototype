@@ -7,7 +7,7 @@ size%screen=0., 0.05
 z = 0.5
 
 [Text]
-color = 0.2, 0.2, 0, 1
+color = 0.8, 0.8, 0.8, 1
 font = typo
 positioning = 1
 char_height%screen_h = 0.05

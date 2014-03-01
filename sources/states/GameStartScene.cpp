@@ -21,21 +21,22 @@
 #include "base/StateMachine.h"
 #include "Scenes.h"
 
-#include "base/EntityManager.h"
-#include "systems/NetworkSystem.h"
-#include "api/NetworkAPI.h"
+#include "base/TouchInputManager.h"
+#include "systems/RenderingSystem.h"
+#include "systems/TextSystem.h"
 
-#include "PrototypeGame.h"
+#include "systems/PlayerSystem.h"
+#include "../PrototypeGame.h"
 
 struct GameStartScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+    Entity getReady;
 
     GameStartScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
-    void setup() {
-    }
+    void setup() { }
 
 
 
@@ -44,13 +45,40 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        getReady = theEntityManager.CreateEntityFromTemplate("menu/ready_screen");
+        PLAYER(game->player)->ready = false;
     }
 
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
+        if (theTouchInputManager.hasClicked()) {
+            PLAYER(game->player)->ready = !PLAYER(game->player)->ready;
+        }
+
+        if (PLAYER(game->player)->ready) {
+            int readyCount = 0;
+            thePlayerSystem.forEachECDo([&readyCount] (Entity e, PlayerComponent* pc) -> void {
+                readyCount += pc->ready;
+            });
+            
+            if (readyCount == thePlayerSystem.entityCount()) {
+                TEXT(getReady)->text = "Everyone is ready";
+                RENDERING(getReady)->color = Color(0, 1, 0, 0.5);
+                return Scene::InGame;
+            } else {
+                std::stringstream a;
+                a << readyCount << " - " << thePlayerSystem.entityCount() << " players ready";
+                TEXT(getReady)->text = a.str();
+                RENDERING(getReady)->color = Color(1, 0.5, 0, 0.5);
+            }
+        } else {
+            TEXT(getReady)->text = "Click When Ready";
+            RENDERING(getReady)->color = Color(1, 0, 0, 0.5);
+        }
+
         return Scene::GameStart;
     }
 
@@ -58,10 +86,17 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
+    float accum;
     void onPreExit(Scene::Enum) override {
+        accum = 1;
+    }
+
+    bool updatePreExit(Scene::Enum, float dt) override{
+        return (accum -= dt) < 0;
     }
 
     void onExit(Scene::Enum) override {
+        theEntityManager.DeleteEntity(getReady);
     }
 };
 

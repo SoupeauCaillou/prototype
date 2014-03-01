@@ -25,6 +25,8 @@
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
 
+#include "systems/MessageSystem.h"
+
 #include "util/DrawSomething.h"
 
 INSTANCE_IMPL(FlickSystem);
@@ -48,13 +50,18 @@ void FlickSystem::DoUpdate(float dt) {
         auto* fc = cpt.second;
 
         if (!fc->enabled) {
-            fc->status = FlickStatus::NotPossible;
+            fc->status = FlickStatus::Idle;
             continue;
         }
 
-        if (fc->status == FlickStatus::NotPossible ||
-            (fc->status == FlickStatus::Moving && glm::length(PHYSICS(e)->linearVelocity) < 0.1)) {
-            fc->status = FlickStatus::Idle;
+        {
+            const auto* pc = thePhysicsSystem.Get(e, false);
+
+            if (pc) {
+                if (fc->status == FlickStatus::Moving && glm::length(pc->linearVelocity) < 0.1) {
+                    fc->status = FlickStatus::Idle;
+                }
+            }
         }
 
         if (fc->status == FlickStatus::Idle && !touching) {
@@ -79,7 +86,11 @@ void FlickSystem::DoUpdate(float dt) {
                     fc->flickingStartedAt = TRANSFORM(e)->position;
 
                     float forceMag = glm::lerp(0.0f, fc->maxForce, (l - fc->activationDistance.t1) / (fc->activationDistance.t2 - fc->activationDistance.t1));
-                    PHYSICS(e)->addForce(diff * forceMag / l, glm::vec2(0.0f), 0.016);
+
+                    Entity msg = theEntityManager.CreateEntityFromTemplate("message");
+                    MESSAGE(msg)->type = MessageType::Flick;
+                    MESSAGE(msg)->flick.target = e;
+                    MESSAGE(msg)->flick.force = diff * forceMag / l;
                 }
             }
         } else {

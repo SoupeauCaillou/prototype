@@ -34,6 +34,7 @@
 #include "systems/KnightSystem.h"
 #include "systems/ArcherSystem.h"
 #include "systems/ProjectileSystem.h"
+#include "systems/MessageSystem.h"
 
 #include <ostream>
 #include <fstream>
@@ -93,17 +94,14 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
     PlayerSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(PlayerSystem::GetInstancePointer());
     SoldierSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(SoldierSystem::GetInstancePointer());
     FlickSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(FlickSystem::GetInstancePointer());
     KnightSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(KnightSystem::GetInstancePointer());
     ArcherSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(ArcherSystem::GetInstancePointer());
     ProjectileSystem::CreateInstance();
-    orderedSystemsToUpdate.push_back(ProjectileSystem::GetInstancePointer());
+
+    MessageSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(MessageSystem::GetInstancePointer());
 
     Game::sacInit(windowW, windowH);
 

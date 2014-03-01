@@ -1,0 +1,12 @@
+[Rendering]
+show = 1
+color = 1, 0, 0, 0.5
+
+[Transformation]
+z = 0.05
+size%screen = 1, 1
+
+[Text]
+char_height%screen_h = 0.15
+color = 0, 0, 0, 1
+show = 1

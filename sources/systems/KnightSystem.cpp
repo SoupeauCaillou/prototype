@@ -46,8 +46,8 @@ void KnightSystem::DoUpdate(float) {
 
             std::vector<Entity> targets;
             // attack all targets within range
-            theSoldierSystem.forEachECDo([tc, kc, e, &targets] (Entity f, SoldierComponent* sc2) -> void {
-                if (sc2->health <= 0 || f == e)
+            theSoldierSystem.forEachECDo([tc, sc, kc, e, &targets] (Entity f, SoldierComponent* sc2) -> void {
+                if (sc2->health <= 0 || f == e || sc->player == sc2->player)
                     return;
 
                 if (glm::distance(tc->position, TRANSFORM(f)->position) <= kc->attackRange) {
