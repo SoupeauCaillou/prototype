@@ -18,4 +18,4 @@ collide_with = 7
 damage = 30, 50
 
 [Network]
-Rendering, Transformation
+sync = Rendering, Transformation
