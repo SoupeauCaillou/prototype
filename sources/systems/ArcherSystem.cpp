@@ -67,7 +67,7 @@ void ArcherSystem::DoUpdate(float) {
 
                 // fire arrow
                 glm::vec2 nDif = glm::normalize(TRANSFORM(target)->position - TRANSFORM(e)->position);
-                const float angle = glm::atan2(nDif.y, nDif.x);
+                const float angle = glm::atan(nDif.y, nDif.x);
                 Entity arrow = theEntityManager.CreateEntityFromTemplate("game/arrow");
                 TRANSFORM(arrow)->position = TRANSFORM(e)->position + nDif * (glm::length(TRANSFORM(e)->size) + glm::length(TRANSFORM(arrow)->size)) * 0.6f;
                 TRANSFORM(arrow)->rotation = angle;

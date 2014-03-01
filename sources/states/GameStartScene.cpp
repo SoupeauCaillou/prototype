@@ -53,14 +53,14 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
         if (theTouchInputManager.hasClicked()) {
             PLAYER(game->player)->ready = !PLAYER(game->player)->ready;
         }
 
         if (PLAYER(game->player)->ready) {
-            int readyCount = 0;
-            thePlayerSystem.forEachECDo([&readyCount] (Entity e, PlayerComponent* pc) -> void {
+            unsigned readyCount = 0;
+            thePlayerSystem.forEachECDo([&readyCount] (Entity, PlayerComponent* pc) -> void {
                 readyCount += pc->ready;
             });
             

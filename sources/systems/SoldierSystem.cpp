@@ -58,7 +58,7 @@ void SoldierSystem::DoUpdate(float dt) {
         } else {
             FLICK(e)->enabled = false;
             pc->addForce(glm::normalize(pc->linearVelocity) * sc->brakingForce, glm::vec2(0.0f), dt);
-            TRANSFORM(e)->rotation = glm::atan2(pc->linearVelocity.y, pc->linearVelocity.x) - glm::pi<float>() * 0.5;
+            TRANSFORM(e)->rotation = glm::atan(pc->linearVelocity.y, pc->linearVelocity.x) - glm::pi<float>() * 0.5;
         }
 
         auto* cc = COLLISION(e);
