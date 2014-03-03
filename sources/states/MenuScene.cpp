@@ -118,9 +118,11 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                 break;
             case NetworkStatus::ConnectedToServer:
                 TEXT(networkStatus)->text = "ConnectedToServer";
-                BUTTON(startBtn)->enabled = true;
+                BUTTON(startBtn)->enabled = false;
                 break;
         }
+
+        TEXT(startBtn)->show = RENDERING(startBtn)->show = BUTTON(startBtn)->enabled;
 
         TEXT(createRoom)->show =
             RENDERING(createRoom)->show =
