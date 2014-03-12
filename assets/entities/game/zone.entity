@@ -1,6 +1,6 @@
 [Transformation]
-z = .1
+z = .05
 
 [Rendering]
-color = 0, 0, 0
+color = 0, .8, 0
 show = 1

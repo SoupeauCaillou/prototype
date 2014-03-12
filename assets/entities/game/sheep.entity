@@ -1,7 +1,5 @@
 [Transformation]
-size%gimp = 100, 100
 z = .2
-position = -3, 0
 
 [Rendering]
 texture = mouton

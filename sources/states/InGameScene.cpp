@@ -56,7 +56,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
         auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
         for (auto s : sheep) {
-            AUTONOMOUS(s)->fleeTarget = cursor;
+            // AUTONOMOUS(s)->fleeTarget = cursor;
         }
     }
 
@@ -69,8 +69,10 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
         auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
         for (auto s : sheep) {
-            TRANSFORM(s)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), 
-                glm::normalize(PHYSICS(s)->linearVelocity));
+            if (PHYSICS(s)->linearVelocity != glm::vec2(0.)) {
+                TRANSFORM(s)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), 
+                    glm::normalize(PHYSICS(s)->linearVelocity));
+            }
         }
 
         return Scene::InGame;

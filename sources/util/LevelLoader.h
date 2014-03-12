@@ -2,7 +2,9 @@
 
 #include <string>
 
+#include <api/AssetAPI.h>
+
 class LevelLoader {
     public:
-        static void load(const std::string & levelFilepath);
+        static void load(AssetAPI* assetAPI, const std::string & levelName);
 };
