@@ -1,0 +1,7 @@
+[Transformation]
+z = .1
+position = 5, 0
+size = 1, 11
+[Rendering]
+color = 0, 0, 0
+show = 1

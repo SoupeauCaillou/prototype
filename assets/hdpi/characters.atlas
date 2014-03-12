@@ -1,0 +1,17 @@
+atlas_size=1024,256
+[image0]
+name=buisson
+original_size=201,201
+position_in_atlas=1,1
+size_in_atlas=201,201
+crop_offset=0,0
+rotated=0
+opaque_rect=158,75,27,96
+[image1]
+name=mouton
+original_size=197,197
+position_in_atlas=204,1
+size_in_atlas=189,136
+crop_offset=4,29
+rotated=0
+opaque_rect=15,44,86,47

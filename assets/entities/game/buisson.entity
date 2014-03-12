@@ -1,0 +1,9 @@
+[Transformation]
+size%gimp = 100, 100
+z = .1
+position = 0, 0
+
+[Rendering]
+texture = buisson
+show = 1
+opaque_type = 0

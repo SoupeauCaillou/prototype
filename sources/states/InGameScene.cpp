@@ -18,17 +18,31 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "systems/AutonomousAgentSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
+#include "systems/PhysicsSystem.h"
+
+#include "base/TouchInputManager.h"
 #include "base/StateMachine.h"
+
 #include "Scenes.h"
+
+#include <glm/gtx/vector_angle.hpp>
 
 struct InGameScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+    Entity cursor;
 
     InGameScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
+        cursor = theEntityManager.CreateEntity("cursor");   
+        ADD_COMPONENT(cursor, Transformation);
+        ADD_COMPONENT(cursor, Rendering);
+        RENDERING(cursor)->color = Color(1., 0., 0.);
     }
 
 
@@ -38,13 +52,26 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        RENDERING(cursor)->show = true;
+
+        auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
+        for (auto s : sheep) {
+            AUTONOMOUS(s)->fleeTarget = cursor;
+        }
     }
 
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
+    Scene::Enum update(float) override {
+        TRANSFORM(cursor)->position = theTouchInputManager.getTouchLastPosition();
+
+        auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
+        for (auto s : sheep) {
+            TRANSFORM(s)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), 
+                glm::normalize(PHYSICS(s)->linearVelocity));
+        }
 
         return Scene::InGame;
     }
@@ -57,6 +84,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        RENDERING(cursor)->show = false;
     }
 };
 

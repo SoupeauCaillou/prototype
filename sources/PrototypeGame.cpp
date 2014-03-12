@@ -38,23 +38,7 @@
 #include <unistd.h>
 #endif
 
-PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe"){
-#if SAC_LINUX && SAC_DESKTOP
-    char* nick = getlogin();
-    if (nick)
-        nickName = nick;
-#endif
-
-    for (int i=1; i<argc; i++) {
-        if (strcmp(argv[i], "-server") == 0) {
-            LOGF_IF(i + 1 >= argc, "Incorrect #args");
-            serverIp = argv[++i];
-        }
-        else if (strcmp(argv[i], "-nick") == 0) {
-            LOGF_IF(i + 1 >= argc, "Incorrect #args");
-            nickName = argv[++i];
-        }
-    }
+PrototypeGame::PrototypeGame(int, char**) : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
@@ -64,17 +48,16 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nick
         "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
 }
 
+PrototypeGame::~PrototypeGame() {
+    LOGW("Delete game instance " << this << " " << &theEntityManager);
+    theEntityManager.deleteAllEntities();
+}
+
+
 bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
         case ContextAPI::Localize:
-        case ContextAPI::Communication:
-        case ContextAPI::Sound:
-#if SAC_NETWORK
-        case ContextAPI::Network:
-#endif
-        case ContextAPI::KeyboardInputHandler:
-        case ContextAPI::WWW:
             return true;
         default:
             return false;
@@ -106,15 +89,6 @@ void PrototypeGame::init(const uint8_t*, int) {
 #endif
 
     LOGI("PrototypeGame initialisation done.");
-
-    if (!serverIp.empty()) {
-        // init network connection
-        auto* api = gameThreadContext->networkAPI;
-        // connect to lobby
-        api->connectToLobby(nickName, serverIp.c_str());
-    } else {
-        LOGI("Solo game");
-    }
 }
 
 void PrototypeGame::backPressed() {

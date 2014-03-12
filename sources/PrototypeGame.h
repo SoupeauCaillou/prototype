@@ -33,7 +33,8 @@
 class PrototypeGame : public Game {
     public:
         PrototypeGame(int argc, char** argv);
-
+        ~PrototypeGame();
+        
         bool wantsAPI(ContextAPI::Enum api) const;
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
@@ -45,9 +46,6 @@ class PrototypeGame : public Game {
 
         Entity camera;
         FaderHelper faderHelper;
-
-        Entity robot;
-        std::string serverIp, nickName;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };
