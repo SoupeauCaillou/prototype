@@ -1,6 +1,6 @@
 atlas_size=1024,256
 [image0]
-name=buisson
+name=bush
 original_size=201,201
 position_in_atlas=1,1
 size_in_atlas=201,201

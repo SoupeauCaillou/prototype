@@ -78,11 +78,11 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             }
 
         }
-        Entity buisson = theEntityManager.CreateEntityFromTemplate("game/buisson");
-        TRANSFORM(buisson)->position = glm::vec2(0.f);
-        TRANSFORM(buisson)->size = glm::vec2(1.f);
+        Entity bush = theEntityManager.CreateEntityFromTemplate("game/bush");
+        TRANSFORM(bush)->position = glm::vec2(0.f);
+        TRANSFORM(bush)->size = glm::vec2(1.f);
         for (auto s : sheep) {
-            AUTONOMOUS(s)->obstacles.push_back(buisson);
+            AUTONOMOUS(s)->obstacles.push_back(bush);
         }
 
     }
