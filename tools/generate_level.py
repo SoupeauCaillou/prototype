@@ -5,7 +5,9 @@ import os
 import sys
 import time
 import argparse
-
+from math import cos
+from math import sin
+from math import radians
 
 def write_file(filename, data=""):
     print "Writing data in file '{0}'.".format(filename)
@@ -24,12 +26,13 @@ def write_section(sections, section, section_name):
         sections.append("{0}_rotation_{1}\t=\t{2}".format(section_name, count, e[4]))
         sections.append("")
 
-def parse_file(xcf_filename):
+
+def parse_file(xcf_filename, directory):
     from gimpfu import pdb
     from gimpfu import gimp
 
     # load xcf file in gimp
-    image = pdb.gimp_file_load(xcf_filename, xcf_filename)
+    image = pdb.gimp_file_load(directory + "/" + xcf_filename, xcf_filename)
 
     sections = []
     sheep_section = []
@@ -43,27 +46,32 @@ def parse_file(xcf_filename):
     for layer in image.layers:
         current_group = ""
         for l in [layer] + layer.children:
-            if type(l) is gimp.GroupLayer:
+            if type(l) is gimp.GroupLayer or l.children != []:
+                print "one more group", l.name
                 current_group = l.name
                 continue
 
-            if "objective" in current_group.lower():
+            if "objectifs" in current_group.lower():
                 objectives_section.append(l.name.lower())
+                continue
 
-            rotation = 0
-            centerX = l.offsets[0] + l.width / 2
-            centerY = l.offsets[1] + l.height / 2
-
+            rotation = 0.0
+            sizeX = l.width
+            sizeY = l.height
+            centerX = l.offsets[0] + sizeX / 2
+            centerY = l.offsets[1] + sizeY / 2
             if "_" in l.name.lower():
-                rotation = l.name.split("_")[-1]
+                rotation = float(l.name.split("_")[-1])
 
-            t = (centerX, centerY, l.width, l.height, rotation)
+            sizeX = sizeX * cos(radians(rotation))
+            sizeY = sizeY * sin(radians(rotation))
+            t = (centerX, centerY, "{:.2f}".format(sizeX), "{:.2f}".format(sizeY), rotation)
 
-            if "sheep" in current_group.lower():
+            if "moutons" in current_group.lower():
                 sheep_section.append(t)
-            elif "bush" in current_group.lower():
+            elif "buisson" in current_group.lower():
                 bush_section.append(t)
-            elif "wall" in current_group.lower():
+            elif "barriere" in current_group.lower():
                 wall_section.append(t)
             elif "zone" in current_group.lower():
                 zone_section.append(t)
@@ -78,7 +86,7 @@ def parse_file(xcf_filename):
     write_section(sections, bush_section, "bush")
     write_section(sections, wall_section, "wall")
     write_section(sections, zone_section, "zone")
-
+    sections.append("")
     return sections
 
 
@@ -86,7 +94,7 @@ def run(filename, directory, output):
 
     start = time.time()
 
-    write_file(output + "/level.ini", "\n".join(parse_file(filename)))
+    write_file("level.ini", "\n".join(parse_file(filename, directory)))
     end = time.time()
     print("Finished, total processing time: {:.2f}".format(end - start))
 
