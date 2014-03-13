@@ -43,14 +43,6 @@ void LevelLoader::load(AssetAPI* assetAPI, const std::string & levelName) {
     }
 
     auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
-    // not very well optimized...
-    for (auto s : sheep) {
-        for (auto s2 : sheep) {
-            if (s2 != s) {
-                AUTONOMOUS(s)->obstacles.push_back(s2);
-            }
-        }
-    }
 
     //create bushes
     for (unsigned i = 1; i <= dfp.sectionSize("bush") / 3; ++i) {

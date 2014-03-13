@@ -7,12 +7,15 @@ show = 1
 opaque_type = 0
 
 [AutonomousAgent]
-max_force = 500
+max_force = 5
 max_speed = 3
-obstacles_weight = 1
+obstacles_weight = 5
 flee_weight = 1
 flee_radius = 3
+separation_weight = 1.5
 
 [Physics]
 mass = 1 
 frottement = 1
+
+[Sheep]

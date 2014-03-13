@@ -24,6 +24,7 @@
 #include "base/StateMachine.inl"
 
 #include "systems/CameraSystem.h"
+#include "systems/SheepSystem.h"
 
 #define ZOOM 1
 
@@ -39,6 +40,8 @@
 #endif
 
 PrototypeGame::PrototypeGame(int, char**) : Game() {
+    SheepSystem::CreateInstance();
+
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
@@ -51,6 +54,8 @@ PrototypeGame::PrototypeGame(int, char**) : Game() {
 PrototypeGame::~PrototypeGame() {
     LOGW("Delete game instance " << this << " " << &theEntityManager);
     theEntityManager.deleteAllEntities();
+
+    SheepSystem::DestroyInstance();
 }
 
 
@@ -101,6 +106,8 @@ void PrototypeGame::togglePause(bool) {
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
+
+    theSheepSystem.DoUpdate(dt);
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
