@@ -49,6 +49,7 @@ PrototypeGame::PrototypeGame(int, char**) : Game() {
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
     sceneStateMachine.registerState(Scene::InGame, Scene::CreateInGameSceneHandler(this), "Scene::InGame");
     sceneStateMachine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(this), "Scene::GameEnd");
+    sceneStateMachine.registerState(Scene::Editor, Scene::CreateEditorSceneHandler(this), "Scene::Editor");
     LOGF_IF(sceneStateMachine.getStateCount() != (int)Scene::Count,
         "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
 }
@@ -67,6 +68,10 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
         case ContextAPI::Localize:
         case ContextAPI::Sound:
             return true;
+#if SAC_DESKTOP
+        case ContextAPI::KeyboardInputHandler:
+            return true;
+#endif
         default:
             return false;
     }

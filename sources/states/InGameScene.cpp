@@ -33,6 +33,9 @@
 
 #include "util/IntersectionUtil.h"
 
+#if SAC_DESKTOP
+#include "api/KeyboardInputHandlerAPI.h"
+#endif
 
 #include <glm/gtx/vector_angle.hpp>
 
@@ -74,6 +77,12 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        #if SAC_DESKTOP
+        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(65)) {
+            return Scene::Editor;
+        }
+        #endif
+
         timeElapsed += dt;
 
         TRANSFORM(cursor)->position = theTouchInputManager.getTouchLastPosition();
