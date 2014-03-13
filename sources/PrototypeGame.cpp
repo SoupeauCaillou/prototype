@@ -58,6 +58,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
         case ContextAPI::Localize:
+        case ContextAPI::Sound:
             return true;
         default:
             return false;
