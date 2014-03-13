@@ -143,6 +143,14 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         return "";
     }
 
+    static Type::Enum nameToType(std::string n) {
+        if (n.find("sheep") != std::string::npos) return Type::Sheep;
+        if (n.find("wall") != std::string::npos) return Type::Wall;
+        if (n.find("bush") != std::string::npos) return Type::Bush;
+        if (n.find("zone") != std::string::npos) return Type::Zone;
+        LOGF("nameToType failed: '" << n << "'");
+    }
+
     static Color typeToColor(Type::Enum t) {
         switch (t) {
             case Type::Sheep: return Color(1, 1, 1);
@@ -189,6 +197,15 @@ struct EditorScene : public StateHandler<Scene::Enum> {
             else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(27)) {
                 LOGI("Mode ROTATE");
                 mode = Mode::Rotate;
+            }
+            // none
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(40)) {
+                LOGI("Duplicate");
+                Entity e = addEntity(nameToType(theEntityManager.entityName(selected)));
+                *TRANSFORM(e) = *TRANSFORM(selected);
+                TRANSFORM(e)->position = glm::vec2(0.0f);
+                selected = e;
+                mode = Mode::None;
             }
             // none
             else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(36)) {
