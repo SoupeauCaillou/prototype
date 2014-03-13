@@ -62,7 +62,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
     Entity selected;
     Entity highlight;
     Mode::Enum mode;
-    glm::vec2 modeStartPosition;
+    glm::vec2 modeStartPosition, originalCamSize;
+    float zoomValue;
 
     struct {
         glm::vec2 size;
@@ -99,6 +100,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
             RENDERING(e)->show = true;
         }
 
+        originalCamSize = TRANSFORM(game->camera)->size;
+        zoomValue = 1;
     }
 
     void updateSelection(Entity newSelection, float ) {
@@ -108,7 +111,7 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         } else {
             RENDERING(highlight)->show = true;
             ANCHOR(highlight)->parent = newSelection;
-            TRANSFORM(highlight)->size = TRANSFORM(newSelection)->size * 1.05f;
+            TRANSFORM(highlight)->size = TRANSFORM(newSelection)->size + glm::vec2(0.05);
         }
         selected = newSelection;
     }
@@ -316,6 +319,12 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         }
 
         updateSelection(selected, dt);
+
+#if SAC_DESKTOP
+        zoomValue = zoomValue - 5 * dt * theTouchInputManager.getWheel();
+#endif
+
+        TRANSFORM(game->camera)->size = originalCamSize * zoomValue;
 
         return Scene::Editor;
     }
