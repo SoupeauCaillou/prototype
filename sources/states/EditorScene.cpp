@@ -25,6 +25,7 @@
 #include "systems/AutonomousAgentSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/SheepSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/AnchorSystem.h"
 
@@ -43,7 +44,8 @@ namespace Mode {
         Scale,
         ScaleX,
         ScaleY,
-        Rotate
+        Rotate,
+        Delete,
     };
 }
 
@@ -152,6 +154,7 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         if (n.find("bush") != std::string::npos) return Type::Bush;
         if (n.find("zone") != std::string::npos) return Type::Zone;
         LOGF("nameToType failed: '" << n << "'");
+        return Type::Bush; //does not matter
     }
 
     static Color typeToColor(Type::Enum t) {
@@ -179,6 +182,7 @@ struct EditorScene : public StateHandler<Scene::Enum> {
             case Type::Wall: game->levelLoader.walls.push_back(e); break;
             case Type::Bush: game->levelLoader.bushes.push_back(e); break;
             case Type::Zone: game->levelLoader.zones.push_back(e); break;
+            default: break;
         }
         return e;
     }
@@ -187,22 +191,31 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         const glm::vec2 cursorPos = theTouchInputManager.getTouchLastPosition();
 
         if (selected) {
-            if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(42)) {
+            if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_g"))) {
                 LOGI("Mode GRAB");
                 mode = Mode::Grab;
             }
             // scale
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(39)) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_s"))) {
                 LOGI("Mode SCALE");
                 mode = Mode::Scale;
             }
             // rotate
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(27)) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_r"))) {
                 LOGI("Mode ROTATE");
                 mode = Mode::Rotate;
             }
-            // none
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(40)) {
+            // delete
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_d"))) {
+                LOGI("Mode DELETE");
+                mode = Mode::Delete;
+
+                //far far away...
+                TRANSFORM(selected)->position = glm::vec2(-1234567.f, -1234567.f);
+                updateSelection(0, 0);
+            }
+            // duplicate
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_d"))) {
                 LOGI("Duplicate");
                 Entity e = addEntity(nameToType(theEntityManager.entityName(selected)));
                 *TRANSFORM(e) = *TRANSFORM(selected);
@@ -211,20 +224,19 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                 mode = Mode::None;
             }
             // none
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(36)) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_enter"))) {
                 LOGI("Mode NONE");
                 mode = Mode::None;
             }
             if (mode == Mode::Scale) {
-                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(53)) {
+                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_x"))) {
                     mode = Mode::ScaleX;
                 }
-                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(29)) {
+                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_y"))) {
                     mode = Mode::ScaleY;
                 }
             }
-
-
+            
             if (theTouchInputManager.isTouched()) {
                 switch (mode) {
                     case Mode::None: {
@@ -269,6 +281,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                         }
                         break;
                     }
+                    default:
+                        break;
                 }
             }
         }
@@ -302,19 +316,19 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         }
 
         // entity spawn
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(10)) {
+        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_1"))) {
             // add sheep
             addEntity(Type::Sheep);
         }
-        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(11)) {
+        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_2"))) {
             addEntity(Type::Wall);
         }
         // rotate
-        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(12)) {
+        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_3"))) {
             addEntity(Type::Bush);
         }
         // none
-        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(13)) {
+        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_4"))) {
             addEntity(Type::Zone);
         }
 

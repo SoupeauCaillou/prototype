@@ -50,6 +50,14 @@ void LevelLoader::load(FileBuffer & fb) {
     DataFileParser dfp;
     dfp.load(fb, "level_loader");
 
+    //////////////////////////////////////////////////
+    LOGT("cleaner way of removing previous level");
+    sheep.clear();
+    walls.clear();
+    bushes.clear();
+    zones.clear();
+    ////////////////////////////////////////////////////
+
     dfp.get("", "objective_arrived", &objectiveArrived, 1);
     dfp.get("", "objective_survived", &objectiveSurvived, 1);
     dfp.get("", "objective_time_limit", &objectiveTimeLimit, 1);
