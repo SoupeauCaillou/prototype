@@ -16,6 +16,8 @@ class LevelLoader {
         std::vector<Entity> walls;
         std::vector<Entity> bushes;
         std::vector<Entity> zones;
+        Entity background;
+        
         int objectiveArrived;
         int objectiveSurvived;
         float objectiveTimeLimit;

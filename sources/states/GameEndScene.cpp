@@ -58,6 +58,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             theEntityManager.DeleteEntity(e);
         }
         game->levelLoader.bushes.clear();
+        theEntityManager.DeleteEntity(game->levelLoader.background);
 
 
         // save progression in file

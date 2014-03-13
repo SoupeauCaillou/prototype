@@ -2,10 +2,13 @@
 
 #include "systems/AutonomousAgentSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
 
 #include "base/PlacementHelper.h"
+#include "base/NamedAssetLibrary.h"
 
 #include "util/DataFileParser.h"
+
 
 #include <fstream>
 
@@ -50,6 +53,10 @@ void LevelLoader::load(FileBuffer & fb) {
     dfp.get("", "objective_arrived", &objectiveArrived, 1);
     dfp.get("", "objective_survived", &objectiveSurvived, 1);
     dfp.get("", "objective_time_limit", &objectiveTimeLimit, 1);
+    std::string backgroundTexture;
+    dfp.get("", "background_texture", &backgroundTexture, 1);
+    background = theEntityManager.CreateEntityFromTemplate("game/level_background");
+    RENDERING(background)->texture = theRenderingSystem.loadTextureFile(backgroundTexture);
 
     // create sheep
     for (unsigned i = 1; i <= dfp.sectionSize("sheep") / 3; ++i) {
@@ -102,7 +109,7 @@ void LevelLoader::save(const std::string & path) {
     of << "objective_arrived\t= " << objectiveArrived << std::endl;
     of << "objective_survived\t= " << objectiveSurvived << std::endl;
     of << "objective_time_limit\t= " << objectiveTimeLimit << std::endl;
-
+    of << "background_texture\t= " << theRenderingSystem.textureLibrary.ref2Name(RENDERING(background)->texture) << std::endl;
     writeSection(of, "sheep", sheep);
     writeSection(of, "wall", walls);
     writeSection(of, "bush", bushes);

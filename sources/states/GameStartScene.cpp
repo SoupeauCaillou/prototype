@@ -79,7 +79,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         for (auto e : game->levelLoader.bushes) {
             RENDERING(e)->show = true;
         }
-
+        RENDERING(game->levelLoader.background)->show = true;
     }
 };
 
