@@ -9,7 +9,7 @@ void SaveManager::init(AssetAPI* assetAPI) {
 }
 
 void SaveManager::load() {
-    FileBuffer fb = assetAPI->loadFile(assetAPI->getWritableAppDatasPath() + "progression.ini");
+    FileBuffer fb = assetAPI->loadFile(assetAPI->getWritableAppDatasPath() + "/progression.ini");
     DataFileParser dfp;
     dfp.load(fb, "progression.ini");
 
@@ -18,7 +18,7 @@ void SaveManager::load() {
 
 
 void SaveManager::save() {
-	std::ofstream ofs(assetAPI->getWritableAppDatasPath() + "progression.ini");
+	std::ofstream ofs(assetAPI->getWritableAppDatasPath() + "/progression.ini");
 
 	FileBuffer fb;
 	LOGT("Fill the filebuffer before writting it in file!");

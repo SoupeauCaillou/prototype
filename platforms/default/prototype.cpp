@@ -23,12 +23,12 @@
 #include "PrototypeGitVersion.h"
 
 int main(int argc, char** argv) {
-    std::string title = "Raoul the farmer";
+    std::string versionName = "";
     #if SAC_DEBUG
-        title = title + " - " + TAG_NAME + " - " + VERSION_NAME;
+        versionName = versionName + " / " + TAG_NAME + " - " + VERSION_NAME;
     #endif
 
-    if (initGame(title, glm::ivec2(900, 562))) {
+    if (initGame("Prototype", glm::ivec2(900, 562), versionName)) {
         LOGE("Failed to initialize");
         return 1;
     }
