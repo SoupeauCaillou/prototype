@@ -20,9 +20,15 @@
 
 #include "PrototypeGame.h"
 #include "app/AppSetup.h"
+#include "PrototypeGitVersion.h"
 
 int main(int argc, char** argv) {
-    if (initGame("Dogtag", glm::ivec2(900, 562))) {
+    std::string title = "Raoul the farmer";
+    #if SAC_DEBUG
+        title = title + " - " + TAG_NAME + " - " + VERSION_NAME;
+    #endif
+
+    if (initGame(title, glm::ivec2(900, 562))) {
         LOGE("Failed to initialize");
         return 1;
     }
