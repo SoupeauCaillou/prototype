@@ -31,6 +31,8 @@ class PrototypeDebugConsole {
     public:
         static void init(PrototypeGame* game);
         static void moveAllSheepToFinalZone(void* arg);
+        static void saveLevel(void* arg);
+        static void loadLevel(void* arg);
 
     private:
         //to interact with the game

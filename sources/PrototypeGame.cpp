@@ -109,6 +109,10 @@ void PrototypeGame::init(const uint8_t*, int) {
     levelLoader.init(gameThreadContext->assetAPI);
     saveManager.init(gameThreadContext->assetAPI);
     saveManager.load();
+
+    FileBuffer fb = gameThreadContext->assetAPI->loadAsset("maps/001_walk_in_farm.ini");
+    levelLoader.load(fb);
+
     LOGI("PrototypeGame initialisation done.");
 }
 

@@ -49,7 +49,6 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        game->levelLoader.load("001_walk_in_farm");
     }
 
 
@@ -68,6 +67,19 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        for (auto e : game->levelLoader.zones) {
+            RENDERING(e)->show = true;
+        }
+        for (auto e : game->levelLoader.sheep) {
+            RENDERING(e)->show = true;
+        }
+        for (auto e : game->levelLoader.walls) {
+            RENDERING(e)->show = true;
+        }
+        for (auto e : game->levelLoader.bushes) {
+            RENDERING(e)->show = true;
+        }
+
     }
 };
 

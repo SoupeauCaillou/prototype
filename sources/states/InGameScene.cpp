@@ -70,6 +70,8 @@ struct InGameScene : public StateHandler<Scene::Enum> {
         }
 
         timeElapsed = 0.f;
+
+        
     }
 
 
@@ -95,8 +97,14 @@ struct InGameScene : public StateHandler<Scene::Enum> {
                     glm::normalize(PHYSICS(s)->linearVelocity));
             }
 
-            sheepArrivedAtEnd += IntersectionUtil::pointRectangle(TRANSFORM(s)->position, 
-                TRANSFORM(game->levelLoader.arrivalZone)) ? 1 : 0;
+            for (auto zone : game->levelLoader.zones) {
+                if (IntersectionUtil::pointRectangle(TRANSFORM(s)->position, 
+                    TRANSFORM(zone))) {
+                    sheepArrivedAtEnd++;
+                    break;
+                }
+            }
+
         }
 
 

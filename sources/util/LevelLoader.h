@@ -9,13 +9,13 @@
 class LevelLoader {
     public:
     	void init(AssetAPI* assetAPI);
-        void load(const std::string & levelName);
-
+        void load(FileBuffer & fb);
+        void save(const std::string & path);
 
         std::vector<Entity> sheep;
         std::vector<Entity> walls;
         std::vector<Entity> bushes;
-        Entity arrivalZone;
+        std::vector<Entity> zones;
         int objectiveArrived;
         int objectiveSurvived;
         float objectiveTimeLimit;

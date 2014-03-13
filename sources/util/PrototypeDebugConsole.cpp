@@ -37,13 +37,35 @@ void PrototypeDebugConsole::init(PrototypeGame* g) {
     game = g;
 
     DebugConsole::RegisterMethod("Move all sheep to final zone", moveAllSheepToFinalZone);
+    static std::string saveName = "/tmp/level_sheep.ini";
+    DebugConsole::RegisterMethod("Save current level", saveLevel, "Save path",
+        TW_TYPE_STDSTRING, &saveName);
+
+    static std::string loadName = "/tmp/level_sheep.ini";
+    DebugConsole::RegisterMethod("Load given level", loadLevel, "Load path",
+        TW_TYPE_STDSTRING, &loadName);
 }
 
 void PrototypeDebugConsole::moveAllSheepToFinalZone(void*) {
-    Entity zone = game->levelLoader.arrivalZone;
+    if (game->levelLoader.zones.size() == 0)
+        return;
+
+    Entity zone = game->levelLoader.zones[0];
     for (auto s : game->levelLoader.sheep) {
         TRANSFORM(s)->position = TRANSFORM(zone)->position;
     }
 }
 
+void PrototypeDebugConsole::saveLevel(void* arg) {
+    std::string file = *((std::string*)arg);
+    LOGI("Saved current level to file '" << file << "'");
+    game->levelLoader.save(file);
+}
+
+void PrototypeDebugConsole::loadLevel(void* arg) {
+    std::string file = *((std::string*)arg);
+    LOGI("Load file '" << file << "'");
+    FileBuffer fb = game->gameThreadContext->assetAPI->loadFile(file);
+    game->levelLoader.load(fb);
+}
 #endif

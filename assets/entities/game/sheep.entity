@@ -3,7 +3,6 @@ z = .2
 
 [Rendering]
 texture = mouton-blanc
-show = 1
 opaque_type = 0
 
 [AutonomousAgent]

@@ -42,7 +42,10 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        theEntityManager.DeleteEntity(game->levelLoader.arrivalZone);
+        for (auto e : game->levelLoader.zones) {
+            theEntityManager.DeleteEntity(e);
+        }
+        game->levelLoader.zones.clear();
         for (auto e : game->levelLoader.sheep) {
             theEntityManager.DeleteEntity(e);
         }
