@@ -26,6 +26,8 @@
 #include "systems/CameraSystem.h"
 #include "systems/SheepSystem.h"
 
+#include "util/PrototypeDebugConsole.h"
+    
 #define ZOOM 1
 
 #include <ostream>
@@ -88,12 +90,20 @@ void PrototypeGame::init(const uint8_t*, int) {
     faderHelper.init(camera);
 
     sceneStateMachine.setup();
-#if SAC_DEBUG
-    sceneStateMachine.start(Scene::Menu);
-#else
-    sceneStateMachine.start(Scene::Logo);
-#endif
+    #if SAC_DEBUG
+        sceneStateMachine.start(Scene::Menu);
+    #else
+        sceneStateMachine.start(Scene::Logo);
+    #endif
 
+
+    #if SAC_INGAME_EDITORS && SAC_DEBUG
+        PrototypeDebugConsole::init(this);
+    #endif
+
+    levelLoader.init(gameThreadContext->assetAPI);
+    saveManager.init(gameThreadContext->assetAPI);
+    saveManager.load();
     LOGI("PrototypeGame initialisation done.");
 }
 

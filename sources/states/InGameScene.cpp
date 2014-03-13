@@ -18,21 +18,28 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Scenes.h"
+
+#include "PrototypeGame.h"
+
 #include "systems/AutonomousAgentSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/PhysicsSystem.h"
+#include "systems/SheepSystem.h"
 
 #include "base/TouchInputManager.h"
 #include "base/StateMachine.h"
 
-#include "Scenes.h"
+#include "util/IntersectionUtil.h"
+
 
 #include <glm/gtx/vector_angle.hpp>
 
 struct InGameScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity cursor;
+    float timeElapsed;
 
     InGameScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -58,23 +65,46 @@ struct InGameScene : public StateHandler<Scene::Enum> {
         for (auto s : sheep) {
             AUTONOMOUS(s)->fleeTarget = cursor;
         }
+
+        timeElapsed = 0.f;
     }
 
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
+        timeElapsed += dt;
+
         TRANSFORM(cursor)->position = theTouchInputManager.getTouchLastPosition();
 
-        auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
+        int sheepArrivedAtEnd = 0;
+        auto sheep = theSheepSystem.RetrieveAllEntityWithComponent();
         for (auto s : sheep) {
             if (PHYSICS(s)->linearVelocity != glm::vec2(0.)) {
                 TRANSFORM(s)->rotation = glm::orientedAngle(glm::vec2(1.f, 0.f), 
                     glm::normalize(PHYSICS(s)->linearVelocity));
             }
+
+            sheepArrivedAtEnd += IntersectionUtil::pointRectangle(TRANSFORM(s)->position, 
+                TRANSFORM(game->levelLoader.arrivalZone)) ? 1 : 0;
         }
 
+
+        //test win / lose conditions
+        //time limit
+        if (timeElapsed > game->levelLoader.objectiveTimeLimit) {
+            LOGI("you lost! Time limit reached (" << timeElapsed << '>' << game->levelLoader.objectiveTimeLimit << ")");
+            return Scene::GameEnd;
+        // survival limit
+        } else if ((int)sheep.size() < game->levelLoader.objectiveSurvived) {
+            LOGI("you lost! Too many sheep died (" << sheep.size() << '<' << game->levelLoader.objectiveSurvived << ")");
+            return Scene::GameEnd;
+        // reached objective count
+        } else if (sheepArrivedAtEnd >= game->levelLoader.objectiveArrived) {
+            LOGI("you win! Time left: " << game->levelLoader.objectiveTimeLimit - timeElapsed);
+            return Scene::GameEnd;
+        }
         return Scene::InGame;
     }
 

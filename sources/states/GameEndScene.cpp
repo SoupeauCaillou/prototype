@@ -42,6 +42,23 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        theEntityManager.DeleteEntity(game->levelLoader.arrivalZone);
+        for (auto e : game->levelLoader.sheep) {
+            theEntityManager.DeleteEntity(e);
+        }
+        game->levelLoader.sheep.clear();
+        for (auto e : game->levelLoader.walls) {
+            theEntityManager.DeleteEntity(e);
+        }
+        game->levelLoader.walls.clear();
+        for (auto e : game->levelLoader.bushes) {
+            theEntityManager.DeleteEntity(e);
+        }
+        game->levelLoader.bushes.clear();
+
+
+        // save progression in file
+        game->saveManager.save();
     }
 
 
@@ -49,8 +66,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-
-        return Scene::GameEnd;
+        return Scene::Menu;
     }
 
 

@@ -29,6 +29,8 @@
 #include "base/GameContext.h"
 
 #include "util/FaderHelper.h"
+#include "util/LevelLoader.h"
+#include "util/SaveManager.h"
 
 class PrototypeGame : public Game {
     public:
@@ -46,6 +48,8 @@ class PrototypeGame : public Game {
 
         Entity camera;
         FaderHelper faderHelper;
+        LevelLoader levelLoader;
+        SaveManager saveManager;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

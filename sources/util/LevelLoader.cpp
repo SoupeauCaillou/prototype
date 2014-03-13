@@ -24,22 +24,30 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
     TRANSFORM(e)->size = PlacementHelper::GimpSizeToScreen(TRANSFORM(e)->size);
     TRANSFORM(e)->rotation = glm::radians(TRANSFORM(e)->rotation);
 
-    LOGI("one more " << section << " at pos:" << TRANSFORM(e)->position
+    LOGV(1, "One more '" << section << "' at pos:" << TRANSFORM(e)->position
          << " and size " << TRANSFORM(e)->size);
-
 
     return e;
 }
 
-void LevelLoader::load(AssetAPI* assetAPI, const std::string & levelName) {
+void LevelLoader::init(AssetAPI* assetAPI) { 
+    this->assetAPI = assetAPI;
+}
+
+void LevelLoader::load(const std::string & levelName) {
     FileBuffer fb = assetAPI->loadAsset("maps/" + levelName + ".ini");
     DataFileParser dfp;
     dfp.load(fb, levelName);
 
-    std::string attributeName;
+    dfp.get("", "objective_arrived", &objectiveArrived, 1);
+    dfp.get("", "objective_survived", &objectiveSurvived, 1);
+    dfp.get("", "objective_time_limit", &objectiveTimeLimit, 1);
 
+    // create sheep
     for (unsigned i = 1; i <= dfp.sectionSize("sheep") / 3; ++i) {
-        createEntity(dfp, i, "sheep");
+        Entity e = createEntity(dfp, i, "sheep");
+
+        sheep.push_back(e);
     }
 
     auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
@@ -50,6 +58,7 @@ void LevelLoader::load(AssetAPI* assetAPI, const std::string & levelName) {
         for (auto s : sheep) {
             AUTONOMOUS(s)->obstacles.push_back(bush);
         }
+        bushes.push_back(bush);
     }
 
     //create walls
@@ -58,12 +67,13 @@ void LevelLoader::load(AssetAPI* assetAPI, const std::string & levelName) {
 
         for (auto s : sheep) {
             AUTONOMOUS(s)->obstacles.push_back(wall);
-        }
+        };
+        walls.push_back(wall);
     }
 
-    //create zones
+    //create final zone
     for (unsigned i = 1; i <= dfp.sectionSize("zone") / 3; ++i) {
-        createEntity(dfp, i, "zone");
+         arrivalZone = createEntity(dfp, i, "zone");
     }
 
 }

@@ -49,7 +49,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        LevelLoader::load(game->gameThreadContext->assetAPI, "001_walk_in_farm");
+        game->levelLoader.load("001_walk_in_farm");
     }
 
 
