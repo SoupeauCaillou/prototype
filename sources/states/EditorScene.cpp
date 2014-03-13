@@ -89,9 +89,13 @@ struct EditorScene : public StateHandler<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         selected = 0;
         mode = Mode::None;
+
+        thePhysicsSystem.forEachECDo([] (Entity, PhysicsComponent* pc) -> void {
+            pc->mass = 0;
+        });
     }
 
-    void updateSelection(Entity newSelection, float dt) {
+    void updateSelection(Entity newSelection, float ) {
         if (newSelection == 0) {
             RENDERING(highlight)->show = false;
             ANCHOR(highlight)->parent = 0;
