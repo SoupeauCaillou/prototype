@@ -41,6 +41,8 @@ namespace Mode {
         None,
         Grab,
         Scale,
+        ScaleX,
+        ScaleY,
         Rotate
     };
 }
@@ -74,7 +76,7 @@ struct EditorScene : public StateHandler<Scene::Enum> {
     void setup() {
         highlight = addEntity(Type::Cursor);
         ADD_COMPONENT(highlight, Anchor);
-        ANCHOR(highlight)->z = -0.1;
+        ANCHOR(highlight)->z = -0.02;
         RENDERING(highlight)->show = false;
     }
 
@@ -176,6 +178,14 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                 LOGI("Mode NONE");
                 mode = Mode::None;
             }
+            if (mode == Mode::Scale) {
+                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(53)) {
+                    mode = Mode::ScaleX;
+                }
+                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(29)) {
+                    mode = Mode::ScaleY;
+                }
+            }
 
 
             if (theTouchInputManager.isTouched()) {
@@ -187,13 +197,22 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                         TRANSFORM(selected)->position = cursorPos;
                         break;
                     }
-                    case Mode::Scale: {
+                    case Mode::Scale:
+                    case Mode::ScaleX:
+                    case Mode::ScaleY: {
                         if (!theTouchInputManager.wasTouched()) {
                             modeStartPosition = cursorPos;
                             initial.size = TRANSFORM(selected)->size;
                         } else {
                             float scale = glm::distance(cursorPos, TRANSFORM(selected)->position);
-                            TRANSFORM(selected)->size = initial.size * scale;
+
+                            TRANSFORM(selected)->size = initial.size;
+                            if (mode == Mode::Scale)
+                                TRANSFORM(selected)->size = initial.size * scale;
+                            else if (mode == Mode::ScaleX) 
+                                TRANSFORM(selected)->size.x = initial.size.x * scale;
+                            else
+                                TRANSFORM(selected)->size.y = initial.size.y * scale;
                         }
                         break;
                     }
