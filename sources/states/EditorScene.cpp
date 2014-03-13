@@ -30,11 +30,11 @@
 
 #include "base/TouchInputManager.h"
 #include "base/StateMachine.h"
-
 #include "util/IntersectionUtil.h"
 
 #include "api/KeyboardInputHandlerAPI.h"
 #include <glm/gtx/vector_angle.hpp>
+#include "util/LevelLoader.h"
 
 namespace Mode {
     enum Enum {
@@ -93,6 +93,12 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         thePhysicsSystem.forEachECDo([] (Entity, PhysicsComponent* pc) -> void {
             pc->mass = 0;
         });
+
+        updateModifiableList();
+        for (Entity e: modifiable) {
+            RENDERING(e)->show = true;
+        }
+
     }
 
     void updateSelection(Entity newSelection, float ) {
@@ -143,7 +149,7 @@ struct EditorScene : public StateHandler<Scene::Enum> {
             case Type::Wall: return Color(0, 0, 0);
             case Type::Bush: return Color(0, 1, 0);
             case Type::Zone: return Color(0, 0, 1);
-            case Type::Cursor: return Color(0.2, 0.2, 0.2, 0.75);
+            case Type::Cursor: return Color(0.9, 0.2, 0.2, 0.75);
         }
         return Color();
     }
@@ -156,6 +162,13 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         ADD_COMPONENT(e, Transformation);
         TRANSFORM(e)->z = 0.5;
         TRANSFORM(e)->size = glm::vec2(0.5);
+
+        switch (t) {
+            case Type::Sheep: game->levelLoader.sheep.push_back(e); break;
+            case Type::Wall: game->levelLoader.walls.push_back(e); break;
+            case Type::Bush: game->levelLoader.bushes.push_back(e); break;
+            case Type::Zone: game->levelLoader.zones.push_back(e); break;
+        }
         return e;
     }
 
@@ -208,7 +221,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                             modeStartPosition = cursorPos;
                             initial.size = TRANSFORM(selected)->size;
                         } else {
-                            float scale = glm::distance(cursorPos, TRANSFORM(selected)->position);
+                            float scale = glm::distance(cursorPos, TRANSFORM(selected)->position)
+                                / glm::distance(modeStartPosition, TRANSFORM(selected)->position);
 
                             TRANSFORM(selected)->size = initial.size;
                             if (mode == Mode::Scale)
@@ -228,7 +242,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                         } else {
                             glm::vec2 diff(cursorPos - TRANSFORM(selected)->position);
                             if (glm::length(diff) > 1) {
-                                float rotation = glm::orientedAngle(glm::vec2(1, 0), glm::normalize(diff));
+                                float rotation = glm::orientedAngle(glm::vec2(1, 0), glm::normalize(diff))
+                                    - glm::orientedAngle(glm::vec2(1, 0), glm::normalize(modeStartPosition - TRANSFORM(selected)->position));
                                 TRANSFORM(selected)->rotation = initial.rotation + rotation;
                             }
                         }
