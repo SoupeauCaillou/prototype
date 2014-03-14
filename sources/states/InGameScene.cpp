@@ -43,6 +43,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity cursor;
     float timeElapsed;
+    int deadSheep;
 
     InGameScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -70,8 +71,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
         }
 
         timeElapsed = 0.f;
-
-        
+        deadSheep = 0;
     }
 
 
@@ -107,7 +107,6 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
         }
 
-
         //test win / lose conditions
         //time limit
         if (timeElapsed > game->levelLoader.objectiveTimeLimit) {
@@ -134,6 +133,11 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         RENDERING(cursor)->show = false;
+
+        // save information
+        auto sheep = theSheepSystem.RetrieveAllEntityWithComponent();
+        game->saveLevelProgression(timeElapsed <= game->levelLoader.objectiveTimeLimit, timeElapsed,
+            (int)sheep.size() >= game->levelLoader.objectiveSurvived, deadSheep);
     }
 };
 

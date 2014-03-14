@@ -56,9 +56,9 @@ PrototypeGame::PrototypeGame(int, char**) : Game() {
 
 PrototypeGame::~PrototypeGame() {
     LOGW("Delete game instance " << this << " " << &theEntityManager);
-    theEntityManager.deleteAllEntities();
-
     SheepSystem::DestroyInstance();
+    
+    theEntityManager.deleteAllEntities();
 }
 
 
@@ -107,12 +107,15 @@ void PrototypeGame::init(const uint8_t*, int) {
     #endif
 
     levelLoader.init(gameThreadContext->assetAPI);
-    saveManager.init(gameThreadContext->assetAPI);
+    saveManager.init(this);
     saveManager.load();
 
-    FileBuffer fb = gameThreadContext->assetAPI->loadAsset("maps/001_walk_in_farm.ini");
-    levelLoader.load(fb);
+    currentLevel = 0;
+    auto list = gameThreadContext->assetAPI->listAssetContent(".ini", "maps");
+    //i want a vector!
+    std::copy(list.begin(), list.end(), back_inserter(levels));
 
+    LOGF_IF(levels.size() == 0, "Could not found any level -> force crash");
     LOGI("PrototypeGame initialisation done.");
 }
 
@@ -131,4 +134,12 @@ void PrototypeGame::tick(float dt) {
 
 bool PrototypeGame::willConsumeBackEvent() {
     return false;
+}
+
+void PrototypeGame::saveLevelProgression(bool timeDone, float time, bool sheepDone, int deadSheep) {
+    saveManager.setValue("level_finished_" + levels[currentLevel], "1");
+    saveManager.setValue("level_time_done_" + levels[currentLevel], std::to_string(timeDone));
+    saveManager.setValue("level_time" + levels[currentLevel], std::to_string(time));
+    saveManager.setValue("level_sheep_done_" + levels[currentLevel], std::to_string(sheepDone));
+    saveManager.setValue("level_sheep_dead_" + levels[currentLevel], std::to_string(deadSheep));
 }

@@ -1,0 +1,7 @@
+[Rendering]
+color = 0, 1, 0
+
+[Transformation]
+position%gimp = 640, 170
+size%gimp = 50, 50
+z = 0.5

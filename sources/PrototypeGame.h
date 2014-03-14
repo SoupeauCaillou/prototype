@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
 #include "base/StateMachine.h"
 #include "states/Scenes.h"
 
@@ -46,10 +44,15 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
+        void saveLevelProgression(bool timeDone, float time, bool sheepDone, int deadSheep);
+        
         Entity camera;
         FaderHelper faderHelper;
         LevelLoader levelLoader;
         SaveManager saveManager;
+
+        std::vector<std::string> levels;
+        int currentLevel;
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };
