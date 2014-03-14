@@ -6,9 +6,9 @@ texture = mouton-bleu
 opaque_type = 0
 
 [AutonomousAgent]
-max_force = 10
+max_force = 20
 max_speed = 3
-obstacles_weight = 5
+obstacles_weight = 10
 flee_weight = 1
 flee_radius = 3
 separation_weight = 1.5
@@ -16,5 +16,6 @@ separation_weight = 1.5
 [Physics]
 mass = 1 
 frottement = 0
+max_speed = 3
 
 [Sheep]
