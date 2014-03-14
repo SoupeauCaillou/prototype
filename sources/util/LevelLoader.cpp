@@ -112,6 +112,7 @@ static void writeSection(std::ofstream & of, const std::string & name, const std
 }
 
 void LevelLoader::save(const std::string & path) {
+#if SAC_DEBUG
     std::ofstream of(path);
 
     of << "objective_arrived\t= " << objectiveArrived << std::endl;
@@ -122,4 +123,7 @@ void LevelLoader::save(const std::string & path) {
     writeSection(of, "wall", walls);
     writeSection(of, "bush", bushes);
     writeSection(of, "zone", zones);
+#else
+    LOGE("Not handled in release mode!");
+#endif
 }

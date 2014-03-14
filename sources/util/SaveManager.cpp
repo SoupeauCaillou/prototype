@@ -18,16 +18,16 @@ void SaveManager::load() {
     std::string key, value;
     for (unsigned i = 0; i < dfp.sectionSize(""); ++i) {
         dfp.get("", i, key, &value);
-        kv[key] = value;
+        map[key] = value;
     }
 }
 
 void SaveManager::save() {
 	std::ofstream ofs(game->gameThreadContext->assetAPI->getWritableAppDatasPath() + "/save.ini");
     LOGI(game->gameThreadContext->assetAPI->getWritableAppDatasPath() + "/save.ini");
-    for (auto & kv : kv) {
-        LOGI(kv.first << " = " << kv.second);
-        ofs << kv.first << " = " << kv.second << std::endl;
+    for (auto & item : map) {
+        LOGI(item.first << " = " << item.second);
+        ofs << item.first << " = " << item.second << std::endl;
     }
     ofs << std::endl;
 }

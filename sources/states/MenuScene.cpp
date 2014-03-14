@@ -32,6 +32,8 @@
 
 #include "PrototypeGame.h"
 
+#include <array>
+    
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
     Entity playBtn, prevBtn, nextBtn, title;
@@ -105,22 +107,18 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-
-    void onPreEnter(Scene::Enum) override {
+    
+    void onEnter(Scene::Enum) override {
+        updateLevelInformation();
+        for (Entity s : backgroundSheep) {
+            RENDERING(s)->show = true;
+        }
         TEXT(title)->show = true;
         for (unsigned i = 0; i < btns.size(); ++i) {
             RENDERING(btns[i])->show = TEXT(btns[i])->show = BUTTON(btns[i])->enabled = true;
         }
         for (unsigned i = 0; i < objectives.size(); ++i) {
             RENDERING(objectives[i])->show = true;
-        }
-    }
-
-    
-    void onEnter(Scene::Enum) override {
-        updateLevelInformation();
-        for (Entity s : backgroundSheep) {
-            RENDERING(s)->show = true;
         }
     }
 
@@ -154,19 +152,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
+    void onExit(Scene::Enum) override {
+        for (Entity s : backgroundSheep) {
+            RENDERING(s)->show = false;
+        }
         TEXT(title)->show = false;
         for (unsigned i = 0; i < btns.size(); ++i) {
             RENDERING(btns[i])->show = TEXT(btns[i])->show = BUTTON(btns[i])->enabled = false;
         }
         for (unsigned i = 0; i < objectives.size(); ++i) {
             RENDERING(objectives[i])->show = false;
-        }
-    }
-
-    void onExit(Scene::Enum) override {
-        for (Entity s : backgroundSheep) {
-            RENDERING(s)->show = false;
         }
 
     }

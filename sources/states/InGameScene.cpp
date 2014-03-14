@@ -79,8 +79,8 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
-        #if SAC_DESKTOP
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(65)) {
+        #if SAC_DESKTOP && SAC_DEBUG
+        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(KeyboardInputHandler::k2v("azerty_space"))) {
             return Scene::Editor;
         }
         #endif

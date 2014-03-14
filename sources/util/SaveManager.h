@@ -16,15 +16,15 @@ class SaveManager {
 
         std::string getValue(const std::string & key) const { 
             if (hasValue(key)) 
-                return kv.find(key)->second; 
+                return map.find(key)->second; 
             else 
                 return ""; 
         }
-        bool hasValue(const std::string & key) const { return kv.find(key) != kv.end(); }
-        void setValue(const std::string & key, const std::string & value) { kv[key] = value; }
+        bool hasValue(const std::string & key) const { return map.find(key) != map.end(); }
+        void setValue(const std::string & key, const std::string & value) { map[key] = value; }
     private:
         PrototypeGame* game;
 
         //do not use the map direcly (less error prone)
-        std::map<std::string, std::string> kv;
+        std::map<std::string, std::string> map;
 };
