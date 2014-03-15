@@ -28,7 +28,9 @@
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 #include "api/NetworkAPI.h"
+#include "api/KeyboardInputHandlerAPI.h"
 #include "api/linux/NetworkAPILinuxImpl.h"
+#include <SDL.h>
 
 #include "PrototypeGame.h"
 

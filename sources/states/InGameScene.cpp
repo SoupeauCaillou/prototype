@@ -37,6 +37,8 @@
 #include "api/KeyboardInputHandlerAPI.h"
 #endif
 
+#include <SDL.h>
+
 #include <glm/gtx/vector_angle.hpp>
 
 struct InGameScene : public StateHandler<Scene::Enum> {
@@ -80,7 +82,8 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
         #if SAC_DESKTOP && SAC_DEBUG
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(KeyboardInputHandler::k2v("azerty_space"))) {
+        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(
+            Key::ByName(SDLKey::SDLK_a))) {
             return Scene::Editor;
         }
         #endif

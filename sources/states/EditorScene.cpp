@@ -37,6 +37,8 @@
 #include <glm/gtx/vector_angle.hpp>
 #include "util/LevelLoader.h"
 
+#include <SDL.h>
+
 namespace Mode {
     enum Enum {
         None,
@@ -191,22 +193,26 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         const glm::vec2 cursorPos = theTouchInputManager.getTouchLastPosition();
 
         if (selected) {
-            if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_g"))) {
+            if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                Key::ByName(SDLKey::SDLK_g))) {
                 LOGI("Mode GRAB");
                 mode = Mode::Grab;
             }
             // scale
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_s"))) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                Key::ByName(SDLKey::SDLK_s))) {
                 LOGI("Mode SCALE");
                 mode = Mode::Scale;
             }
             // rotate
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_r"))) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                Key::ByName(SDLKey::SDLK_r))) {
                 LOGI("Mode ROTATE");
                 mode = Mode::Rotate;
             }
             // delete
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_d"))) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                Key::ByName(SDLKey::SDLK_DELETE))) {
                 LOGI("Mode DELETE");
                 mode = Mode::Delete;
 
@@ -215,7 +221,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                 updateSelection(0, 0);
             }
             // duplicate
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_d"))) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                Key::ByName(SDLKey::SDLK_d))) {
                 LOGI("Duplicate");
                 Entity e = addEntity(nameToType(theEntityManager.entityName(selected)));
                 *TRANSFORM(e) = *TRANSFORM(selected);
@@ -224,15 +231,18 @@ struct EditorScene : public StateHandler<Scene::Enum> {
                 mode = Mode::None;
             }
             // none
-            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_enter"))) {
+            else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                Key::ByName(SDLKey::SDLK_RETURN))) {
                 LOGI("Mode NONE");
                 mode = Mode::None;
             }
             if (mode == Mode::Scale) {
-                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_x"))) {
+                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                    Key::ByName(SDLKey::SDLK_x))) {
                     mode = Mode::ScaleX;
                 }
-                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_y"))) {
+                if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+                    Key::ByName(SDLKey::SDLK_y))) {
                     mode = Mode::ScaleY;
                 }
             }
@@ -316,19 +326,23 @@ struct EditorScene : public StateHandler<Scene::Enum> {
         }
 
         // entity spawn
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_1"))) {
+        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+            Key::ByName(SDLKey::SDLK_1))) {
             // add sheep
             addEntity(Type::Sheep);
         }
-        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_2"))) {
+        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+            Key::ByName(SDLKey::SDLK_2))) {
             addEntity(Type::Wall);
         }
         // rotate
-        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_3"))) {
+        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+            Key::ByName(SDLKey::SDLK_3))) {
             addEntity(Type::Bush);
         }
         // none
-        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(KeyboardInputHandler::k2v("azerty_4"))) {
+        else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(
+            Key::ByName(SDLKey::SDLK_4))) {
             addEntity(Type::Zone);
         }
 
