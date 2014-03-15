@@ -89,7 +89,7 @@ void LevelLoader::load(FileBuffer & fb) {
         Entity wall = createEntity(dfp, i, "wall");
 
         for (auto s : sheep) {
-            AUTONOMOUS(s)->obstacles.push_back(wall);
+            AUTONOMOUS(s)->walls.push_back(wall);
         };
         walls.push_back(wall);
     }
