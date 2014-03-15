@@ -85,6 +85,8 @@ struct InGameScene : public StateHandler<Scene::Enum> {
         }
         #endif
 
+        theSheepSystem.DoUpdate(dt);
+
         timeElapsed += dt;
 
         TRANSFORM(cursor)->position = theTouchInputManager.getTouchLastPosition();

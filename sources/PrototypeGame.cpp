@@ -129,7 +129,6 @@ void PrototypeGame::togglePause(bool) {
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
-    theSheepSystem.DoUpdate(dt);
 }
 
 bool PrototypeGame::willConsumeBackEvent() {
