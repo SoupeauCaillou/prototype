@@ -12,7 +12,7 @@ obstacles_weight = 10
 flee_weight = 1
 flee_radius = 3
 separation_weight = 1.5
-walls_weight = 5
+walls_weight = 50
 
 [Physics]
 mass = 1 
