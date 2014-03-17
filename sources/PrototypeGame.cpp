@@ -27,7 +27,7 @@
 #include "systems/SheepSystem.h"
 
 #include "util/PrototypeDebugConsole.h"
-    
+
 #define ZOOM 1
 
 #include <ostream>
@@ -57,7 +57,7 @@ PrototypeGame::PrototypeGame(int, char**) : Game() {
 PrototypeGame::~PrototypeGame() {
     LOGW("Delete game instance " << this << " " << &theEntityManager);
     SheepSystem::DestroyInstance();
-    
+
     theEntityManager.deleteAllEntities();
 }
 
@@ -128,8 +128,6 @@ void PrototypeGame::togglePause(bool) {
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
-
-    LOGT_EVERY_N(180, "GAUTIER: faudrait faire SteeringBehavior::wallAvoidance :-). C'est différent de obstacle: obstacleAvoidance c'est des obstacles qu'on peut contourner. Wall c'est simplement ajouter une force pour pas passer à travers (ie: le long de la normale du mur)");
 }
 
 bool PrototypeGame::willConsumeBackEvent() {

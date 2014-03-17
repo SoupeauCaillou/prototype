@@ -17,10 +17,14 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
 
     Entity e = theEntityManager.CreateEntityFromTemplate("game/" + section);
 
+    // Entity are defined either as (position, size, rotation) or (polygon)
     ss << section << "_position_" << number;
     if (! dfp.get(section, ss.str(), &TRANSFORM(e)->position.x, 2, false)) {
         ss.str(""); ss << section << "_position%gimp_" << number;
-        dfp.get(section, ss.str(), &TRANSFORM(e)->position.x, 2);
+
+        if (!dfp.get(section, ss.str(), &TRANSFORM(e)->position.x, 2)) {
+            goto polygonMode;
+        }
         TRANSFORM(e)->position = PlacementHelper::GimpPositionToScreen(TRANSFORM(e)->position);
     }
 
@@ -40,9 +44,67 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
          << " and size " << TRANSFORM(e)->size);
 
     return e;
+
+polygonMode:
+    ss.str("");
+    ss.clear();
+    ss << section << "_polygon%gimp_" << number;
+    int cnt = dfp.getSubStringCount(section, ss.str());
+    LOGI(cnt << '/' << ss.str());
+    if (cnt == -1) {
+        LOGF("Handle without %gimp modifier");
+    }
+    LOGW_IF(cnt % 2, "There should be 2 * nb_point coordinate");
+    int* pts = new int[cnt];
+    dfp.get(section, ss.str(), pts, cnt);
+
+    // Create a new polygon
+    Polygon p;
+    for (int i=0; i<cnt/2; i++) {
+        p.vertices.push_back(
+            PlacementHelper::GimpPositionToScreen(glm::vec2(pts[2*i], pts[2*i+1])));
+    }
+    // Create indice set (polygons are drawn as triangle-strip)
+    for (int i=1; i<cnt/2; i+=2) {
+        p.indices.push_back(0);
+        p.indices.push_back(i);
+        p.indices.push_back(i+1);
+        p.indices.push_back(i+1);
+    }
+    p.indices.push_back(0);
+    p.indices.push_back(cnt/2 - 1);
+    p.indices.push_back(1);
+    p.indices.push_back(1);
+    for (auto i: p.indices) LOGI(i);
+
+    // Fix position
+    glm::vec2 center = p.vertices.front();
+    for (auto& v: p.vertices) {
+        v -= center;
+    }
+    TRANSFORM(e)->position = center;
+    // Make size act as a bouding box
+    glm::vec2 x, y;
+    for (auto& v: p.vertices) {
+        x.x = glm::min(x.x, v.x);
+        x.y = glm::max(x.y, v.x);
+        y.x = glm::min(y.x, v.y);
+        y.y = glm::max(y.y, v.y);
+    }
+    TRANSFORM(e)->size = glm::vec2(x.y - x.x, y.y - y.x);
+    glm::vec2 invSize = 1.0f / TRANSFORM(e)->size;
+    for (auto& v: p.vertices) {
+        v *= invSize;
+    }
+
+    theTransformationSystem.shapes.push_back(p);
+    TRANSFORM(e)->shape = (Shape::Enum) (theTransformationSystem.shapes.size() - 1);
+    RENDERING(e)->texture = InvalidTextureRef;
+
+    return e;
 }
 
-void LevelLoader::init(AssetAPI* assetAPI) { 
+void LevelLoader::init(AssetAPI* assetAPI) {
     this->assetAPI = assetAPI;
 }
 
@@ -76,7 +138,7 @@ void LevelLoader::load(FileBuffer & fb) {
     auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
 
     //create bushes
-    for (unsigned i = 1; i <= dfp.sectionSize("bush") / 3; ++i) {
+    for (unsigned i = 1; i <= 35; ++i) {//dfp.sectionSize("bush"); ++i) {
         Entity bush = createEntity(dfp, i, "bush");
         for (auto s : sheep) {
             AUTONOMOUS(s)->obstacles.push_back(bush);
