@@ -8,14 +8,14 @@ opaque_type = 0
 [AutonomousAgent]
 max_force = 20
 max_speed = 3
-obstacles_weight = 10
+obstacles_weight = 40
 flee_weight = 1
 flee_radius = 3
 separation_weight = 1.5
 walls_weight = 50
 
 [Physics]
-mass = 1 
+mass = 1
 frottement = 0
 max_speed = 3
 
