@@ -84,14 +84,10 @@ def parse_file(xcf_filename, directory):
     polygon_section = []
 
     for vector in image.vectors:
-        print vector.strokes
         for stroke in vector.strokes:              
             points = {vector.name: map(int, stroke.points[0])}
             if points not in polygon_section:
                 polygon_section.append( points )
-    
-    # print polygon_section
-
 
     # for o in objectives_section:
     #     sections.append(o)
