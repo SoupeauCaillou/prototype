@@ -64,33 +64,43 @@ polygonMode:
         p.vertices.push_back(
             PlacementHelper::GimpPositionToScreen(glm::vec2(pts[2*i], pts[2*i+1])));
     }
-    // Create indice set (polygons are drawn as triangle-strip)
-    for (int i=1; i<cnt/2; i+=2) {
-        p.indices.push_back(0);
-        p.indices.push_back(i);
-        p.indices.push_back(i+1);
-        p.indices.push_back(i+1);
-    }
-    p.indices.push_back(0);
-    p.indices.push_back(cnt/2 - 1);
-    p.indices.push_back(1);
-    p.indices.push_back(1);
-    for (auto i: p.indices) LOGI(i);
 
-    // Fix position
-    glm::vec2 center = p.vertices.front();
-    for (auto& v: p.vertices) {
-        v -= center;
+    // make sure vertices are defined clockwise
+    for (unsigned i=0; i<p.vertices.size() - 1; ++i) {
+        // find two consecutives y > 0 point
+        if (p.vertices[i].y > 0 && p.vertices[i + 1].y > 0) {
+            if (p.vertices[i].x < p.vertices[i + 1].x) {
+                LOGI("Polygon not in clockwise order. Reversing");
+                std::reverse(p.vertices.begin(), p.vertices.end());
+            }
+        }
     }
-    TRANSFORM(e)->position = center;
+
+    // Create indice set (polygons are drawn as triangle-strip)
+    for (unsigned i=1; i<p.vertices.size() - 1; i+=2) {
+        p.indices.push_back(i);
+        p.indices.push_back(0);
+        p.indices.push_back(i + 1);
+        if ((i+2) < p.vertices.size())
+            p.indices.push_back(i + 2);
+        // p.indices.push_back(i + 2);
+    }
+
     // Make size act as a bouding box
-    glm::vec2 x, y;
+    glm::vec2 x (p.vertices.front()), y(p.vertices.front());
     for (auto& v: p.vertices) {
         x.x = glm::min(x.x, v.x);
         x.y = glm::max(x.y, v.x);
         y.x = glm::min(y.x, v.y);
         y.y = glm::max(y.y, v.y);
     }
+    // Fix position
+    glm::vec2 center((x.x + x.y) / 2, (y.x + y.y) / 2);
+    for (auto& v: p.vertices) {
+        v -= center;
+    }
+    TRANSFORM(e)->position = center;
+    // Fix center
     TRANSFORM(e)->size = glm::vec2(x.y - x.x, y.y - y.x);
     glm::vec2 invSize = 1.0f / TRANSFORM(e)->size;
     for (auto& v: p.vertices) {
@@ -138,7 +148,7 @@ void LevelLoader::load(FileBuffer & fb) {
     auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
 
     //create bushes
-    for (unsigned i = 1; i <= 35; ++i) {//dfp.sectionSize("bush"); ++i) {
+    for (unsigned i = 35; i <= 35; ++i) {//dfp.sectionSize("bush"); ++i) {
         Entity bush = createEntity(dfp, i, "bush");
         for (auto s : sheep) {
             AUTONOMOUS(s)->obstacles.push_back(bush);
