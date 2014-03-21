@@ -15,14 +15,39 @@ def write_file(filename, data=""):
     f.write(data)
     f.close()
 
+def write_hardcoded_section( width, height ):
+    sections = \
+"""[sheep]
+objective_arrived   = 5
+objective_survived  = 5
+objective_time_limit    = 600
 
-def write_section(section, section_name):
+# cette section pourrait etre hardcodee aussi
+[wall]
+count = 4
+# haut
+position_1%gimp = {2}, 0
+size_1%gimp = {0}, 0
+# bas
+position_2%gimp = {2}, {1}
+size_2%gimp = {0}, 0
+# gauche
+position_3%gimp = 0, {3}
+size_3%gimp = 0, {1}
+#droite
+position_4%gimp = {0}, {3}
+size_4%gimp = 0, {0}\n""".format( width, height, width/2, height/2)
+    return sections
+
+def write_polygon_section(section, section_name):
+    if len(section) == 0:
+        return []
     sections = ["[{0}]".format(section_name)]
+    sections.append("count = {}".format(len(section)))
     count = 0
     for element in section:
         count = count + 1
-        for key in element.keys():
-            sections.append("{0}_{1}_{2}\t=\t{3}".format(section_name, key ,count, ', '.join(str(e) for e in element[key])))
+        sections.append("polygon_{0}%gimp = {1}".format(count, ', '.join(str(e) for e in element)))
     
     sections.append("")
     return sections
@@ -36,66 +61,26 @@ def parse_file(xcf_filename, directory):
     image = pdb.gimp_file_load( os.path.join(directory, xcf_filename), xcf_filename)
 
     sections = []
-    # sheep_section = []
-    # bush_section = []
-    # wall_section = []
-    # zone_section = []
-    # objectives_section = []
-
-    # current_group = ""
-    # #Looking in all layers (included children)
-    # for layer in image.layers:
-    #     current_group = ""
-    #     for l in [layer] + layer.children:
-    #         if type(l) is gimp.GroupLayer or l.children != []:
-    #             print "one more group", l.name
-    #             current_group = l.name
-    #             continue
-
-    #         if "objectifs" in current_group.lower():
-    #             objectives_section.append(l.name.lower())
-    #             continue
-
-    #         rotation = 0.0
-    #         sizeX = l.width
-    #         sizeY = l.height
-    #         centerX = l.offsets[0] + sizeX / 2
-    #         centerY = l.offsets[1] + sizeY / 2
-    #         if "_" in l.name.lower():
-    #             rotation = float(l.name.split("_")[-1])
-
-    #         sizeX = sizeX * cos(radians(rotation))
-    #         sizeY = sizeY * sin(radians(rotation))
-    #         t = { "position": (centerX, centerY), "size": (sizeX, sizeY), "rotation": rotation }
-
-    #         if "moutons" in current_group.lower():
-    #             sheep_section.append(t)
-    #         elif "buisson" in current_group.lower():
-    #             bush_section.append(t)
-    #         elif "barriere" in current_group.lower():
-    #             wall_section.append(t)
-    #         elif "zone" in current_group.lower():
-    #             zone_section.append(t)
-    #         else:
-    #             print("Warning: Undefined group for layer {0}. This layer\
-    #                  will be ignored.".format(l.name) )
 
     # looking for paths
-    polygon_section = []
+    obstacle_section = []
+    zone_section = []
+    others_section = []
 
     for vector in image.vectors:
         for stroke in vector.strokes:              
-            points = {vector.name: map(int, stroke.points[0])}
-            if points not in polygon_section:
-                polygon_section.append( points )
+            points = map(int, stroke.points[0])
+            if "obstacle" in vector.name:
+                obstacle_section.append( points )
+            elif "zone" in vector.name:
+                zone_section.append( points )
+            else:
+                others_section.append( points )
 
-    # for o in objectives_section:
-    #     sections.append(o)
-    # sections += write_section(sheep_section, "sheep")
-    # sections += write_section(bush_section, "bush")
-    # sections += write_section(wall_section, "wall")
-    # sections += write_section(zone_section, "zone")
-    sections += write_section(polygon_section, "polygon")
+    sections += [write_hardcoded_section(image.width, image.height)]
+    sections += write_polygon_section(obstacle_section, "obstacle")
+    sections += write_polygon_section(zone_section, "zone")
+    sections += write_polygon_section(others_section, "others")
     sections.append("")
     
     return sections
