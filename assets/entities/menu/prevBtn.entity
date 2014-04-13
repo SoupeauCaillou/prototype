@@ -2,8 +2,8 @@
 color%html=0xff5070
 
 [Transformation]
-position%gimp = 280, 350
-size%gimp = 300, 300
+position%gimp_pos = 280, 350
+size%gimp_size = 300, 300
 z = 0.5
 
 [Button]

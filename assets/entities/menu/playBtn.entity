@@ -2,8 +2,8 @@
 color%html=0xff5070
 
 [Transformation]
-position%gimp = 640, 350
-size%gimp = 300, 300
+position%gimp_pos = 640, 350
+size%gimp_size = 300, 300
 z = 0.5
 
 [Button]
@@ -11,5 +11,6 @@ z = 0.5
 [Text]
 color = 0, 0, 0, 1
 font = typo
-char_height%screen_h = 0.05
+#char_height%screen_h = 0.05
+char_height = 0.5
 text = Start Solo

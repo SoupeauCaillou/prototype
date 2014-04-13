@@ -15,7 +15,7 @@
 static Entity createEntity(const DataFileParser & dfp, int number, const std::string & section) {
     std::stringstream ss;
 
-    Entity e = theEntityManager.CreateEntityFromTemplate("game/" + section);
+    Entity e = theEntityManager.CreateEntityFromTemplate(  ("game/" + section).c_str() );
 
     // Entity are defined either as (position, size, rotation) or (polygon)
     ss << section << "_position_" << number;
@@ -136,7 +136,7 @@ void LevelLoader::load(FileBuffer & fb) {
     std::string backgroundTexture;
     dfp.get("", "background_texture", &backgroundTexture, 1);
     background = theEntityManager.CreateEntityFromTemplate("game/level_background");
-    RENDERING(background)->texture = theRenderingSystem.loadTextureFile(backgroundTexture);
+    RENDERING(background)->texture = theRenderingSystem.loadTextureFile(backgroundTexture.c_str());
 
     // create sheep
     for (unsigned i = 1; i <= dfp.sectionSize("sheep") / 3; ++i) {

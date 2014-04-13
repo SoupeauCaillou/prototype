@@ -52,7 +52,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     }
 
     void setup() {
-        cursor = theEntityManager.CreateEntity("cursor");   
+        cursor = theEntityManager.CreateEntity(HASH("cursor", 0x20716820));   
         ADD_COMPONENT(cursor, Transformation);
         ADD_COMPONENT(cursor, Rendering);
         RENDERING(cursor)->color = Color(1., 0., 0.);

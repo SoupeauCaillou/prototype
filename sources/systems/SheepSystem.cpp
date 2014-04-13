@@ -33,16 +33,13 @@ INSTANCE_IMPL(SheepSystem);
 SheepSystem::SheepSystem() : ComponentSystemImpl<SheepComponent>("Sheep") {
     SheepComponent sc;
 
-    componentSerializer.add(new Property<float>("alignement_min_distance", OFFSET(alignementMinDistance, sc), 0.001f));
-    componentSerializer.add(new Property<float>("cohesion_min_distance", OFFSET(cohesionMinDistance, sc), 0.001f));
-    componentSerializer.add(new Property<float>("separation_min_distance", OFFSET(separationMinDistance, sc), 0.001f));
+    componentSerializer.add(new Property<float>(HASH("alignement_min_distance", 0xe06b6bdc), OFFSET(alignementMinDistance, sc), 0.001f));
+    componentSerializer.add(new Property<float>(HASH("cohesion_min_distance", 0xc59de7f1), OFFSET(cohesionMinDistance, sc), 0.001f));
+    componentSerializer.add(new Property<float>(HASH("separation_min_distance", 0xd2d08763), OFFSET(separationMinDistance, sc), 0.001f));
 }
 
 void SheepSystem::DoUpdate(float) {
-    for (auto& p: components) {
-        Entity sheep = p.first;
-        SheepComponent* sc = p.second;
-        
+    FOR_EACH_ENTITY_COMPONENT(SheepComponent, sheep, sc)        
         AutonomousAgentComponent* aac = AUTONOMOUS(sheep);
 
         glm::vec2 & myPos = TRANSFORM(sheep)->position;
@@ -51,8 +48,7 @@ void SheepSystem::DoUpdate(float) {
         aac->alignementNeighbors.clear();
         aac->separationNeighbors.clear();
 
-        for (auto& sheepN: components) {
-            Entity anotherSheep = sheepN.first;
+        FOR_EACH_ENTITY_COMPONENT(SheepComponent, anotherSheep, scN)
             if (anotherSheep == sheep) 
                 continue;
 

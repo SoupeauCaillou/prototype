@@ -1,4 +1,4 @@
 [Transformation]
 z = .05
-size%gimp = 1280, 800
+size%gimp_size = 1280, 800
 [Rendering]

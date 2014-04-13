@@ -171,7 +171,8 @@ struct EditorScene : public StateHandler<Scene::Enum> {
     }
 
     Entity addEntity(Type::Enum t) {
-        Entity e = theEntityManager.CreateEntity(typeToName(t));
+        std::string tTN = typeToName(t);
+        Entity e = theEntityManager.CreateEntity( Murmur::RuntimeHash(tTN.c_str()));
         ADD_COMPONENT(e, Rendering);
         RENDERING(e)->show = 1;
         RENDERING(e)->color = typeToColor(t);
