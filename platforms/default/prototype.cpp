@@ -22,7 +22,7 @@
 #include "app/AppSetup.h"
 
 int main(int argc, char** argv) {
-    if (initGame("Dogtag", glm::ivec2(900, 562))) {
+    if (initGame("Dogtag", glm::ivec2(900, 562), "hu")) {
         LOGE("Failed to initialize");
         return 1;
     }
