@@ -25,6 +25,7 @@
 #include "base/StateMachine.h"
 #include "states/Scenes.h"
 
+#include "base/Color.h"
 #include "base/Game.h"
 #include "base/GameContext.h"
 
@@ -46,8 +47,10 @@ class PrototypeGame : public Game {
         Entity camera;
         FaderHelper faderHelper;
 
-        Entity robot;
-        std::string serverIp, nickName;
+        Color playerColors[5];
+        int playerActive[4];
+        Entity playerButtons[4];
+
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
 };

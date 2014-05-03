@@ -22,10 +22,9 @@
 
 #include "base/PlacementHelper.h"
 #include "base/StateMachine.inl"
+#include "util/DataFileParser.h"
 
 #include "systems/CameraSystem.h"
-
-#define ZOOM 1
 
 #include <ostream>
 #include <fstream>
@@ -38,23 +37,7 @@
 #include <unistd.h>
 #endif
 
-PrototypeGame::PrototypeGame(int argc, char** argv) : Game(), serverIp(""), nickName("johndoe"){
-#if SAC_LINUX && SAC_DESKTOP
-    char* nick = getlogin();
-    if (nick)
-        nickName = nick;
-#endif
-
-    for (int i=1; i<argc; i++) {
-        if (strcmp(argv[i], "-server") == 0) {
-            LOGF_IF(i + 1 >= argc, "Incorrect #args");
-            serverIp = argv[++i];
-        }
-        else if (strcmp(argv[i], "-nick") == 0) {
-            LOGF_IF(i + 1 >= argc, "Incorrect #args");
-            nickName = argv[++i];
-        }
-    }
+PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
@@ -94,6 +77,33 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
+    // load config
+    {
+        FileBuffer fb = gameThreadContext->assetAPI->loadAsset("params.ini");
+        DataFileParser dfp;
+        dfp.load(fb, "params.ini");
+
+        char* p = (char*)alloca(strlen("player_N") + 1);
+        for (int i=0; i<5; i++) {
+            sprintf(p, "player_%d", i);
+            dfp.get("Colors", p, playerColors[i].rgba, 3);
+        }
+
+        delete[] fb.data;
+    }
+
+    for (int i=0; i<4; i++) {
+        playerActive[i] = false;
+    }
+    {
+        char* tmp = (char*) alloca(strlen("menu/player_button_N") + 1);
+        for (int i=0; i<4; i++) {
+            sprintf(tmp, "menu/player_button_%d", i + 1);
+            playerButtons[i] = theEntityManager.CreateEntityFromTemplate(tmp);
+            RENDERING(playerButtons[i])->color = playerColors[0];
+        }
+    }
+
     // default camera
     camera = theEntityManager.CreateEntityFromTemplate("camera");
     faderHelper.init(camera);
@@ -104,17 +114,6 @@ void PrototypeGame::init(const uint8_t*, int) {
 #else
     sceneStateMachine.start(Scene::Logo);
 #endif
-
-    LOGI("PrototypeGame initialisation done.");
-
-    if (!serverIp.empty()) {
-        // init network connection
-        auto* api = gameThreadContext->networkAPI;
-        // connect to lobby
-        api->connectToLobby(nickName, serverIp.c_str());
-    } else {
-        LOGI("Solo game");
-    }
 }
 
 void PrototypeGame::backPressed() {

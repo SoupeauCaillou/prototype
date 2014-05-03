@@ -23,7 +23,6 @@
 
 #include "base/EntityManager.h"
 #include "systems/ButtonSystem.h"
-#include "systems/TransformationSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 #include "api/NetworkAPI.h"
@@ -34,12 +33,14 @@
 struct MenuScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
+    Entity playButton;
+
     MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
-
+        playButton = theEntityManager.CreateEntityFromTemplate("menu/play_button");
     }
 
 
@@ -49,7 +50,12 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onPreEnter(Scene::Enum) override {
-
+        for (int i=0; i<4; i++) {
+            BUTTON(game->playerButtons[i])->enabled =
+                RENDERING(game->playerButtons[i])->show = true;
+            game->playerActive[i] = -1;
+        }
+        TEXT(playButton)->show = true;
     }
 
 
@@ -57,6 +63,28 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        for (int i=0; i<4; i++) {
+            if (BUTTON(game->playerButtons[i])->clicked) {
+                game->playerActive[i] = -1 - game->playerActive[i];
+
+                RENDERING(game->playerButtons[i])->color =
+                    (game->playerActive[i] >= 0) ?
+                    game->playerColors[i+1] :
+                    game->playerColors[0];
+            }
+        }
+
+        bool atLeastOnePlayerActive = false;
+        for (int i=0; i<4 & !atLeastOnePlayerActive; i++) {
+            atLeastOnePlayerActive |= (game->playerActive[i] >= 0);
+        }
+        RENDERING(playButton)->show =
+            TEXT(playButton)->show =
+            BUTTON(playButton)->enabled = atLeastOnePlayerActive;
+
+        if (BUTTON(playButton)->clicked) {
+            return Scene::GameStart;
+        }
 
         return Scene::Menu;
     }
@@ -66,9 +94,16 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            BUTTON(game->playerButtons[i])->enabled =
+                RENDERING(game->playerButtons[i])->show = false;
+        }
     }
 
     void onExit(Scene::Enum) override {
+        BUTTON(playButton)->enabled =
+            RENDERING(playButton)->show =
+            TEXT(playButton)->show = false;
     }
 };
 

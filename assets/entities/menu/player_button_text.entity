@@ -1,0 +1,8 @@
+[Transformation]
+
+[Anchor]
+z = 0.1
+position%gimp_size = 256, 100
+
+[Text]
+color = 0,0,0

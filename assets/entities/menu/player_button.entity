@@ -1,0 +1,11 @@
+[Rendering]
+texture = player_button
+flags = 1
+show = 1
+
+[Transformation]
+size%texture = 1
+z = 0.7
+
+[Button]
+enabled = 1

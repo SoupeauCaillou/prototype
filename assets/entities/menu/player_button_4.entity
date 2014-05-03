@@ -1,0 +1,4 @@
+extends = menu/player_button
+
+[Transformation]
+position%screen = 0.5, 0.5

@@ -22,19 +22,38 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
-#include "systems/NetworkSystem.h"
-#include "api/NetworkAPI.h"
+#include "systems/AnchorSystem.h"
+#include "systems/ButtonSystem.h"
+#include "systems/TextSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
+
 
 #include "PrototypeGame.h"
 
 struct GameStartScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
+    Entity texts[4];
+    Entity playButton;
+
     GameStartScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
     void setup() {
+        for (int i=0; i<4; i++) {
+            texts[i] = theEntityManager.CreateEntityFromTemplate("menu/player_button_text");
+            ANCHOR(texts[i])->parent = game->playerButtons[i];
+            ANCHOR(texts[i])->position *= glm::normalize(-TRANSFORM(game->playerButtons[i])->position);
+        }
+        playButton = theEntityManager.CreateEntityFromTemplate("menu/play_button");
+    }
+
+    void updateButton(int index) {
+        char* tmp = (char*) alloca(3);
+        sprintf(tmp, "%02d", 1 + game->playerActive[index]);
+        TEXT(texts[index])->text = tmp;
     }
 
 
@@ -44,6 +63,17 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            if (game->playerActive[i] >= 0) {
+                BUTTON(game->playerButtons[i])->enabled =
+                    TEXT(texts[i])->show =
+                    RENDERING(game->playerButtons[i])->show = true;
+                updateButton(i);
+            }
+        }
+        TEXT(playButton)->show = true;
+        BUTTON(playButton)->enabled = true;
+        RENDERING(playButton)->show = true;
     }
 
 
@@ -51,6 +81,17 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        for (int i=0; i<4; i++) {
+            if (BUTTON(game->playerButtons[i])->clicked) {
+                game->playerActive[i] = (game->playerActive[i] + 1) % 10;
+                updateButton(i);
+            }
+        }
+
+        if (BUTTON(playButton)->clicked) {
+            return Scene::GameStart;
+        }
+
         return Scene::GameStart;
     }
 
