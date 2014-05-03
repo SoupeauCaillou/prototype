@@ -48,6 +48,7 @@ class PrototypeGame : public Game {
         FaderHelper faderHelper;
 
         Color playerColors[5];
+        int score[4];
         int playerActive[4];
         Entity playerButtons[4];
 

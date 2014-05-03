@@ -101,6 +101,8 @@ void PrototypeGame::init(const uint8_t*, int) {
             sprintf(tmp, "menu/player_button_%d", i + 1);
             playerButtons[i] = theEntityManager.CreateEntityFromTemplate(tmp);
             RENDERING(playerButtons[i])->color = playerColors[0];
+
+            score[i] = 0;
         }
     }
 

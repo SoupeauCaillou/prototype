@@ -46,13 +46,23 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             texts[i] = theEntityManager.CreateEntityFromTemplate("menu/player_button_text");
             ANCHOR(texts[i])->parent = game->playerButtons[i];
             ANCHOR(texts[i])->position *= glm::normalize(-TRANSFORM(game->playerButtons[i])->position);
+            if (ANCHOR(texts[i])->position.x > 0) {
+                TEXT(texts[i])->positioning = TextComponent::RIGHT;
+            } else {
+                TEXT(texts[i])->positioning = TextComponent::LEFT;
+            }
         }
         playButton = theEntityManager.CreateEntityFromTemplate("menu/play_button");
     }
 
     void updateButton(int index) {
-        char* tmp = (char*) alloca(3);
-        sprintf(tmp, "%02d", 1 + game->playerActive[index]);
+        char* tmp = (char*) alloca(40);
+
+        if (ANCHOR(texts[index])->position.x > 0) {
+            sprintf(tmp, "%02d - %02d", game->score[index], 1 + game->playerActive[index]);
+        } else {
+            sprintf(tmp, "%02d - %02d", 1 + game->playerActive[index], game->score[index]);
+        }
         TEXT(texts[index])->text = tmp;
     }
 
@@ -89,7 +99,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         }
 
         if (BUTTON(playButton)->clicked) {
-            return Scene::GameStart;
+            return Scene::InGame;
         }
 
         return Scene::GameStart;
@@ -103,6 +113,14 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            BUTTON(game->playerButtons[i])->enabled =
+                TEXT(texts[i])->show =
+                RENDERING(game->playerButtons[i])->show = false;
+        }
+        TEXT(playButton)->show =
+            BUTTON(playButton)->enabled =
+            RENDERING(playButton)->show = false;
     }
 };
 
