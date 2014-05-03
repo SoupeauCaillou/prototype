@@ -19,7 +19,16 @@
 */
 
 #include "base/StateMachine.h"
+#include "base/EntityManager.h"
 #include "Scenes.h"
+
+#include "../PrototypeGame.h"
+#include "systems/AnchorSystem.h"
+#include "systems/ButtonSystem.h"
+#include "systems/TextSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
+
 
 struct InGameScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
@@ -38,6 +47,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+
     }
 
 

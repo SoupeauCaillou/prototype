@@ -1,5 +1,13 @@
 atlas_size=1024,512
 [image0]
+name=bee_highlight
+original_size=256,256
+position_in_atlas=515,1
+size_in_atlas=256,256
+crop_offset=0,0
+rotated=0
+opaque_rect=19,19,218,218
+[image1]
 name=player_button
 original_size=512,256
 position_in_atlas=1,1

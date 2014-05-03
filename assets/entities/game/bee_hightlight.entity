@@ -1,0 +1,14 @@
+[Rendering]
+show = 1
+flags = 1
+texture = bee_highlight
+
+[Transformation]
+
+[Anchor]
+z = -0.2
+
+[AutoDestroy]
+type = 1
+lifetime/value = -1
+lifetime/map2AlphaRendering = 1

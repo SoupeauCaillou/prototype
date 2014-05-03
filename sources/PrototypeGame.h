@@ -51,6 +51,8 @@ class PrototypeGame : public Game {
         int score[4];
         int playerActive[4];
         Entity playerButtons[4];
+        std::vector<Entity> bees;
+        std::vector<Entity> selected;
 
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
