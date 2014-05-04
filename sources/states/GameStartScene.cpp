@@ -24,7 +24,9 @@
 #include "base/EntityManager.h"
 #include "systems/AnchorSystem.h"
 #include "systems/AutoDestroySystem.h"
+#include "systems/AutonomousAgentSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/PhysicsSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
@@ -39,6 +41,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     Entity playButton;
     bool ready[4];
     std::vector<Entity> highlights;
+
+    std::list<Entity> walls;
 
     GameStartScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -56,6 +60,11 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             }
         }
         playButton = theEntityManager.CreateEntityFromTemplate("menu/play_button");
+
+        walls.push_back(theEntityManager.CreateEntityFromTemplate("game/wall_north"));
+        walls.push_back(theEntityManager.CreateEntityFromTemplate("game/wall_south"));
+        walls.push_back(theEntityManager.CreateEntityFromTemplate("game/wall_west"));
+        walls.push_back(theEntityManager.CreateEntityFromTemplate("game/wall_east"));
     }
 
     void updateButton(int index) {
@@ -134,6 +143,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<50; i++) {
             Entity bee = theEntityManager.CreateEntityFromTemplate("game/bee");
             RENDERING(bee)->show = true;
+            AUTONOMOUS(bee)->walls = walls;
             game->bees.push_back(bee);
         }
 
@@ -192,6 +202,9 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             BUTTON(playButton)->enabled =
             RENDERING(playButton)->show = false;
 
+        for (auto b: game->bees) {
+            PHYSICS(b)->mass = 1;
+        }
         for (auto h: highlights) {
             AUTO_DESTROY(h)->type = AutoDestroyComponent::LIFETIME;
         }

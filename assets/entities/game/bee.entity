@@ -2,6 +2,23 @@
 size = 0.2, 0.2
 z = 0.3, 0.4
 position%screen = -0.5, -0.5, 0.5, 0.5
+rotation = 0, 6.28
 
 [Rendering]
 color%html = e3e11e, fcff24
+
+[AutonomousAgent]
+max_speed = 3
+max_force = 50
+wander_weight = 0.1
+wander_coeff = 1
+wander_radius = 0.25
+wander_distance = 1
+wander_jitter = 0.2
+walls_weight = 10
+walls_coeff = 1
+
+[Physics]
+mass = 1
+max_force = 50
+

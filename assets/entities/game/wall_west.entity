@@ -1,0 +1,7 @@
+[Transformation]
+size = 0.5, 20
+positionW%screen = -0.5, 0
+z = 0.95
+
+[Rendering]
+show = 0
