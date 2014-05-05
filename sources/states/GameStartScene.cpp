@@ -96,7 +96,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onEnter(Scene::Enum) override {
+    void onEnter(Scene::Enum from) override {
         {
             char* scoreText = (char*)alloca(50);
             for (int i=0; i<4; i++) {
@@ -125,6 +125,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
         if (BUTTON(playButton)->clicked) {
             for (int i=0; i<4; i++) {
+                RENDERING(game->playerButtons[i])->color.a = 0.2;
                 TEXT(texts[i].bet)->show =
                     TEXT(texts[i].score)->show = false;
                 ready[i] = (game->playerActive[i] < 0);
@@ -194,6 +195,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
                 TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
                 RENDERING(h)->color = game->playerColors[i + 1];
                 highlights.push_back(h);
+
+                LOGI("Bee " << h << " assigned to player " << i);
             }
         }
     }
@@ -218,6 +221,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         for (int i=0; i<4; i++) {
+            RENDERING(game->playerButtons[i])->color.a = 1;
             BUTTON(game->playerButtons[i])->enabled =
                 TEXT(texts[i].bet)->show =
                 TEXT(texts[i].score)->show =
@@ -234,6 +238,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         for (auto h: highlights) {
             AUTO_DESTROY(h)->type = AutoDestroyComponent::LIFETIME;
         }
+        highlights.clear();
     }
 };
 

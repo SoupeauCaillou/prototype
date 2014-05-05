@@ -168,6 +168,20 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
+        LOGI("Score update");
+        int idx = 0;
+        for (int i=0; i<4; i++) {
+            for (int j=0; j<game->playerActive[i] + 1; j++) {
+                auto bee = game->selected[idx++];
+
+                auto it = bee2player.find(bee);
+                if (it != bee2player.end()) {
+                    if (it->second == i) {
+                        game->score[i]++;
+                    }
+                }
+            }
+        }
     }
 
     void onExit(Scene::Enum) override {
@@ -179,6 +193,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
         }
 
         for (auto h: highlight) {
+            AUTO_DESTROY(h.second)->type = AutoDestroyComponent::LIFETIME;
             AUTO_DESTROY(h.second)->params.lifetime.freq.value = 0.5;
             ANCHOR(h.second)->parent = 0;
         }
