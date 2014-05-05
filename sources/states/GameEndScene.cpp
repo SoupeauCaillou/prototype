@@ -77,21 +77,23 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             }
         }
 
-        for (auto b: game->bees) {
-            if (BUTTON(b)->clicked) {
-                auto& chosen = selected[activePlayer];
+        if (activePlayer >= 0) {
+            for (auto b: game->bees) {
+                if (BUTTON(b)->clicked) {
+                    auto& chosen = selected[activePlayer];
 
-                auto it = std::find(chosen.begin(), chosen.end(), b);
-                if (it == chosen.end()) {
-                    Entity h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
-                    ANCHOR(h)->parent = b;
-                    TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
-                    RENDERING(h)->color = game->playerColors[activePlayer + 1];
-                    highlight[b] = h;
-                } else {
-                    theEntityManager.DeleteEntity(highlight[b]);
-                    highlight.erase(b);
-                    chosen.erase(it);
+                    auto it = std::find(chosen.begin(), chosen.end(), b);
+                    if (it == chosen.end()) {
+                        Entity h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
+                        ANCHOR(h)->parent = b;
+                        TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
+                        RENDERING(h)->color = game->playerColors[activePlayer + 1];
+                        highlight[b] = h;
+                    } else {
+                        theEntityManager.DeleteEntity(highlight[b]);
+                        highlight.erase(b);
+                        chosen.erase(it);
+                    }
                 }
             }
         }
