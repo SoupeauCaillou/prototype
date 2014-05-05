@@ -4,6 +4,6 @@
     <string name="score">"Score: %02d"</string>
     <string name="bet">"Bet: %02d"</string>
     <string name="ready">"Ready?"</string>
-    <string name="lookup">"%d / %d"</string>
+    <string name="lookup" formatted="false">"%d / %d"</string>
     <string name="done">"Done?"</string>
 </resources>

@@ -48,7 +48,7 @@ public class PrototypeActivity extends SacActivity {
 	
 	@Override
 	public void initRequiredAPI() {
-		AssetAPI.Instance().init(getAssets());
+		AssetAPI.Instance().init(this, getAssets());
 		LocalizeAPI.Instance().init(this.getResources(), this.getPackageName());
 	}
 }
