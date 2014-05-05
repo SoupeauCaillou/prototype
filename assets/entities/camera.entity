@@ -3,4 +3,4 @@ size%screen = 1, 1
 z = 0
 
 [Camera]
-clear_color = 1, 1, 1
+clear_color = 1, 1, 1, 1

@@ -1,0 +1,11 @@
+[Transformation]
+
+[Anchor]
+z = 0.1
+anchor%screen = 0.2, 0
+
+[Text]
+color = 0,0,0
+char_height = 2.5
+text%loc = ready
+positioning = 0

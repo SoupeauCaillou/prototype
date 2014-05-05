@@ -53,6 +53,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<4; i++) {
             BUTTON(game->playerButtons[i])->enabled =
                 RENDERING(game->playerButtons[i])->show = true;
+            game->score[i] = 0;
         }
         TEXT(playButton)->show = true;
     }
@@ -62,6 +63,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        if (BUTTON(playButton)->clicked) {
+            return Scene::GameStart;
+        }
         for (int i=0; i<4; i++) {
             if (BUTTON(game->playerButtons[i])->clicked) {
                 game->playerActive[i] = -1 - game->playerActive[i];
@@ -81,9 +85,6 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             TEXT(playButton)->show =
             BUTTON(playButton)->enabled = atLeastOnePlayerActive;
 
-        if (BUTTON(playButton)->clicked) {
-            return Scene::GameStart;
-        }
 
         return Scene::Menu;
     }

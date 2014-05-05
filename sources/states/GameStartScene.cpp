@@ -34,10 +34,22 @@
 #include "util/Random.h"
 #include "PrototypeGame.h"
 
+#include "api/LocalizeAPI.h"
+
 struct GameStartScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
-    Entity texts[4];
+    struct PlayerText {
+        union {
+            struct {
+                Entity score;
+                Entity bet;
+                Entity ready;
+            };
+            Entity t[3];
+        };
+    } texts[4];
+
     Entity playButton;
     bool ready[4];
     std::vector<Entity> highlights;
@@ -50,13 +62,20 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
     void setup() {
         for (int i=0; i<4; i++) {
-            texts[i] = theEntityManager.CreateEntityFromTemplate("menu/player_button_text");
-            ANCHOR(texts[i])->parent = game->playerButtons[i];
-            ANCHOR(texts[i])->position *= glm::normalize(-TRANSFORM(game->playerButtons[i])->position);
-            if (ANCHOR(texts[i])->position.x > 0) {
-                TEXT(texts[i])->positioning = TextComponent::RIGHT;
-            } else {
-                TEXT(texts[i])->positioning = TextComponent::LEFT;
+            texts[i].score = theEntityManager.CreateEntityFromTemplate("menu/player_score_text");
+            ANCHOR(texts[i].score)->parent = game->playerButtons[i];
+
+            texts[i].bet = theEntityManager.CreateEntityFromTemplate("menu/player_bet_text");
+            ANCHOR(texts[i].bet)->parent = game->playerButtons[i];
+
+            texts[i].ready = theEntityManager.CreateEntityFromTemplate("menu/player_ready_text");
+            ANCHOR(texts[i].ready)->parent = game->playerButtons[i];
+
+            if (i % 2) {
+                for (int j=0; j<3; j++) {
+                    ANCHOR(texts[i].t[j])->anchor = -ANCHOR(texts[i].t[j])->anchor;
+                    TEXT(texts[i].t[j])->positioning = 1 - TEXT(texts[i].t[j])->positioning;
+                }
             }
         }
         playButton = theEntityManager.CreateEntityFromTemplate("menu/play_button");
@@ -67,39 +86,30 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         walls.push_back(theEntityManager.CreateEntityFromTemplate("game/wall_east"));
     }
 
-    void updateButton(int index) {
+    void updateBet(int index) {
         char* tmp = (char*) alloca(40);
-
-        if (ANCHOR(texts[index])->position.x > 0) {
-            sprintf(tmp, "%02d - %02d", game->score[index], 1 + game->playerActive[index]);
-        } else {
-            sprintf(tmp, "%02d - %02d", 1 + game->playerActive[index], game->score[index]);
-        }
-        TEXT(texts[index])->text = tmp;
+        sprintf(tmp, game->gameThreadContext->localizeAPI->text("bet").c_str(), 1 + game->playerActive[index]);
+        TEXT(texts[index].bet)->text = tmp;
     }
-
-    void updateReady(int index) {
-        if (ready[index]) {
-            BUTTON(game->playerButtons[index])->enabled = false;
-            TEXT(texts[index])->text = "";
-        } else {
-            TEXT(texts[index])->text = "tap";
-        }
-    }
-
-
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-        for (int i=0; i<4; i++) {
-            if (game->playerActive[i] >= 0) {
-                BUTTON(game->playerButtons[i])->enabled =
-                    TEXT(texts[i])->show =
-                    RENDERING(game->playerButtons[i])->show = true;
-                updateButton(i);
+        {
+            char* scoreText = (char*)alloca(50);
+            for (int i=0; i<4; i++) {
+                if (game->playerActive[i] >= 0) {
+                    BUTTON(game->playerButtons[i])->enabled =
+                        TEXT(texts[i].score)->show =
+                        TEXT(texts[i].bet)->show =
+                        RENDERING(game->playerButtons[i])->show = true;
+                    updateBet(i);
+                }
+
+                sprintf(scoreText, game->gameThreadContext->localizeAPI->text("score").c_str(), game->score[i]);
+                TEXT(texts[i].score)->text = scoreText;
             }
         }
         TEXT(playButton)->show = true;
@@ -115,16 +125,25 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<4; i++) {
             if (BUTTON(game->playerButtons[i])->clicked) {
                 game->playerActive[i] = (game->playerActive[i] + 1) % 10;
-                updateButton(i);
+                updateBet(i);
             }
         }
 
         if (BUTTON(playButton)->clicked) {
             for (int i=0; i<4; i++) {
+                TEXT(texts[i].bet)->show =
+                    TEXT(texts[i].score)->show = false;
                 ready[i] = (game->playerActive[i] < 0);
-                updateReady(i);
+                if (ready[i]) {
+                    BUTTON(game->playerButtons[i])->enabled = false;
+                    TEXT(texts[i].ready)->show = false;
+                } else {
+                    BUTTON(game->playerButtons[i])->enabled = true;
+                    TEXT(texts[i].ready)->show = true;
+                }
             }
-            TEXT(playButton)->text = "tap when ready";
+
+            TEXT(playButton)->show = false;
             RENDERING(playButton)->show = false;
             return Scene::InGame;
         }
@@ -183,7 +202,10 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<4; i++) {
             if (BUTTON(game->playerButtons[i])->clicked) {
                 ready[i] = !ready[i];
-                updateReady(i);
+                if (ready[i]) {
+                    BUTTON(game->playerButtons[i])->enabled = false;
+                    TEXT(texts[i].ready)->show = false;
+                }
             }
         }
 
@@ -197,7 +219,9 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     void onExit(Scene::Enum) override {
         for (int i=0; i<4; i++) {
             BUTTON(game->playerButtons[i])->enabled =
-                TEXT(texts[i])->show =
+                TEXT(texts[i].bet)->show =
+                TEXT(texts[i].score)->show =
+                TEXT(texts[i].ready)->show =
                 RENDERING(game->playerButtons[i])->show = false;
         }
         TEXT(playButton)->show =

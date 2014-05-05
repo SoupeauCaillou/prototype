@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="time">"Time"</string>
+    <string name="score">"Score: %02d"</string>
+    <string name="bet">"Bet: %02d"</string>
+    <string name="ready">"Ready?"</string>
 </resources>
