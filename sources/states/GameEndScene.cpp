@@ -34,14 +34,28 @@
 #include "util/Random.h"
 #include "PrototypeGame.h"
 
+#include "api/LocalizeAPI.h"
+
 struct GameEndScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
+
+    Entity done[4];
 
     GameEndScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
-    void setup() { }
+    void setup() {
+        for (int i=0; i<4; i++) {
+            done[i] = theEntityManager.CreateEntityFromTemplate("menu/player_done_text");
+            ANCHOR(done[i])->parent = game->playerButtons[i];
+
+            if (i % 2) {
+                ANCHOR(done[i])->anchor = -ANCHOR(done[i])->anchor;
+                TEXT(done[i])->positioning = 1 - TEXT(done[i])->positioning;
+            }
+        }
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
@@ -50,13 +64,18 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
     std::map<Entity, int> bee2player;
     std::map<Entity, Entity> highlight;
+    int playerReadyCount;
 
     void onEnter(Scene::Enum) override {
+        playerReadyCount = 0;
         for (int i=0; i<4; i++) {
             if (game->playerActive[i] >= 0) {
                 BUTTON(game->playerButtons[i])->enabled =
                     RENDERING(game->playerButtons[i])->show = true;
                 RENDERING(game->playerButtons[i])->color.a = 0.2;
+                TEXT(done[i])->show = true;
+            } else {
+                playerReadyCount++;
             }
         }
 
@@ -67,6 +86,13 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
         selectedBee = 0;
     }
 
+    int playerSelectedCount(int i) {
+        int count = 0;
+        for (auto sel: bee2player) {
+            if (sel.second == i) count++;
+        }
+        return count;
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
@@ -100,16 +126,38 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
         if (selectedBee) {
             for (int i = 0; i<4; i++) {
-                if (BUTTON(game->playerButtons[i])->clicked) {
-                    bee2player[selectedBee] = i;
-                    RENDERING(highlight[selectedBee])->color = game->playerColors[1 + i];
-                    selectedBee = 0;
-                    break;
+                int count = playerSelectedCount(i);
+
+                if (count < (game->playerActive[i] + 1)) {
+                    if (BUTTON(game->playerButtons[i])->clicked) {
+                        bee2player[selectedBee] = i;
+                        RENDERING(highlight[selectedBee])->color = game->playerColors[1 + i];
+                        selectedBee = 0;
+
+                        return Scene::GameEnd;
+                    }
                 }
             }
         }
 
+        for (int i=0; i<4; i++) {
+            int count = playerSelectedCount(i);
 
+            char* scoreText = (char*) alloca(50);
+            sprintf(scoreText, game->gameThreadContext->localizeAPI->text("lookup").c_str(), count, game->playerActive[i] + 1);
+            TEXT(done[i])->text = scoreText;
+
+            if (count == (game->playerActive[i] + 1)) {
+                TEXT(done[i])->text = game->gameThreadContext->localizeAPI->text("done");
+                if (BUTTON(game->playerButtons[i])->clicked) {
+                    BUTTON(game->playerButtons[i])->enabled = false;
+                    playerReadyCount++;
+                }
+            }
+        }
+
+        if (playerReadyCount == 4)
+            return Scene::GameStart;
 
         return Scene::GameEnd;
     }
@@ -125,6 +173,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<4; i++) {
             BUTTON(game->playerButtons[i])->enabled =
                 RENDERING(game->playerButtons[i])->show = false;
+            RENDERING(game->playerButtons[i])->color.a = 1.0;
         }
     }
 };
