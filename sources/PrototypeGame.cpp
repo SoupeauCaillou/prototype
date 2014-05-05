@@ -25,6 +25,11 @@
 
 #include "systems/CameraSystem.h"
 
+#include "util/Random.h"
+#include "systems/TransformationSystem.h"
+#include <glm/gtx/vector_angle.hpp>
+
+
 #include <ostream>
 #include <fstream>
 #if SAC_EMSCRIPTEN
@@ -134,4 +139,22 @@ void PrototypeGame::tick(float dt) {
 
 bool PrototypeGame::willConsumeBackEvent() {
     return false;
+}
+
+void PrototypeGame::beesPopping(Entity fromBtn) {
+    const glm::vec2 & center = TRANSFORM(fromBtn)->position;
+    const glm::vec2 & size = TRANSFORM(fromBtn)->size;
+    Color def = RENDERING(fromBtn)->color;
+
+    for (int i = 0; i < 25; ++i) {
+        Entity e = theEntityManager.CreateEntityFromTemplate("menu/popping_bee");
+        TransformationComponent * tc = TRANSFORM(e);
+        tc->position = center - size / 2.f;
+        tc->position.x += Random::Float(0.f, size.x);
+        tc->position.y += Random::Float(0.f, size.y);
+
+        Color gradient = Color::random();
+        RENDERING(e)->color = def + gradient.reducePrecision(.3f);
+        tc->rotation = glm::orientedAngle(glm::vec2(1, 0), glm::normalize(-center));
+    }
 }

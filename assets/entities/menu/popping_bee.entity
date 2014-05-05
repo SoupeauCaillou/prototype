@@ -1,0 +1,26 @@
+[Transformation]
+size = 0.4, 0.4, 0.6, 0.6
+z = .3
+rotation = 0, 6.28
+
+[Rendering]
+show = 1
+
+[AutonomousAgent]
+max_speed = 5
+max_force = 50
+wander_weight = 0.1
+wander_coeff = 1
+wander_radius = 0.25
+wander_distance = 1
+wander_jitter = 0.2
+walls_weight = 10
+walls_coeff = 1
+
+[Physics]
+mass = 1
+
+[AutoDestroy]
+type = 0
+area/position = 0, 0
+area/size%screen = 1, 1

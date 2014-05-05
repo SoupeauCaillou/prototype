@@ -122,7 +122,6 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-
         if (BUTTON(playButton)->clicked) {
             for (int i=0; i<4; i++) {
                 RENDERING(game->playerButtons[i])->color.a = 0.2;
@@ -140,6 +139,8 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
             TEXT(playButton)->show = false;
             RENDERING(playButton)->show = false;
+
+            game->beesPopping(playButton);
             return Scene::InGame;
         }
 
@@ -147,6 +148,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             if (BUTTON(game->playerButtons[i])->clicked) {
                 game->playerActive[i] = (game->playerActive[i] + 1) % 10;
                 updateBet(i);
+                game->beesPopping(game->playerButtons[i]);
             }
         }
         return Scene::GameStart;

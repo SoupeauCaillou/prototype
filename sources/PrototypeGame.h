@@ -45,6 +45,9 @@ class PrototypeGame : public Game {
         void backPressed();
         void quickInit() {}
 
+        // make some bees when clicking on a button
+        void beesPopping(Entity fromBtn);
+
         Entity camera;
         FaderHelper faderHelper;
 

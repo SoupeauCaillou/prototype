@@ -25,8 +25,6 @@
 #include "systems/ButtonSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
-#include "api/NetworkAPI.h"
-#include "api/linux/NetworkAPILinuxImpl.h"
 
 #include "PrototypeGame.h"
 
@@ -62,8 +60,10 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
+
     Scene::Enum update(float) override {
         if (BUTTON(playButton)->clicked) {
+            game->beesPopping(playButton);
             return Scene::GameStart;
         }
         for (int i=0; i<4; i++) {
@@ -74,17 +74,18 @@ struct MenuScene : public StateHandler<Scene::Enum> {
                     (game->playerActive[i] >= 0) ?
                     game->playerColors[i+1] :
                     game->playerColors[0];
+
+                game->beesPopping(game->playerButtons[i]);
             }
         }
 
         bool atLeastOnePlayerActive = false;
-        for (int i=0; i<4 & !atLeastOnePlayerActive; i++) {
+        for (int i=0; i<4 && !atLeastOnePlayerActive; i++) {
             atLeastOnePlayerActive |= (game->playerActive[i] >= 0);
         }
         RENDERING(playButton)->show =
             TEXT(playButton)->show =
             BUTTON(playButton)->enabled = atLeastOnePlayerActive;
-
 
         return Scene::Menu;
     }
