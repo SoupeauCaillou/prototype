@@ -36,6 +36,8 @@
 #include <unistd.h>
 #endif
 
+#include "util/Random.h"
+
 PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
@@ -85,21 +87,23 @@ void PrototypeGame::init(const uint8_t*, int) {
         char* p = (char*)alloca(strlen("player_N") + 1);
         for (int i=0; i<5; i++) {
             sprintf(p, "player_%d", i);
-            parameters.get("Colors", p, playerColors[i].rgba, 3);
+            parameters.get("Colors", p, playerColors[i].rgba, 4);
         }
 
         delete[] fb.data;
     }
 
+    int defaultActivePlayer = Random::Int(0, 3);
     for (int i=0; i<4; i++) {
-        playerActive[i] = false;
+        playerActive[i] = (defaultActivePlayer == i) ? 0 : -1;
     }
+
     {
         char* tmp = (char*) alloca(strlen("menu/player_button_N") + 1);
         for (int i=0; i<4; i++) {
             sprintf(tmp, "menu/player_button_%d", i + 1);
             playerButtons[i] = theEntityManager.CreateEntityFromTemplate(tmp);
-            RENDERING(playerButtons[i])->color = playerColors[0];
+            RENDERING(playerButtons[i])->color = playerColors[(defaultActivePlayer == i) ? (i+1) : 0];
 
             score[i] = 0;
         }

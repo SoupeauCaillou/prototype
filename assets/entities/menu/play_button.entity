@@ -11,6 +11,7 @@ z = 0.9
 [Text]
 show = 0
 text = Start
+char_height = 3
 color = 0, 0,0
 
 [Button]
