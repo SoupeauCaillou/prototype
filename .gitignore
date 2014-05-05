@@ -20,3 +20,5 @@ build/
 build.xml
 *.sublime-workspace
 sources/PrototypeGitVersion.h
+local.properties
+proguard-project.txt
