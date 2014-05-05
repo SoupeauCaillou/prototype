@@ -140,7 +140,9 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         game->bees.clear();
         game->selected.clear();
 
-        for (int i=0; i<50; i++) {
+        int beeCount = 50;
+        game->parameters.get("Game", "bee_count", &beeCount);
+        for (int i=0; i<beeCount; i++) {
             Entity bee = theEntityManager.CreateEntityFromTemplate("game/bee");
             RENDERING(bee)->show = true;
             AUTONOMOUS(bee)->walls = walls;

@@ -22,7 +22,6 @@
 
 #include "base/PlacementHelper.h"
 #include "base/StateMachine.inl"
-#include "util/DataFileParser.h"
 
 #include "systems/CameraSystem.h"
 
@@ -80,13 +79,13 @@ void PrototypeGame::init(const uint8_t*, int) {
     // load config
     {
         FileBuffer fb = gameThreadContext->assetAPI->loadAsset("params.ini");
-        DataFileParser dfp;
-        dfp.load(fb, "params.ini");
+
+        parameters.load(fb, "params.ini");
 
         char* p = (char*)alloca(strlen("player_N") + 1);
         for (int i=0; i<5; i++) {
             sprintf(p, "player_%d", i);
-            dfp.get("Colors", p, playerColors[i].rgba, 3);
+            parameters.get("Colors", p, playerColors[i].rgba, 3);
         }
 
         delete[] fb.data;

@@ -1,5 +1,5 @@
 [Transformation]
-size = 0.2, 0.2
+size = 0.4, 0.4, 0.6, 0.6
 z = 0.3, 0.4
 position%screen = -0.5, -0.5, 0.5, 0.5
 rotation = 0, 6.28
@@ -8,7 +8,7 @@ rotation = 0, 6.28
 color%html = e3e11e, fcff24
 
 [AutonomousAgent]
-max_speed = 3
+max_speed = 5
 max_force = 50
 wander_weight = 0.1
 wander_coeff = 1
@@ -22,3 +22,5 @@ walls_coeff = 1
 mass = 1
 max_force = 50
 
+[Button]
+enabled = 0

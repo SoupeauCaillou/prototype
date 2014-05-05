@@ -45,9 +45,10 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-
+    float timeLeft;
     void onEnter(Scene::Enum) override {
-
+        timeLeft = 5;
+        game->parameters.get("Game", "round_duration", &timeLeft);
     }
 
 
@@ -55,6 +56,10 @@ struct InGameScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float dt) override {
+        timeLeft -= dt;
+
+        if (timeLeft <= 0)
+            return Scene::GameEnd;
 
         return Scene::InGame;
     }

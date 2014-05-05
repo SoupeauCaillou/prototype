@@ -22,7 +22,16 @@
 #include "Scenes.h"
 
 #include "base/EntityManager.h"
+#include "systems/AnchorSystem.h"
+#include "systems/AutoDestroySystem.h"
+#include "systems/AutonomousAgentSystem.h"
+#include "systems/ButtonSystem.h"
+#include "systems/PhysicsSystem.h"
+#include "systems/TextSystem.h"
+#include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
 
+#include "util/Random.h"
 #include "PrototypeGame.h"
 
 struct GameEndScene : public StateHandler<Scene::Enum> {
@@ -32,16 +41,28 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
         this->game = game;
     }
 
-    void setup() {
-    }
-
-
+    void setup() { }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
+    int activePlayer;
+    std::vector<Entity> selected[4];
+    std::map<Entity, Entity> highlight;
 
     void onEnter(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            if (game->playerActive[i] >= 0) {
+                BUTTON(game->playerButtons[i])->enabled =
+                    RENDERING(game->playerButtons[i])->show = true;
+            }
+        }
+        activePlayer = -1;
+
+        for (auto b: game->bees) {
+            BUTTON(b)->enabled = true;
+            PHYSICS(b)->mass = 0;
+        }
     }
 
 
@@ -49,6 +70,31 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        for (int i = 0; i<4; i++) {
+            if (BUTTON(game->playerButtons[i])->clicked) {
+                activePlayer = i;
+                break;
+            }
+        }
+
+        for (auto b: game->bees) {
+            if (BUTTON(b)->clicked) {
+                auto& chosen = selected[activePlayer];
+
+                auto it = std::find(chosen.begin(), chosen.end(), b);
+                if (it == chosen.end()) {
+                    Entity h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
+                    ANCHOR(h)->parent = b;
+                    TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
+                    RENDERING(h)->color = game->playerColors[activePlayer + 1];
+                    highlight[b] = h;
+                } else {
+                    theEntityManager.DeleteEntity(highlight[b]);
+                    highlight.erase(b);
+                    chosen.erase(it);
+                }
+            }
+        }
 
         return Scene::GameEnd;
     }
@@ -61,6 +107,10 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     }
 
     void onExit(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            BUTTON(game->playerButtons[i])->enabled =
+                RENDERING(game->playerButtons[i])->show = false;
+        }
     }
 };
 

@@ -29,6 +29,7 @@
 #include "base/Game.h"
 #include "base/GameContext.h"
 
+#include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
 class PrototypeGame : public Game {
@@ -53,6 +54,8 @@ class PrototypeGame : public Game {
         Entity playerButtons[4];
         std::vector<Entity> bees;
         std::vector<Entity> selected;
+
+        DataFileParser parameters;
 
     private:
         StateMachine<Scene::Enum> sceneStateMachine;
