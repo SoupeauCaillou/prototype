@@ -46,8 +46,9 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-    int activePlayer;
-    std::vector<Entity> selected[4];
+    Entity selectedBee;
+
+    std::map<Entity, int> bee2player;
     std::map<Entity, Entity> highlight;
 
     void onEnter(Scene::Enum) override {
@@ -55,14 +56,15 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             if (game->playerActive[i] >= 0) {
                 BUTTON(game->playerButtons[i])->enabled =
                     RENDERING(game->playerButtons[i])->show = true;
+                RENDERING(game->playerButtons[i])->color.a = 0.2;
             }
         }
-        activePlayer = -1;
 
         for (auto b: game->bees) {
             BUTTON(b)->enabled = true;
             PHYSICS(b)->mass = 0;
         }
+        selectedBee = 0;
     }
 
 
@@ -70,33 +72,44 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        for (int i = 0; i<4; i++) {
-            if (BUTTON(game->playerButtons[i])->clicked) {
-                activePlayer = i;
-                break;
+        for (auto b: game->bees) {
+            if (BUTTON(b)->clicked) {
+                if (selectedBee) {
+                    theEntityManager.DeleteEntity(highlight[selectedBee]);
+                    highlight.erase(selectedBee);
+                }
+
+                auto it = bee2player.find(b);
+                Entity h = 0;
+
+                selectedBee = b;
+                if (it == bee2player.end()) {
+                    h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
+                    ANCHOR(h)->parent = b;
+                    TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
+                    highlight[b] = h;
+                } else {
+                    bee2player.erase(it);
+                    h = highlight[b];
+                }
+                RENDERING(h)->color = game->playerColors[0];
+
+                return Scene::GameEnd;
             }
         }
 
-        if (activePlayer >= 0) {
-            for (auto b: game->bees) {
-                if (BUTTON(b)->clicked) {
-                    auto& chosen = selected[activePlayer];
-
-                    auto it = std::find(chosen.begin(), chosen.end(), b);
-                    if (it == chosen.end()) {
-                        Entity h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
-                        ANCHOR(h)->parent = b;
-                        TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
-                        RENDERING(h)->color = game->playerColors[activePlayer + 1];
-                        highlight[b] = h;
-                    } else {
-                        theEntityManager.DeleteEntity(highlight[b]);
-                        highlight.erase(b);
-                        chosen.erase(it);
-                    }
+        if (selectedBee) {
+            for (int i = 0; i<4; i++) {
+                if (BUTTON(game->playerButtons[i])->clicked) {
+                    bee2player[selectedBee] = i;
+                    RENDERING(highlight[selectedBee])->color = game->playerColors[1 + i];
+                    selectedBee = 0;
+                    break;
                 }
             }
         }
+
+
 
         return Scene::GameEnd;
     }
