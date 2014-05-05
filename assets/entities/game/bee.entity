@@ -24,3 +24,8 @@ max_force = 50
 
 [Button]
 enabled = 0
+
+[AutoDestroy]
+type = 2
+lifetime/value = 0.5
+lifetime/map2AlphaRendering = 1

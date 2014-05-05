@@ -40,6 +40,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     PrototypeGame* game;
 
     Entity done[4];
+    bool ready[4];
 
     GameEndScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -64,18 +65,17 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
     std::map<Entity, int> bee2player;
     std::map<Entity, Entity> highlight;
-    int playerReadyCount;
 
     void onEnter(Scene::Enum) override {
-        playerReadyCount = 0;
         for (int i=0; i<4; i++) {
             if (game->playerActive[i] >= 0) {
                 BUTTON(game->playerButtons[i])->enabled =
                     RENDERING(game->playerButtons[i])->show = true;
                 RENDERING(game->playerButtons[i])->color.a = 0.2;
                 TEXT(done[i])->show = true;
+                ready[i] = false;
             } else {
-                playerReadyCount++;
+                ready[i] = true;
             }
         }
 
@@ -149,14 +149,15 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
             if (count == (game->playerActive[i] + 1)) {
                 TEXT(done[i])->text = game->gameThreadContext->localizeAPI->text("done");
-                if (BUTTON(game->playerButtons[i])->clicked) {
-                    BUTTON(game->playerButtons[i])->enabled = false;
-                    playerReadyCount++;
-                }
+                ready[i] = true;
             }
         }
 
-        if (playerReadyCount == 4)
+        bool everyoneReady = true;
+        for (int i=0; i<4 && everyoneReady; i++) {
+            everyoneReady &= ready[i];
+        }
+        if (everyoneReady)
             return Scene::GameStart;
 
         return Scene::GameEnd;
@@ -171,9 +172,21 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
     void onExit(Scene::Enum) override {
         for (int i=0; i<4; i++) {
+            TEXT(done[i])->show = false;
             BUTTON(game->playerButtons[i])->enabled =
                 RENDERING(game->playerButtons[i])->show = false;
             RENDERING(game->playerButtons[i])->color.a = 1.0;
+        }
+
+        for (auto h: highlight) {
+            AUTO_DESTROY(h.second)->params.lifetime.freq.value = 0.5;
+            ANCHOR(h.second)->parent = 0;
+        }
+        highlight.clear();
+        bee2player.clear();
+
+        for (auto b: game->bees) {
+            AUTO_DESTROY(b)->type = AutoDestroyComponent::LIFETIME;
         }
     }
 };
