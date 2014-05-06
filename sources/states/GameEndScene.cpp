@@ -103,12 +103,15 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
                 if (selectedBee) {
                     theEntityManager.DeleteEntity(highlight[selectedBee]);
                     highlight.erase(selectedBee);
+                    BUTTON(selectedBee)->enabled = true;
                 }
 
                 auto it = bee2player.find(b);
                 Entity h = 0;
 
                 selectedBee = b;
+                BUTTON(selectedBee)->enabled = false;
+
                 if (it == bee2player.end()) {
                     h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
                     ANCHOR(h)->parent = b;
