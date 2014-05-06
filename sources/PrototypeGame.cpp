@@ -120,7 +120,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     sceneStateMachine.setup();
 #if SAC_DEBUG
-    sceneStateMachine.start(Scene::Menu);
+    sceneStateMachine.start(Scene::Logo);
 #else
     sceneStateMachine.start(Scene::Logo);
 #endif

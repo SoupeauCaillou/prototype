@@ -54,6 +54,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             game->score[i] = 0;
         }
         TEXT(playButton)->show = true;
+        RENDERING(playButton)->show = true;
     }
 
 
@@ -94,17 +95,13 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
-        for (int i=0; i<4; i++) {
-            BUTTON(game->playerButtons[i])->enabled =
-                RENDERING(game->playerButtons[i])->show = false;
-        }
-    }
-
-    void onExit(Scene::Enum) override {
+    void onPreExit(Scene::Enum to) override {
         BUTTON(playButton)->enabled =
             RENDERING(playButton)->show =
             TEXT(playButton)->show = false;
+    }
+
+    void onExit(Scene::Enum) override {
     }
 };
 

@@ -17,6 +17,10 @@ wander_distance = 1
 wander_jitter = 0.2
 walls_weight = 10
 walls_coeff = 1
+#box_weight = 10
+#box_coeff = 1
+#box_position = 0, 0
+#box_size%screen = 1,1
 
 [Physics]
 mass = 1
