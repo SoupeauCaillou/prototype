@@ -1,21 +1,21 @@
 /*
-    This file is part of Prototype.
+    This file is part of Bzzz.
 
     @author Soupe au Caillou - Jordane Pelloux-Prayer
     @author Soupe au Caillou - Gautier Pelloux-Prayer
     @author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
 
-    Prototype is free software: you can redistribute it and/or modify
+    Bzzz is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, version 3.
 
-    Prototype is distributed in the hope that it will be useful,
+    Bzzz is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
+    along with Bzzz.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "base/StateMachine.h"
@@ -26,14 +26,14 @@
 #include "systems/TextSystem.h"
 #include "systems/RenderingSystem.h"
 
-#include "PrototypeGame.h"
+#include "BzzzGame.h"
 
 struct MenuScene : public StateHandler<Scene::Enum> {
-    PrototypeGame* game;
+    BzzzGame* game;
 
     Entity playButton;
 
-    MenuScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    MenuScene(BzzzGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
@@ -106,7 +106,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateMenuSceneHandler(BzzzGame* game) {
         return new MenuScene(game);
     }
 }

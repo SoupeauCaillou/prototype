@@ -19,6 +19,6 @@ build-*.sh
 build/
 build.xml
 *.sublime-workspace
-sources/PrototypeGitVersion.h
+sources/BzzzGitVersion.h
 local.properties
 proguard-project.txt

@@ -32,15 +32,15 @@
 #include "systems/SoundSystem.h"
 #include "systems/AnchorSystem.h"
 
-#include "PrototypeGame.h"
+#include "BzzzGame.h"
 
 class LogoScene : public StateHandler<Scene::Enum> {
-    PrototypeGame* game;
+    BzzzGame* game;
     Entity logo, animLogo, logobg;
 
 public:
 
-    LogoScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    LogoScene(BzzzGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
     }
 
@@ -127,7 +127,7 @@ public:
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateLogoSceneHandler(PrototypeGame* game) {
+    StateHandler<Scene::Enum>* CreateLogoSceneHandler(BzzzGame* game) {
         return new LogoScene(game);
     }
 }

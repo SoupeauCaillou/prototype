@@ -1,24 +1,24 @@
 /*
-    This file is part of Prototype.
+    This file is part of Bzzz.
 
     @author Soupe au Caillou - Jordane Pelloux-Prayer
     @author Soupe au Caillou - Gautier Pelloux-Prayer
     @author Soupe au Caillou - Pierre-Eric Pelloux-Prayer
 
-    Prototype is free software: you can redistribute it and/or modify
+    Bzzz is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, version 3.
 
-    Prototype is distributed in the hope that it will be useful,
+    Bzzz is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
+    along with Bzzz.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PrototypeGame.h"
+#include "BzzzGame.h"
 
 #include "base/PlacementHelper.h"
 #include "base/StateMachine.inl"
@@ -43,7 +43,7 @@
 
 #include "util/Random.h"
 
-PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
+BzzzGame::BzzzGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
     sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
@@ -53,7 +53,7 @@ PrototypeGame::PrototypeGame(int argc, char** argv) : Game() {
         "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
 }
 
-bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
+bool BzzzGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
         case ContextAPI::Localize:
@@ -70,7 +70,7 @@ bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
     }
 }
 
-void PrototypeGame::sacInit(int windowW, int windowH) {
+void BzzzGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation begins...");
 
     Game::sacInit(windowW, windowH);
@@ -80,8 +80,8 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
     LOGI("SAC engine initialisation done.");
 }
 
-void PrototypeGame::init(const uint8_t*, int) {
-    LOGI("PrototypeGame initialisation begins...");
+void BzzzGame::init(const uint8_t*, int) {
+    LOGI("BzzzGame initialisation begins...");
 
     // load config
     {
@@ -126,22 +126,22 @@ void PrototypeGame::init(const uint8_t*, int) {
 #endif
 }
 
-void PrototypeGame::backPressed() {
+void BzzzGame::backPressed() {
 }
 
-void PrototypeGame::togglePause(bool) {
+void BzzzGame::togglePause(bool) {
 
 }
 
-void PrototypeGame::tick(float dt) {
+void BzzzGame::tick(float dt) {
     sceneStateMachine.update(dt);
 }
 
-bool PrototypeGame::willConsumeBackEvent() {
+bool BzzzGame::willConsumeBackEvent() {
     return false;
 }
 
-void PrototypeGame::beesPopping(Entity fromBtn) {
+void BzzzGame::beesPopping(Entity fromBtn) {
     return;
     const glm::vec2 center = TRANSFORM(fromBtn)->position;
     const glm::vec2 size = TRANSFORM(fromBtn)->size;
