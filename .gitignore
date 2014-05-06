@@ -19,3 +19,4 @@ build-*.sh
 build/
 build.xml
 *.sublime-workspace
+sources/PrototypeGitVersion.h
