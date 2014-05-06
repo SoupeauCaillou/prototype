@@ -106,6 +106,11 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
                         TEXT(texts[i].bet)->show =
                         RENDERING(game->playerButtons[i])->show = true;
                     updateBet(i);
+                } else {
+                    BUTTON(game->playerButtons[i])->enabled =
+                        TEXT(texts[i].score)->show =
+                        TEXT(texts[i].bet)->show =
+                        RENDERING(game->playerButtons[i])->show = false;
                 }
 
                 sprintf(scoreText, game->gameThreadContext->localizeAPI->text("score").c_str(), game->score[i]);
@@ -181,12 +186,16 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
 
         int n[100];
         int index = 0;
-        Random::N_Ints(100, n, 0, game->bees.size() - 1);
-        while (game->selected.size() != count) {
-            game->selected.push_back(game->bees[n[index++]]);
-            std::unique(game->selected.begin(), game->selected.end());
 
-            LOGF_IF(index == 100, "Bleuarg, not enough random values");
+        while (game->selected.size() < count) {
+            Random::N_Ints(100, n, 0, game->bees.size() - 1);
+
+            for (int i=0; i<100 && game->selected.size() < count; i++) {
+                const auto bee = game->bees[n[i]];
+                if (std::find(game->selected.begin(), game->selected.end(), bee) == game->selected.end()) {
+                    game->selected.push_back(bee);
+                }
+            }
         }
 
         int idx = 0;
@@ -198,7 +207,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
                 RENDERING(h)->color = game->playerColors[i + 1];
                 highlights.push_back(h);
 
-                LOGI("Bee " << h << " assigned to player " << i);
+                LOGI("Bee " << game->selected[idx - 1] << " assigned to player " << i);
             }
         }
     }

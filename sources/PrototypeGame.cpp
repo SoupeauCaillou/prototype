@@ -142,6 +142,7 @@ bool PrototypeGame::willConsumeBackEvent() {
 }
 
 void PrototypeGame::beesPopping(Entity fromBtn) {
+    return;
     const glm::vec2 center = TRANSFORM(fromBtn)->position;
     const glm::vec2 size = TRANSFORM(fromBtn)->size;
     Color def = RENDERING(fromBtn)->color;

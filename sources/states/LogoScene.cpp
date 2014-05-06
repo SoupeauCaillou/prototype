@@ -57,7 +57,7 @@ public:
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-    #define FADE 1
+    #define FADE 0.5
     void onPreEnter(Scene::Enum) override {
         RENDERING(logo)->show = RENDERING(logobg)->show = true;
         game->faderHelper.start(Fading::In, FADE);
@@ -106,7 +106,7 @@ public:
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) {
         RENDERING(animLogo)->show = false;
-        game->faderHelper.start(Fading::OutIn, 4 * FADE);
+        game->faderHelper.start(Fading::OutIn, 2 * FADE);
         game->faderHelper.registerFadingOutEntity(logo);
         game->faderHelper.registerFadingOutEntity(logobg);
     }

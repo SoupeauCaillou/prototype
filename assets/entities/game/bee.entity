@@ -1,7 +1,7 @@
 [Transformation]
 size = 0.4, 0.4, 0.6, 0.6
 z = 0.3, 0.4
-position%screen = -0.5, -0.5, 0.5, 0.5
+position%screen = -0.45, -0.45, 0.45, 0.45
 rotation = 0, 6.28
 
 [Rendering]
