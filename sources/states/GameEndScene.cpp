@@ -160,8 +160,33 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<4 && everyoneReady; i++) {
             everyoneReady &= ready[i];
         }
-        if (everyoneReady)
-            return Scene::GameStart;
+        if (everyoneReady) {
+            LOGI("Score update");
+            int idx = 0;
+            bool victory = false;
+            for (int i=0; i<4; i++) {
+                int total = 0;
+                for (int j=0; j<game->playerActive[i] + 1; j++) {
+                    auto bee = game->selected[idx++];
+
+                    auto it = bee2player.find(bee);
+                    if (it != bee2player.end()) {
+                        if (it->second == i) {
+                            total++;
+                        }
+                    }
+                }
+                if (total == (game->playerActive[i] + 1)) {
+                    game->score[i] += total;
+
+                    if (game->score[i] >= 10) {
+                        victory = true;
+                    }
+                }
+            }
+
+            return victory ? Scene::Victory : Scene::GameStart;
+        }
 
         return Scene::GameEnd;
     }

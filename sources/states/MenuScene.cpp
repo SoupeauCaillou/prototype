@@ -51,7 +51,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         for (int i=0; i<4; i++) {
             BUTTON(game->playerButtons[i])->enabled =
                 RENDERING(game->playerButtons[i])->show = true;
-            game->score[i] = 0;
+            game->score[i] = 9;
         }
         TEXT(playButton)->show = true;
         RENDERING(playButton)->show = true;

@@ -6,4 +6,6 @@
     <string name="ready">"Ready?"</string>
     <string name="lookup" formatted="false">"%d / %d"</string>
     <string name="done">"Done?"</string>
+    <string name="victory">"Victory!"</string>
+    <string name="defeat">"Defeat"</string>
 </resources>

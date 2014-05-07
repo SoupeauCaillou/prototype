@@ -49,6 +49,7 @@ BzzzGame::BzzzGame(int argc, char** argv) : Game() {
     sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
     sceneStateMachine.registerState(Scene::InGame, Scene::CreateInGameSceneHandler(this), "Scene::InGame");
     sceneStateMachine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(this), "Scene::GameEnd");
+    sceneStateMachine.registerState(Scene::Victory, Scene::CreateVictorySceneHandler(this), "Scene::Victory");
     LOGF_IF(sceneStateMachine.getStateCount() != (int)Scene::Count,
         "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
 }

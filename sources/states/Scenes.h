@@ -30,6 +30,7 @@ namespace Scene {
       GameStart,
       InGame,
       GameEnd,
+      Victory,
       Count,
    };
 
@@ -41,4 +42,5 @@ namespace Scene {
   DECLARE_SCENE_HANDLER_FACTORY(GameStart)
   DECLARE_SCENE_HANDLER_FACTORY(InGame)
   DECLARE_SCENE_HANDLER_FACTORY(GameEnd)
+  DECLARE_SCENE_HANDLER_FACTORY(Victory)
 }
