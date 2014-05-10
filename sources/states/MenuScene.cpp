@@ -52,38 +52,41 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             BUTTON(game->playerButtons[i])->enabled =
                 RENDERING(game->playerButtons[i])->show = true;
             game->score[i] = 0;
+            updateButton(i);
         }
         TEXT(playButton)->show = true;
         RENDERING(playButton)->show = true;
     }
 
 
+    void updateButton(int index) {
+        RENDERING(game->playerButtons[index])->color =
+                    (game->playerActive[index] >= 0) ?
+                    game->playerColors[index+1] :
+                    game->playerColors[0];
+    }
+
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-
-    Scene::Enum update(float) override {
+    Scene::Enum update(float ) override {
         if (BUTTON(playButton)->clicked) {
             game->beesPopping(playButton);
             return Scene::GameStart;
         }
         for (int i=0; i<4; i++) {
-            if (BUTTON(game->playerButtons[i])->clicked) {
+            auto* bc = BUTTON(game->playerButtons[i]);
+            if (bc->clicked) {
                 game->playerActive[i] = -1 - game->playerActive[i];
 
-                RENDERING(game->playerButtons[i])->color =
-                    (game->playerActive[i] >= 0) ?
-                    game->playerColors[i+1] :
-                    game->playerColors[0];
+                updateButton(i);
 
                 game->beesPopping(game->playerButtons[i]);
             }
         }
 
-        bool atLeastOnePlayerActive = false;
-        for (int i=0; i<4 && !atLeastOnePlayerActive; i++) {
-            atLeastOnePlayerActive |= (game->playerActive[i] >= 0);
-        }
+        bool atLeastOnePlayerActive = std::any_of(game->playerActive, game->playerActive + 4, [](int b) { return b == 0; });
+
         RENDERING(playButton)->show =
             TEXT(playButton)->show =
             BUTTON(playButton)->enabled = atLeastOnePlayerActive;

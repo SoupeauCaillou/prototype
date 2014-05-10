@@ -35,6 +35,8 @@
 #include "BzzzGame.h"
 
 #include "api/LocalizeAPI.h"
+#include "base/TouchInputManager.h"
+
 
 struct GameStartScene : public StateHandler<Scene::Enum> {
     BzzzGame* game;
@@ -95,11 +97,12 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
-
+    float longpress[4];
     void onEnter(Scene::Enum from) override {
         {
             char* scoreText = (char*)alloca(50);
             for (int i=0; i<4; i++) {
+                longpress[i] = 0;
                 if (game->playerActive[i] >= 0) {
                     BUTTON(game->playerButtons[i])->enabled =
                         TEXT(texts[i].score)->show =
@@ -126,7 +129,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
         if (BUTTON(playButton)->clicked) {
             for (int i=0; i<4; i++) {
                 RENDERING(game->playerButtons[i])->color.a = 0.2;
@@ -150,10 +153,35 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
         }
 
         for (int i=0; i<4; i++) {
-            if (BUTTON(game->playerButtons[i])->clicked) {
+            auto* bc = BUTTON(game->playerButtons[i]);
+            if (bc->clicked) {
                 game->playerActive[i] = (game->playerActive[i] + 1) % 10;
                 updateBet(i);
                 game->beesPopping(game->playerButtons[i]);
+            } else if (bc->mouseOver && game->playerActive[i] == 0) {
+                longpress[i] += dt;
+
+                if (longpress[i] > 0.5) {
+                    float w = (1.5 - (longpress[i] - 0.5)) / (2 - 0.5);
+                    RENDERING(game->playerButtons[i])->color =
+                        game->playerColors[i + 1] * w + game->playerColors[0] * (1 - w);
+
+                    if (longpress[i] > 2) {
+                        // disable player
+                        game->playerActive[i] = -1;
+                        BUTTON(game->playerButtons[i])->enabled = false;
+                        RENDERING(game->playerButtons[i])->show = false;
+                        TEXT(texts[i].score)->show = false;
+                        TEXT(texts[i].bet)->show = false;
+                    }
+                }
+            } else {
+                longpress[i] = 0;
+
+                if (!bc->enabled) {
+                    // re-enable only if non-touching
+                    bc->enabled = !theTouchInputManager.isTouched();
+                }
             }
         }
         return Scene::GameStart;
