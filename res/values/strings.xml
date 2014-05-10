@@ -9,4 +9,6 @@
     <string name="victory">"Victory!"</string>
     <string name="defeat">"Defeat"</string>
     <string name="select">"Click anywhere to activate 1 player"</string>
+    <string name="bee_missing">"!!!"</string>
+    <string name="bee_found">"+1"</string>
 </resources>

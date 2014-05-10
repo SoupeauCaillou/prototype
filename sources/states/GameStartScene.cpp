@@ -178,7 +178,7 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             } else {
                 longpress[i] = 0;
 
-                if (!bc->enabled) {
+                if ((game->playerActive[i] >= 0) && !bc->enabled) {
                     // re-enable only if non-touching
                     bc->enabled = !theTouchInputManager.isTouched();
                 }

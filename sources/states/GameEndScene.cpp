@@ -25,6 +25,7 @@
 #include "systems/AnchorSystem.h"
 #include "systems/AutoDestroySystem.h"
 #include "systems/AutonomousAgentSystem.h"
+#include "systems/BlinkSystem.h"
 #include "systems/ButtonSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/TextSystem.h"
@@ -34,6 +35,7 @@
 #include "util/Random.h"
 #include "BzzzGame.h"
 
+#include <glm/gtx/norm.hpp>
 #include "api/LocalizeAPI.h"
 
 struct GameEndScene : public StateHandler<Scene::Enum> {
@@ -41,6 +43,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
     Entity done[4];
     bool ready[4];
+    float exitAccum;
 
     GameEndScene(BzzzGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -65,6 +68,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
 
     std::map<Entity, int> bee2player;
     std::map<Entity, Entity> highlight;
+    std::vector<Entity> blinks;
 
     void onEnter(Scene::Enum) override {
         for (int i=0; i<4; i++) {
@@ -84,6 +88,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             PHYSICS(b)->mass = 0;
         }
         selectedBee = 0;
+        exitAccum = 0;
     }
 
     int playerSelectedCount(int i) {
@@ -165,18 +170,39 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             LOGI("Score update");
             int idx = 0;
             bool victory = false;
+            std::vector<std::pair<int, Entity>> failure;
+
             for (int i=0; i<4; i++) {
                 int total = 0;
                 for (int j=0; j<game->playerActive[i] + 1; j++) {
                     auto bee = game->selected[idx++];
 
+                    bool correct = false;
                     auto it = bee2player.find(bee);
+                    Entity hint = 0;
                     if (it != bee2player.end()) {
                         if (it->second == i) {
                             total++;
+                            correct = true;
                         }
                     }
+
+                    if (correct) {
+                        hint = theEntityManager.CreateEntityFromTemplate("game/bee_found");
+                        TEXT(hint)->charHeight = TRANSFORM(bee)->size.y * 1.5;
+                    } else {
+                        hint = theEntityManager.CreateEntityFromTemplate("game/bee_missing");
+                    }
+                    TRANSFORM(hint)->position = TRANSFORM(bee)->position;
+                    blinks.push_back(hint);
+
+                    if (correct) {
+                        bee2player.erase(it);
+                    } else {
+                        failure.push_back(std::make_pair(i, bee));
+                    }
                 }
+
                 if (total == (game->playerActive[i] + 1)) {
                     game->score[i] += total;
 
@@ -185,6 +211,48 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
                     }
                 }
             }
+
+            LOGI(failure.size() << " errors");
+            float* blinkPeriods = new float[failure.size()];
+            Random::N_Floats(failure.size(), blinkPeriods, 0, 1);
+            int index = 0;
+            for (auto pf: failure) {
+                int pIndex = pf.first;
+                Entity missedBee = pf.second;
+
+                // Now find the nearest bee in the incorrectly
+                // chosen by this player
+                const auto& p = TRANSFORM(missedBee)->position;
+                float dist = 0;
+                Entity nearest = 0;
+
+                for (auto b2p: bee2player) {
+                    if (b2p.second == pIndex) {
+                        float d = glm::distance2(TRANSFORM(b2p.first)->position, p);
+
+                        if (nearest == 0 || d < dist) {
+                            dist = d;
+                            nearest = b2p.first;
+                        }
+                    }
+                }
+
+                LOGF_IF(nearest == 0, "Fix previous algo");
+                // Make both blink using the same period
+                auto blink = theEntityManager.CreateEntityFromTemplate("game/blink");
+                BLINK(blink)->accum = blinkPeriods[index++];
+                ANCHOR(blink)->parent = missedBee;
+                TRANSFORM(blink)->size = TRANSFORM(missedBee)->size;
+                RENDERING(blink)->color = game->playerColors[pIndex+1];
+                blinks.push_back(blink);
+
+                auto h = highlight[nearest];
+                ADD_COMPONENT(h, Blink);
+                *BLINK(h) = *(BLINK(blink));
+
+                bee2player.erase(nearest);
+            }
+
 
             return victory ? Scene::Victory : Scene::GameStart;
         }
@@ -197,24 +265,22 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
     void onPreExit(Scene::Enum) override {
-        LOGI("Score update");
-        int idx = 0;
-        for (int i=0; i<4; i++) {
-            int total = 0;
-            for (int j=0; j<game->playerActive[i] + 1; j++) {
-                auto bee = game->selected[idx++];
-
-                auto it = bee2player.find(bee);
-                if (it != bee2player.end()) {
-                    if (it->second == i) {
-                        total++;
-                    }
-                }
-            }
-            if (total == (game->playerActive[i] + 1)) {
-                game->score[i] += total;
+        for (int i=0; i<4;i ++) {
+            if (TEXT(done[i])->show) {
+                ready[i] = false;
+                TEXT(done[i])->text = game->gameThreadContext->localizeAPI->text("ready");
             }
         }
+    }
+
+    bool updatePreExit(Scene::Enum, float dt) override {
+        for (int i=0; i<4;i ++) {
+            if (BUTTON(game->playerButtons[i])->clicked) {
+                ready[i] = true;
+                TEXT(done[i])->show = false;
+            }
+        }
+        return std::all_of(ready, ready + 4, [] (bool b) { return b; });
     }
 
     void onExit(Scene::Enum) override {
@@ -236,6 +302,10 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
         for (auto b: game->bees) {
             AUTO_DESTROY(b)->type = AutoDestroyComponent::LIFETIME;
         }
+        for (auto b: blinks) {
+            theEntityManager.DeleteEntity(b);
+        }
+        blinks.clear();
     }
 };
 

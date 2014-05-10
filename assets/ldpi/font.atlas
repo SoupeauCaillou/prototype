@@ -56,6 +56,14 @@ crop_offset=0,2
 rotated=1
 opaque_rect=0,0,0,0
 [image7]
+name=2b_typo
+original_size=6,19
+position_in_atlas=80,23
+size_in_atlas=5,5
+crop_offset=0,8
+rotated=0
+opaque_rect=0,0,0,0
+[image8]
 name=2c_typo
 original_size=3,17
 position_in_atlas=19,6
@@ -63,7 +71,7 @@ size_in_atlas=3,2
 crop_offset=0,12
 rotated=1
 opaque_rect=0,0,0,0
-[image8]
+[image9]
 name=2d_typo
 original_size=5,19
 position_in_atlas=180,1
@@ -71,7 +79,7 @@ size_in_atlas=4,1
 crop_offset=0,9
 rotated=0
 opaque_rect=0,0,0,0
-[image9]
+[image10]
 name=2e_typo
 original_size=3,19
 position_in_atlas=24,6
@@ -79,7 +87,7 @@ size_in_atlas=2,2
 crop_offset=0,14
 rotated=0
 opaque_rect=0,0,0,0
-[image10]
+[image11]
 name=2f_typo
 original_size=4,16
 position_in_atlas=381,10
@@ -87,7 +95,7 @@ size_in_atlas=10,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image11]
+[image12]
 name=30_typo
 original_size=5,19
 position_in_atlas=17,10
@@ -95,7 +103,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image12]
+[image13]
 name=31_typo
 original_size=5,19
 position_in_atlas=32,10
@@ -103,7 +111,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image13]
+[image14]
 name=32_typo
 original_size=4,16
 position_in_atlas=277,10
@@ -111,7 +119,7 @@ size_in_atlas=11,3
 crop_offset=0,2
 rotated=1
 opaque_rect=0,0,0,0
-[image14]
+[image15]
 name=33_typo
 original_size=5,19
 position_in_atlas=47,10
@@ -119,7 +127,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image15]
+[image16]
 name=34_typo
 original_size=4,18
 position_in_atlas=137,10
@@ -127,7 +135,7 @@ size_in_atlas=12,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image16]
+[image17]
 name=35_typo
 original_size=4,16
 position_in_atlas=393,10
@@ -135,7 +143,7 @@ size_in_atlas=10,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image17]
+[image18]
 name=36_typo
 original_size=4,18
 position_in_atlas=207,10
@@ -143,7 +151,7 @@ size_in_atlas=12,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image18]
+[image19]
 name=37_typo
 original_size=4,19
 position_in_atlas=53,1
@@ -151,7 +159,7 @@ size_in_atlas=13,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image19]
+[image20]
 name=38_typo
 original_size=4,18
 position_in_atlas=221,10
@@ -159,7 +167,7 @@ size_in_atlas=12,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image20]
+[image21]
 name=39_typo
 original_size=4,17
 position_in_atlas=235,10
@@ -167,7 +175,7 @@ size_in_atlas=12,3
 crop_offset=0,2
 rotated=1
 opaque_rect=0,0,0,0
-[image21]
+[image22]
 name=3a_typo
 original_size=3,19
 position_in_atlas=140,1
@@ -175,7 +183,7 @@ size_in_atlas=8,2
 crop_offset=0,6
 rotated=1
 opaque_rect=0,0,0,0
-[image22]
+[image23]
 name=3b_typo
 original_size=3,15
 position_in_atlas=150,1
@@ -183,7 +191,7 @@ size_in_atlas=8,2
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image23]
+[image24]
 name=3c_typo
 original_size=4,17
 position_in_atlas=175,16
@@ -191,7 +199,7 @@ size_in_atlas=10,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image24]
+[image25]
 name=3d_typo
 original_size=6,19
 position_in_atlas=532,10
@@ -199,7 +207,7 @@ size_in_atlas=5,3
 crop_offset=0,8
 rotated=0
 opaque_rect=0,0,0,0
-[image25]
+[image26]
 name=3e_typo
 original_size=4,16
 position_in_atlas=405,10
@@ -207,7 +215,7 @@ size_in_atlas=10,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image26]
+[image27]
 name=3f_typo
 original_size=8,18
 position_in_atlas=1,1
@@ -215,7 +223,7 @@ size_in_atlas=16,7
 crop_offset=0,0
 rotated=1
 opaque_rect=0,0,0,0
-[image27]
+[image28]
 name=41_typo
 original_size=5,17
 position_in_atlas=84,16
@@ -223,7 +231,7 @@ size_in_atlas=11,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image28]
+[image29]
 name=42_typo
 original_size=4,16
 position_in_atlas=417,10
@@ -231,7 +239,7 @@ size_in_atlas=10,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image29]
+[image30]
 name=43_typo
 original_size=5,18
 position_in_atlas=151,10
@@ -239,7 +247,7 @@ size_in_atlas=12,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image30]
+[image31]
 name=44_typo
 original_size=5,18
 position_in_atlas=165,10
@@ -247,7 +255,7 @@ size_in_atlas=12,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image31]
+[image32]
 name=45_typo
 original_size=4,19
 position_in_atlas=68,1
@@ -255,7 +263,7 @@ size_in_atlas=13,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image32]
+[image33]
 name=46_typo
 original_size=3,15
 position_in_atlas=128,1
@@ -263,7 +271,7 @@ size_in_atlas=10,2
 crop_offset=0,2
 rotated=1
 opaque_rect=0,0,0,0
-[image33]
+[image34]
 name=47_typo
 original_size=6,18
 position_in_atlas=16,16
@@ -271,7 +279,7 @@ size_in_atlas=12,5
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image34]
+[image35]
 name=48_typo
 original_size=5,19
 position_in_atlas=62,10
@@ -279,7 +287,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image35]
+[image36]
 name=49_typo
 original_size=4,19
 position_in_atlas=249,10
@@ -287,7 +295,7 @@ size_in_atlas=12,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image36]
+[image37]
 name=4a_typo
 original_size=4,18
 position_in_atlas=83,1
@@ -295,7 +303,7 @@ size_in_atlas=13,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image37]
+[image38]
 name=4b_typo
 original_size=5,18
 position_in_atlas=30,16
@@ -303,7 +311,7 @@ size_in_atlas=12,5
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image38]
+[image39]
 name=4c_typo
 original_size=3,15
 position_in_atlas=290,10
@@ -311,7 +319,7 @@ size_in_atlas=11,3
 crop_offset=0,2
 rotated=1
 opaque_rect=0,0,0,0
-[image39]
+[image40]
 name=4d_typo
 original_size=6,18
 position_in_atlas=44,16
@@ -319,7 +327,7 @@ size_in_atlas=12,5
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image40]
+[image41]
 name=4e_typo
 original_size=5,17
 position_in_atlas=97,16
@@ -327,7 +335,7 @@ size_in_atlas=11,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image41]
+[image42]
 name=4f_typo
 original_size=5,18
 position_in_atlas=179,10
@@ -335,7 +343,7 @@ size_in_atlas=12,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image42]
+[image43]
 name=50_typo
 original_size=4,17
 position_in_atlas=303,10
@@ -343,7 +351,7 @@ size_in_atlas=11,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image43]
+[image44]
 name=51_typo
 original_size=5,17
 position_in_atlas=77,10
@@ -351,7 +359,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image44]
+[image45]
 name=52_typo
 original_size=4,16
 position_in_atlas=429,10
@@ -359,7 +367,7 @@ size_in_atlas=10,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image45]
+[image46]
 name=53_typo
 original_size=4,16
 position_in_atlas=441,10
@@ -367,7 +375,7 @@ size_in_atlas=10,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image46]
+[image47]
 name=54_typo
 original_size=5,19
 position_in_atlas=92,10
@@ -375,7 +383,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image47]
+[image48]
 name=55_typo
 original_size=6,19
 position_in_atlas=1,16
@@ -383,7 +391,7 @@ size_in_atlas=13,5
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image48]
+[image49]
 name=56_typo
 original_size=5,18
 position_in_atlas=193,10
@@ -391,7 +399,7 @@ size_in_atlas=12,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image49]
+[image50]
 name=57_typo
 original_size=7,18
 position_in_atlas=29,23
@@ -399,7 +407,7 @@ size_in_atlas=12,6
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image50]
+[image51]
 name=58_typo
 original_size=5,19
 position_in_atlas=107,10
@@ -407,7 +415,7 @@ size_in_atlas=13,4
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image51]
+[image52]
 name=59_typo
 original_size=4,18
 position_in_atlas=263,10
@@ -415,7 +423,7 @@ size_in_atlas=12,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image52]
+[image53]
 name=5a_typo
 original_size=4,19
 position_in_atlas=98,1
@@ -423,7 +431,7 @@ size_in_atlas=13,3
 crop_offset=0,3
 rotated=1
 opaque_rect=0,0,0,0
-[image53]
+[image54]
 name=5f_typo
 original_size=7,18
 position_in_atlas=160,1
@@ -431,7 +439,7 @@ size_in_atlas=6,2
 crop_offset=0,14
 rotated=0
 opaque_rect=0,0,0,0
-[image54]
+[image55]
 name=61_typo
 original_size=5,18
 position_in_atlas=110,16
@@ -439,7 +447,7 @@ size_in_atlas=11,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image55]
+[image56]
 name=62_typo
 original_size=4,18
 position_in_atlas=316,10
@@ -447,7 +455,7 @@ size_in_atlas=11,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image56]
+[image57]
 name=63_typo
 original_size=4,16
 position_in_atlas=477,10
@@ -455,7 +463,7 @@ size_in_atlas=9,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image57]
+[image58]
 name=64_typo
 original_size=5,19
 position_in_atlas=123,16
@@ -463,7 +471,7 @@ size_in_atlas=11,4
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image58]
+[image59]
 name=65_typo
 original_size=4,19
 position_in_atlas=329,10
@@ -471,7 +479,7 @@ size_in_atlas=11,3
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image59]
+[image60]
 name=66_typo
 original_size=4,17
 position_in_atlas=453,10
@@ -479,7 +487,7 @@ size_in_atlas=10,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image60]
+[image61]
 name=67_typo
 original_size=5,17
 position_in_atlas=187,16
@@ -487,7 +495,7 @@ size_in_atlas=10,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image61]
+[image62]
 name=68_typo
 original_size=4,16
 position_in_atlas=488,10
@@ -495,7 +503,7 @@ size_in_atlas=9,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image62]
+[image63]
 name=69_typo
 original_size=4,17
 position_in_atlas=199,16
@@ -503,7 +511,7 @@ size_in_atlas=10,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image63]
+[image64]
 name=6a_typo
 original_size=5,19
 position_in_atlas=122,10
@@ -511,7 +519,7 @@ size_in_atlas=13,4
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image64]
+[image65]
 name=6b_typo
 original_size=5,18
 position_in_atlas=58,16
@@ -519,7 +527,7 @@ size_in_atlas=11,5
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image65]
+[image66]
 name=6c_typo
 original_size=4,19
 position_in_atlas=342,10
@@ -527,7 +535,7 @@ size_in_atlas=11,3
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image66]
+[image67]
 name=6d_typo
 original_size=7,19
 position_in_atlas=43,23
@@ -535,7 +543,7 @@ size_in_atlas=11,6
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image67]
+[image68]
 name=6e_typo
 original_size=6,19
 position_in_atlas=71,16
@@ -543,7 +551,7 @@ size_in_atlas=11,5
 crop_offset=0,5
 rotated=1
 opaque_rect=0,0,0,0
-[image68]
+[image69]
 name=6f_typo
 original_size=5,18
 position_in_atlas=136,16
@@ -551,7 +559,7 @@ size_in_atlas=11,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image69]
+[image70]
 name=70_typo
 original_size=4,18
 position_in_atlas=355,10
@@ -559,7 +567,7 @@ size_in_atlas=11,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image70]
+[image71]
 name=71_typo
 original_size=5,18
 position_in_atlas=1,10
@@ -567,7 +575,7 @@ size_in_atlas=14,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image71]
+[image72]
 name=72_typo
 original_size=4,18
 position_in_atlas=149,16
@@ -575,7 +583,7 @@ size_in_atlas=11,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image72]
+[image73]
 name=73_typo
 original_size=4,18
 position_in_atlas=368,10
@@ -583,7 +591,7 @@ size_in_atlas=11,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image73]
+[image74]
 name=74_typo
 original_size=4,16
 position_in_atlas=499,10
@@ -591,7 +599,7 @@ size_in_atlas=9,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image74]
+[image75]
 name=75_typo
 original_size=5,18
 position_in_atlas=162,16
@@ -599,7 +607,7 @@ size_in_atlas=11,4
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image75]
+[image76]
 name=76_typo
 original_size=5,17
 position_in_atlas=56,23
@@ -607,7 +615,7 @@ size_in_atlas=10,5
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image76]
+[image77]
 name=77_typo
 original_size=6,17
 position_in_atlas=68,23
@@ -615,7 +623,7 @@ size_in_atlas=10,5
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image77]
+[image78]
 name=78_typo
 original_size=4,17
 position_in_atlas=465,10
@@ -623,7 +631,7 @@ size_in_atlas=10,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image78]
+[image79]
 name=79_typo
 original_size=4,16
 position_in_atlas=510,10
@@ -631,7 +639,7 @@ size_in_atlas=9,3
 crop_offset=0,4
 rotated=1
 opaque_rect=0,0,0,0
-[image79]
+[image80]
 name=7a_typo
 original_size=4,16
 position_in_atlas=521,10

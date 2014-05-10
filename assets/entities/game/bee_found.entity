@@ -1,0 +1,13 @@
+[Text]
+text%loc = bee_found
+char_height = 1
+show = 1
+color = 0, 0, 0
+
+[Transformation]
+z = 0.8
+
+[AutoDestroy]
+type = 2
+lifetime/value = 1
+lifetime/map2AlphaText = 0

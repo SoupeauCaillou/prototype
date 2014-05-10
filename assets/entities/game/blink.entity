@@ -1,0 +1,12 @@
+[Transformation]
+
+[Anchor]
+z = 0.1
+
+[Rendering]
+show = 1
+
+[Blink]
+visible_duration = 0.5
+hidden_duration = 0.5
+enabled = 1
