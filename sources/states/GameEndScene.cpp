@@ -134,6 +134,7 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
                 if (count < (game->playerActive[i] + 1)) {
                     if (BUTTON(game->playerButtons[i])->clicked) {
                         bee2player[selectedBee] = i;
+                        BUTTON(selectedBee)->enabled = true;
                         RENDERING(highlight[selectedBee])->color = game->playerColors[1 + i];
                         selectedBee = 0;
 
@@ -153,13 +154,13 @@ struct GameEndScene : public StateHandler<Scene::Enum> {
             if (count == (game->playerActive[i] + 1)) {
                 TEXT(done[i])->text = game->gameThreadContext->localizeAPI->text("done");
                 ready[i] = true;
+            } else {
+                ready[i] = false;
             }
         }
 
-        bool everyoneReady = true;
-        for (int i=0; i<4 && everyoneReady; i++) {
-            everyoneReady &= ready[i];
-        }
+        bool everyoneReady = std::all_of(ready, ready + 4, [] (bool b) { return b; });
+
         if (everyoneReady) {
             LOGI("Score update");
             int idx = 0;
