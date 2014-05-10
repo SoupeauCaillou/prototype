@@ -27,6 +27,7 @@
 
 #include "util/Random.h"
 #include "systems/TransformationSystem.h"
+#include "base/TouchInputManager.h"
 #include <glm/gtx/vector_angle.hpp>
 
 
@@ -117,6 +118,7 @@ void BzzzGame::init(const uint8_t*, int) {
 
     // default camera
     camera = theEntityManager.CreateEntityFromTemplate("camera");
+    theTouchInputManager.setCamera(camera);
     faderHelper.init(camera);
 
     sceneStateMachine.setup();
