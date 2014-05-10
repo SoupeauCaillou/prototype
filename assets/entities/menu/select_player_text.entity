@@ -1,0 +1,11 @@
+[Transformation]
+z = 0.9
+
+[Text]
+show = 0
+text%loc = select
+char_height = 2
+color = 0, 0,0
+blink_off_duration = 0.8
+blink_on_duration = 1.0
+

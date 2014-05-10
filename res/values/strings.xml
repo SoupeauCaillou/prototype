@@ -8,4 +8,5 @@
     <string name="done">"Done?"</string>
     <string name="victory">"Victory!"</string>
     <string name="defeat">"Defeat"</string>
+    <string name="select">"Click anywhere to activate 1 player"</string>
 </resources>

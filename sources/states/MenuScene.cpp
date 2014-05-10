@@ -31,7 +31,7 @@
 struct MenuScene : public StateHandler<Scene::Enum> {
     BzzzGame* game;
 
-    Entity playButton;
+    Entity playButton, selectText;
 
     MenuScene(BzzzGame* game) : StateHandler<Scene::Enum>() {
         this->game = game;
@@ -39,6 +39,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
 
     void setup() {
         playButton = theEntityManager.CreateEntityFromTemplate("menu/play_button");
+        selectText = theEntityManager.CreateEntityFromTemplate("menu/select_player_text");
     }
 
 
@@ -54,8 +55,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             game->score[i] = 0;
             updateButton(i);
         }
-        TEXT(playButton)->show = true;
-        RENDERING(playButton)->show = true;
+
+        TEXT(playButton)->show = false;
+        RENDERING(playButton)->show = false;
     }
 
 
@@ -90,6 +92,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         RENDERING(playButton)->show =
             TEXT(playButton)->show =
             BUTTON(playButton)->enabled = atLeastOnePlayerActive;
+        TEXT(selectText)->show = !atLeastOnePlayerActive;
 
         return Scene::Menu;
     }
@@ -102,6 +105,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         BUTTON(playButton)->enabled =
             RENDERING(playButton)->show =
             TEXT(playButton)->show = false;
+        TEXT(selectText)->show = false;
     }
 
     void onExit(Scene::Enum) override {

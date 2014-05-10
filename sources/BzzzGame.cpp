@@ -99,7 +99,7 @@ void BzzzGame::init(const uint8_t*, int) {
         delete[] fb.data;
     }
 
-    int defaultActivePlayer = Random::Int(0, 3);
+    int defaultActivePlayer = -1;//Random::Int(0, 3);
     for (int i=0; i<4; i++) {
         playerActive[i] = (defaultActivePlayer == i) ? 0 : -1;
     }

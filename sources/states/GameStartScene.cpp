@@ -184,6 +184,10 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
                 }
             }
         }
+
+        if (std::all_of(game->playerActive, game->playerActive + 4, [](int i) { return i==-1;})) {
+            return Scene::Menu;
+        }
         return Scene::GameStart;
     }
 
@@ -191,74 +195,78 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION -----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
+    void onPreExit(Scene::Enum to) override {
         game->bees.clear();
         game->selected.clear();
 
-        int beeCount = 50;
-        game->parameters.get("Game", "bee_count", &beeCount);
-        for (int i=0; i<beeCount; i++) {
-            Entity bee = theEntityManager.CreateEntityFromTemplate("game/bee");
-            RENDERING(bee)->show = true;
-            AUTONOMOUS(bee)->walls = walls;
-            game->bees.push_back(bee);
-        }
-
-
-        size_t count = 0;
-        for (int i=0; i<4; i++) {
-            if (game->playerActive[i] >= 0) {
-                count += game->playerActive[i] + 1;
+        if (to == Scene::InGame) {
+            int beeCount = 50;
+            game->parameters.get("Game", "bee_count", &beeCount);
+            for (int i=0; i<beeCount; i++) {
+                Entity bee = theEntityManager.CreateEntityFromTemplate("game/bee");
+                RENDERING(bee)->show = true;
+                AUTONOMOUS(bee)->walls = walls;
+                game->bees.push_back(bee);
             }
-        }
 
-        int n[100];
-        int index = 0;
 
-        while (game->selected.size() < count) {
-            Random::N_Ints(100, n, 0, game->bees.size() - 1);
-
-            for (int i=0; i<100 && game->selected.size() < count; i++) {
-                const auto bee = game->bees[n[i]];
-                if (std::find(game->selected.begin(), game->selected.end(), bee) == game->selected.end()) {
-                    game->selected.push_back(bee);
+            size_t count = 0;
+            for (int i=0; i<4; i++) {
+                if (game->playerActive[i] >= 0) {
+                    count += game->playerActive[i] + 1;
                 }
             }
-        }
 
-        int idx = 0;
-        for (int i=0; i<4; i++) {
-            for (int j=0; j<game->playerActive[i] + 1; j++) {
-                Entity h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
-                ANCHOR(h)->parent = game->selected[idx++];
-                TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
-                RENDERING(h)->color = game->playerColors[i + 1];
-                highlights.push_back(h);
+            int n[100];
+            int index = 0;
 
-                LOGI("Bee " << game->selected[idx - 1] << " assigned to player " << i);
+            while (game->selected.size() < count) {
+                Random::N_Ints(100, n, 0, game->bees.size() - 1);
+
+                for (int i=0; i<100 && game->selected.size() < count; i++) {
+                    const auto bee = game->bees[n[i]];
+                    if (std::find(game->selected.begin(), game->selected.end(), bee) == game->selected.end()) {
+                        game->selected.push_back(bee);
+                    }
+                }
+            }
+
+            int idx = 0;
+            for (int i=0; i<4; i++) {
+                for (int j=0; j<game->playerActive[i] + 1; j++) {
+                    Entity h = theEntityManager.CreateEntityFromTemplate("game/bee_highlight");
+                    ANCHOR(h)->parent = game->selected[idx++];
+                    TRANSFORM(h)->size = TRANSFORM(ANCHOR(h)->parent)->size * 2.0f;
+                    RENDERING(h)->color = game->playerColors[i + 1];
+                    highlights.push_back(h);
+
+                    LOGI("Bee " << game->selected[idx - 1] << " assigned to player " << i);
+                }
             }
         }
     }
 
-    bool updatePreExit(Scene::Enum, float) override {
-        for (int i=0; i<4; i++) {
-            if (BUTTON(game->playerButtons[i])->clicked) {
-                ready[i] = !ready[i];
-                if (ready[i]) {
-                    BUTTON(game->playerButtons[i])->enabled = false;
-                    TEXT(texts[i].ready)->show = false;
+    bool updatePreExit(Scene::Enum to, float) override {
+        if (to == Scene::InGame) {
+            for (int i=0; i<4; i++) {
+                if (BUTTON(game->playerButtons[i])->clicked) {
+                    ready[i] = !ready[i];
+                    if (ready[i]) {
+                        BUTTON(game->playerButtons[i])->enabled = false;
+                        TEXT(texts[i].ready)->show = false;
+                    }
                 }
             }
-        }
 
-        for (int i=0; i<4; i++) {
-            if (!ready[i])
-                return false;
+            for (int i=0; i<4; i++) {
+                if (!ready[i])
+                    return false;
+            }
         }
         return true;
     }
 
-    void onExit(Scene::Enum) override {
+    void onExit(Scene::Enum to) override {
         for (int i=0; i<4; i++) {
             RENDERING(game->playerButtons[i])->color.a = 1;
             BUTTON(game->playerButtons[i])->enabled =
@@ -271,13 +279,15 @@ struct GameStartScene : public StateHandler<Scene::Enum> {
             BUTTON(playButton)->enabled =
             RENDERING(playButton)->show = false;
 
-        for (auto b: game->bees) {
-            PHYSICS(b)->mass = 1;
+        if (to == Scene::InGame) {
+            for (auto b: game->bees) {
+                PHYSICS(b)->mass = 1;
+            }
+            for (auto h: highlights) {
+                AUTO_DESTROY(h)->type = AutoDestroyComponent::LIFETIME;
+            }
+            highlights.clear();
         }
-        for (auto h: highlights) {
-            AUTO_DESTROY(h)->type = AutoDestroyComponent::LIFETIME;
-        }
-        highlights.clear();
     }
 };
 
