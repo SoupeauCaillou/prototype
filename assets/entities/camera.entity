@@ -1,0 +1,6 @@
+[Camera]
+enable = 1
+clear_color = 0.9,0.9,0.9,1.0
+
+[Transformation]
+size%screen = 1, 1
