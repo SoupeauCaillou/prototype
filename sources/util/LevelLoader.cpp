@@ -22,7 +22,7 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
     // Entity are defined either as (position, size, rotation) or (polygon)
     ss << section << "_position_" << number;
     if (! dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->position.x, 2, false)) {
-        ss.str(""); ss << section << "_position%gimp_" << number;
+        ss.str(""); ss << section << "_position_" << number;
 
         if (!dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->position.x, 2)) {
             goto polygonMode;
@@ -50,7 +50,7 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
 polygonMode:
     ss.str("");
     ss.clear();
-    ss << section << "_polygon%gimp_" << number;
+    ss << section << "_polygon_" << number;
     int cnt = dfp.getSubStringCount(sec_h, Murmur::RuntimeHash(ss.str().c_str()));
     LOGI(cnt << '/' << ss.str());
     if (cnt == -1) {
@@ -159,7 +159,7 @@ void LevelLoader::load(FileBuffer & fb) {
     }
 
     //create walls
-    for (unsigned i = 1; i <= dfp.sectionSize(HASH("wall", 0x0)) / 3; ++i) {
+    for (unsigned i = 1; i <= dfp.sectionSize(HASH("wall", 0x4b3afad3)) / 3; ++i) {
         Entity wall = createEntity(dfp, i, "wall");
 
         for (auto s : sheep) {
@@ -169,7 +169,7 @@ void LevelLoader::load(FileBuffer & fb) {
     }
 
     //create final zone
-    for (unsigned i = 1; i <= dfp.sectionSize(HASH("zone", 0X0)) / 3; ++i) {
+    for (unsigned i = 1; i <= dfp.sectionSize(HASH("zone", 0xd0806862)) / 3; ++i) {
          zones.push_back(createEntity(dfp, i, "zone"));
     }
 }

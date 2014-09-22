@@ -129,8 +129,9 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         if (BUTTON(playBtn)->clicked) {
+            LOGV(1, "Loading level: maps/" << game->levels[game->currentLevel] << ".ini");
             FileBuffer fb = game->gameThreadContext->assetAPI->loadAsset(
-                "maps/" + game->levels[game->currentLevel] + ".ini");
+                "maps/" + game->levels[1 /* game->currentLevel*/] + ".ini");
             game->levelLoader.load(fb);
             return Scene::GameStart;
         }
