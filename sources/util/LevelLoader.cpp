@@ -8,7 +8,7 @@
 #include "base/NamedAssetLibrary.h"
 
 #include "util/DataFileParser.h"
-
+#include "util/MurmurHash.h"
 
 #include <fstream>
 
@@ -17,12 +17,14 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
 
     Entity e = theEntityManager.CreateEntityFromTemplate(  ("game/" + section).c_str() );
 
+    hash_t sec_h = Murmur::RuntimeHash(section.c_str());
+
     // Entity are defined either as (position, size, rotation) or (polygon)
     ss << section << "_position_" << number;
-    if (! dfp.get(section, ss.str(), &TRANSFORM(e)->position.x, 2, false)) {
+    if (! dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->position.x, 2, false)) {
         ss.str(""); ss << section << "_position%gimp_" << number;
 
-        if (!dfp.get(section, ss.str(), &TRANSFORM(e)->position.x, 2)) {
+        if (!dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->position.x, 2)) {
             goto polygonMode;
         }
         TRANSFORM(e)->position = PlacementHelper::GimpPositionToScreen(TRANSFORM(e)->position);
@@ -30,14 +32,14 @@ static Entity createEntity(const DataFileParser & dfp, int number, const std::st
 
 
     ss.str(""); ss << section << "_size_" << number;
-    if (! dfp.get(section, ss.str(), &TRANSFORM(e)->size.x, 2, false)) {
+    if (! dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->size.x, 2, false)) {
         ss.str(""); ss << section << "_size%gimp_" << number;
-        dfp.get(section, ss.str(), &TRANSFORM(e)->size.x, 2);
+        dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->size.x, 2);
         TRANSFORM(e)->size = PlacementHelper::GimpSizeToScreen(TRANSFORM(e)->size);
     }
 
     ss.str(""); ss << section << "_rotation_" << number;
-    dfp.get(section, ss.str(), &TRANSFORM(e)->rotation, 1);
+    dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), &TRANSFORM(e)->rotation, 1);
     TRANSFORM(e)->rotation = glm::radians(TRANSFORM(e)->rotation);
 
     LOGV(1, "One more '" << section << "' at pos:" << TRANSFORM(e)->position
@@ -49,14 +51,14 @@ polygonMode:
     ss.str("");
     ss.clear();
     ss << section << "_polygon%gimp_" << number;
-    int cnt = dfp.getSubStringCount(section, ss.str());
+    int cnt = dfp.getSubStringCount(sec_h, Murmur::RuntimeHash(ss.str().c_str()));
     LOGI(cnt << '/' << ss.str());
     if (cnt == -1) {
         LOGF("Handle without %gimp modifier");
     }
     LOGW_IF(cnt % 2, "There should be 2 * nb_point coordinate");
     int* pts = new int[cnt];
-    dfp.get(section, ss.str(), pts, cnt);
+    dfp.get(sec_h, Murmur::RuntimeHash(ss.str().c_str()), pts, cnt);
 
     // Create a new polygon
     Polygon p;
@@ -130,16 +132,16 @@ void LevelLoader::load(FileBuffer & fb) {
     zones.clear();
     ////////////////////////////////////////////////////
 
-    dfp.get("", "objective_arrived", &objectiveArrived, 1);
-    dfp.get("", "objective_survived", &objectiveSurvived, 1);
-    dfp.get("", "objective_time_limit", &objectiveTimeLimit, 1);
+    dfp.get(DataFileParser::GlobalSection, HASH("objective_arrived", 0xe1afe979), &objectiveArrived, 1);
+    dfp.get(DataFileParser::GlobalSection, HASH("objective_survived", 0xe0b7b21f), &objectiveSurvived, 1);
+    dfp.get(DataFileParser::GlobalSection, HASH("objective_time_limit", 0xbdd44ba3), &objectiveTimeLimit, 1);
     std::string backgroundTexture;
-    dfp.get("", "background_texture", &backgroundTexture, 1);
+    dfp.get(DataFileParser::GlobalSection, HASH("background_texture", 0x63faaee8), &backgroundTexture, 1);
     background = theEntityManager.CreateEntityFromTemplate("game/level_background");
     RENDERING(background)->texture = theRenderingSystem.loadTextureFile(backgroundTexture.c_str());
 
     // create sheep
-    for (unsigned i = 1; i <= dfp.sectionSize("sheep") / 3; ++i) {
+    for (unsigned i = 1; i <= dfp.sectionSize(HASH("sheep", 0x3a3ee38b)) / 3; ++i) {
         Entity e = createEntity(dfp, i, "sheep");
 
         sheep.push_back(e);
@@ -157,7 +159,7 @@ void LevelLoader::load(FileBuffer & fb) {
     }
 
     //create walls
-    for (unsigned i = 1; i <= dfp.sectionSize("wall") / 3; ++i) {
+    for (unsigned i = 1; i <= dfp.sectionSize(HASH("wall", 0x0)) / 3; ++i) {
         Entity wall = createEntity(dfp, i, "wall");
 
         for (auto s : sheep) {
@@ -167,7 +169,7 @@ void LevelLoader::load(FileBuffer & fb) {
     }
 
     //create final zone
-    for (unsigned i = 1; i <= dfp.sectionSize("zone") / 3; ++i) {
+    for (unsigned i = 1; i <= dfp.sectionSize(HASH("zone", 0X0)) / 3; ++i) {
          zones.push_back(createEntity(dfp, i, "zone"));
     }
 }

@@ -21,12 +21,11 @@
 #include "PrototypeGame.h"
 
 #include "base/PlacementHelper.h"
+#include "base/TouchInputManager.h"
 #include "base/StateMachine.inl"
 
 #include "systems/CameraSystem.h"
 #include "systems/SheepSystem.h"
-
-#include "util/PrototypeDebugConsole.h"
 
 #define ZOOM 1
 
@@ -41,17 +40,10 @@
 #include <unistd.h>
 #endif
 
-PrototypeGame::PrototypeGame(int, char**) : Game() {
+PrototypeGame::PrototypeGame() : Game() {
     SheepSystem::CreateInstance();
 
-    sceneStateMachine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(this), "Scene::Logo");
-    sceneStateMachine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(this), "Scene::Menu");
-    sceneStateMachine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(this), "Scene::GameStart");
-    sceneStateMachine.registerState(Scene::InGame, Scene::CreateInGameSceneHandler(this), "Scene::InGame");
-    sceneStateMachine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(this), "Scene::GameEnd");
-    sceneStateMachine.registerState(Scene::Editor, Scene::CreateEditorSceneHandler(this), "Scene::Editor");
-    LOGF_IF(sceneStateMachine.getStateCount() != (int)Scene::Count,
-        "Missing " << (int)Scene::Count - sceneStateMachine.getStateCount() << " state handler(s)");
+    registerScenes(this, sceneStateMachine);
 }
 
 PrototypeGame::~PrototypeGame() {
@@ -59,22 +51,6 @@ PrototypeGame::~PrototypeGame() {
     SheepSystem::DestroyInstance();
 
     theEntityManager.deleteAllEntities();
-}
-
-
-bool PrototypeGame::wantsAPI(ContextAPI::Enum api) const {
-    switch (api) {
-        case ContextAPI::Asset:
-        case ContextAPI::Localize:
-        case ContextAPI::Sound:
-            return true;
-#if SAC_DESKTOP
-        case ContextAPI::KeyboardInputHandler:
-            return true;
-#endif
-        default:
-            return false;
-    }
 }
 
 void PrototypeGame::sacInit(int windowW, int windowH) {
@@ -92,18 +68,15 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     // default camera
     camera = theEntityManager.CreateEntityFromTemplate("camera");
+    theTouchInputManager.setCamera(camera);
+
     faderHelper.init(camera);
 
-    sceneStateMachine.setup();
+    sceneStateMachine.setup(gameThreadContext->assetAPI);
     #if SAC_DEBUG
         sceneStateMachine.start(Scene::Menu);
     #else
         sceneStateMachine.start(Scene::Logo);
-    #endif
-
-
-    #if SAC_INGAME_EDITORS && SAC_DEBUG
-        PrototypeDebugConsole::init(this);
     #endif
 
     levelLoader.init(gameThreadContext->assetAPI);

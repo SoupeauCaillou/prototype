@@ -30,7 +30,7 @@
 
 INSTANCE_IMPL(SheepSystem);
 
-SheepSystem::SheepSystem() : ComponentSystemImpl<SheepComponent>("Sheep") {
+SheepSystem::SheepSystem() : ComponentSystemImpl<SheepComponent>(HASH("Sheep", 0x44d2846b)) {
     SheepComponent sc;
 
     componentSerializer.add(new Property<float>(HASH("alignement_min_distance", 0xe06b6bdc), OFFSET(alignementMinDistance, sc), 0.001f));
@@ -39,7 +39,7 @@ SheepSystem::SheepSystem() : ComponentSystemImpl<SheepComponent>("Sheep") {
 }
 
 void SheepSystem::DoUpdate(float) {
-    FOR_EACH_ENTITY_COMPONENT(SheepComponent, sheep, sc)        
+    FOR_EACH_ENTITY_COMPONENT(SheepComponent, sheep, sc)
         AutonomousAgentComponent* aac = AUTONOMOUS(sheep);
 
         glm::vec2 & myPos = TRANSFORM(sheep)->position;
@@ -49,7 +49,7 @@ void SheepSystem::DoUpdate(float) {
         aac->separationNeighbors.clear();
 
         FOR_EACH_ENTITY_COMPONENT(SheepComponent, anotherSheep, scN)
-            if (anotherSheep == sheep) 
+            if (anotherSheep == sheep)
                 continue;
 
             if (glm::distance2(myPos, TRANSFORM(anotherSheep)->position) < sc->alignementMinDistance * sc->alignementMinDistance) {

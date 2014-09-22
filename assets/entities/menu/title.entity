@@ -1,8 +1,0 @@
-[Transformation]
-position%gimp_pos = 640, 100
-z = .9
-
-[Text]
-color = 0, 0, 0, 1
-font = typo
-text = Raoul the farmer

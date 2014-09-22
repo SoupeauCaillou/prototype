@@ -21,7 +21,7 @@
 #pragma once
 
 #include "base/StateMachine.h"
-#include "states/Scenes.h"
+#include "scenes/Scenes.h"
 
 #include "base/Game.h"
 #include "base/GameContext.h"
@@ -32,10 +32,9 @@
 
 class PrototypeGame : public Game {
     public:
-        PrototypeGame(int argc, char** argv);
+        PrototypeGame();
         ~PrototypeGame();
-        
-        bool wantsAPI(ContextAPI::Enum api) const;
+
         void sacInit(int windowW, int windowH);
         void init(const uint8_t* in = 0, int size = 0);
         void tick(float dt);
@@ -45,7 +44,7 @@ class PrototypeGame : public Game {
         void quickInit() {}
 
         void saveLevelProgression(bool timeDone, float time, bool sheepDone, int deadSheep);
-        
+
         Entity camera;
         FaderHelper faderHelper;
         LevelLoader levelLoader;

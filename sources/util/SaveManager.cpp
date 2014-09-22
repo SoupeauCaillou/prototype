@@ -5,11 +5,12 @@
 #include <fstream>
 #include <PrototypeGame.h>
 
-void SaveManager::init(PrototypeGame* prototypeGame) { 
+void SaveManager::init(PrototypeGame* prototypeGame) {
 	this->game = prototypeGame;
 }
 
 void SaveManager::load() {
+#if 0
     FileBuffer fb = game->gameThreadContext->assetAPI->loadFile(
         game->gameThreadContext->assetAPI->getWritableAppDatasPath() + "/save.ini");
     DataFileParser dfp;
@@ -20,9 +21,11 @@ void SaveManager::load() {
         dfp.get("", i, key, &value);
         map[key] = value;
     }
+#endif
 }
 
 void SaveManager::save() {
+#if 0
 	std::ofstream ofs(game->gameThreadContext->assetAPI->getWritableAppDatasPath() + "/save.ini");
     LOGI(game->gameThreadContext->assetAPI->getWritableAppDatasPath() + "/save.ini");
     for (auto & item : map) {
@@ -30,4 +33,5 @@ void SaveManager::save() {
         ofs << item.first << " = " << item.second << std::endl;
     }
     ofs << std::endl;
+#endif
 }
