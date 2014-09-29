@@ -1,0 +1,6 @@
+[Transformation]
+z = .1
+
+[Rendering]
+texture = bush
+opaque_type = 0

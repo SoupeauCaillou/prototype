@@ -65,9 +65,6 @@ void PrototypeGame::sacInit(int windowW, int windowH) {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
-
-    // default camera
-    camera = theEntityManager.CreateEntityFromTemplate("camera");
     theTouchInputManager.setCamera(camera);
 
     faderHelper.init(camera);

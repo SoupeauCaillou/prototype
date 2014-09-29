@@ -45,7 +45,6 @@ class PrototypeGame : public Game {
 
         void saveLevelProgression(bool timeDone, float time, bool sheepDone, int deadSheep);
 
-        Entity camera;
         FaderHelper faderHelper;
         LevelLoader levelLoader;
         SaveManager saveManager;

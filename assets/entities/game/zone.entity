@@ -1,0 +1,5 @@
+[Transformation]
+z = .9
+
+[Rendering]
+color = 0, .8, 0

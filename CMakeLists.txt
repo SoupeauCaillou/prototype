@@ -5,5 +5,3 @@ project(Prototype)
 
 #and let the magic begin :-)
 include(sac/build/cmake/CMakeLists.txt)
-
-
