@@ -149,6 +149,8 @@ void LevelLoader::load(FileBuffer & fb) {
 
     auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
 
+
+#if 0
     //create bushes
     for (unsigned i = 35; i <= 35; ++i) {//dfp.sectionSize("bush"); ++i) {
         Entity bush = createEntity(dfp, i, "bush");
@@ -172,6 +174,7 @@ void LevelLoader::load(FileBuffer & fb) {
     for (unsigned i = 1; i <= dfp.sectionSize(HASH("zone", 0xd0806862)) / 3; ++i) {
          zones.push_back(createEntity(dfp, i, "zone"));
     }
+#endif
 }
 
 static void writeSection(std::ofstream & of, const std::string & name, const std::vector<Entity> & v) {

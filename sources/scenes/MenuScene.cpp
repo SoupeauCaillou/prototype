@@ -26,12 +26,17 @@
 #include "systems/ButtonSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/TextSystem.h"
+#include "systems/PhysicsSystem.h"
+#include "systems/AutonomousAgentSystem.h"
 #include "systems/RenderingSystem.h"
+#include "base/TouchInputManager.h"
 #include "api/NetworkAPI.h"
 #include "api/KeyboardInputHandlerAPI.h"
 #include "api/linux/NetworkAPILinuxImpl.h"
 #include <SDL.h>
+#include "util/Random.h"
 
+#include "util/Draw.h"
 #include "PrototypeGame.h"
 
 #include <array>
@@ -50,6 +55,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     }
 
     void setup(AssetAPI*) override {
+        /*
         btns[0] = playBtn = theEntityManager.CreateEntityFromTemplate("menu/playBtn");
         btns[1] = prevBtn = theEntityManager.CreateEntityFromTemplate("menu/prevBtn");
         btns[2] = nextBtn = theEntityManager.CreateEntityFromTemplate("menu/nextBtn");
@@ -59,6 +65,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         objectives[0] = objFinished = theEntityManager.CreateEntityFromTemplate("menu/objectiveFinished");
         objectives[1] = objTimeLimit = theEntityManager.CreateEntityFromTemplate("menu/objectiveTimeLimit");
         objectives[2] = objDeadSheep = theEntityManager.CreateEntityFromTemplate("menu/objectiveDeadSheep");
+        */
     }
 
 
@@ -109,8 +116,52 @@ struct MenuScene : public StateHandler<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION ----------------------------------------//
     ///----------------------------------------------------------------------------//
+    Entity cursor, toAvoid, test;
+    std::vector<Entity> obstacles;
+
+
 
     void onEnter(Scene::Enum) override {
+        for (int i=0; i<24; i++) {
+            Entity o = theEntityManager.CreateEntity(HASH("obstacle", 0x1f527e32));
+            ADD_COMPONENT(o, Transformation);
+            TRANSFORM(o)->position = glm::vec2(
+                Random::Float(-10, 10),
+                Random::Float(-7, 7));
+            TRANSFORM(o)->size = glm::vec2(
+                Random::Float(0.5, 2.5),
+                Random::Float(0.5, 1.5));
+            TRANSFORM(o)->rotation = Random::Float(0, 6);
+            ADD_COMPONENT(o, Rendering);
+            RENDERING(o)->show = true;
+            RENDERING(o)->color = Color(1, 0, 0);
+            obstacles.push_back(o);
+        }
+        cursor = theEntityManager.CreateEntity(HASH("cursor", 0x20716820));
+        ADD_COMPONENT(cursor, Transformation);
+        toAvoid = theEntityManager.CreateEntity(HASH("toAvoid", 0xbb936445));
+        ADD_COMPONENT(toAvoid, Transformation);
+        ADD_COMPONENT(toAvoid, Rendering);
+        RENDERING(toAvoid)->color = Color(0, 0, 1);
+        RENDERING(toAvoid)->show = true;
+        test = theEntityManager.CreateEntity(HASH("test", 0xe5145a4));
+        ADD_COMPONENT(test, Transformation);
+        ADD_COMPONENT(test, Rendering);
+        RENDERING(test)->show = true;
+        ADD_COMPONENT(test, Physics);
+        PHYSICS(test)->mass = 1.0f;
+        PHYSICS(test)->maxSpeed = 5.0f;
+        PHYSICS(test)->instantRotation = 1;
+        ADD_COMPONENT(test, AutonomousAgent);
+        AUTONOMOUS(test)->maxForce = 30;
+        AUTONOMOUS(test)->dangerThreshold = 0.5;
+        AUTONOMOUS(test)->seek.target = cursor;
+        AUTONOMOUS(test)->flee.radius = 2;
+        AUTONOMOUS(test)->flee.target = toAvoid;
+        AUTONOMOUS(test)->avoid.entities = &obstacles[0];
+        AUTONOMOUS(test)->avoid.count = (int)obstacles.size();
+
+        /*
         updateLevelInformation();
         for (Entity s : backgroundSheep) {
             RENDERING(s)->show = true;
@@ -122,12 +173,24 @@ struct MenuScene : public StateHandler<Scene::Enum> {
         for (unsigned i = 0; i < objectives.size(); ++i) {
             RENDERING(objectives[i])->show = true;
         }
+        */
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION ---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        Draw::Clear(HASH(__FILE__, 0x14211271));
+
+        TRANSFORM(cursor)->position = theTouchInputManager.getOverLastPosition();
+        if (theTouchInputManager.wasTouched()) {
+            TRANSFORM(toAvoid)->position = theTouchInputManager.getTouchLastPosition();
+        }
+        Draw::Point(HASH(__FILE__, 0x14211271), TRANSFORM(cursor)->position);
+        const glm::vec2& v = PHYSICS(test)->linearVelocity;
+//        TRANSFORM(test)->rotation = glm::atan(v.y, v.x);
+
+#if 0
         if (BUTTON(playBtn)->clicked) {
             LOGV(1, "Loading level: maps/" << game->levels[game->currentLevel] << ".ini");
             FileBuffer fb = game->gameThreadContext->assetAPI->loadAsset(
@@ -146,7 +209,7 @@ struct MenuScene : public StateHandler<Scene::Enum> {
             // game->currentLevel = (game->currentLevel + 1) % game->levels.size();
             updateLevelInformation();
         }
-
+#endif
 
         return Scene::Menu;
     }

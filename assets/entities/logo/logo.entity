@@ -1,7 +1,14 @@
+
 [Transformation]
-position = 0, 0
-size%screen_h = 0.8, 0.8
-z = 0.98
+position = 0.000, 0.000
+size = 12.000, 12.000
+rotation = 0.000
+z = 0.980
+shape = 0
 
 [Rendering]
 texture = soupe_logo
+show = 0
+flags = 0
+camera_bitmask = 1
+color = 1.000, 1.000, 1.000, 1.000

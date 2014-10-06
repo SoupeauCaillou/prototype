@@ -1,11 +1,25 @@
-[Transformation]
-size%gimp_size = 49,40
 
-[Anchor]
-z = 0.99
-parent%name = camera
+[Sound]
+sound = # not supported yet - sound
+volume = 1.000
+
+[Transformation]
+position = -0.150, 2.946
+size = 0.766, 0.625
+rotation = 0.000
+z = 1.490
+shape = 0
 
 [Rendering]
 texture = soupe_logo2_365_331
+show = 0
+flags = 0
+camera_bitmask = 1
+color = 1.000, 1.000, 1.000, 1.000
 
-[Sound]
+[Anchor]
+parent = camera
+position = -0.150, 1.146
+anchor = 0.000, 0.000
+rotation = 0.000
+z = 0.990

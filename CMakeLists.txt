@@ -4,4 +4,4 @@ cmake_minimum_required(VERSION 2.6)
 project(Prototype)
 
 #and let the magic begin :-)
-include(sac/build/cmake/CMakeLists.txt)
+include(sac/CMakeLists.txt)

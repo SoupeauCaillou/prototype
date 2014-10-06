@@ -69,7 +69,7 @@ struct InGameScene : public StateHandler<Scene::Enum> {
 
         auto sheep = theAutonomousAgentSystem.RetrieveAllEntityWithComponent();
         for (auto s : sheep) {
-            AUTONOMOUS(s)->fleeTarget = cursor;
+//            AUTONOMOUS(s)->fleeTarget = cursor;
         }
 
         timeElapsed = 0.f;

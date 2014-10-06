@@ -1,7 +1,14 @@
+
 [Transformation]
-position = 0, 0
-size%screen = 1, 1
-z = 0.97
+position = 0.000, 0.000
+size = 20.000, 15.000
+rotation = 0.000
+z = 0.970
+shape = 0
 
 [Rendering]
-color = 0.,0,0,1
+texture = 
+show = 0
+flags = 0
+camera_bitmask = 1
+color = 0.000, 0.000, 0.000, 1.000

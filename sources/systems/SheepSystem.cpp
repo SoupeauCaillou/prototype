@@ -39,6 +39,7 @@ SheepSystem::SheepSystem() : ComponentSystemImpl<SheepComponent>(HASH("Sheep", 0
 }
 
 void SheepSystem::DoUpdate(float) {
+#if 0
     FOR_EACH_ENTITY_COMPONENT(SheepComponent, sheep, sc)
         AutonomousAgentComponent* aac = AUTONOMOUS(sheep);
 
@@ -63,4 +64,5 @@ void SheepSystem::DoUpdate(float) {
             }
         }
     }
+#endif
 }
