@@ -1,0 +1,23 @@
+# Android
+.classpath
+obj
+libs
+gen
+.settings
+bin
+*.jar
+jni
+build
+local.properties
+.project
+
+# Cmake & compilation
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+*.o
+
+# IDE & versionning
+*.sublime-workspace
+sources/*GitVersion.h
