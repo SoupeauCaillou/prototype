@@ -1,0 +1,20 @@
+
+[Transformation]
+position = -4.448, 3.497
+size = 8.167, 2.679
+rotation = 6.322
+z = 0.600
+shape = 0
+
+[Collision]
+group = 1
+collide_with = 0
+restore_position_on_collision = 0
+is_a_ray = 0
+
+[Rendering]
+texture = 
+show = 1
+flags = 0
+camera_bitmask = 1
+color = 0.100, 0.200, 0.200, 1.000

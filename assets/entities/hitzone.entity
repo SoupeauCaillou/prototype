@@ -1,0 +1,11 @@
+[Collision]
+group = 4
+
+[Transformation]
+size = 0.2, 0.2
+
+[Anchor]
+z = 0.1
+
+[Rendering]
+show = 1

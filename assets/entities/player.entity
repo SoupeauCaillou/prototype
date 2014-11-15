@@ -1,0 +1,19 @@
+[Unit]
+
+[ZSQD]
+friction_coeff = 10
+max_speed = 10
+new_direction_coeff = 10
+
+[Transformation]
+z = 0.0
+position = -20, 13
+
+[Collision]
+group = 8
+collide_with = 1
+restore_position_on_collision = 1
+
+[Visibility]
+fov = 3
+rays_per_frame = 10

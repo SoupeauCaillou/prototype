@@ -1,0 +1,10 @@
+[Collision]
+group = 1
+
+[Rendering]
+show = 1
+color = 0.1, 0.2, 0.2
+
+[Transformation]
+size = 1, 1
+z = 0.6

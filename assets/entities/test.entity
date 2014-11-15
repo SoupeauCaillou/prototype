@@ -1,7 +1,0 @@
-[Transformation]
-z = 0.5
-
-[Rendering]
-show = 1
-color = 1.0, 0.0, 0.0, 1.0
-flags = 1

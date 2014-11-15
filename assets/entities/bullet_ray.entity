@@ -1,0 +1,13 @@
+[Rendering]
+show = 1
+color = 0, 0, 0, 0.5
+flags = 1
+
+[Transformation]
+z = 0.9
+size = 0.05, 0.05
+
+[AutoDestroy]
+type = 1
+lifetime/value = 0.15
+lifetime/map2AlphaRendering = 1

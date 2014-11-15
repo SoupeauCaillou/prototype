@@ -1,0 +1,9 @@
+[Unit]
+
+[Transformation]
+z = 0.0
+
+[Collision]
+group = 8
+collide_with = 1
+restore_position_on_collision = 1

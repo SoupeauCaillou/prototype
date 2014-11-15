@@ -1,0 +1,18 @@
+[Unit]
+
+[Transformation]
+position = 8.475, -0.225
+size = 1.000, 1.000
+rotation = 2.993
+z = 0.000
+shape = 0
+
+[Collision]
+group = 8
+collide_with = 1
+restore_position_on_collision = 1
+is_a_ray = 0
+
+[Visibility]
+fov = 3
+rays_per_frame = 10

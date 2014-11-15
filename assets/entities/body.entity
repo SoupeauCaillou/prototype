@@ -1,0 +1,10 @@
+[Anchor]
+z = 0.5
+
+[Transformation]
+size = 0.8, 1
+
+[Rendering]
+show = 1
+color = 0.5, 0.3, 0.3, 1.0
+flags = 1
