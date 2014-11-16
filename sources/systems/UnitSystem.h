@@ -3,7 +3,7 @@
 #include "systems/System.h"
 
 struct UnitComponent {
-    Entity body, head, weapon, hitzone;
+    Entity body, head, weapon[2], hitzone;
 };
 
 #define theUnitSystem UnitSystem::GetInstance()

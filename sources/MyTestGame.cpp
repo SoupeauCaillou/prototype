@@ -25,13 +25,16 @@ Entity playerUnit;
 void buildUnitParts(Entity unit) {
     UNIT(unit)->body = theEntityManager.CreateEntityFromTemplate("body");
     UNIT(unit)->head = theEntityManager.CreateEntityFromTemplate("head");
-    UNIT(unit)->weapon = theEntityManager.CreateEntityFromTemplate("machinegun");
+    UNIT(unit)->weapon[0] = theEntityManager.CreateEntityFromTemplate("gun");
+    UNIT(unit)->weapon[1] = theEntityManager.CreateEntityFromTemplate("machinegun");
     UNIT(unit)->hitzone = theEntityManager.CreateEntityFromTemplate("hitzone");
 
     ANCHOR(UNIT(unit)->body)->parent = unit;
     ANCHOR(UNIT(unit)->head)->parent = UNIT(unit)->body;
     ANCHOR(UNIT(unit)->hitzone)->parent = UNIT(unit)->head;
-    ANCHOR(UNIT(unit)->weapon)->parent = UNIT(unit)->head;
+    ANCHOR(UNIT(unit)->weapon[0])->parent = UNIT(unit)->head;
+    ANCHOR(UNIT(unit)->weapon[1])->parent = UNIT(unit)->head;
+    ANCHOR(UNIT(unit)->weapon[1])->position.y = -ANCHOR(UNIT(unit)->weapon[1])->position.y;
 }
 
 void MyTestGame::init(const uint8_t*, int) {
@@ -90,8 +93,8 @@ void MyTestGame::tick(float dt) {
         angleHead = glm::atan(diff.y, diff.x);
         ANCHOR(UNIT(playerUnit)->head)->rotation = angleHead - TRANSFORM(UNIT(playerUnit)->body)->rotation;
     }
-    {
-        Entity weapon = UNIT(playerUnit)->weapon;
+    for (int i=0; i<2; i++) {
+        Entity weapon = UNIT(playerUnit)->weapon[i];
         glm::vec2 diff = theTouchInputManager.getOverLastPosition() - TRANSFORM(weapon)->position;
         float angleWeapon = glm::atan(diff.y, diff.x);
         ANCHOR(weapon)->rotation = angleWeapon - angleHead;
@@ -117,7 +120,9 @@ void MyTestGame::tick(float dt) {
         ZSQD(playerUnit)->addDirectionVector(glm::vec2(1.0f, 0.0f));
     }
 
-    WEAPON(UNIT(playerUnit)->weapon)->fire = theTouchInputManager.isTouched();
+    for (int i=0; i<2; i++) {
+        WEAPON(UNIT(playerUnit)->weapon[i])->fire = theTouchInputManager.isTouched(i);
+    }
 
     // move camera
     glm::vec2 target;
