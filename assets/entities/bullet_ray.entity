@@ -1,7 +1,7 @@
 [Rendering]
 show = 1
-color = 0, 0, 0, 0.5
 flags = 1
+texture = gradient
 
 [Transformation]
 z = 0.9

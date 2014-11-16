@@ -1,0 +1,9 @@
+atlas_size=64,16
+[image0]
+name=gradient
+original_size=64,10
+position_in_atlas=1,1
+size_in_atlas=55,10
+crop_offset=9,0
+rotated=0
+opaque_rect=0,0,0,0

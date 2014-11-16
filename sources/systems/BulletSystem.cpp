@@ -66,6 +66,7 @@ FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
                     PHYSICS(d)->addForce(glm::rotate(direction * Random::Float(150.0f, 450.0f), Random::Float(-1, 1)), TRANSFORM(d)->size * Random::Float(-2, 2), 0.016);
                 }
             }
+
         Entity b = theEntityManager.CreateEntityFromTemplate("bullet_ray");
         glm::vec2 diff = cc->collision.at[0] - TRANSFORM(bullet)->position;
         TRANSFORM(b)->size.x = glm::length(diff);
