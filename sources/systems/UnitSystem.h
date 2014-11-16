@@ -3,7 +3,10 @@
 #include "systems/System.h"
 
 struct UnitComponent {
+    UnitComponent() : alive(true) {}
+
     Entity body, head, weapon[2], hitzone;
+    bool alive;
 };
 
 #define theUnitSystem UnitSystem::GetInstance()

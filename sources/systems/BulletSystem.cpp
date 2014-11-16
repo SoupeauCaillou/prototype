@@ -9,6 +9,7 @@
 
 #include "util/Random.h"
 #include "systems/UnitSystem.h"
+#include "systems/WeaponSystem.h"
 
 INSTANCE_IMPL(BulletSystem);
 
@@ -29,6 +30,8 @@ FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
                 Entity body = ANCHOR(head)->parent;
                 auto* unit = UNIT(ANCHOR(body)->parent);
                 /* kill unit */
+                unit->alive = false;
+
                 ANCHOR(unit->body)->parent = 0;
                 TRANSFORM(unit->body)->rotation = TRANSFORM(bullet)->rotation;
                 TRANSFORM(unit->body)->size.x = 1.3;
@@ -39,6 +42,7 @@ FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
                     ANCHOR(unit->weapon[i])->position = glm::vec2(Random::Float(-0.6, -0.2), Random::Float(-1.0f, -1.5f));
                     if (i == 1) ANCHOR(unit->weapon[i])->position.y = -ANCHOR(unit->weapon[i])->position.y;
                     ANCHOR(unit->weapon[i])->rotation = Random::Float(-2.5f, -0.2f);
+                    WEAPON(unit->weapon[i])->fire = false;
                 }
 
                 RENDERING(unit->body)->color = Color(158.0f / 255, 158.0f / 255, 77.0f / 255.0f);

@@ -90,6 +90,8 @@ void MyTestGame::tick(float dt) {
 
     float angleHead;
 
+    if (!UNIT(playerUnit)->alive) return;
+
     {
         Entity head = UNIT(playerUnit)->head;
         glm::vec2 diff = theTouchInputManager.getOverLastPosition() - TRANSFORM(head)->position;

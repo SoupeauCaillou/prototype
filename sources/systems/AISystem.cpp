@@ -22,6 +22,8 @@ AISystem::AISystem() : ComponentSystemImpl<AIComponent>(HASH("AI", 0x984cbb03)) 
 
 void AISystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(AI, e, uc)
+        if (!UNIT(e)->alive) continue;
+
         Entity* weapons = UNIT(e)->weapon;
 
         uc->_lastSeenAccum += dt;
