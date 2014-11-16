@@ -74,7 +74,8 @@ void WeaponSystem::DoUpdate(float dt) {
                 }
                 wc->_mustCoolDown = (wc->_hot >= 1.0f);
             } else {
-              wc->_hot = glm::max(0.0f, wc->_hot - wc->coolingSpeed * dt);
+                wc->_hot = glm::max(0.0f, wc->_hot - wc->coolingSpeed * dt);
+                wc->_mustCoolDown = (wc->_hot > 0.0f);
             }
         } else if (wc->reload) {
             wc->fire = false;
