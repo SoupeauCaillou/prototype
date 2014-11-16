@@ -21,7 +21,7 @@ void createRays(Entity* out, int count) {
         ADD_COMPONENT(r, Transformation);
         ADD_COMPONENT(r, Collision);
         COLLISION(r)->isARay = true;
-        COLLISION(r)->collideWith = 8;
+        COLLISION(r)->collideWith = 9;
         *out++ = r;
     }
 }
@@ -62,16 +62,18 @@ void VisibilitySystem::DoUpdate(float) {
 
         int start = vc->_rayStartIndex = rayIndex;
         vc->_rayCount = vc->raysPerFrame;
+        const auto& position = TRANSFORM(e)->position;
 
         for (int i=0; i<vc->raysPerFrame; i++) {
-            TRANSFORM(rays[start + i])->rotation = angles[i];
+            Entity ray = rays[start + i];
+            auto* tc = TRANSFORM(ray);
+            tc->position = position;
+            tc->rotation = angles[i];
+            auto* cc = COLLISION(ray);
+            cc->rayTestDone = false;
+            cc->ignore = e;
         }
         rayIndex += vc->raysPerFrame;
     END_FOR_EACH()
-
-    /* reset raycast */
-    for (int i=0; i<raycount; i++) {
-        COLLISION(rays[i])->rayTestDone = false;
-    }
 }
 

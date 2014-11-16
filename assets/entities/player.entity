@@ -16,4 +16,4 @@ restore_position_on_collision = 1
 
 [Visibility]
 fov = 3
-rays_per_frame = 10
+rays_per_frame = 0

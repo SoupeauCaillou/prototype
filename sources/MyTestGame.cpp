@@ -72,7 +72,7 @@ void MyTestGame::init(const uint8_t*, int) {
         }
     }
 
-    theCollisionSystem.worldSize = worldSize;
+    theCollisionSystem.worldSize = worldSize * 1.2f;
 }
 
 void MyTestGame::tick(float dt) {

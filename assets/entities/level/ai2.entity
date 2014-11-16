@@ -1,18 +1,5 @@
-[Unit]
+extends = ai
 
 [Transformation]
 position = 18.825, 4.500
-size = 1.000, 1.000
 rotation = 0.678
-z = 0.000
-shape = 0
-
-[Collision]
-group = 8
-collide_with = 1
-restore_position_on_collision = 1
-is_a_ray = 0
-
-[Visibility]
-fov = 3
-rays_per_frame = 10

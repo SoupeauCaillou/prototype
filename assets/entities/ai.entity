@@ -1,9 +1,16 @@
 [Unit]
 
 [Transformation]
-z = 0.0
+size = 1.000, 1.000
+z = 0.000
+shape = 0
 
 [Collision]
 group = 8
 collide_with = 1
 restore_position_on_collision = 1
+is_a_ray = 0
+
+[Visibility]
+fov = 1.6
+rays_per_frame = 3
