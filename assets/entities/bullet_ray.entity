@@ -1,6 +1,7 @@
 [Rendering]
 show = 1
 flags = 1
+color = 0.2, 0.2, 0.2
 texture = gradient
 
 [Transformation]
