@@ -3,7 +3,8 @@
 [ZSQD]
 friction_coeff = 10
 max_speed = 10
-new_direction_coeff = 10
+new_direction_coeff = 15
+rotation_speed = 14
 
 [Transformation]
 z = 0.0

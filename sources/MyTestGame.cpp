@@ -42,6 +42,7 @@ void MyTestGame::init(const uint8_t*, int) {
 
     playerUnit = theEntityManager.CreateEntityFromTemplate("player");
     buildUnitParts(playerUnit);
+    ZSQD(playerUnit)->lateralMove = false;
 
     glm::vec2 worldSize = PlacementHelper::ScreenSize * 2.0f;
 
@@ -96,25 +97,24 @@ void MyTestGame::tick(float dt) {
         ANCHOR(weapon)->rotation = angleWeapon - angleHead;
     }
 
-
-    TRANSFORM(playerUnit)->rotation = angleHead;
+    ZSQD(playerUnit)->rotateToFaceDirection = true;
+    //TRANSFORM(playerUnit)->rotation = angleHead;
 
     auto* kb = gameThreadContext->keyboardInputHandlerAPI;
     if (kb->isKeyPressed(Key::ByName(SDLK_z))) {
         // ZSQD(playerUnit)->rotateToFaceDirection = true;
-        ZSQD(playerUnit)->addDirectionVector(glm::rotate(glm::vec2(1.0f, 0.0f), angleHead));
+        ZSQD(playerUnit)->addDirectionVector(glm::vec2(0.0f, 1.0f));
     } else if (kb->isKeyPressed(Key::ByName(SDLK_s))) {
-        TRANSFORM(playerUnit)->rotation = angleHead;
         // ZSQD(playerUnit)->rotateToFaceDirection = false;
-        ZSQD(playerUnit)->addDirectionVector(glm::rotate(glm::vec2(-0.5f, 0.0f), angleHead));
+        ZSQD(playerUnit)->addDirectionVector(glm::vec2(0.0f, -1.0f));
     }
 
     if (kb->isKeyPressed(Key::ByName(SDLK_q))) {
         // ZSQD(playerUnit)->rotateToFaceDirection = false;
-        ZSQD(playerUnit)->addDirectionVector(glm::rotate(glm::vec2(.0f, 1.0f), TRANSFORM(UNIT(playerUnit)->body)->rotation));
+        ZSQD(playerUnit)->addDirectionVector(glm::vec2(-1.0f, 0.0f));
     } else if (kb->isKeyPressed(Key::ByName(SDLK_d))) {
         // ZSQD(playerUnit)->rotateToFaceDirection = false;
-        ZSQD(playerUnit)->addDirectionVector(glm::rotate(glm::vec2(0.0f, -1.0f), TRANSFORM(UNIT(playerUnit)->body)->rotation));
+        ZSQD(playerUnit)->addDirectionVector(glm::vec2(1.0f, 0.0f));
     }
 
     WEAPON(UNIT(playerUnit)->weapon)->fire = theTouchInputManager.isTouched();
