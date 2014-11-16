@@ -3,19 +3,20 @@
 #include "systems/System.h"
 
 struct VisibilityComponent {
-    VisibilityComponent(): fov(3), raysPerFrame(1), collideWith(0), _rayStartIndex(-1), _rayCount(0), resultStartIndex(-1), resultCount(-1) {}
+    VisibilityComponent(): fov(3), raysPerFrame(1), collideWith(0), _rayStartIndex(-1), _rayCount(0)  { visible.count = 0; }
     float fov; /* radians */
     /* float distance */
     int raysPerFrame;
 
     int collideWith;
 
+    struct {
+        Entity* entities;
+        int count;
+    } visible;
 
     int _rayStartIndex;
     int _rayCount;
-
-    int resultStartIndex;
-    int resultCount;
 };
 
 #define theVisibilitySystem VisibilitySystem::GetInstance()

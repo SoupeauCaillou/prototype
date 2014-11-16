@@ -14,3 +14,8 @@ is_a_ray = 0
 [Visibility]
 fov = 1.6
 rays_per_frame = 3
+
+[AI]
+min_pause = 0.5
+max_pause = 3
+rotation_speed = 1.5

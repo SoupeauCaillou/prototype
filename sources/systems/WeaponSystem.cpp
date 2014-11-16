@@ -39,8 +39,8 @@ WeaponSystem::WeaponSystem() : ComponentSystemImpl<WeaponComponent>(HASH("Weapon
     componentSerializer.add(new Property<bool>(HASH("fire", 0x3b3b834f), OFFSET(fire, tc)));
     componentSerializer.add(new Property<bool>(HASH("reload", 0xe5209b7e), OFFSET(reload, tc)));
     componentSerializer.add(new Property<int>(HASH("ammo_left_in_clip", 0x6f971ad7), OFFSET(ammoLeftInClip, tc)));
-    componentSerializer.add(new Property<float>(HASH("heat_up_per_bullet", 0x6f971ad7), OFFSET(heatupPerBullet, tc)));
-    componentSerializer.add(new Property<float>(HASH("cooling_speed", 0x6f971ad7), OFFSET(coolingSpeed, tc)));
+    componentSerializer.add(new Property<float>(HASH("heat_up_per_bullet", 0x9a8421d6), OFFSET(heatupPerBullet, tc)));
+    componentSerializer.add(new Property<float>(HASH("cooling_speed", 0x3559848), OFFSET(coolingSpeed, tc)));
 
 }
 

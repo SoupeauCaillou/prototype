@@ -32,18 +32,20 @@ void VisibilitySystem::DoUpdate(float) {
 
     FOR_EACH_ENTITY_COMPONENT(Visibility, e, vc)
         /* read rays results from last frame */
-        vc->resultStartIndex =resultIndex;
-        vc->resultCount = 0;
+        vc->visible.entities = &visibles[resultIndex];
+        vc->visible.count = 0;
 
         int first = vc->_rayStartIndex;
         int latest = first + vc->_rayCount - 1;
         for (int i=first; i<=latest; i++) {
             const auto* cc = COLLISION(rays[i]);
             if (cc->collision.count) {
-                visibles[resultIndex + vc->resultCount] = cc->collision.with[0];
-                vc->resultCount++;
+                visibles[resultIndex + vc->visible.count] = cc->collision.with[0];
+                vc->visible.count++;
             }
         }
+        resultIndex += vc->visible.count;
+
         raycount += vc->raysPerFrame;
     END_FOR_EACH()
 

@@ -10,6 +10,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/ZSQDSystem.h"
 
+#include "systems/AISystem.h"
 #include "systems/BulletSystem.h"
 #include "systems/UnitSystem.h"
 #include "systems/VisibilitySystem.h"
@@ -38,6 +39,7 @@ void buildUnitParts(Entity unit) {
 }
 
 void MyTestGame::init(const uint8_t*, int) {
+    AISystem::CreateInstance();
     BulletSystem::CreateInstance();
     UnitSystem::CreateInstance();
     VisibilitySystem::CreateInstance();
@@ -80,6 +82,7 @@ void MyTestGame::init(const uint8_t*, int) {
 }
 
 void MyTestGame::tick(float dt) {
+    theAISystem.Update(dt);
     theBulletSystem.Update(dt);
     theUnitSystem.Update(dt);
     theVisibilitySystem.Update(dt);

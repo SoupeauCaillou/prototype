@@ -3,3 +3,7 @@ extends = ai
 [Transformation]
 position = 18.825, 4.500
 rotation = 0.678
+
+[AI]
+min_angle = 0
+max_angle = 6.28
