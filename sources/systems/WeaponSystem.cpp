@@ -23,7 +23,7 @@
 #include "WeaponSystem.h"
 #include "BulletSystem.h"
 #include "systems/TransformationSystem.h"
-#include "systems/PhysicsSystem.h"
+#include "systems/RenderingSystem.h"
 #include "util/Random.h"
 #include <glm/gtx/rotate_vector.hpp>
 
@@ -39,16 +39,21 @@ WeaponSystem::WeaponSystem() : ComponentSystemImpl<WeaponComponent>(HASH("Weapon
     componentSerializer.add(new Property<bool>(HASH("fire", 0x3b3b834f), OFFSET(fire, tc)));
     componentSerializer.add(new Property<bool>(HASH("reload", 0xe5209b7e), OFFSET(reload, tc)));
     componentSerializer.add(new Property<int>(HASH("ammo_left_in_clip", 0x6f971ad7), OFFSET(ammoLeftInClip, tc)));
+    componentSerializer.add(new Property<float>(HASH("heat_up_per_bullet", 0x6f971ad7), OFFSET(heatupPerBullet, tc)));
+    componentSerializer.add(new Property<float>(HASH("cooling_speed", 0x6f971ad7), OFFSET(coolingSpeed, tc)));
+
 }
 
 void WeaponSystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(Weapon, entity, wc)
+        RENDERING(entity)->color.r = wc->_mustCoolDown;
         if (wc->fire) {
             wc->reload = false;
             wc->reloadSpeed.accum = 0;
+
             if (!wc->ammoLeftInClip) {
                 LOGI_EVERY_N(60, "No more ammo");
-            } else {
+            } else if (!wc->_mustCoolDown) {
                 wc->fireSpeed.accum += wc->fireSpeed.value * dt;
 
                 // nose
@@ -58,6 +63,7 @@ void WeaponSystem::DoUpdate(float dt) {
                 while (wc->fireSpeed.accum > 1 && wc->ammoLeftInClip) {
                     wc->fireSpeed.accum -= 1;
                     wc->ammoLeftInClip -= 1;
+                    wc->_hot += wc->heatupPerBullet;
 
                     for (int i=0; i<wc->bulletPerShot; i++) {
                         // Collision
@@ -66,6 +72,9 @@ void WeaponSystem::DoUpdate(float dt) {
                         TRANSFORM(bColl)->rotation = tc->rotation + Random::Float(-0.5f * wc->precision, 0.5f * wc->precision);
                     }
                 }
+                wc->_mustCoolDown = (wc->_hot >= 1.0f);
+            } else {
+              wc->_hot = glm::max(0.0f, wc->_hot - wc->coolingSpeed * dt);
             }
         } else if (wc->reload) {
             wc->fire = false;
@@ -75,8 +84,13 @@ void WeaponSystem::DoUpdate(float dt) {
             while (wc->reloadSpeed.accum > 1) {
                 wc->ammoLeftInClip += 1;
                 wc->reloadSpeed.accum -= 1;
+                wc->_hot = 0;
+                wc->_mustCoolDown = false;
             }
         } else {
+            wc->_hot = glm::max(0.0f, wc->_hot - wc->coolingSpeed * dt);
+            if (wc->_mustCoolDown && wc->_hot <= 0.0f)
+                wc->_mustCoolDown = false;
             wc->fire = false;
             wc->reload = false;
             wc->fireSpeed.accum = glm::min(1.0f, wc->fireSpeed.accum + wc->fireSpeed.value * dt);

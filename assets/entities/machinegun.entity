@@ -1,0 +1,22 @@
+[Anchor]
+z = 0.1
+position = 0.3, -0.65
+
+[Transformation]
+size = 0.9, 0.2
+
+
+[Rendering]
+show = 1
+color = 0, 0, 0, 1.0
+flags = 1
+
+[Weapon]
+fire_speed = 20
+heat_up_per_bullet = 0.15
+cooling_speed = 1.6
+reload_speed = 2
+bullet_per_shot = 1
+bullet_speed = 50
+precision = 0.4
+ammo_left_in_clip = 1000

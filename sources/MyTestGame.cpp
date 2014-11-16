@@ -25,7 +25,7 @@ Entity playerUnit;
 void buildUnitParts(Entity unit) {
     UNIT(unit)->body = theEntityManager.CreateEntityFromTemplate("body");
     UNIT(unit)->head = theEntityManager.CreateEntityFromTemplate("head");
-    UNIT(unit)->weapon = theEntityManager.CreateEntityFromTemplate("weapon");
+    UNIT(unit)->weapon = theEntityManager.CreateEntityFromTemplate("machinegun");
     UNIT(unit)->hitzone = theEntityManager.CreateEntityFromTemplate("hitzone");
 
     ANCHOR(UNIT(unit)->body)->parent = unit;
