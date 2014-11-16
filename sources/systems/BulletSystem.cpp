@@ -20,7 +20,6 @@ void BulletSystem::DoUpdate(float dt) {
 std::vector<Entity> toDelete;
 
 FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
-    auto* ac = COLLISION(bullet);
     auto* cc = COLLISION(bullet);
     if (cc->rayTestDone) {
         if (cc->collision.count) {
@@ -47,6 +46,25 @@ FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
 
                 theEntityManager.DeleteEntity(unit->hitzone);
                 unit->hitzone = 0;
+            }
+
+            {
+                // spawn debris
+                const glm::vec2 direction = a ?
+                    glm::rotate(glm::vec2(-1.0f, 0.0f), TRANSFORM(bullet)->rotation) :
+                    CollisionSystem::collisionPointToNormal(cc->collision.at[0], TRANSFORM(cc->collision.with[0]));
+                const Color c = a ?
+                    Color(1, 0, 0) :
+                    RENDERING(cc->collision.with[0])->color;
+
+                int count = Random::Int(7, 12);
+                for (int i=0; i<count; i++) {
+                    Entity d = theEntityManager.CreateEntityFromTemplate("debris");
+                    RENDERING(d)->color = c * Random::Float(0.8f, 1.0f);
+                    TRANSFORM(d)->position = cc->collision.at[0];
+                    TRANSFORM(d)->z = TRANSFORM(cc->collision.with[0])->z;
+                    PHYSICS(d)->addForce(glm::rotate(direction * Random::Float(150.0f, 450.0f), Random::Float(-1, 1)), TRANSFORM(d)->size * Random::Float(-2, 2), 0.016);
+                }
             }
         Entity b = theEntityManager.CreateEntityFromTemplate("bullet_ray");
         glm::vec2 diff = cc->collision.at[0] - TRANSFORM(bullet)->position;

@@ -1,0 +1,15 @@
+[Transformation]
+size = 0.1, 0.1
+
+[Rendering]
+show = 1
+flags = 1
+
+[Physics]
+mass = 1
+frottement = 10
+
+[AutoDestroy]
+type = 1
+lifetime/map2AlphaRendering = 1
+lifetime/value = 0.5
