@@ -37,8 +37,12 @@ void VisibilitySystem::DoUpdate(float) {
 
         int first = vc->_rayStartIndex;
         int latest = first + vc->_rayCount - 1;
-        for (int i=first; i<=latest; i++, vc->resultCount++) {
-            visibles[resultIndex + vc->resultCount] = COLLISION(rays[i])->collidedWithLastFrame;
+        for (int i=first; i<=latest; i++) {
+            const auto* cc = COLLISION(rays[i]);
+            if (cc->collision.count) {
+                visibles[resultIndex + vc->resultCount] = cc->collision.with[0];
+                vc->resultCount++;
+            }
         }
         raycount += vc->raysPerFrame;
     END_FOR_EACH()

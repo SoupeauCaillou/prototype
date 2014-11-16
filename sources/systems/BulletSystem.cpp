@@ -23,8 +23,8 @@ FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
     auto* ac = COLLISION(bullet);
     auto* cc = COLLISION(bullet);
     if (cc->rayTestDone) {
-        if (cc->collidedWithLastFrame) {
-            auto* a = theAnchorSystem.Get(cc->collidedWithLastFrame, false);
+        if (cc->collision.count) {
+            auto* a = theAnchorSystem.Get(cc->collision.with[0], false);
             if (a && a->parent) {
                 Entity head = a->parent;
                 Entity body = ANCHOR(head)->parent;
@@ -45,13 +45,12 @@ FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
                 theEntityManager.DeleteEntity(unit->hitzone);
                 unit->hitzone = 0;
             }
-
+        Entity b = theEntityManager.CreateEntityFromTemplate("bullet_ray");
+        glm::vec2 diff = cc->collision.at[0] - TRANSFORM(bullet)->position;
+        TRANSFORM(b)->size.x = glm::length(diff);
+        TRANSFORM(b)->position = (TRANSFORM(bullet)->position + cc->collision.at[0]) * 0.5f;
+        TRANSFORM(b)->rotation = glm::atan(diff.y, diff.x);
       }
-      Entity b = theEntityManager.CreateEntityFromTemplate("bullet_ray");
-      glm::vec2 diff = cc->collisionAt - TRANSFORM(bullet)->position;
-      TRANSFORM(b)->size.x = glm::length(diff);
-      TRANSFORM(b)->position = (TRANSFORM(bullet)->position + cc->collisionAt) * 0.5f;
-      TRANSFORM(b)->rotation = glm::atan(diff.y, diff.x);
 
   toDelete.push_back(bullet);
 }
