@@ -21,7 +21,11 @@
 #include "util/Random.h"
 #include "util/IntersectionUtil.h"
 #include "base/PlacementHelper.h"
+
+#include "base/StateMachine.inl"
+
 Entity playerUnit;
+
 
 void buildUnitParts(Entity unit) {
     UNIT(unit)->body = theEntityManager.CreateEntityFromTemplate("body");
@@ -79,6 +83,10 @@ void MyTestGame::init(const uint8_t*, int) {
     }
 
     theCollisionSystem.worldSize = worldSize * 1.2f;
+
+    registerScenes(this, sceneStateMachine);
+    sceneStateMachine.setup(gameThreadContext->assetAPI);
+    sceneStateMachine.start(Scene::Menu);
 }
 
 void MyTestGame::tick(float dt) {
