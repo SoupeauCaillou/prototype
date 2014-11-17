@@ -15,9 +15,9 @@ AISystem::AISystem() : ComponentSystemImpl<AIComponent>(HASH("AI", 0x984cbb03)) 
     AIComponent tc;
     componentSerializer.add(new Property<float>(HASH("min_angle", 0xadbe6e80), OFFSET(minAngle, tc), 0.001f));
     componentSerializer.add(new Property<float>(HASH("max_angle", 0xcacfe1ee), OFFSET(maxAngle, tc), 0.001f));
-    componentSerializer.add(new Property<float>(HASH("rotation_speed", 0xcacfe1ee), OFFSET(rotationSpeed, tc), 0.001f));
-    componentSerializer.add(new Property<float>(HASH("min_pause", 0xcacfe1ee), OFFSET(pauses.t1, tc), 0.001f));
-    componentSerializer.add(new Property<float>(HASH("max_pause", 0xcacfe1ee), OFFSET(pauses.t2, tc), 0.001f));
+    componentSerializer.add(new Property<float>(HASH("rotation_speed", 0x201b183c), OFFSET(rotationSpeed, tc), 0.001f));
+    componentSerializer.add(new Property<float>(HASH("min_pause", 0x6f40a029), OFFSET(pauses.t1, tc), 0.001f));
+    componentSerializer.add(new Property<float>(HASH("max_pause", 0x8b6cb1e9), OFFSET(pauses.t2, tc), 0.001f));
 }
 
 void AISystem::DoUpdate(float dt) {

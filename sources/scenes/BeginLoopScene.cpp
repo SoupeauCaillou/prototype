@@ -9,8 +9,9 @@ class BeginLoopScene : public SceneState<Scene::Enum> {
 public:
 
     BeginLoopScene(MyTestGame* _game) : SceneState<Scene::Enum>("begin_loop", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
+
     Scene::Enum update(float) override {
-        return Scene::BeginLoop;
+        return Scene::Game;
     }
 };
 

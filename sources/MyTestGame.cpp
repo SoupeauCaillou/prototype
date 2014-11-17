@@ -24,24 +24,6 @@
 
 #include "base/StateMachine.inl"
 
-Entity playerUnit;
-
-
-void buildUnitParts(Entity unit) {
-    UNIT(unit)->body = theEntityManager.CreateEntityFromTemplate("body");
-    UNIT(unit)->head = theEntityManager.CreateEntityFromTemplate("head");
-    UNIT(unit)->weapon[0] = theEntityManager.CreateEntityFromTemplate("gun");
-    UNIT(unit)->weapon[1] = theEntityManager.CreateEntityFromTemplate("machinegun");
-    UNIT(unit)->hitzone = theEntityManager.CreateEntityFromTemplate("hitzone");
-
-    ANCHOR(UNIT(unit)->body)->parent = unit;
-    ANCHOR(UNIT(unit)->head)->parent = UNIT(unit)->body;
-    ANCHOR(UNIT(unit)->hitzone)->parent = UNIT(unit)->head;
-    ANCHOR(UNIT(unit)->weapon[0])->parent = UNIT(unit)->head;
-    ANCHOR(UNIT(unit)->weapon[1])->parent = UNIT(unit)->head;
-    ANCHOR(UNIT(unit)->weapon[1])->position.y = -ANCHOR(UNIT(unit)->weapon[1])->position.y;
-}
-
 void MyTestGame::init(const uint8_t*, int) {
     AISystem::CreateInstance();
     BulletSystem::CreateInstance();
@@ -49,101 +31,15 @@ void MyTestGame::init(const uint8_t*, int) {
     VisibilitySystem::CreateInstance();
     WeaponSystem::CreateInstance();
 
-    playerUnit = theEntityManager.CreateEntityFromTemplate("player");
-    buildUnitParts(playerUnit);
-    ZSQD(playerUnit)->lateralMove = false;
-
     glm::vec2 worldSize = PlacementHelper::ScreenSize * 2.0f;
-
-    std::vector<Entity> blocks;
-    auto level = gameThreadContext->assetAPI->listAssetContent(".entity", "entities/level");
-    {
-        for (auto l: level) {
-            if (!strstr(l.c_str(), "block")) continue;
-            char tmp[128];
-            sprintf(tmp, "level/%s", l.c_str());
-            Entity block = theEntityManager.CreateEntityFromTemplate(tmp);
-            blocks.push_back(block);
-        }
-    }
-
-    {
-        for (auto l: level) {
-            if (!strstr(l.c_str(), "ai")) continue;
-            char tmp[128];
-            sprintf(tmp, "level/%s", l.c_str());
-            Entity enemy = theEntityManager.CreateEntityFromTemplate(tmp);
-
-            TRANSFORM(enemy)->z = 0.0;
-            TRANSFORM(enemy)->rotation = Random::Float(0, 6.28);
-            buildUnitParts(enemy);
-            RENDERING(UNIT(enemy)->body)->color = Color(0.8, 0.8, 0);
-            RENDERING(UNIT(enemy)->head)->color = Color(0.8, 0.0, 0.3);
-        }
-    }
-
     theCollisionSystem.worldSize = worldSize * 1.2f;
 
-    registerScenes(this, sceneStateMachine);
-    sceneStateMachine.setup(gameThreadContext->assetAPI);
-    sceneStateMachine.start(Scene::Menu);
+    sceneStateMachine = new StateMachine<Scene::Enum>();
+    registerScenes(this, *sceneStateMachine);
+    sceneStateMachine->setup(gameThreadContext->assetAPI);
+    sceneStateMachine->start(Scene::Menu);
 }
 
 void MyTestGame::tick(float dt) {
-    theAISystem.Update(dt);
-    theBulletSystem.Update(dt);
-    theUnitSystem.Update(dt);
-    theVisibilitySystem.Update(dt);
-    theWeaponSystem.Update(dt);
-
-    float angleHead;
-
-    if (!UNIT(playerUnit)->alive) return;
-
-    {
-        Entity head = UNIT(playerUnit)->head;
-        glm::vec2 diff = theTouchInputManager.getOverLastPosition() - TRANSFORM(head)->position;
-        angleHead = glm::atan(diff.y, diff.x);
-        ANCHOR(UNIT(playerUnit)->head)->rotation = angleHead - TRANSFORM(UNIT(playerUnit)->body)->rotation;
-    }
-    for (int i=0; i<2; i++) {
-        Entity weapon = UNIT(playerUnit)->weapon[i];
-        glm::vec2 diff = theTouchInputManager.getOverLastPosition() - TRANSFORM(weapon)->position;
-        float angleWeapon = glm::atan(diff.y, diff.x);
-        ANCHOR(weapon)->rotation = angleWeapon - angleHead;
-    }
-
-    ZSQD(playerUnit)->rotateToFaceDirection = true;
-    //TRANSFORM(playerUnit)->rotation = angleHead;
-
-    auto* kb = gameThreadContext->keyboardInputHandlerAPI;
-    if (kb->isKeyPressed(Key::ByName(SDLK_z))) {
-        // ZSQD(playerUnit)->rotateToFaceDirection = true;
-        ZSQD(playerUnit)->addDirectionVector(glm::vec2(0.0f, 1.0f));
-    } else if (kb->isKeyPressed(Key::ByName(SDLK_s))) {
-        // ZSQD(playerUnit)->rotateToFaceDirection = false;
-        ZSQD(playerUnit)->addDirectionVector(glm::vec2(0.0f, -1.0f));
-    }
-
-    if (kb->isKeyPressed(Key::ByName(SDLK_q))) {
-        // ZSQD(playerUnit)->rotateToFaceDirection = false;
-        ZSQD(playerUnit)->addDirectionVector(glm::vec2(-1.0f, 0.0f));
-    } else if (kb->isKeyPressed(Key::ByName(SDLK_d))) {
-        // ZSQD(playerUnit)->rotateToFaceDirection = false;
-        ZSQD(playerUnit)->addDirectionVector(glm::vec2(1.0f, 0.0f));
-    }
-
-    for (int i=0; i<2; i++) {
-        WEAPON(UNIT(playerUnit)->weapon[i])->fire = theTouchInputManager.isTouched(i);
-    }
-
-    // move camera
-    glm::vec2 target;
-    if (true || ZSQD(playerUnit)->currentSpeed <= 0) {
-        target = (3.0f * TRANSFORM(playerUnit)->position + theTouchInputManager.getOverLastPosition()) / 4.0f;
-    } else {
-        target = TRANSFORM(playerUnit)->position + ZSQD(playerUnit)->currentDirection * ZSQD(playerUnit)->currentSpeed * 0.2f;
-    }
-    glm::vec2 diff = target - TRANSFORM(camera)->position;
-    TRANSFORM(camera)->position += diff * dt * 8.0f;
+    sceneStateMachine->update(dt);
 }

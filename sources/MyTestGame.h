@@ -11,5 +11,8 @@ public:
     private:
         void tick(float dt);
 
-        StateMachine<Scene::Enum> sceneStateMachine;
+        StateMachine<Scene::Enum>* sceneStateMachine;
+
+    public:
+        Entity playerUnit;
 };
