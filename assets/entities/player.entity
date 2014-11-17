@@ -6,6 +6,7 @@ max_speed = 10
 new_direction_coeff = 15
 rotation_speed = 14
 collide_with = 1
+rotate_to_face_direction = 1
 
 [Transformation]
 z = 0.0

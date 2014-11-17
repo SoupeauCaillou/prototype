@@ -38,7 +38,6 @@ namespace Scene {
 	StateHandler<Scene::Enum>* CreateMenuSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateVictorySceneHandler(MyTestGame* game);
 }
-
 inline void registerScenes(MyTestGame * game, StateMachine<Scene::Enum> & machine) {	machine.registerState(Scene::BeginLoop, Scene::CreateBeginLoopSceneHandler(game));
 	machine.registerState(Scene::CreateLevel, Scene::CreateCreateLevelSceneHandler(game));
 	machine.registerState(Scene::EndLoop, Scene::CreateEndLoopSceneHandler(game));

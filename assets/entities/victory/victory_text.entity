@@ -1,0 +1,15 @@
+[Text]
+text = Victory!
+font = typo
+char_height%screen_h = 0.1
+show = 0
+
+[Transformation]
+
+[Anchor]
+parent%name = camera
+z = 0.9
+
+[Blink]
+visible_duration = 75
+hidden_duration = 0.6

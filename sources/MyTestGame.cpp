@@ -43,3 +43,18 @@ void MyTestGame::init(const uint8_t*, int) {
 void MyTestGame::tick(float dt) {
     sceneStateMachine->update(dt);
 }
+
+void MyTestGame::buildUnitParts(Entity unit) {
+    UNIT(unit)->body = theEntityManager.CreateEntityFromTemplate("body");
+    UNIT(unit)->head = theEntityManager.CreateEntityFromTemplate("head");
+    UNIT(unit)->weapon[0] = theEntityManager.CreateEntityFromTemplate("gun");
+    UNIT(unit)->weapon[1] = theEntityManager.CreateEntityFromTemplate("machinegun");
+    UNIT(unit)->hitzone = theEntityManager.CreateEntityFromTemplate("hitzone");
+
+    ANCHOR(UNIT(unit)->body)->parent = unit;
+    ANCHOR(UNIT(unit)->head)->parent = UNIT(unit)->body;
+    ANCHOR(UNIT(unit)->hitzone)->parent = UNIT(unit)->head;
+    ANCHOR(UNIT(unit)->weapon[0])->parent = UNIT(unit)->head;
+    ANCHOR(UNIT(unit)->weapon[1])->parent = UNIT(unit)->head;
+    ANCHOR(UNIT(unit)->weapon[1])->position.y = -ANCHOR(UNIT(unit)->weapon[1])->position.y;
+}

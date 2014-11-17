@@ -14,5 +14,9 @@ public:
         StateMachine<Scene::Enum>* sceneStateMachine;
 
     public:
+        static void buildUnitParts(Entity unit);
+
         Entity playerUnit;
+        std::vector<Entity> playerUnits;
+        std::vector<Entity> aiUnits;
 };

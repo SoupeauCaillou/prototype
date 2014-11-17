@@ -31,6 +31,18 @@ void VisibilitySystem::DoUpdate(float) {
     int raycount = 0;
 
     FOR_EACH_ENTITY_COMPONENT(Visibility, e, vc)
+        raycount += vc->raysPerFrame;
+    END_FOR_EACH()
+
+    /* spawn new rays */
+    if ((int)rays.size() < raycount) {
+        int oldSize = rays.size();
+        rays.resize(raycount);
+        createRays(&rays[oldSize], raycount - oldSize);
+        visibles.resize(raycount);
+    }
+
+    FOR_EACH_ENTITY_COMPONENT(Visibility, e, vc)
         /* read rays results from last frame */
         vc->visible.entities = &visibles[resultIndex];
         vc->visible.count = 0;
@@ -40,23 +52,13 @@ void VisibilitySystem::DoUpdate(float) {
         for (int i=first; i<=latest; i++) {
             const auto* cc = COLLISION(rays[i]);
             if (cc->collision.count) {
+                LOGE_IF(cc->collision.with[0] == 0, "Entity 0 returned by raycasting");
                 visibles[resultIndex + vc->visible.count] = cc->collision.with[0];
                 vc->visible.count++;
             }
         }
         resultIndex += vc->visible.count;
-
-        raycount += vc->raysPerFrame;
     END_FOR_EACH()
-
-
-    /* spawn new rays */
-    if ((int)rays.size() < raycount) {
-        int oldSize = rays.size();
-        rays.resize(raycount);
-        createRays(&rays[oldSize], raycount - oldSize);
-        visibles.resize(raycount);
-    }
 
     /* update rays */
     float angles[128];
