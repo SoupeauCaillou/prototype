@@ -1,0 +1,13 @@
+[Transformation]
+
+[Anchor]
+parent%name = camera
+position%screen = 0, 0
+z = 0.45
+
+[Text]
+font = typo
+char_height = 2
+blink_off_duration = 0.7
+blink_on_duration = 0.7
+

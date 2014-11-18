@@ -9,6 +9,7 @@
 #include "systems/UnitSystem.h"
 #include "systems/WeaponSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/AutoDestroySystem.h"
 
 #include "../MyTestGame.h"
@@ -21,7 +22,7 @@ class BeginLoopScene : public SceneState<Scene::Enum> {
 
 public:
 
-    BeginLoopScene(MyTestGame* _game) : SceneState<Scene::Enum>("begin_loop", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
+    BeginLoopScene(MyTestGame* _game) : SceneState<Scene::Enum>("begin_loop", SceneEntityMode::InstantaneousOnEnter, SceneEntityMode::InstantaneousOnExit), game(_game) {}
 
     bool updatePreEnter(Scene::Enum, float) override {
         /* wait for all debris to disappear */
@@ -81,8 +82,13 @@ public:
         ZSQD(game->playerUnit)->lateralMove = false;
         TRANSFORM(game->camera)->position = TRANSFORM(game->playerUnit)->position;
 
+        char tmp[128];
+        sprintf(tmp, "Loop %d/%d - click when ready", activePlayerIndex + 1, playerCount);
+        TEXT(e(HASH("begin_loop/get_ready_text", 0x3f1b44b5)))->text = tmp;
         return Scene::Game;
     }
+
+
 };
 
 namespace Scene {

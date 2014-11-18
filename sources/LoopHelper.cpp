@@ -89,6 +89,9 @@ bool LoopHelper::isLoopLongerThanPrevious() {
     return loop.durations[loop.id] > loop.durations[loop.id - 1];
 }
 
+float LoopHelper::loopDuration() {
+    return loop.durations[loop.id];
+}
 
 void LoopHelper::update(float dt) {
     loop.durations[loop.id] += dt;

@@ -26,6 +26,8 @@ class LoopHelper {
 
         static bool isLoopLongerThanPrevious();
 
+        static float loopDuration();
+
         static void loopFailed();
 
         static void loopSucceeded();

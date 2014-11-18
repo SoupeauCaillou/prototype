@@ -15,6 +15,7 @@
 #include "systems/CameraSystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/ZSQDSystem.h"
 
@@ -70,13 +71,31 @@ class GameScene : public SceneState<Scene::Enum> {
 public:
     GameScene(MyTestGame* _game) : SceneState<Scene::Enum>("game", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
 
-    void onEnter(Scene::Enum) override {
+    void onPreEnter(Scene::Enum from) override {
         theAISystem.forEachECDo([] (Entity e, AIComponent* ac) -> void {
             ac->_targetAngle = TRANSFORM(e)->rotation;
         });
+        SceneState<Scene::Enum>::onPreEnter(from);
+    }
+
+    bool updatePreEnter(Scene::Enum from, float dt) override {
+        return SceneState<Scene::Enum>::updatePreEnter(from, dt) &&
+            theTouchInputManager.hasClicked();
+    }
+
+    void onEnter(Scene::Enum from) override {
+        char tmp[128];
+        sprintf(tmp, "loop %d/%d", LoopHelper::activePlayerIndex() + 1, LoopHelper::playerCount());
+        TEXT(e(HASH("game/loop_text", 0x35373a8a)))->text = tmp;
+
+        SceneState<Scene::Enum>::onEnter(from);
     }
 
     Scene::Enum update(float dt) override {
+        char tmp[128];
+        sprintf(tmp, "%.2f s", LoopHelper::loopDuration());
+        TEXT(e(HASH("game/chrono_text", 0x900a8522)))->text = tmp;
+
         /* if at least one player unit is dead, loop failure */
         for (auto u: game->playerUnits) {
             if (!UNIT(u)->alive) {
@@ -172,6 +191,13 @@ public:
         LoopHelper::update(dt);
 
         return Scene::Game;
+    }
+
+    void onExit(Scene::Enum to) override {
+        SceneState<Scene::Enum>::onExit(to);
+        TEXT(e(HASH("game/loop_text", 0x35373a8a)))->text = "";
+        TEXT(e(HASH("game/chrono_text", 0x900a8522)))->text = "";
+
     }
 };
 

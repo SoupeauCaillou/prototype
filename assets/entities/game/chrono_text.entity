@@ -1,0 +1,11 @@
+[Transformation]
+
+[Anchor]
+parent%name = camera
+position%screen = 0.45, 0.45
+z = 0.45
+
+[Text]
+font = typo
+char_height = 1.6
+positioning = 1
