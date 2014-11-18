@@ -4,6 +4,9 @@ extends = ai
 position = -5.775, 0.450
 rotation = 1.420
 
+[Unit]
+index = 3
+
 [AI]
 min_angle = -1
 max_angle = 0.5

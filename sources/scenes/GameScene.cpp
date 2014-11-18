@@ -39,10 +39,10 @@ struct RealInput : public InputInterface {
 
     RealInput(KeyboardInputHandlerAPI* k) : kb(k) {}
 
-    bool moveUp() { return kb->isKeyPressed(Key::ByName(SDLK_z)); }
-    bool moveDown() { return kb->isKeyPressed(Key::ByName(SDLK_s)); }
-    bool moveLeft() { return kb->isKeyPressed(Key::ByName(SDLK_q)); }
-    bool moveRight() { return kb->isKeyPressed(Key::ByName(SDLK_d)); }
+    bool moveUp() { return kb->isKeyPressed(SDLK_z); }
+    bool moveDown() { return kb->isKeyPressed(SDLK_s); }
+    bool moveLeft() { return kb->isKeyPressed(SDLK_q); }
+    bool moveRight() { return kb->isKeyPressed(SDLK_d); }
 
     bool shootWeapon1() { return theTouchInputManager.isTouched(0); }
     bool shootWeapon2() { return theTouchInputManager.isTouched(1); }
@@ -69,6 +69,12 @@ class GameScene : public SceneState<Scene::Enum> {
     MyTestGame* game;
 public:
     GameScene(MyTestGame* _game) : SceneState<Scene::Enum>("game", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
+
+    void onEnter(Scene::Enum) override {
+        theAISystem.forEachECDo([] (Entity e, AIComponent* ac) -> void {
+            ac->_targetAngle = TRANSFORM(e)->rotation;
+        });
+    }
 
     Scene::Enum update(float dt) override {
         /* if at least one player unit is dead, loop failure */

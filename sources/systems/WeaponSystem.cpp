@@ -22,10 +22,16 @@
 
 #include "WeaponSystem.h"
 #include "BulletSystem.h"
+#include "AISystem.h"
+#include "UnitSystem.h"
+
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/AnchorSystem.h"
 #include "util/Random.h"
 #include <glm/gtx/rotate_vector.hpp>
+
+#include "../LoopHelper.h"
 
 INSTANCE_IMPL(WeaponSystem);
 
@@ -65,11 +71,20 @@ void WeaponSystem::DoUpdate(float dt) {
                     wc->ammoLeftInClip -= 1;
                     wc->_hot += wc->heatupPerBullet;
 
+                    std::vector<float> randomAngles(wc->bulletPerShot);
+                    auto owner = ANCHOR(ANCHOR(ANCHOR(entity)->parent /* = head */)->parent /* = body */)->parent;
+                    auto* aic = theAISystem.Get(owner, false);
+                    if (aic) {
+                        Random::N_Floats(LoopHelper::aiRandomGenerator(UNIT(owner)->index), wc->bulletPerShot, &randomAngles[0], -0.5f * wc->precision, 0.5f * wc->precision);
+                    } else {
+                        Random::N_Floats(LoopHelper::playerRandomGenerator(UNIT(owner)->index), wc->bulletPerShot, &randomAngles[0], -0.5f * wc->precision, 0.5f * wc->precision);
+                    }
+
                     for (int i=0; i<wc->bulletPerShot; i++) {
                         // Collision
                         Entity bColl = theEntityManager.CreateEntityFromTemplate("bullet");
                         TRANSFORM(bColl)->position = nose;
-                        TRANSFORM(bColl)->rotation = tc->rotation + Random::Float(-0.5f * wc->precision, 0.5f * wc->precision);
+                        TRANSFORM(bColl)->rotation = tc->rotation + randomAngles[i];
                     }
                 }
                 wc->_mustCoolDown = (wc->_hot >= 1.0f);

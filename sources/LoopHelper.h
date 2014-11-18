@@ -42,4 +42,8 @@ class LoopHelper {
 
         static glm::vec2 over(int player);
 
+        static std::mt19937& aiRandomGenerator(int index);
+
+        static std::mt19937& playerRandomGenerator(int index);
+
 };

@@ -2,11 +2,14 @@
 #include "base/SceneState.h"
 
 #include "base/EntityManager.h"
+#include "systems/AnchorSystem.h"
+#include "systems/TextSystem.h"
 #include "systems/ZSQDSystem.h"
 #include "systems/BulletSystem.h"
 #include "systems/UnitSystem.h"
 #include "systems/WeaponSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/AutoDestroySystem.h"
 
 #include "../MyTestGame.h"
 #include "Scenes.h"
@@ -20,7 +23,9 @@ public:
 
     BeginLoopScene(MyTestGame* _game) : SceneState<Scene::Enum>("begin_loop", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
 
-    void onEnter(Scene::Enum) override {
+    bool updatePreEnter(Scene::Enum, float) override {
+        /* wait for all debris to disappear */
+        return (theAutoDestroySystem.entityCount() == 0);
     }
 
     Scene::Enum update(float) override {
@@ -64,6 +69,10 @@ public:
 
             Entity newUnit = theEntityManager.CreateEntityFromTemplate("player");
             MyTestGame::buildUnitParts(newUnit);
+            UNIT(newUnit)->index = i;
+            ANCHOR(UNIT(newUnit)->body)->z = -0.4;
+            TEXT(newUnit)->text = (char)('1' + i);
+            TEXT(newUnit)->color = (i == activePlayerIndex) ? Color(1, 0, 0) : Color(0, 0, 0);
             game->playerUnits.push_back(newUnit);
         }
 

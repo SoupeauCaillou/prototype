@@ -3,8 +3,9 @@
 #include "systems/System.h"
 
 struct UnitComponent {
-    UnitComponent() : alive(true) {}
+    UnitComponent() : index(-1), alive(true) {}
 
+    int index;
     Entity body, head, weapon[2], hitzone;
     bool alive;
 };

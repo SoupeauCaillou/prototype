@@ -1,13 +1,15 @@
 #include "AISystem.h"
 
 #include "systems/TransformationSystem.h"
-#include "util/Random.h"
 
 #include "VisibilitySystem.h"
 #include "UnitSystem.h"
 #include "WeaponSystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/ZSQDSystem.h"
+
+#include "../LoopHelper.h"
+#include "util/Random.h"
 
 INSTANCE_IMPL(AISystem);
 
@@ -21,8 +23,12 @@ AISystem::AISystem() : ComponentSystemImpl<AIComponent>(HASH("AI", 0x984cbb03)) 
 }
 
 void AISystem::DoUpdate(float dt) {
+    /* assume unit are always in the same order */
     FOR_EACH_ENTITY_COMPONENT(AI, e, uc)
-        if (!UNIT(e)->alive) continue;
+        const auto* unit = UNIT(e);
+        if (!unit->alive) continue;
+
+        auto& generator = LoopHelper::aiRandomGenerator(unit->index);
 
         Entity* weapons = UNIT(e)->weapon;
 
@@ -36,8 +42,9 @@ void AISystem::DoUpdate(float dt) {
             if (glm::abs(d) > 0.01) {
                 TRANSFORM(e)->rotation += glm::sign(d) * glm::min(glm::abs(d), uc->rotationSpeed * dt);
             } else if (uc->state == State::Idle) {
-                uc->_pauseAccum = uc->pauses.random();
-                uc->_targetAngle = Random::Float(uc->minAngle, uc->maxAngle);
+                uc->_pauseAccum = uc->pauses.lerp(Random::Float(generator));
+                uc->_targetAngle = Random::Float(generator, uc->minAngle, uc->maxAngle);
+                LOGI_IF(unit->index == 0, __(uc->_pauseAccum) << ", " << __(uc->_targetAngle) << ", " << __(uc->minAngle) << ", " << __(uc->maxAngle));
             }
         }
 
@@ -58,7 +65,9 @@ void AISystem::DoUpdate(float dt) {
                 if (uc->state == State::Idle) {
                     uc->state = State::Firing;
                     VISIBILITY(e)->raysPerFrame *= 2;
-                    WEAPON(weapons[Random::Int(0, 1)])->fire = true;
+                    int chosenWeapon = Random::Int(generator, 0, 1);
+                    LOGI(__(chosenWeapon));
+                    WEAPON(weapons[chosenWeapon])->fire = true;
                 }
 
                 for (int i=0; i<2; i++) {

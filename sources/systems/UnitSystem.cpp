@@ -6,7 +6,8 @@
 INSTANCE_IMPL(UnitSystem);
 
 UnitSystem::UnitSystem() : ComponentSystemImpl<UnitComponent>(HASH("Unit", 0xb16d96c1)) {
-
+    UnitComponent uc;
+    componentSerializer.add(new Property<int>(HASH("index", 0x42bec51c), OFFSET(index, uc)));
 }
 
 void UnitSystem::DoUpdate(float) {
