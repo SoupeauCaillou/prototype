@@ -22,7 +22,7 @@ class LoopHelper {
 
         static void start();
 
-        static void update(float dt);
+        static void update(float dt, bool fastforward);
 
         static bool isLoopLongerThanPrevious();
 
@@ -51,5 +51,7 @@ class LoopHelper {
         static int unitToSaveFromDeath();
 
         static float unitDeathTime();
+
+        static bool canFastForward(int index);
 
 };

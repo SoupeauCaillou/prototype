@@ -16,6 +16,7 @@ struct Loop {
     struct {
         std::vector<glm::vec2>* over[MAX_LOOP]; /* mouse position */
         std::vector<uint8_t>* input[MAX_LOOP]; /* input state (down & (1 << Input::Down)) */
+        std::vector<int> frames;
 
         int seeds[MAX_PLAYER];
         std::mt19937 generators[MAX_PLAYER];
@@ -23,8 +24,8 @@ struct Loop {
         int count;
     } player;
 
-    int unitToSaveFromDeath;
-    float deathTime;
+    std::vector<int> unitToSaveFromDeath;
+    std::vector<float> deathTime;
 
     float durations[MAX_LOOP];
     int id;
@@ -55,24 +56,28 @@ void LoopHelper::start() {
     loop.id = 0;
     loop.durations[0] = 0;
     loop.currentFrame = 0;
-    loop.unitToSaveFromDeath = -1;
 
     loop.player.count = 1;
-    loop.player.over[0] = new std::vector<glm::vec2>(1);
-    loop.player.input[0] = new std::vector<uint8_t>(1);
+    loop.player.over[0] = new std::vector<glm::vec2>(1024);
+    loop.player.input[0] = new std::vector<uint8_t>(1024);
+    loop.player.frames.resize(MAX_PLAYER);
+    loop.player.frames[0] = 0;
     Random::N_Ints(MAX_PLAYER, loop.player.seeds, 0, INT_MAX - 1);
 
     seedRandomnessGenerators();
 }
 
 void LoopHelper::loopFailedUnitDead(int index) {
-    loop.unitToSaveFromDeath = index;
-    loop.deathTime = loop.durations[loop.id];
+    if (loop.unitToSaveFromDeath.empty() || (index != loop.unitToSaveFromDeath.back())) {
+        loop.unitToSaveFromDeath.push_back(index);
+        loop.deathTime.push_back(loop.durations[loop.id]);
+    }
 
     /* only way to increase loop count */
-    if (loop.id == (loop.player.count - 1)) {
-        loop.player.over[loop.player.count] = new std::vector<glm::vec2>(1);
-        loop.player.input[loop.player.count] = new std::vector<uint8_t>(1);
+    if (loop.id == (loop.player.count - 1) || (index == loop.player.count - 1)) {
+        loop.player.over[loop.player.count] = new std::vector<glm::vec2>(1024);
+        loop.player.input[loop.player.count] = new std::vector<uint8_t>(1024);
+        loop.player.frames[loop.player.count] = 0;
         loop.player.count++;
     }
 
@@ -84,15 +89,19 @@ void LoopHelper::loopFailedUnitDead(int index) {
 }
 
 void LoopHelper::loopSucceeded() {
-    /* find the loop with lowest duration */
-    if (loop.unitToSaveFromDeath >= 0) {
-        loop.id = loop.unitToSaveFromDeath;
-        loop.unitToSaveFromDeath = -1;
+    /* take control of saved unit */
+    if (!loop.unitToSaveFromDeath.empty()) {
+        loop.id = loop.unitToSaveFromDeath.back();
+        loop.unitToSaveFromDeath.pop_back();
+        loop.deathTime.pop_back();
     }
-    loop.durations[loop.id] = 0;
-    loop.currentFrame = 0;
 
     seedRandomnessGenerators();
+}
+
+bool LoopHelper::canFastForward(int index) {
+    /* -1 because update() is called after canFastForward */
+    return loop.currentFrame < loop.player.frames[index];
 }
 
 bool LoopHelper::isLoopLongerThanPrevious() {
@@ -104,7 +113,7 @@ float LoopHelper::loopDuration() {
     return loop.durations[loop.id];
 }
 
-void LoopHelper::update(float dt) {
+void LoopHelper::update(float dt, bool fastforward) {
     loop.durations[loop.id] += dt;
     LOGV(1, "Loop #" << loop.id << " new duration = " << loop.durations[loop.id]);
 
@@ -119,8 +128,11 @@ void LoopHelper::update(float dt) {
         }
     }
 
-    /* reset input state for new frame, for active player */
-    (*loop.player.input[loop.id])[loop.currentFrame] = 0;
+    if (!fastforward) {
+        loop.player.frames[loop.id]++;
+        /* reset input state for new frame, for active player */
+        (*loop.player.input[loop.id])[loop.currentFrame] = 0;
+    }
 }
 
 int LoopHelper::playerCount() {
@@ -132,16 +144,18 @@ int LoopHelper::activePlayerIndex() {
 }
 
 bool LoopHelper::input(Input::Enum i, int player) {
-    LOGF_IF(player == loop.id, "Requesting input for active player " << loop.id);
     LOGF_IF(player >= loop.player.count, "Requesting input for player " << player << " when there are only " << loop.player.count << " in play");
-    LOGE_IF(loop.currentFrame >= (int)loop.player.input[player]->size(), "Frame #" << loop.currentFrame << " requested but only " << loop.player.input[player]->size() << " availabe");
+    if (loop.currentFrame >= loop.player.frames[player]) {
+        return false;
+    }
     return (*loop.player.input[player])[loop.currentFrame] & (1 << (int)i);
 }
 
 glm::vec2 LoopHelper::over(int player) {
-    LOGF_IF(player == loop.id, "Requesting over for active player " << loop.id);
     LOGF_IF(player >= loop.player.count, "Requesting over for player " << player << " when there are only " << loop.player.count << " in play");
-    LOGE_IF(loop.currentFrame >= (int)loop.player.over[player]->size(), "Frame #" << loop.currentFrame << " requested but only " << loop.player.over[player]->size() << " availabe");
+    if (loop.currentFrame >= loop.player.frames[player]) {
+        return loop.player.over[player]->back();
+    }
     return (*loop.player.over[player])[loop.currentFrame];
 }
 
@@ -164,9 +178,13 @@ std::mt19937& LoopHelper::playerRandomGenerator(int index) {
 }
 
 int LoopHelper::unitToSaveFromDeath() {
-    return loop.unitToSaveFromDeath;
+    if (loop.unitToSaveFromDeath.empty())
+        return -1;
+    return loop.unitToSaveFromDeath.back();
 }
 
 float LoopHelper::unitDeathTime() {
-    return loop.deathTime;
+    if (loop.deathTime.empty())
+        return -1;
+    return loop.deathTime.back();
 }

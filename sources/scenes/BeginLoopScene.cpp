@@ -19,7 +19,6 @@
 
 class BeginLoopScene : public SceneState<Scene::Enum> {
     MyTestGame* game;
-    int loop;
 
 public:
 
@@ -74,7 +73,6 @@ public:
             UNIT(newUnit)->index = i;
             ANCHOR(UNIT(newUnit)->body)->z = -0.4;
             TEXT(newUnit)->text = (char)('1' + i);
-            TEXT(newUnit)->color = (i == activePlayerIndex) ? Color(1, 0, 0) : Color(0, 0, 0);
             game->playerUnits.push_back(newUnit);
         }
 
@@ -83,20 +81,7 @@ public:
         ZSQD(game->playerUnit)->lateralMove = false;
         TRANSFORM(game->camera)->position = TRANSFORM(game->playerUnit)->position;
 
-
-        {
-            char tmp[256];
-            Entity objective = e(HASH("begin_loop/objective", 0x13574b78));
-            int dead = LoopHelper::unitToSaveFromDeath();
-            if (dead >= 0) {
-                sprintf(tmp, "Unit #%d: prevent unit #%d from dying at %.2f s", activePlayerIndex + 1, dead + 1, LoopHelper::unitDeathTime());
-            } else {
-                sprintf(tmp, "Unit #%d: kill all %d enemies", activePlayerIndex, theAISystem.entityCount());
-            }
-            TEXT(objective)->text = tmp;
-        }
-
-        return Scene::Game;
+        return Scene::Objective;
     }
 
 

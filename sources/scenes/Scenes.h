@@ -29,6 +29,7 @@ namespace Scene {
 		EndLoop,
 		Game,
 		Menu,
+		Objective,
 		Victory,
 	};
 	StateHandler<Scene::Enum>* CreateBeginLoopSceneHandler(MyTestGame* game);
@@ -36,6 +37,7 @@ namespace Scene {
 	StateHandler<Scene::Enum>* CreateEndLoopSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateGameSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateMenuSceneHandler(MyTestGame* game);
+	StateHandler<Scene::Enum>* CreateObjectiveSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateVictorySceneHandler(MyTestGame* game);
 }
 inline void registerScenes(MyTestGame * game, StateMachine<Scene::Enum> & machine) {	machine.registerState(Scene::BeginLoop, Scene::CreateBeginLoopSceneHandler(game));
@@ -43,5 +45,6 @@ inline void registerScenes(MyTestGame * game, StateMachine<Scene::Enum> & machin
 	machine.registerState(Scene::EndLoop, Scene::CreateEndLoopSceneHandler(game));
 	machine.registerState(Scene::Game, Scene::CreateGameSceneHandler(game));
 	machine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(game));
+	machine.registerState(Scene::Objective, Scene::CreateObjectiveSceneHandler(game));
 	machine.registerState(Scene::Victory, Scene::CreateVictorySceneHandler(game));
 }
