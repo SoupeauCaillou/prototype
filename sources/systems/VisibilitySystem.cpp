@@ -4,6 +4,10 @@
 #include "systems/TransformationSystem.h"
 #include "systems/CollisionSystem.h"
 
+#include "AISystem.h"
+#include "UnitSystem.h"
+#include "../LoopHelper.h"
+
 #include "util/Random.h"
 
 INSTANCE_IMPL(VisibilitySystem);
@@ -66,7 +70,13 @@ void VisibilitySystem::DoUpdate(float) {
     FOR_EACH_ENTITY_COMPONENT(Visibility, e, vc)
         LOGE_IF(vc->raysPerFrame >= 128, vc->raysPerFrame << " rays per frame won't hold in static array");
         float base = TRANSFORM(e)->rotation;
-        Random::N_Floats(vc->raysPerFrame, angles, base - vc->fov * 0.5f, base + vc->fov * 0.5f);
+        auto* unit = UNIT(e);
+        auto* ac = theAISystem.Get(e, false);
+        if (ac) {
+            Random::N_Floats(LoopHelper::aiRandomGenerator(unit->index), vc->raysPerFrame, angles, base - vc->fov * 0.5f, base + vc->fov * 0.5f);
+        } else {
+            Random::N_Floats(LoopHelper::playerRandomGenerator(unit->index), vc->raysPerFrame, angles, base - vc->fov * 0.5f, base + vc->fov * 0.5f);
+        }
 
         int start = vc->_rayStartIndex = rayIndex;
         vc->_rayCount = vc->raysPerFrame;
