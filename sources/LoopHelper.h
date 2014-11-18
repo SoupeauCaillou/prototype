@@ -28,7 +28,7 @@ class LoopHelper {
 
         static float loopDuration();
 
-        static void loopFailed();
+        static void loopFailedUnitDead(int index);
 
         static void loopSucceeded();
 
@@ -47,5 +47,9 @@ class LoopHelper {
         static std::mt19937& aiRandomGenerator(int index);
 
         static std::mt19937& playerRandomGenerator(int index);
+
+        static int unitToSaveFromDeath();
+
+        static float unitDeathTime();
 
 };

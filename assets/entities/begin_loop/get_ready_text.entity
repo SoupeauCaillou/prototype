@@ -2,12 +2,12 @@
 
 [Anchor]
 parent%name = camera
-position%screen = 0, 0
+position%screen = 0, -0.45
 z = 0.45
 
 [Text]
 font = typo
-char_height = 2
+char_height = 1.5
 blink_off_duration = 0.7
 blink_on_duration = 0.7
-
+text = click when ready

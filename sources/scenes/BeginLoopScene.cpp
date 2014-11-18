@@ -2,6 +2,7 @@
 #include "base/SceneState.h"
 
 #include "base/EntityManager.h"
+#include "systems/AISystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/ZSQDSystem.h"
@@ -82,9 +83,19 @@ public:
         ZSQD(game->playerUnit)->lateralMove = false;
         TRANSFORM(game->camera)->position = TRANSFORM(game->playerUnit)->position;
 
-        char tmp[128];
-        sprintf(tmp, "Loop %d/%d - click when ready", activePlayerIndex + 1, playerCount);
-        TEXT(e(HASH("begin_loop/get_ready_text", 0x3f1b44b5)))->text = tmp;
+
+        {
+            char tmp[256];
+            Entity objective = e(HASH("begin_loop/objective", 0x13574b78));
+            int dead = LoopHelper::unitToSaveFromDeath();
+            if (dead >= 0) {
+                sprintf(tmp, "Unit #%d: prevent unit #%d from dying at %.2f s", activePlayerIndex + 1, dead + 1, LoopHelper::unitDeathTime());
+            } else {
+                sprintf(tmp, "Unit #%d: kill all %d enemies", activePlayerIndex, theAISystem.entityCount());
+            }
+            TEXT(objective)->text = tmp;
+        }
+
         return Scene::Game;
     }
 

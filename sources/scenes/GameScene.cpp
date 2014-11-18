@@ -100,7 +100,7 @@ public:
         for (auto u: game->playerUnits) {
             if (!UNIT(u)->alive) {
                 LOGI("Unit '" << u << "' is dead. Looping");
-                LoopHelper::loopFailed();
+                LoopHelper::loopFailedUnitDead(UNIT(u)->index);
                 LOGI("LOOP FAILED");
                 return Scene::BeginLoop;
             }

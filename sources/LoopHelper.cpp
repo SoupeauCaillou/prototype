@@ -23,6 +23,9 @@ struct Loop {
         int count;
     } player;
 
+    int unitToSaveFromDeath;
+    float deathTime;
+
     float durations[MAX_LOOP];
     int id;
     int currentFrame;
@@ -52,6 +55,7 @@ void LoopHelper::start() {
     loop.id = 0;
     loop.durations[0] = 0;
     loop.currentFrame = 0;
+    loop.unitToSaveFromDeath = -1;
 
     loop.player.count = 1;
     loop.player.over[0] = new std::vector<glm::vec2>(1);
@@ -61,7 +65,10 @@ void LoopHelper::start() {
     seedRandomnessGenerators();
 }
 
-void LoopHelper::loopFailed() {
+void LoopHelper::loopFailedUnitDead(int index) {
+    loop.unitToSaveFromDeath = index;
+    loop.deathTime = loop.durations[loop.id];
+
     /* only way to increase loop count */
     if (loop.id == (loop.player.count - 1)) {
         loop.player.over[loop.player.count] = new std::vector<glm::vec2>(1);
@@ -77,7 +84,11 @@ void LoopHelper::loopFailed() {
 }
 
 void LoopHelper::loopSucceeded() {
-    loop.id--;
+    /* find the loop with lowest duration */
+    if (loop.unitToSaveFromDeath >= 0) {
+        loop.id = loop.unitToSaveFromDeath;
+        loop.unitToSaveFromDeath = -1;
+    }
     loop.durations[loop.id] = 0;
     loop.currentFrame = 0;
 
@@ -150,4 +161,12 @@ std::mt19937& LoopHelper::aiRandomGenerator(int index) {
 
 std::mt19937& LoopHelper::playerRandomGenerator(int index) {
     return loop.player.generators[index];
+}
+
+int LoopHelper::unitToSaveFromDeath() {
+    return loop.unitToSaveFromDeath;
+}
+
+float LoopHelper::unitDeathTime() {
+    return loop.deathTime;
 }
