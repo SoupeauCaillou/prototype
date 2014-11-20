@@ -44,9 +44,6 @@ public:
     }
 
     void onEnter(Scene::Enum from) override {
-        char tmp[128];
-        sprintf(tmp, "loop %d/%d", LoopHelper::activePlayerIndex() + 1, LoopHelper::playerCount());
-        TEXT(e(HASH("game/loop_text", 0x35373a8a)))->text = tmp;
 
         SceneState<Scene::Enum>::onEnter(from);
     }
@@ -73,11 +70,17 @@ public:
         }
 
         /* if all enemy units are dead -> victory */
-        bool victory = true;
+
+        int aiAliveCount = 0;
         for (auto u: game->aiUnits) {
-            victory &= (!UNIT(u)->alive);
+            aiAliveCount += (UNIT(u)->alive);
         }
-        if (victory) {
+        {
+            char tmp[128];
+            sprintf(tmp, "Unit #%d - enemy left: %d/%d", LoopHelper::activePlayerIndex() + 1, aiAliveCount, 7);
+            TEXT(e(HASH("game/loop_text", 0x35373a8a)))->text = tmp;
+        }
+        if (aiAliveCount == 0) {
             LOGI("LOOP VICTORY");
             return Scene::Victory;
         }

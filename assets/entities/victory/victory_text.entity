@@ -8,8 +8,5 @@ show = 0
 
 [Anchor]
 parent%name = camera
-z = 0.9
+z = 0.4
 
-[Blink]
-visible_duration = 75
-hidden_duration = 0.6

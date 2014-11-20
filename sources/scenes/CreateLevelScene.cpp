@@ -20,12 +20,17 @@
 
 class CreateLevelScene : public SceneState<Scene::Enum> {
     MyTestGame* game;
+    std::vector<Entity> blocks;
+
 public:
     CreateLevelScene(MyTestGame* _game) : SceneState<Scene::Enum>("create_level", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
 
+    void onEnter(Scene::Enum) {
+        for (auto b: blocks) theEntityManager.DeleteEntity(b);
+        blocks.clear();
+    }
 
     Scene::Enum update(float) override {
-        std::vector<Entity> blocks;
         auto level = game->gameThreadContext->assetAPI->listAssetContent(".entity", "entities/level");
         {
             for (auto l: level) {

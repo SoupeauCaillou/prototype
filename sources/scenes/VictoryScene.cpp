@@ -14,9 +14,8 @@ public:
     VictoryScene(MyTestGame* _game) : SceneState<Scene::Enum>("victory", SceneEntityMode::Fading, SceneEntityMode::Fading), game(_game) {}
 
     void onEnter(Scene::Enum) override {
-        Entity t = e(HASH("victory_text", 0x0));
+        Entity t = e(HASH("victory/victory_text", 0x787eb88e));
         TEXT(t)->show = true;
-        BLINK(t)->enabled = true;
     }
 
     Scene::Enum update(float) override {
@@ -27,9 +26,8 @@ public:
     }
 
     void onExit(Scene::Enum) override {
-        Entity t = e(HASH("victory_text", 0x0));
+        Entity t = e(HASH("victory/victory_text", 0x787eb88e));
         TEXT(t)->show = false;
-        BLINK(t)->enabled = false;
     }
 };
 

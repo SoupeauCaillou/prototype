@@ -57,6 +57,9 @@ void LoopHelper::start() {
     loop.durations[0] = 0;
     loop.currentFrame = 0;
 
+    loop.unitToSaveFromDeath.clear();
+    loop.deathTime.clear();
+
     loop.player.count = 1;
     loop.player.over[0] = new std::vector<glm::vec2>(1024);
     loop.player.input[0] = new std::vector<uint8_t>(1024);
