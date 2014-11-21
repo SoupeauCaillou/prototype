@@ -1,0 +1,12 @@
+[Text]
+text = Defeat!
+font = typo
+char_height%screen_h = 0.1
+show = 0
+
+[Transformation]
+
+[Anchor]
+parent%name = camera
+z = 0.4
+

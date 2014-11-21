@@ -37,7 +37,7 @@ public:
         Entity objective = e(HASH("objective/objective", 0xa280daa2));
         int dead = LoopHelper::unitToSaveFromDeath();
         if (dead >= 0) {
-            sprintf(tmp, "Unit #%d: prevent unit #%d from dying at %.2f s", activePlayerIndex + 1, dead + 1, LoopHelper::unitDeathTime());
+            sprintf(tmp, "Unit #%d: prevent unit #%d from dying in %.2f s", activePlayerIndex + 1, dead + 1, LoopHelper::unitDeathTime() - LoopHelper::loopDuration());
         } else {
             sprintf(tmp, "Unit #%d: kill all %d enemies", activePlayerIndex, theAISystem.entityCount());
         }

@@ -73,6 +73,7 @@ void WeaponSystem::DoUpdate(float dt) {
 
                     std::vector<float> randomAngles(wc->bulletPerShot);
                     auto owner = ANCHOR(ANCHOR(ANCHOR(entity)->parent /* = head */)->parent /* = body */)->parent;
+                    if (!owner) break;
                     auto* aic = theAISystem.Get(owner, false);
                     if (aic) {
                         Random::N_Floats(LoopHelper::aiRandomGenerator(UNIT(owner)->index), wc->bulletPerShot, &randomAngles[0], -0.5f * wc->precision, 0.5f * wc->precision);

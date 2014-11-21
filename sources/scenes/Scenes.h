@@ -26,6 +26,7 @@ namespace Scene {
 	enum Enum : int {
 		BeginLoop,
 		CreateLevel,
+		Defeat,
 		EndLoop,
 		Game,
 		Menu,
@@ -34,6 +35,7 @@ namespace Scene {
 	};
 	StateHandler<Scene::Enum>* CreateBeginLoopSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateCreateLevelSceneHandler(MyTestGame* game);
+	StateHandler<Scene::Enum>* CreateDefeatSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateEndLoopSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateGameSceneHandler(MyTestGame* game);
 	StateHandler<Scene::Enum>* CreateMenuSceneHandler(MyTestGame* game);
@@ -42,6 +44,7 @@ namespace Scene {
 }
 inline void registerScenes(MyTestGame * game, StateMachine<Scene::Enum> & machine) {	machine.registerState(Scene::BeginLoop, Scene::CreateBeginLoopSceneHandler(game));
 	machine.registerState(Scene::CreateLevel, Scene::CreateCreateLevelSceneHandler(game));
+	machine.registerState(Scene::Defeat, Scene::CreateDefeatSceneHandler(game));
 	machine.registerState(Scene::EndLoop, Scene::CreateEndLoopSceneHandler(game));
 	machine.registerState(Scene::Game, Scene::CreateGameSceneHandler(game));
 	machine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(game));

@@ -50,18 +50,30 @@ public:
 
     Scene::Enum update(float dt) override {
         char tmp[128];
-        sprintf(tmp, "%.2f s", LoopHelper::loopDuration());
+
+        if (LoopHelper::unitToSaveFromDeath() < 0) {
+            sprintf(tmp, "%.2f s", LoopHelper::loopDuration());
+        } else {
+            sprintf(tmp, "%.2f s", glm::max(0.0f, LoopHelper::unitDeathTime() - LoopHelper::loopDuration()));
+        }
         TEXT(e(HASH("game/chrono_text", 0x900a8522)))->text = tmp;
 
         /* if at least one player unit is dead, loop failure */
+        int alive = 0;
         for (auto u: game->playerUnits) {
             if (!UNIT(u)->alive) {
-                LOGI("Unit '" << u << "' is dead. Looping");
-                LoopHelper::loopFailedUnitDead(UNIT(u)->index);
-                LOGI("LOOP FAILED");
-                return Scene::BeginLoop;
+                if (UNIT(u)->index == 0 && LoopHelper::activePlayerIndex() == 0) {
+                    LOGI("Unit '" << u << "' is dead. Looping");
+                    LoopHelper::loopFailedUnitDead(UNIT(u)->index);
+                    LOGI("LOOP FAILED");
+                    return Scene::BeginLoop;
+                }
+            } else {
+                alive ++;
             }
         }
+        if (alive == 0)
+            return Scene::Defeat;
 
         if (LoopHelper::playerCount() > 1 && LoopHelper::isLoopLongerThanPrevious()) {
             LoopHelper::loopSucceeded();
