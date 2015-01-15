@@ -8,6 +8,6 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
     theEntityManager.CreateEntityFromTemplate("test");
 }
 
-void SacHelloWorldGame::tick(float dt) {
+void SacHelloWorldGame::tick(float) {
 
 }
