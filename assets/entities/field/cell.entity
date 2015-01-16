@@ -1,8 +1,9 @@
 [Transformation]
 z = 0.5
-size = 0.8, 0.8
+size = 1.1
+shape = 2
 
 [Rendering]
 show = 1
 flags = 1
-shape = 2
+color = 0.01,0,0,1, 1,1,1,1
