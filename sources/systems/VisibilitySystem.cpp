@@ -19,18 +19,18 @@ VisibilitySystem::VisibilitySystem() : ComponentSystemImpl<VisibilityComponent>(
     componentSerializer.add(new Property<int>(HASH("collide_with", 0x6b658240), OFFSET(collideWith, vc), 0));
 }
 
-void createRays(Entity* out, int count) {
+static void createRays(Entity* out, int count) {
     for (int i=0; i<count; i++) {
         Entity r = theEntityManager.CreateEntity(HASH("__/visibility_ray", 0x31f0a0dd));
         ADD_COMPONENT(r, Transformation);
         ADD_COMPONENT(r, Collision);
-        COLLISION(r)->isARay = true;
+        COLLISION(r)->ray.is = true;
         COLLISION(r)->collideWith = 9;
         *out++ = r;
     }
 }
 
-void VisibilitySystem::DoUpdate(float) {
+void VisibilitySystem::DoUpdate(float) {return;
     int resultIndex = 0;
     int raycount = 0;
 
@@ -88,7 +88,7 @@ void VisibilitySystem::DoUpdate(float) {
             tc->position = position;
             tc->rotation = angles[i];
             auto* cc = COLLISION(ray);
-            cc->rayTestDone = false;
+            cc->ray.testDone = false;
             cc->ignore = e;
         }
         rayIndex += vc->raysPerFrame;

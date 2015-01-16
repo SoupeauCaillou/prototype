@@ -4,6 +4,7 @@
 #include "systems/BulletSystem.h"
 #include "systems/UnitSystem.h"
 #include "systems/VisibilitySystem.h"
+#include "systems/VisionSystem.h"
 #include "systems/WeaponSystem.h"
 
 #include "base/TouchInputManager.h"
@@ -71,6 +72,7 @@ void updateLogic(float dt, MyTestGame* game, bool fastforward) {
     theBulletSystem.Update(dt);
     theUnitSystem.Update(dt);
     theVisibilitySystem.Update(dt);
+    theVisionSystem.Update(dt);
     theWeaponSystem.Update(dt);
 
     RealInput realInput(game->gameThreadContext->keyboardInputHandlerAPI);

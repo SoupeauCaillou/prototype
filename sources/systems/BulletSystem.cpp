@@ -22,7 +22,7 @@ void BulletSystem::DoUpdate(float dt) {
 
     FOR_EACH_ENTITY_COMPONENT(Bullet, bullet, bc)
         auto* cc = COLLISION(bullet);
-        if (cc->rayTestDone) {
+        if (cc->ray.testDone) {
             if (cc->collision.count) {
                 auto* a = theAnchorSystem.Get(cc->collision.with[0], false);
                 if (a && a->parent) {

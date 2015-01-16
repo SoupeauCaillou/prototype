@@ -14,6 +14,7 @@
 #include "systems/BulletSystem.h"
 #include "systems/UnitSystem.h"
 #include "systems/VisibilitySystem.h"
+#include "systems/VisionSystem.h"
 #include "systems/WeaponSystem.h"
 
 #include "api/KeyboardInputHandlerAPI.h"
@@ -24,11 +25,23 @@
 
 #include "base/StateMachine.inl"
 
+/* TODO:
+ - vitres
+ - triggers (alarme, porte, etc)
+ - déplacement IA
+ - désarmement (hitbox armes)
+ - nouveaux niveaux
+ - ordres pour les futurs persos (ou décompte: 3.2.1 go avant d'attaquer par ex)
+ - timeline en bas de l'écran pour s'y retrouver
+ - touche pour faire du fast-forward pendant le replay de 1 (qd on controlle 2)
+*/
+
 void MyTestGame::init(const uint8_t*, int) {
     AISystem::CreateInstance();
     BulletSystem::CreateInstance();
     UnitSystem::CreateInstance();
     VisibilitySystem::CreateInstance();
+    VisionSystem::CreateInstance();
     WeaponSystem::CreateInstance();
 
     glm::vec2 worldSize = PlacementHelper::ScreenSize * 2.0f;

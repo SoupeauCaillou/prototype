@@ -1,8 +1,8 @@
 
 [Transformation]
-position = -0.697, 15.809
-size = 44.098, 1.000
-rotation = -0.002
+position = 0, 15.5
+size = 44, 1.000
+rotation = 0
 z = 0.600
 shape = 0
 
@@ -13,7 +13,7 @@ restore_position_on_collision = 0
 is_a_ray = 0
 
 [Rendering]
-texture = 
+texture =
 show = 1
 flags = 0
 camera_bitmask = 1
