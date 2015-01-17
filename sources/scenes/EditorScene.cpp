@@ -24,12 +24,8 @@
 
 #include "systems/GridSystem.h"
 #include "systems/TransformationSystem.h"
-#include "systems/TextSystem.h"
-#include "systems/MusicSystem.h"
-#include "systems/AnimationSystem.h"
-#include "systems/PhysicsSystem.h"
+#include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
-#include "systems/AnchorSystem.h"
 
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
@@ -55,18 +51,35 @@ class EditorScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onEnter(f);
     }
 
+    static Color typeToColor(bitfield_t b) {
+        switch (b) {
+            case Case::Empty: return Color(0.01, 1, 0.01);
+            case Case::Rock:  return Color(0.3, 0.3, 0.3);
+            case Case::Start: return Color(0.9, 0.9, 0.9);
+            case Case::End:   return Color(0.1, 0.1, 0.1);
+            default:
+                return Color(0, 0, 0);
+        }
+    }
+
     Scene::Enum update(float) {
     game->grid.forEachCellDo([this] (const GridPos& pos) -> void {
         auto& eList = game->grid.getEntitiesAt(pos);
         Entity e = eList.front();
         if (BUTTON(e)->clicked) {
-            bool b = GRID(e)->blocksPath;
-            theEntityManager.DeleteEntity(e);
-            eList.pop_front();
-            Entity n = theEntityManager.CreateEntityFromTemplate(
-                b ? "field/cell_grass" : "field/cell_rock");
-            TRANSFORM(n)->position = game->grid.gridPosToPosition(pos);
-            eList.push_back(n);
+            bitfield_t b = GRID(e)->type;
+
+            switch (b) {
+                case Case::Empty: b = Case::Rock; break;
+                case Case::Rock: b = Case::Start; break;
+                case Case::Start: b = Case::End; break;
+                case Case::End: b = Case::Empty; break;
+                default: b = Case::Empty; break;
+            }
+            GRID(e)->type = b;
+            RENDERING(e)->color = typeToColor(b);
+
+            // dumpLevel(game->grid);
         }
     });
 
