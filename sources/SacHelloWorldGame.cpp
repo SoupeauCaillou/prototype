@@ -2,6 +2,7 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "base/Log.h"
+#include "systems/ButtonSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/CameraSystem.h"
@@ -20,7 +21,7 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
 
      CAMERA(theEntityManager.getEntityByName(HASH("camera",0x526b9e0c)))->clearColor = Color(0,0,0);
 
-     Entity dog = theEntityManager.CreateEntityFromTemplate("dog");
+     dog = theEntityManager.CreateEntityFromTemplate("dog");
      grid.addEntityAt(dog, GridPos(0, 0));
 }
 
@@ -33,6 +34,22 @@ bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
         }
 }
 
-void SacHelloWorldGame::tick(float) {
+void SacHelloWorldGame::moveToPosition(Entity e, GridPos& pos) {
+    grid.addEntityAt(e, pos);
+    TRANSFORM(e)->position = grid.gridPosToPosition(pos);
+}
 
+void SacHelloWorldGame::tick(float) {
+    GridPos dogPos = grid.positionToGridPos(TRANSFORM(dog)->position);
+    /*from dog pos, very if any of its neighbor has been clicked*/
+    for (auto & neighbor : grid.getNeighbors(dogPos)) {
+        for (Entity elem : grid.getEntitiesAt(neighbor)) {
+            if (theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
+                //if so, move the dog and return
+                grid.removeEntityFrom(dog, dogPos);
+                moveToPosition(dog, neighbor);
+                return;
+            }
+        }
+    }
 }

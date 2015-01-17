@@ -18,8 +18,11 @@ class SacHelloWorldGame : public Game {
             End     = 1 << 5,
         } GameElement;
 
+        Entity dog;
+
     private:
         void tick(float dt);
+    void moveToPosition(Entity e, GridPos& pos);
 
     private:
         HexSpatialGrid grid;
