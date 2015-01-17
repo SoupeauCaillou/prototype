@@ -30,6 +30,10 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
     sheep = theEntityManager.CreateEntityFromTemplate("sheep");
     grid.addEntityAt(sheep, GridPos(1, 1), true);
     TRANSFORM(camera)->size = glm::vec2(28, 17);
+
+    registerScenes(this, sceneStateMachine);
+    sceneStateMachine.setup(gameThreadContext->assetAPI);
+    sceneStateMachine.start(Scene::Editor);
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
@@ -61,4 +65,5 @@ void SacHelloWorldGame::tick(float) {
             }
         }
     }
+    sceneStateMachine.update(dt);
 }

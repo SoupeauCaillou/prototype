@@ -22,7 +22,7 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 
-#include "systems/ADSRSystem.h"
+#include "systems/GridSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/MusicSystem.h"
@@ -56,6 +56,20 @@ class EditorScene : public SceneState<Scene::Enum> {
     }
 
     Scene::Enum update(float) {
+    game->grid.forEachCellDo([this] (const GridPos& pos) -> void {
+        auto& eList = game->grid.getEntitiesAt(pos);
+        Entity e = eList.front();
+        if (BUTTON(e)->clicked) {
+            bool b = GRID(e)->blocksPath;
+            theEntityManager.DeleteEntity(e);
+            eList.pop_front();
+            Entity n = theEntityManager.CreateEntityFromTemplate(
+                b ? "field/cell_grass" : "field/cell_rock");
+            TRANSFORM(n)->position = game->grid.gridPosToPosition(pos);
+            eList.push_back(n);
+        }
+    });
+
         return Scene::Editor;
     }
 

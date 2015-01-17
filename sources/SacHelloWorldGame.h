@@ -27,7 +27,7 @@ class SacHelloWorldGame : public Game {
         void tick(float dt);
     void moveToPosition(Entity e, GridPos& pos);
 
-    private:
+    public:
         StateMachine<Scene::Enum> sceneStateMachine;
         HexSpatialGrid grid;
 };
