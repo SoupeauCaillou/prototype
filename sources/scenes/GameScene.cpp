@@ -64,7 +64,7 @@ class GameScene : public SceneState<Scene::Enum> {
             Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
             std::ostringstream iss;
             iss << theEntityManager.entityName(e) << "(" << pos.q << "/" << pos.r << ")";
-            theEntityManager.renameEntity(e, HASH(iss.str().c_str(), 0));
+            theEntityManager.renameEntity(e, Murmur::RuntimeHash(iss.str().c_str()));
             game->grid.addEntityAt(e, pos, true);
         });
         dog = theEntityManager.CreateEntityFromTemplate("dog");
