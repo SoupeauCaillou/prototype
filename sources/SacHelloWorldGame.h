@@ -1,6 +1,9 @@
 #pragma once
 #include "base/Game.h"
 #include "util/HexSpatialGrid.h"
+#include "base/StateMachine.h"
+#include "base/StateMachine.inl"
+#include "scenes/Scenes.h"
 
 class SacHelloWorldGame : public Game {
     public:
@@ -25,5 +28,6 @@ class SacHelloWorldGame : public Game {
     void moveToPosition(Entity e, GridPos& pos);
 
     private:
+        StateMachine<Scene::Enum> sceneStateMachine;
         HexSpatialGrid grid;
 };

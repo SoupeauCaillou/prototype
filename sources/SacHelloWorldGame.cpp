@@ -6,13 +6,15 @@
 #include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/ButtonSystem.h"
+#include "systems/GridSystem.h"
 
-SacHelloWorldGame::SacHelloWorldGame() : grid(9,9,(glm::sqrt(3.0f) * 0.5f)) {
+SacHelloWorldGame::SacHelloWorldGame() : grid(11,9,2.6) {
 }
 
 void SacHelloWorldGame::init(const uint8_t*, int) {
     grid.forEachCellDo([this] (const GridPos& pos) -> void {
-        std::string type = std::string("field/cell_") +( rand()%2?"grass":"rock");
+        std::string type = std::string("field/cell_grass");
 
         Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
         grid.addEntityAt(e, pos, true);
@@ -27,6 +29,7 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
     grid.addEntityAt(sheep, GridPos(1, 0), true);
     sheep = theEntityManager.CreateEntityFromTemplate("sheep");
     grid.addEntityAt(sheep, GridPos(1, 1), true);
+    TRANSFORM(camera)->size = glm::vec2(28, 17);
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
@@ -41,8 +44,6 @@ bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
 void SacHelloWorldGame::moveToPosition(Entity dog, GridPos& pos) {
 
     // finally move the dog to its position
-
-
 
     grid.addEntityAt(dog, pos, true);
 }
