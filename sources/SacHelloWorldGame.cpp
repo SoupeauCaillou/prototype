@@ -19,7 +19,15 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
 
     registerScenes(this, sceneStateMachine);
     sceneStateMachine.setup(gameThreadContext->assetAPI);
-    sceneStateMachine.start(Scene::Game);
+
+    Scene::Enum start = Scene::Game;
+    for (int i=0; i<arg.c; i++) {
+        if (strcmp("-e", arg.v[i]) == 0 ||
+            strcmp("--editor", arg.v[i]) == 0) {
+            start = Scene::Editor;
+        }
+    }
+    sceneStateMachine.start(start);
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
