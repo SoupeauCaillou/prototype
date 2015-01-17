@@ -23,25 +23,25 @@
 #include <base/StateMachine.h>
 class PrototypeGame;
 namespace Scene {
-	enum Enum : int {
-		Editor,
-		GameEnd,
-		GameStart,
-		InGame,
-		Logo,
-		Menu,
-	};
-	StateHandler<Scene::Enum>* CreateEditorSceneHandler(PrototypeGame* game);
-	StateHandler<Scene::Enum>* CreateGameEndSceneHandler(PrototypeGame* game);
-	StateHandler<Scene::Enum>* CreateGameStartSceneHandler(PrototypeGame* game);
-	StateHandler<Scene::Enum>* CreateInGameSceneHandler(PrototypeGame* game);
-	StateHandler<Scene::Enum>* CreateLogoSceneHandler(PrototypeGame* game);
-	StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game);
+        enum Enum : int {
+                Editor,
+                GameEnd,
+                GameStart,
+                InGame,
+                Logo,
+                Menu,
+        };
+        StateHandler<Scene::Enum>* CreateEditorSceneHandler(PrototypeGame* game);
+        StateHandler<Scene::Enum>* CreateGameEndSceneHandler(PrototypeGame* game);
+        StateHandler<Scene::Enum>* CreateGameStartSceneHandler(PrototypeGame* game);
+        StateHandler<Scene::Enum>* CreateInGameSceneHandler(PrototypeGame* game);
+        StateHandler<Scene::Enum>* CreateLogoSceneHandler(PrototypeGame* game);
+        StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game);
 }
-inline void registerScenes(PrototypeGame * game, StateMachine<Scene::Enum> & machine) {	machine.registerState(Scene::Editor, Scene::CreateEditorSceneHandler(game));
-	machine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(game));
-	machine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(game));
-	machine.registerState(Scene::InGame, Scene::CreateInGameSceneHandler(game));
-	machine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(game));
-	machine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(game));
+inline void registerScenes(PrototypeGame * game, StateMachine<Scene::Enum> & machine) { machine.registerState(Scene::Editor, Scene::CreateEditorSceneHandler(game));
+        machine.registerState(Scene::GameEnd, Scene::CreateGameEndSceneHandler(game));
+        machine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(game));
+        machine.registerState(Scene::InGame, Scene::CreateInGameSceneHandler(game));
+        machine.registerState(Scene::Logo, Scene::CreateLogoSceneHandler(game));
+        machine.registerState(Scene::Menu, Scene::CreateMenuSceneHandler(game));
 }

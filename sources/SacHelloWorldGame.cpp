@@ -22,12 +22,12 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
-	switch (api) {
-		case ContextAPI::Asset:
-			return true;
-		default:
-			return false;
-	}
+        switch (api) {
+                case ContextAPI::Asset:
+                        return true;
+                default:
+                        return false;
+        }
 }
 
 void SacHelloWorldGame::tick(float) {
