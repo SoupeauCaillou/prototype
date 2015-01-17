@@ -1,3 +1,6 @@
+[Grid]
+type = 4
+
 [Transformation]
 z = 0.6
 size = .8, .7

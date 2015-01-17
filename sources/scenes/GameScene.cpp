@@ -21,6 +21,7 @@
 #include "Scenes.h"
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
+#include "base/Log.h"
 
 #include "systems/ADSRSystem.h"
 #include "systems/TransformationSystem.h"
@@ -31,6 +32,8 @@
 #include "systems/ButtonSystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/GridSystem.h"
+
+#include "util/Draw.h"
 
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
@@ -73,10 +76,27 @@ class GameScene : public SceneState<Scene::Enum> {
         dog = theEntityManager.CreateEntityFromTemplate("dog");
         game->grid->addEntityAt(dog, GridPos(0, 0), true);
 
-        Entity sheep = theEntityManager.CreateEntityFromTemplate("sheep");
-        game->grid->addEntityAt(sheep, GridPos(1, 0), true);
-        sheep = theEntityManager.CreateEntityFromTemplate("sheep");
-        game->grid->addEntityAt(sheep, GridPos(1, 1), true);
+        for (int i = 0; i < 25; i++) {
+            // Entity sheep = theEntityManager.CreateEntityFromTemplate("sheep");
+            // game->grid->addEntityAt(sheep, GridPos(1 + (i % 9, 1 + i / 8), true);
+        }
+        AABB outter = game->grid->boundingBox(false);
+        AABB inner = game->grid->boundingBox(true);
+
+        Draw::Rectangle(
+            Murmur::RuntimeHash("Bounding boxes"),
+            glm::vec2(.5*(outter.right+outter.left),.5*(outter.top+outter.bottom)),
+            glm::vec2(outter.right-outter.left, outter.top-outter.bottom),
+            0,
+            Color::random()
+        );
+        Draw::Rectangle(
+            Murmur::RuntimeHash("Bounding boxes"),
+            glm::vec2(.5*(inner.right+inner.left),.5*(inner.top+inner.bottom)),
+            glm::vec2(inner.right-inner.left, inner.top-inner.bottom),
+            0,
+            Color::random()
+        );
     }
 
     Scene::Enum update(float) {
@@ -110,14 +130,16 @@ class GameScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onExit(to);
     }
 
-    bool isGameElement(Entity e, bitfield_t game_type) {
-        return theGridSystem.Get(e, false) && (GRID(e)->type&game_type) != 0;
+    bool isGameElement(Entity e, bitfield_t gameType) {
+        bitfield_t type = GRID(e)->type;
+        LOGE(type);
+        return theGridSystem.Get(e, false) && (type & gameType) != 0;
     }
 
     GridPos findDirection(GridPos& incoming, GridPos& current) {
         std::vector<GridPos> neighbors = game->grid->getNeighbors(current);
-        std::sort(neighbors.begin(), neighbors.end(), [incoming] (GridPos& a, GridPos& b) -> bool {
-            return true;
+        std::sort(neighbors.begin(), neighbors.end(), [this, incoming] (GridPos& a, GridPos& b) -> bool {
+            return game->grid->computeRealDistance(incoming, a) > game->grid->computeRealDistance(incoming, b) ;
         });
         for (auto & pos : neighbors) {
             auto find = std::find_if(unavailable.begin(), unavailable.end(), [pos] (std::pair<GridPos, Entity> p) {
@@ -132,7 +154,7 @@ class GameScene : public SceneState<Scene::Enum> {
     }
 
     /*
-     * 1) Dog will move to the given position.
+     * 1) Dog or sheep will move to the given position.
      *  a) If the cell is empty, nothing happen.
      *  b) If a sheep is at this position, it must move. It will consider any position
      *      around him (except dogs', rocks' ones), ignoring any other sheep
@@ -140,26 +162,24 @@ class GameScene : public SceneState<Scene::Enum> {
      *      II) otherwise if it can go left-straight or right-straight cells, it will
      *      III) otherwise if it can go left or right cells, it will
      *  c) If another sheep is on the given position, it has to move: go to 2)
-     *  d) Finally, any sheep in the neighborhood of a moving sheep will try to move
-     *      on the same direction, if it can. If the cell is unavailable and/or
-     *      already occupied by another sheep, it will not move.
+     * 2) Finally, any sheep in the neighborhood of a moving sheep will try to move
+     *     on the same direction, if it can. If the cell is unavailable and/or
+     *     already occupied by another sheep, it will not move.
      */
     bool moveToPosition(Entity inc, GridPos& from, GridPos& to) {
         unavailable.push_back(std::make_pair(to, inc));
         for (Entity e : game->grid->getEntitiesAt(to)) {
             if (isGameElement(e, Case::Dog | Case::Sheep)) {
-                // 2) sheep in place must be moved
                 GridPos dir = findDirection(from, to);
 
                 if (dir != GridPos(-1, -1)) {
                     return moveToPosition(e, to, dir);
                 } else {
-                    LOGE("Could move from position " << to);
+                    LOGE("Could not move from position " << to);
                     return false;
                 }
             }
         }
-        // 1) cell is empty
         return true;
     }
 };

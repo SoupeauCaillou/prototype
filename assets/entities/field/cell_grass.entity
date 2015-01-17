@@ -4,6 +4,6 @@ extends = field/cell
 color%rgb = 8,104,8,255, 8,255,0,255
 
 [Grid]
-type = 4
+type = 1
 blocks_path = 0
 can_be_on_multiple_cells = 0
