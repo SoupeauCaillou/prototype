@@ -15,14 +15,18 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
         std::string type = std::string("field/cell_") +( rand()%2?"grass":"rock");
 
         Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
-        TRANSFORM(e)->position = grid.gridPosToPosition(pos);
-        grid.addEntityAt(e, pos);
+        grid.addEntityAt(e, pos, true);
     });
 
-     CAMERA(theEntityManager.getEntityByName(HASH("camera",0x526b9e0c)))->clearColor = Color(0,0,0);
+    CAMERA(theEntityManager.getEntityByName(HASH("camera",0x526b9e0c)))->clearColor = Color(0,0,0);
 
-     dog = theEntityManager.CreateEntityFromTemplate("dog");
-     grid.addEntityAt(dog, GridPos(0, 0));
+    dog = theEntityManager.CreateEntityFromTemplate("dog");
+    grid.addEntityAt(dog, GridPos(0, 0), true);
+
+    Entity sheep = theEntityManager.CreateEntityFromTemplate("sheep");
+    grid.addEntityAt(sheep, GridPos(1, 0), true);
+    sheep = theEntityManager.CreateEntityFromTemplate("sheep");
+    grid.addEntityAt(sheep, GridPos(1, 1), true);
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
@@ -34,9 +38,13 @@ bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
         }
 }
 
-void SacHelloWorldGame::moveToPosition(Entity e, GridPos& pos) {
-    grid.addEntityAt(e, pos);
-    TRANSFORM(e)->position = grid.gridPosToPosition(pos);
+void SacHelloWorldGame::moveToPosition(Entity dog, GridPos& pos) {
+
+    // finally move the dog to its position
+
+
+
+    grid.addEntityAt(dog, pos, true);
 }
 
 void SacHelloWorldGame::tick(float) {
