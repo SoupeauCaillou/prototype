@@ -5,6 +5,17 @@
 #include "base/StateMachine.inl"
 #include "scenes/Scenes.h"
 
+namespace Case {
+    enum Enum {
+        Empty  = 1 << 0,
+        Rock   = 1 << 1,
+        Dog     = 1 << 2,
+        Sheep  = 1 << 3,
+        Start   = 1 << 4,
+        End     = 1 << 5,
+    };
+}
+
 class SacHelloWorldGame : public Game {
     public:
         SacHelloWorldGame();
@@ -12,15 +23,6 @@ class SacHelloWorldGame : public Game {
         bool wantsAPI(ContextAPI::Enum api) const;
 
     public:
-        typedef enum {
-            Empty  = 1 << 0,
-            Rock   = 1 << 1,
-            Dog     = 1 << 2,
-            Sheep  = 1 << 3,
-            Start   = 1 << 4,
-            End     = 1 << 5,
-        } GameElement;
-
         Entity dog;
 
     private:
