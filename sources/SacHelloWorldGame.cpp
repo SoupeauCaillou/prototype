@@ -52,7 +52,7 @@ void SacHelloWorldGame::moveToPosition(Entity dog, GridPos& pos) {
     grid.addEntityAt(dog, pos, true);
 }
 
-void SacHelloWorldGame::tick(float) {
+void SacHelloWorldGame::tick(float dt) {
     GridPos dogPos = grid.positionToGridPos(TRANSFORM(dog)->position);
     /*from dog pos, very if any of its neighbor has been clicked*/
     for (auto & neighbor : grid.getNeighbors(dogPos)) {
