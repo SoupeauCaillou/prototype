@@ -1,10 +1,9 @@
 extends = field/cell
 
 [Rendering]
-color = .32,.40,.30,.30,1, .19, 1, 0, 1
-# color%rgb = 83,104,78,255, 48,255,0,255
+color%rgb = 8,104,8,255, 8,255,0,255
 
 [Grid]
 type = 4
-blocks_path = 1
+blocks_path = 0
 can_be_on_multiple_cells = 0
