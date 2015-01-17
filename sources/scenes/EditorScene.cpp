@@ -62,26 +62,76 @@ class EditorScene : public SceneState<Scene::Enum> {
         }
     }
 
-    Scene::Enum update(float) {
-    game->grid.forEachCellDo([this] (const GridPos& pos) -> void {
-        auto& eList = game->grid.getEntitiesAt(pos);
-        Entity e = eList.front();
-        if (BUTTON(e)->clicked) {
-            bitfield_t b = GRID(e)->type;
-
-            switch (b) {
-                case Case::Empty: b = Case::Rock; break;
-                case Case::Rock: b = Case::Start; break;
-                case Case::Start: b = Case::End; break;
-                case Case::End: b = Case::Empty; break;
-                default: b = Case::Empty; break;
-            }
-            GRID(e)->type = b;
-            RENDERING(e)->color = typeToColor(b);
-
-            // dumpLevel(game->grid);
+    static char typeToChar(bitfield_t b) {
+        switch (b) {
+            case Case::Empty: return 'O';
+            case Case::Rock:  return 'X';
+            case Case::Start: return 'S';
+            case Case::End:   return 'E';
+            default:
+                return '0';
         }
-    });
+    }
+
+    void dumpLevel(Entity camera, HexSpatialGrid& grid) {
+        auto topLeft = TRANSFORM(camera)->size * glm::vec2(-0.5, 0.5);
+
+        GridPos pos = grid.positionToGridPos(topLeft);
+        LOGI(pos << '\n');
+        GridPos previousPos = pos;
+        for (;grid.isPosValid(pos);) {
+            std::stringstream s;
+            for (;; pos.q += 1) {
+                if (grid.isPosValid(pos)) {
+                    auto& eList = game->grid.getEntitiesAt(pos);
+                    for (auto e: eList) {
+                        auto* btn = theButtonSystem.Get(e, false);
+                        if (btn) {
+                            s << typeToChar(GRID(e)->type) << ',';
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+            pos = previousPos;
+            // try bottomleft
+            pos.r -= 1;
+            if (! grid.isPosValid(pos) ) {
+                // upperright
+                pos = previousPos;
+                pos.q += 1;pos.r -= 1;
+            }
+            previousPos = pos;
+            LOGI(s.str());
+        }
+
+    }
+
+    Scene::Enum update(float) {
+        game->grid.forEachCellDo([this] (const GridPos& pos) -> void {
+            auto& eList = game->grid.getEntitiesAt(pos);
+            for (auto e: eList) {
+                auto* btn = theButtonSystem.Get(e, false);
+                if (btn && btn->clicked) {
+                    bitfield_t b = GRID(e)->type;
+                    LOGI(pos);
+
+                    switch (b) {
+                        case Case::Empty: b = Case::Rock; break;
+                        case Case::Rock: b = Case::Start; break;
+                        case Case::Start: b = Case::End; break;
+                        case Case::End: b = Case::Empty; break;
+                        default: b = Case::Empty; break;
+                    }
+                    GRID(e)->type = b;
+                    RENDERING(e)->color = typeToColor(b);
+
+                    dumpLevel(game->camera, game->grid);
+                }
+            }
+        });
 
         return Scene::Editor;
     }
