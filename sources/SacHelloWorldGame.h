@@ -27,9 +27,13 @@ class SacHelloWorldGame : public Game {
 
     private:
         void tick(float dt);
-    void moveToPosition(Entity e, GridPos& pos);
+        bool moveToPosition(Entity dog, GridPos& from, GridPos& to);
+        GridPos findDirection(GridPos& incoming, GridPos& current);
 
     public:
         StateMachine<Scene::Enum> sceneStateMachine;
         HexSpatialGrid grid;
+
+        // Which GridPos are occupied for next turn, and by whom.
+        std::vector<std::pair<GridPos, Entity>> unavailable;
 };
