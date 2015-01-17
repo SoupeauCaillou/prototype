@@ -19,6 +19,9 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
     });
 
      CAMERA(theEntityManager.getEntityByName(HASH("camera",0x526b9e0c)))->clearColor = Color(0,0,0);
+
+     Entity dog = theEntityManager.CreateEntityFromTemplate("dog");
+     grid.addEntityAt(dog, GridPos(0, 0));
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
