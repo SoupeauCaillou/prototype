@@ -22,9 +22,6 @@ class SacHelloWorldGame : public Game {
         void init(const uint8_t* in = 0, int size = 0);
         bool wantsAPI(ContextAPI::Enum api) const;
 
-    public:
-        Entity dog;
-
     private:
         void tick(float dt);
         bool moveToPosition(Entity dog, GridPos& from, GridPos& to);
@@ -33,7 +30,4 @@ class SacHelloWorldGame : public Game {
     public:
         StateMachine<Scene::Enum> sceneStateMachine;
         HexSpatialGrid grid;
-
-        // Which GridPos are occupied for next turn, and by whom.
-        std::vector<std::pair<GridPos, Entity>> unavailable;
 };
