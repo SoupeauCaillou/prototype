@@ -1,0 +1,17 @@
+atlas_size=1024,32
+[image0]
+name=mouton-blanc
+original_size=23,38
+position_in_atlas=1,1
+size_in_atlas=38,23
+crop_offset=0,0
+rotated=1
+opaque_rect=8,12,9,19
+[image1]
+name=mouton-noir
+original_size=22,37
+position_in_atlas=41,1
+size_in_atlas=37,22
+crop_offset=0,0
+rotated=1
+opaque_rect=7,12,9,18
