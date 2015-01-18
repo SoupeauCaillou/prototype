@@ -59,7 +59,7 @@ class GameScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onPreEnter(f);
     }
 
-    void onEnter(Scene::Enum f) {
+    void onEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onEnter(f);
 
         dog = 0;
@@ -138,7 +138,7 @@ class GameScene : public SceneState<Scene::Enum> {
         }
     }
 
-    Scene::Enum update(float) {
+    Scene::Enum update(float) override {
         if (!dogHasMoved) {
             GridPos dogPos = game->grid->positionToGridPos(TRANSFORM(dog)->position);
             /*from dog pos, verify if any of its neighbor has been clicked*/
@@ -241,11 +241,11 @@ class GameScene : public SceneState<Scene::Enum> {
 #endif
     }
 
-    void onPreExit(Scene::Enum f) {
+    void onPreExit(Scene::Enum f) override {
         SceneState<Scene::Enum>::onPreExit(f);
     }
 
-    void onExit(Scene::Enum to) {
+    void onExit(Scene::Enum to) override {
         SceneState<Scene::Enum>::onExit(to);
     }
 

@@ -59,7 +59,7 @@ class GameStartScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onPreEnter(f);
     }
 
-    void onEnter(Scene::Enum f) {
+    void onEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onEnter(f);
 
         if (game->level) {
@@ -92,7 +92,7 @@ class GameStartScene : public SceneState<Scene::Enum> {
         TRANSFORM(game->camera)->size.y = TRANSFORM(game->camera)->size.x * size.y / size.x;
     }
 
-    Scene::Enum update(float) {
+    Scene::Enum update(float) override {
         return Scene::Game;
     }
 };

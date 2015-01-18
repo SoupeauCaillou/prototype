@@ -48,7 +48,7 @@ class EditorScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onPreEnter(f);
     }
 
-    void onEnter(Scene::Enum f) {
+    void onEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onEnter(f);
 
         if (game->level) {
@@ -123,7 +123,7 @@ class EditorScene : public SceneState<Scene::Enum> {
         }
     }
 
-    Scene::Enum update(float) {
+    Scene::Enum update(float) override {
         game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
             auto& eList = game->grid->getEntitiesAt(pos);
             for (auto e: eList) {
@@ -151,11 +151,11 @@ class EditorScene : public SceneState<Scene::Enum> {
         return Scene::Editor;
     }
 
-    void onPreExit(Scene::Enum f) {
+    void onPreExit(Scene::Enum f) override {
         SceneState<Scene::Enum>::onPreExit(f);
     }
 
-    void onExit(Scene::Enum to) {
+    void onExit(Scene::Enum to) override {
         SceneState<Scene::Enum>::onExit(to);
     }
 };

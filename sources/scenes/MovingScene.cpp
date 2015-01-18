@@ -46,14 +46,14 @@ class MovingScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onPreEnter(f);
     }
 
-    void onEnter(Scene::Enum f) {
+    void onEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onEnter(f);
         theMoveCommandSystem.forEachEntityDo([] (Entity e) -> void {
             ADSR(e)->active = true;
         });
     }
 
-    Scene::Enum update(float) {
+    Scene::Enum update(float) override {
         int movementsLeft = theMoveCommandSystem.entityCount();
         if (movementsLeft == 0)
             return Scene::Game;
@@ -78,11 +78,11 @@ class MovingScene : public SceneState<Scene::Enum> {
         return Scene::Moving;
     }
 
-    void onPreExit(Scene::Enum f) {
+    void onPreExit(Scene::Enum f) override {
         SceneState<Scene::Enum>::onPreExit(f);
     }
 
-    void onExit(Scene::Enum to) {
+    void onExit(Scene::Enum to) override {
         SceneState<Scene::Enum>::onExit(to);
     }
 };
