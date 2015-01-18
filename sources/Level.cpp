@@ -77,7 +77,7 @@ HexSpatialGrid* Level::load(const FileBuffer& fb, bool createEntities) {
                         GRID(e)->type = type;
                     }
                 }
-                if (createEntities) {
+                if (createEntities && entity[1]) {
                     Entity e = theEntityManager.CreateEntityFromTemplate(entity[1]);
                     grid->addEntityAt(e, result.pos, true);
                 }
