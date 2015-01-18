@@ -64,6 +64,9 @@ class GameScene : public SceneState<Scene::Enum> {
 
         if (game->level) {
             game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level));
+            theGridSystem.forEachECDo([this] (Entity e, GridComponent* gc) -> void {
+                if (gc->type == Case::Dog) dog = e;
+            });
         } else {
             game->grid = new HexSpatialGrid(11, 9, 2.6);
             game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
@@ -71,32 +74,9 @@ class GameScene : public SceneState<Scene::Enum> {
                 Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
                 game->grid->addEntityAt(e, pos, true);
             });
+            dog = theEntityManager.CreateEntityFromTemplate("dog");
+            game->grid->addEntityAt(dog, GridPos(0, 0), true);
         }
-
-        dog = theEntityManager.CreateEntityFromTemplate("dog");
-        game->grid->addEntityAt(dog, GridPos(0, 0), true);
-
-        for (int i = 0; i < 25; i++) {
-            // Entity sheep = theEntityManager.CreateEntityFromTemplate("sheep");
-            // game->grid->addEntityAt(sheep, GridPos(1 + (i % 9, 1 + i / 8), true);
-        }
-        AABB outter = game->grid->boundingBox(false);
-        AABB inner = game->grid->boundingBox(true);
-
-        Draw::Rectangle(
-            Murmur::RuntimeHash("Bounding boxes"),
-            glm::vec2(.5*(outter.right+outter.left),.5*(outter.top+outter.bottom)),
-            glm::vec2(outter.right-outter.left, outter.top-outter.bottom),
-            0,
-            Color::random(.5)
-        );
-        Draw::Rectangle(
-            Murmur::RuntimeHash("Bounding boxes"),
-            glm::vec2(.5*(inner.right+inner.left),.5*(inner.top+inner.bottom)),
-            glm::vec2(inner.right-inner.left, inner.top-inner.bottom),
-            0,
-            Color::random(.5)
-        );
     }
 
     Scene::Enum update(float) {

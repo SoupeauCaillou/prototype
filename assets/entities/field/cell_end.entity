@@ -1,0 +1,9 @@
+extends = field/cell
+
+[Rendering]
+color%rgb = 68,4,8,255, 58,5,0,255
+
+[Grid]
+type = 4
+blocks_path = 0
+can_be_on_multiple_cells = 0
