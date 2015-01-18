@@ -6,5 +6,5 @@ class HexSpatialGrid;
 
 class Level {
     public:
-        static HexSpatialGrid* load(const FileBuffer& fb);
+        static HexSpatialGrid* load(const FileBuffer& fb, bool createEntities);
 };

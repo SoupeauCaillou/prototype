@@ -63,7 +63,7 @@ class GameStartScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onEnter(f);
 
         if (game->level) {
-            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level));
+            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level), true);
             theGridSystem.forEachECDo([this] (Entity e, GridComponent* gc) -> void {
                 if (gc->type == Case::Dog) {
                     LOGI("dog found: " << e);

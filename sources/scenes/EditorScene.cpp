@@ -52,7 +52,11 @@ class EditorScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onEnter(f);
 
         if (game->level) {
-            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level));
+            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level), false);
+            game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+                Entity e = game->grid->getEntitiesAt(pos).front();
+                RENDERING(e)->color = typeToColor(GRID(e)->type);
+            });
         }
         if (!game->grid) {
             LOGE_IF(game->level, "Invalid level filename '" << game->level << "'");
@@ -77,7 +81,7 @@ class EditorScene : public SceneState<Scene::Enum> {
             case Case::Dog:   return Color(0.9, 0.8, 0.03);
             case Case::Rock:  return Color(0.3, 0.3, 0.3);
             case Case::Start: return Color(0.9, 0.9, 0.9);
-            case Case::End:   return Color(0.1, 0.1, 0.1);
+            case Case::End:   return Color(0.6, 0.1, 0.1);
             default:
                 return Color(0, 0, 0);
         }

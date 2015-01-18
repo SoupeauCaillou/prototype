@@ -4,6 +4,7 @@
 #include "base/Log.h"
 #include "base/EntityManager.h"
 #include "SacHelloWorldGame.h"
+#include "systems/GridSystem.h"
 
 /*
 File level description:
@@ -25,7 +26,7 @@ Number of ships = number of start point
 Number of E must be >= S
 */
 
-HexSpatialGrid* Level::load(const FileBuffer& fb) {
+HexSpatialGrid* Level::load(const FileBuffer& fb, bool createEntities) {
     FileBufferHelper h;
     HexSpatialGrid* grid = 0;
     int n,m;
@@ -53,24 +54,32 @@ HexSpatialGrid* Level::load(const FileBuffer& fb) {
             LOGE_IF((int)strlen(line) != n, "Invalid line '" << line << "' for row #" << row);
             for (int i=0; i<n; i++) {
                 const char* entity[2] = {0, 0};
+                bitfield_t type = 0;
                 switch (line[i]) {
-                    case '.': entity[0] = "field/cell_grass"; break;
-                    case 'X': entity[0] = "field/cell_rock"; break;
-                    case 'E': entity[0] = "field/cell_end"; break;
+                    case '.': entity[0] = "field/cell_grass"; type = Case::Empty; break;
+                    case 'X': entity[0] = "field/cell_rock"; type = Case::Rock; break;
+                    case 'E': entity[0] = "field/cell_end"; type = Case::End; break;
                     case 'D':
                         entity[0] = "field/cell_grass";
                         entity[1] = "dog";
+                        type = Case::Dog;
                         break;
                     case 'S':
                         entity[0] = "field/cell_grass";
                         entity[1] = "sheep";
+                        type = Case::Start;
                         break;
                 }
-                for (int i=0; i<2; i++) {
-                    if (entity[i]) {
-                        Entity e = theEntityManager.CreateEntityFromTemplate(entity[i]);
-                        grid->addEntityAt(e, result.pos, true);
+                {
+                    Entity e = theEntityManager.CreateEntityFromTemplate(createEntities ? entity[0] : "field/cell_grass");
+                    grid->addEntityAt(e, result.pos, true);
+                    if (!createEntities) {
+                        GRID(e)->type = type;
                     }
+                }
+                if (createEntities) {
+                    Entity e = theEntityManager.CreateEntityFromTemplate(entity[1]);
+                    grid->addEntityAt(e, result.pos, true);
                 }
                 result = grid->iterate(result.pos);
             }
