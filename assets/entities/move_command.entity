@@ -2,8 +2,8 @@
 idle_value = 0
 attack_value = 1
 sustain_value = 1
-attack_timing = 1
+attack_timing = 0.5
 attack_mode = 1
-active = 1
+active = 0
 
 [MoveCommand]

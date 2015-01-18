@@ -48,6 +48,9 @@ class MovingScene : public SceneState<Scene::Enum> {
 
     void onEnter(Scene::Enum f) {
         SceneState<Scene::Enum>::onEnter(f);
+        theMoveCommandSystem.forEachEntityDo([] (Entity e) -> void {
+            ADSR(e)->active = true;
+        });
     }
 
     Scene::Enum update(float) {

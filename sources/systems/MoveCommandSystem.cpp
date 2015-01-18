@@ -24,7 +24,7 @@
 
 INSTANCE_IMPL(MoveCommandSystem);
 
-MoveCommandSystem::MoveCommandSystem() : ComponentSystemImpl<MoveCommandComponent>(HASH("MoveCommand", 0xcaef0074)) {
+MoveCommandSystem::MoveCommandSystem() : ComponentSystemImpl<MoveCommandComponent>(HASH("MoveCommand", 0x7babc9f2)) {
 }
 
 void MoveCommandSystem::DoUpdate(float) {
