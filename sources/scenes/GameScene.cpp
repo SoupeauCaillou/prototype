@@ -100,12 +100,24 @@ class GameScene : public SceneState<Scene::Enum> {
                 if (theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
                     //if possible move the dog
                     unavailable.clear();
-                    if (moveToPosition(dog, dogPos, neighbor)) {
+                    game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+                        for (Entity e : game->grid->getEntitiesAt(pos)) {
+                            if (isGameElement(e, Case::Rock)) {
+                                LOGE("found rock at " << pos);
+                                unavailable.push_back(std::make_pair(pos, 0));
+                                break;
+                            }
+                        }
+                    });
+
+                    if (cellIsAvailable(neighbor) && moveToPosition(dog, dogPos, neighbor)) {
                         for (auto pair : unavailable) {
-                            game->grid->removeEntityFrom(
-                                pair.second,
-                                game->grid->positionToGridPos(TRANSFORM(pair.second)->position));
-                            game->grid->addEntityAt(pair.second, pair.first, true);
+                            if (pair.second != 0) {
+                                game->grid->removeEntityFrom(
+                                    pair.second,
+                                    game->grid->positionToGridPos(TRANSFORM(pair.second)->position));
+                                game->grid->addEntityAt(pair.second, pair.first, true);
+                            }
                         }
                         return Scene::Game;
                     }
@@ -123,9 +135,15 @@ class GameScene : public SceneState<Scene::Enum> {
         SceneState<Scene::Enum>::onExit(to);
     }
 
+    bool cellIsAvailable(GridPos pos) {
+        auto find = std::find_if(unavailable.begin(), unavailable.end(), [pos] (std::pair<GridPos, Entity> p) {
+            return pos == p.first;
+        });
+        return find == unavailable.end();
+    }
+
     bool isGameElement(Entity e, bitfield_t gameType) {
         bitfield_t type = GRID(e)->type;
-        LOGE(type);
         return theGridSystem.Get(e, false) && (type & gameType) != 0;
     }
 
@@ -135,10 +153,7 @@ class GameScene : public SceneState<Scene::Enum> {
             return game->grid->computeRealDistance(incoming, a) > game->grid->computeRealDistance(incoming, b) ;
         });
         for (auto & pos : neighbors) {
-            auto find = std::find_if(unavailable.begin(), unavailable.end(), [pos] (std::pair<GridPos, Entity> p) {
-                return pos == p.first;
-            });
-            if (find == unavailable.end()) {
+           if (cellIsAvailable(pos)) {
                 return pos;
             }
         }
