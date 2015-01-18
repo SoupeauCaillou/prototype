@@ -89,7 +89,7 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     void dumpLevel(Entity camera, HexSpatialGrid& grid) {
         SpatialGrid::Iterate::Result result =
-            grid.iterate(GridPos(-100, -100));
+            grid.iterate(invalidGridPos);
 
         std::stringstream s;
         while (result.valid) {

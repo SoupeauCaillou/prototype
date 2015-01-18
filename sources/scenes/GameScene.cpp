@@ -130,7 +130,7 @@ class GameScene : public SceneState<Scene::Enum> {
             }
         }
         //no position available
-        return GridPos(-1,-1);
+        return invalidGridPos;
     }
 
     /*
@@ -152,7 +152,7 @@ class GameScene : public SceneState<Scene::Enum> {
             if (isGameElement(e, Case::Dog | Case::Sheep)) {
                 GridPos dir = findDirection(from, to);
 
-                if (dir != GridPos(-1, -1)) {
+                if (dir != invalidGridPos) {
                     return moveToPosition(e, to, dir);
                 } else {
                     LOGE("Could not move from position " << to);

@@ -3,6 +3,7 @@
 #include "util/FileBufferHelper.h"
 #include "base/Log.h"
 #include "base/EntityManager.h"
+#include "SacHelloWorldGame.h"
 
 /*
 File level description:
@@ -46,7 +47,7 @@ HexSpatialGrid* Level::load(const FileBuffer& fb) {
                 return NULL;
             }
             grid = new HexSpatialGrid(n, m, 2.6);
-            result = grid->iterate(GridPos(-100, -100));
+            result = grid->iterate(invalidGridPos);
         } else {
             // try to parse M int
             LOGE_IF((int)strlen(line) != n, "Invalid line '" << line << "' for row #" << row);

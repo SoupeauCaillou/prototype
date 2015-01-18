@@ -16,6 +16,8 @@ namespace Case {
     };
 }
 
+static const GridPos invalidGridPos(-100, -100);
+
 class SacHelloWorldGame : public Game {
     public:
         SacHelloWorldGame();
