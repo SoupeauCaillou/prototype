@@ -11,3 +11,4 @@ flags = 1
 
 [Button]
 enabled = 1
+over_size = 0.7
