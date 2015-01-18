@@ -103,7 +103,6 @@ class GameScene : public SceneState<Scene::Enum> {
                     game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
                         for (Entity e : game->grid->getEntitiesAt(pos)) {
                             if (isGameElement(e, Case::Rock)) {
-                                LOGE("found rock at " << pos);
                                 unavailable.push_back(std::make_pair(pos, 0));
                                 break;
                             }
