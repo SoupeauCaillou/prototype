@@ -34,7 +34,8 @@ namespace Scene {
     StateHandler<Scene::Enum>* CreateGameStartSceneHandler(SacHelloWorldGame* game);
     StateHandler<Scene::Enum>* CreateMovingSceneHandler(SacHelloWorldGame* game);
 }
-inline void registerScenes(SacHelloWorldGame * game, StateMachine<Scene::Enum> & machine) {    machine.registerState(Scene::Editor, Scene::CreateEditorSceneHandler(game));
+inline void registerScenes(SacHelloWorldGame * game, StateMachine<Scene::Enum> & machine) {
+    machine.registerState(Scene::Editor, Scene::CreateEditorSceneHandler(game));
     machine.registerState(Scene::Game, Scene::CreateGameSceneHandler(game));
     machine.registerState(Scene::GameStart, Scene::CreateGameStartSceneHandler(game));
     machine.registerState(Scene::Moving, Scene::CreateMovingSceneHandler(game));
