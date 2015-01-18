@@ -9,10 +9,13 @@
 #include "systems/CameraSystem.h"
 #include "systems/ButtonSystem.h"
 
+#include "systems/MoveCommandSystem.h"
 SacHelloWorldGame::SacHelloWorldGame() {
 }
 
 void SacHelloWorldGame::init(const uint8_t*, int) {
+    MoveCommandSystem::CreateInstance();
+
     CAMERA(camera)->clearColor = Color(0,0,0);
     TRANSFORM(camera)->size = glm::vec2(28, 17);
 

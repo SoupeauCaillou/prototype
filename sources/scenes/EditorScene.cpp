@@ -125,6 +125,7 @@ class EditorScene : public SceneState<Scene::Enum> {
             for (auto e: eList) {
                 auto* btn = theButtonSystem.Get(e, false);
                 if (btn && btn->clicked) {
+                    LOGI(pos);
                     bitfield_t b = GRID(e)->type;
 
                     switch (b) {
