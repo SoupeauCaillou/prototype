@@ -65,7 +65,10 @@ class GameScene : public SceneState<Scene::Enum> {
         if (game->level) {
             game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level));
             theGridSystem.forEachECDo([this] (Entity e, GridComponent* gc) -> void {
-                if (gc->type == Case::Dog) dog = e;
+                if (gc->type == Case::Dog) {
+                    LOGI("dog found: " << e);
+                    dog = e;
+                }
             });
         } else {
             game->grid = new HexSpatialGrid(11, 9, 2.6);
@@ -77,6 +80,13 @@ class GameScene : public SceneState<Scene::Enum> {
             dog = theEntityManager.CreateEntityFromTemplate("dog");
             game->grid->addEntityAt(dog, GridPos(0, 0), true);
         }
+
+        AABB aabb = game->grid->boundingBox(false);
+        TRANSFORM(game->camera)->position.x = (aabb.left + aabb.right) * 0.5f;
+        TRANSFORM(game->camera)->position.y = (aabb. bottom + aabb.top) * 0.5f;
+        glm::vec2 size = TRANSFORM(game->camera)->size;
+        TRANSFORM(game->camera)->size.x = (aabb.right - aabb.left);
+        TRANSFORM(game->camera)->size.y = TRANSFORM(game->camera)->size.x * size.y / size.x;
     }
 
     Scene::Enum update(float) {

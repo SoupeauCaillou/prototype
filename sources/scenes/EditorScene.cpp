@@ -61,6 +61,12 @@ class EditorScene : public SceneState<Scene::Enum> {
                 game->grid->addEntityAt(e, pos, true);
             });
         }
+        AABB aabb = game->grid->boundingBox(false);
+        TRANSFORM(game->camera)->position.x = (aabb.left + aabb.right) * 0.5f;
+        TRANSFORM(game->camera)->position.y = (aabb. bottom + aabb.top) * 0.5f;
+        glm::vec2 size = TRANSFORM(game->camera)->size;
+        TRANSFORM(game->camera)->size.x = (aabb.right - aabb.left);
+        TRANSFORM(game->camera)->size.y = TRANSFORM(game->camera)->size.x * size.y / size.x;
     }
 
     static Color typeToColor(bitfield_t b) {
@@ -118,7 +124,6 @@ class EditorScene : public SceneState<Scene::Enum> {
                 auto* btn = theButtonSystem.Get(e, false);
                 if (btn && btn->clicked) {
                     bitfield_t b = GRID(e)->type;
-                    LOGI(pos);
 
                     switch (b) {
                         case Case::Empty: b = Case::Rock; break;
