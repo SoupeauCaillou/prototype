@@ -144,7 +144,7 @@ class GameScene : public SceneState<Scene::Enum> {
             /*from dog pos, verify if any of its neighbor has been clicked*/
             for (auto & neighbor : game->grid->getNeighbors(dogPos)) {
                 for (Entity elem : game->grid->getEntitiesAt(neighbor)) {
-                    if (theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
+                    if (!dogHasMoved && theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
                         //if possible move the dog
                         if (cellIsAvailable(neighbor)) {
                             unavailable.push_back(std::make_pair(neighbor, dog));
@@ -158,6 +158,7 @@ class GameScene : public SceneState<Scene::Enum> {
                             MOVE_CMD(e)->target = dog;
                             MOVE_CMD(e)->from = dogPos;
                             MOVE_CMD(e)->to = neighbor;
+                            break;
                         }
                     }
                 }
