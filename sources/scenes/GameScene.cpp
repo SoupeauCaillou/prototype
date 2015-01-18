@@ -198,10 +198,8 @@ class GameScene : public SceneState<Scene::Enum> {
             GridDirection dir = sheepDir.second;
             GridPos position = game->grid->positionToGridPos(TRANSFORM(sheep)->position);
             // prefered new position
-            // GridPos pref = position + dir;
-            // find nearest available cell
-            GridPos chosen = findDirection(position - dir, position);
-            if (chosen == invalidGridPos) {
+            GridPos chosen = position + dir;
+            if (!cellIsAvailable(chosen)) {
                 LOGI("Cannot find a valid move for sheep " << theEntityManager.entityName(sheep));
             } else {
                 unavailable.push_back(std::make_pair(chosen, sheep));
@@ -219,6 +217,7 @@ class GameScene : public SceneState<Scene::Enum> {
 
             return Scene::Game;
         }
+        LOGI("exit");
 
         return Scene::Moving;
 #if 0
