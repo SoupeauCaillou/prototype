@@ -70,7 +70,10 @@ class GameScene : public SceneState<Scene::Enum> {
                     dog = e;
                 }
             });
-        } else {
+        }
+        if (!game->grid) {
+            LOGE_IF(game->level, "Invalid level filename '" << game->level << "'");
+
             game->grid = new HexSpatialGrid(11, 9, 2.6);
             game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
                 std::string type = std::string("field/cell_grass");
