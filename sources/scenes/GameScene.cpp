@@ -88,14 +88,14 @@ class GameScene : public SceneState<Scene::Enum> {
             glm::vec2(.5*(outter.right+outter.left),.5*(outter.top+outter.bottom)),
             glm::vec2(outter.right-outter.left, outter.top-outter.bottom),
             0,
-            Color::random()
+            Color::random(.5)
         );
         Draw::Rectangle(
             Murmur::RuntimeHash("Bounding boxes"),
             glm::vec2(.5*(inner.right+inner.left),.5*(inner.top+inner.bottom)),
             glm::vec2(inner.right-inner.left, inner.top-inner.bottom),
             0,
-            Color::random()
+            Color::random(.5)
         );
     }
 

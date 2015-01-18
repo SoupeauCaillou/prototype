@@ -2,7 +2,7 @@
 
 [Transformation]
 z = 0.5
-size = 2.8
+size = 3
 shape = 2
 
 [Rendering]
