@@ -29,5 +29,7 @@ class SacHelloWorldGame : public Game {
 
     public:
         StateMachine<Scene::Enum> sceneStateMachine;
-        HexSpatialGrid grid;
+        HexSpatialGrid* grid;
+
+        const char* level;
 };

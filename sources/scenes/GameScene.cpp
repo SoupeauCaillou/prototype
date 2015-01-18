@@ -36,6 +36,7 @@
 #include "base/PlacementHelper.h"
 #include "../SacHelloWorldGame.h"
 
+#include "../Level.h"
 #include "base/SceneState.h"
 
 
@@ -58,38 +59,40 @@ class GameScene : public SceneState<Scene::Enum> {
     void onEnter(Scene::Enum f) {
         SceneState<Scene::Enum>::onEnter(f);
 
-        game->grid.forEachCellDo([this] (const GridPos& pos) -> void {
-            std::string type = std::string("field/cell_grass");
+        if (game->level) {
+            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level));
+        } else {
+            game->grid = new HexSpatialGrid(11, 9, 2.6);
+            game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+                std::string type = std::string("field/cell_grass");
+                Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
+                game->grid->addEntityAt(e, pos, true);
+            });
+        }
 
-            Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
-            std::ostringstream iss;
-            iss << theEntityManager.entityName(e) << "(" << pos.q << "/" << pos.r << ")";
-            theEntityManager.renameEntity(e, Murmur::RuntimeHash(iss.str().c_str()));
-            game->grid.addEntityAt(e, pos, true);
-        });
         dog = theEntityManager.CreateEntityFromTemplate("dog");
-        game->grid.addEntityAt(dog, GridPos(0, 0), true);
+        game->grid->addEntityAt(dog, GridPos(0, 0), true);
 
         Entity sheep = theEntityManager.CreateEntityFromTemplate("sheep");
-        game->grid.addEntityAt(sheep, GridPos(1, 0), true);
+        game->grid->addEntityAt(sheep, GridPos(1, 0), true);
         sheep = theEntityManager.CreateEntityFromTemplate("sheep");
-        game->grid.addEntityAt(sheep, GridPos(1, 1), true);
+        game->grid->addEntityAt(sheep, GridPos(1, 1), true);
     }
 
     Scene::Enum update(float) {
-        GridPos dogPos = game->grid.positionToGridPos(TRANSFORM(dog)->position);
+        GridPos dogPos = game->grid->positionToGridPos(TRANSFORM(dog)->position);
         /*from dog pos, verify if any of its neighbor has been clicked*/
-        for (auto & neighbor : game->grid.getNeighbors(dogPos)) {
-            for (Entity elem : game->grid.getEntitiesAt(neighbor)) {
+        for (auto & neighbor : game->grid->getNeighbors(dogPos)) {
+            for (Entity elem : game->grid->getEntitiesAt(neighbor)) {
                 if (theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
                     //if possible move the dog
                     unavailable.clear();
                     if (moveToPosition(dog, dogPos, neighbor)) {
                         for (auto pair : unavailable) {
-                            game->grid.removeEntityFrom(
+                            game->grid->removeEntityFrom(
                                 pair.second,
-                                game->grid.positionToGridPos(TRANSFORM(pair.second)->position));
-                            game->grid.addEntityAt(pair.second, pair.first, true);
+                                game->grid->positionToGridPos(TRANSFORM(pair.second)->position));
+                            game->grid->addEntityAt(pair.second, pair.first, true);
                         }
                         return Scene::Game;
                     }
@@ -112,7 +115,7 @@ class GameScene : public SceneState<Scene::Enum> {
     }
 
     GridPos findDirection(GridPos& incoming, GridPos& current) {
-        std::vector<GridPos> neighbors = game->grid.getNeighbors(current);
+        std::vector<GridPos> neighbors = game->grid->getNeighbors(current);
         std::sort(neighbors.begin(), neighbors.end(), [incoming] (GridPos& a, GridPos& b) -> bool {
             return true;
         });
@@ -143,7 +146,7 @@ class GameScene : public SceneState<Scene::Enum> {
      */
     bool moveToPosition(Entity inc, GridPos& from, GridPos& to) {
         unavailable.push_back(std::make_pair(to, inc));
-        for (Entity e : game->grid.getEntitiesAt(to)) {
+        for (Entity e : game->grid->getEntitiesAt(to)) {
             if (isGameElement(e, Case::Dog | Case::Sheep)) {
                 // 2) sheep in place must be moved
                 GridPos dir = findDirection(from, to);

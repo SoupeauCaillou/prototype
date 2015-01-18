@@ -30,6 +30,7 @@
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
 #include "../SacHelloWorldGame.h"
+#include "../Level.h"
 
 #include "base/SceneState.h"
 
@@ -49,6 +50,17 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     void onEnter(Scene::Enum f) {
         SceneState<Scene::Enum>::onEnter(f);
+
+        if (game->level) {
+            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level));
+        } else {
+            game->grid = new HexSpatialGrid(11, 9, 2.6);
+            game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+                std::string type = std::string("field/cell_grass");
+                Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
+                game->grid->addEntityAt(e, pos, true);
+            });
+        }
     }
 
     static Color typeToColor(bitfield_t b) {
@@ -64,54 +76,42 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     static char typeToChar(bitfield_t b) {
         switch (b) {
-            case Case::Empty: return 'O';
+            case Case::Empty: return '.';
             case Case::Rock:  return 'X';
             case Case::Start: return 'S';
             case Case::End:   return 'E';
             default:
-                return '0';
+                return '.';
         }
     }
 
     void dumpLevel(Entity camera, HexSpatialGrid& grid) {
-        auto topLeft = TRANSFORM(camera)->size * glm::vec2(-0.5, 0.5);
+        SpatialGrid::Iterate::Result result =
+            grid.iterate(GridPos(-100, -100));
 
-        GridPos pos = grid.positionToGridPos(topLeft);
-        LOGI(pos << '\n');
-        GridPos previousPos = pos;
-        for (;grid.isPosValid(pos);) {
-            std::stringstream s;
-            for (;; pos.q += 1) {
-                if (grid.isPosValid(pos)) {
-                    auto& eList = game->grid.getEntitiesAt(pos);
-                    for (auto e: eList) {
-                        auto* btn = theButtonSystem.Get(e, false);
-                        if (btn) {
-                            s << typeToChar(GRID(e)->type) << ',';
-                            break;
-                        }
-                    }
-                } else {
+        std::stringstream s;
+        while (result.valid) {
+            auto& eList = game->grid->getEntitiesAt(result.pos);
+            // LOGI(result.pos);
+            for (auto e: eList) {
+                auto* btn = theButtonSystem.Get(e, false);
+                if (btn) {
+                    s << typeToChar(GRID(e)->type);
                     break;
                 }
             }
-            pos = previousPos;
-            // try bottomleft
-            pos.r -= 1;
-            if (! grid.isPosValid(pos) ) {
-                // upperright
-                pos = previousPos;
-                pos.q += 1;pos.r -= 1;
-            }
-            previousPos = pos;
-            LOGI(s.str());
-        }
+            result = grid.iterate(result.pos);
 
+            if (result.newLine) {
+                LOGI(s.str());
+                s.str(""); s.clear();
+            }
+        }
     }
 
     Scene::Enum update(float) {
-        game->grid.forEachCellDo([this] (const GridPos& pos) -> void {
-            auto& eList = game->grid.getEntitiesAt(pos);
+        game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+            auto& eList = game->grid->getEntitiesAt(pos);
             for (auto e: eList) {
                 auto* btn = theButtonSystem.Get(e, false);
                 if (btn && btn->clicked) {
@@ -128,7 +128,7 @@ class EditorScene : public SceneState<Scene::Enum> {
                     GRID(e)->type = b;
                     RENDERING(e)->color = typeToColor(b);
 
-                    dumpLevel(game->camera, game->grid);
+                    dumpLevel(game->camera, *game->grid);
                 }
             }
         });
