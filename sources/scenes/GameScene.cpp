@@ -108,28 +108,30 @@ class GameScene : public SceneState<Scene::Enum> {
     }
 
     bool didSheepMove(Entity e) {
-        return false;//staticSheeps.find(e) == staticSheeps.end();
+        return std::find(staticSheeps.begin(), staticSheeps.end(), e) == staticSheeps.end();
     }
 
-    void updateMovingSheepList(GridPos from, GridPos to) {
+    void updateMovingSheepList(GridPos from, GridPos to, bool moveNeighbourSheeps = true) {
         // if there's a sheep @to -> it must move
         {
             Entity s = gameElementAt(to, Case::Sheep);
             if (s) {
                 if (!didSheepMove(s)) {
                     mandatoryMovingSheeps.push_back(std::make_pair(s, to - from));
+                    staticSheeps.remove(s);
                 } else {
                     LOGE("Cant move...");
                 }
             }
         }
         // if there are neighbour sheep @from -> they should move
-        if (game->grid->isPosValid(from)) {
+        if (moveNeighbourSheeps) {
             for (auto & neighbor : game->grid->getNeighbors(from)) {
                 Entity s = gameElementAt(neighbor, Case::Sheep);
                 if (s) {
                     if (!didSheepMove(s)) {
                         optionallyMovingSheeps.push_back(std::make_pair(s, to - from));
+                        staticSheeps.remove(s);
                     }
                 }
             }
@@ -150,7 +152,7 @@ class GameScene : public SceneState<Scene::Enum> {
                             //....
                             dogHasMoved = true;
 
-                            updateMovingSheepList(invalidGridPos, neighbor);
+                            updateMovingSheepList(dogPos, neighbor, false);
                             LOGI(theEntityManager.entityName(dog) << " moved to " << neighbor);
                             Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
                             MOVE_CMD(e)->target = dog;
@@ -182,7 +184,11 @@ class GameScene : public SceneState<Scene::Enum> {
 
             LOGI(theEntityManager.entityName(sheep) << " moved to " << chosen);
             // move sheep
-            // ...
+            Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
+            MOVE_CMD(e)->target = sheep;
+            MOVE_CMD(e)->from = position;
+            MOVE_CMD(e)->to = chosen;
+
             return Scene::Game;
         }
 
@@ -203,6 +209,10 @@ class GameScene : public SceneState<Scene::Enum> {
                 // move sheep
                 // ...
                 LOGI(theEntityManager.entityName(sheep) << " moved to " << chosen);
+                Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
+                MOVE_CMD(e)->target = sheep;
+                MOVE_CMD(e)->from = position;
+                MOVE_CMD(e)->to = chosen;
             }
             optionallyMovingSheeps.pop_front();
 
