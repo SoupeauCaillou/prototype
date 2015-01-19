@@ -18,7 +18,7 @@
     along with RecursiveRunner.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "base/StateMachine.h"
-#include "Scenes.h"
+#include "gen/Scenes.h"
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "base/Log.h"

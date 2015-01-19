@@ -3,7 +3,7 @@
 #include "util/HexSpatialGrid.h"
 #include "base/StateMachine.h"
 #include "base/StateMachine.inl"
-#include "scenes/Scenes.h"
+#include "gen/Scenes.h"
 
 namespace Case {
     enum Enum {
