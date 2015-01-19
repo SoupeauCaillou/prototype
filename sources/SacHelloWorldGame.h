@@ -24,14 +24,14 @@ class SacHelloWorldGame : public Game {
         void init(const uint8_t* in = 0, int size = 0);
         bool wantsAPI(ContextAPI::Enum api) const;
 
+        void updateMovesCount(int value);
     private:
         void tick(float dt);
-        bool moveToPosition(Entity dog, GridPos& from, GridPos& to);
-        GridPos findDirection(GridPos& incoming, GridPos& current);
-
     public:
         StateMachine<Scene::Enum> sceneStateMachine;
         HexSpatialGrid* grid;
 
         const char* level;
+        int movesCount; /*number of moves done by user for current level*/
+        Entity movesCountE; /*display movesCount to user*/
 };

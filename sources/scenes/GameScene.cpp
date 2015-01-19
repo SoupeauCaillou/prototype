@@ -49,6 +49,13 @@ class GameScene : public SceneState<Scene::Enum> {
     // Which GridPos are occupied for next turn, and by whom.
     std::vector<std::pair<GridPos, Entity>> unavailable;
 
+    typedef GridPos GridDirection;
+    bool dogHasMoved;
+    std::list<Entity> staticSheeps;
+    std::list<std::pair<Entity, GridDirection>> mandatoryMovingSheeps;
+    std::list<std::pair<Entity, GridDirection>> optionallyMovingSheeps;
+    std::vector<Entity> moveCommands;
+
     public:
 
     GameScene(SacHelloWorldGame* game) : SceneState<Scene::Enum>("game", SceneEntityMode::Fading, SceneEntityMode::Fading) {
@@ -90,13 +97,6 @@ class GameScene : public SceneState<Scene::Enum> {
             }
         });
     }
-
-    typedef GridPos GridDirection;
-    bool dogHasMoved;
-    std::list<Entity> staticSheeps;
-    std::list<std::pair<Entity, GridDirection>> mandatoryMovingSheeps;
-    std::list<std::pair<Entity, GridDirection>> optionallyMovingSheeps;
-    std::vector<Entity> moveCommands;
 
     Entity gameElementAt(GridPos pos, Case::Enum elt) {
         for (Entity e : game->grid->getEntitiesAt(pos)) {
@@ -220,6 +220,7 @@ class GameScene : public SceneState<Scene::Enum> {
         }
         LOGI("exit");
 
+        game->updateMovesCount(game->movesCount+1);
         return Scene::Moving;
 #if 0
 

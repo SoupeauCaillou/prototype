@@ -32,6 +32,7 @@
 #include "systems/ButtonSystem.h"
 #include "systems/AnchorSystem.h"
 #include "systems/GridSystem.h"
+#include "systems/RenderingSystem.h"
 
 #include "util/Draw.h"
 
@@ -90,9 +91,12 @@ class GameStartScene : public SceneState<Scene::Enum> {
         glm::vec2 size = TRANSFORM(game->camera)->size;
         TRANSFORM(game->camera)->size.x = (aabb.right - aabb.left);
         TRANSFORM(game->camera)->size.y = TRANSFORM(game->camera)->size.x * size.y / size.x;
+
+        game->updateMovesCount(0);
     }
 
     Scene::Enum update(float) override {
+        TEXT(game->movesCountE)->show = true;
         return Scene::Game;
     }
 };

@@ -8,6 +8,7 @@
 #include "systems/GridSystem.h"
 #include "systems/CameraSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/TextSystem.h"
 
 #include "systems/MoveCommandSystem.h"
 SacHelloWorldGame::SacHelloWorldGame() {
@@ -18,6 +19,8 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
 
     CAMERA(camera)->clearColor = Color(0,0,0);
     TRANSFORM(camera)->size = glm::vec2(28, 17);
+
+    movesCountE = theEntityManager.CreateEntityFromTemplate("menu/moves_count");
 
     registerScenes(this, sceneStateMachine);
     sceneStateMachine.setup(gameThreadContext->assetAPI);
@@ -40,14 +43,19 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
 }
 
 bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
-        switch (api) {
-                case ContextAPI::Asset:
-                        return true;
-                default:
-                        return false;
-        }
+    switch (api) {
+        case ContextAPI::Asset:
+        return true;
+        default:
+        return false;
+    }
 }
 
 void SacHelloWorldGame::tick(float dt) {
     sceneStateMachine.update(dt);
+}
+
+void SacHelloWorldGame::updateMovesCount(int value) {
+    movesCount = value;
+    TEXT(movesCountE)->text = std::to_string(value);
 }

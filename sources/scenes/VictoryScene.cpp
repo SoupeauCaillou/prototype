@@ -21,6 +21,7 @@
 #include "Scenes.h"
 
 #include "systems/GridSystem.h"
+#include "systems/TextSystem.h"
 
 #include "../SacHelloWorldGame.h"
 #include "base/TouchInputManager.h"
@@ -36,7 +37,11 @@ class VictoryScene : public SceneState<Scene::Enum> {
         this->game = game;
     }
 
-    Scene::Enum update(float) {
+    void onPreEnter(Scene::Enum f) override {
+        TEXT(game->movesCountE)->show = false;
+    }
+
+    Scene::Enum update(float) override {
         if (theTouchInputManager.hasClicked()) {
             theGridSystem.deleteAllEntities();
             return Scene::GameStart;
