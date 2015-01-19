@@ -200,7 +200,7 @@ class GameScene : public SceneState<Scene::Enum> {
             GridPos position = game->grid->positionToGridPos(TRANSFORM(sheep)->position);
             // prefered new position
             GridPos chosen = position + dir;
-            if (!cellIsAvailable(chosen)) {
+            if (!cellIsAvailable(chosen)||!game->grid->isPosValid(chosen)) {
                 LOGI("Cannot find a valid move for sheep " << theEntityManager.entityName(sheep));
             } else {
                 unavailable.push_back(std::make_pair(chosen, sheep));
