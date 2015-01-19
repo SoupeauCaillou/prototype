@@ -100,6 +100,8 @@ class EditorScene : public SceneState<Scene::Enum> {
     }
 
     void dumpLevel(Entity camera, HexSpatialGrid& grid) {
+        LOGI("### Level Start");
+        LOGI("11,9");
         SpatialGrid::Iterate::Result result =
             grid.iterate(invalidGridPos);
 
@@ -121,29 +123,53 @@ class EditorScene : public SceneState<Scene::Enum> {
                 s.str(""); s.clear();
             }
         }
+        LOGI("### Level End\n");
     }
+
+    Entity brushModeMaster = 0;
 
     Scene::Enum update(float) override {
         game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
             auto& eList = game->grid->getEntitiesAt(pos);
             for (auto e: eList) {
                 auto* btn = theButtonSystem.Get(e, false);
-                if (btn && btn->clicked) {
-                    LOGI(pos);
-                    bitfield_t b = GRID(e)->type;
+                if (btn) {
 
-                    switch (b) {
-                        case Case::Empty: b = Case::Rock; break;
-                        case Case::Rock: b = Case::Start; break;
-                        case Case::Start: b = Case::End; break;
-                        case Case::End: b = Case::Dog; break;
-                        case Case::Dog: b = Case::Empty; break;
-                        default: b = Case::Empty; break;
+                    if (brushModeMaster == 0 || brushModeMaster == e) {
+                        if (btn->clicked) {
+                            LOGI(pos);
+                            brushModeMaster = 0;
+                            bitfield_t b = GRID(e)->type;
+
+                            switch (b) {
+                                case Case::Empty: b = Case::Rock; break;
+                                case Case::Rock: b = Case::Start; break;
+                                case Case::Start: b = Case::End; break;
+                                case Case::End: b = Case::Dog; break;
+                                case Case::Dog: b = Case::Empty; break;
+                                default: b = Case::Empty; break;
+                            }
+                            GRID(e)->type = b;
+                            RENDERING(e)->color = typeToColor(b);
+
+                            dumpLevel(game->camera, *game->grid);
+                        } else {
+                            if (btn->mouseOver) {
+                                LOGI_IF(brushModeMaster == 0, "Engaging brushModeMaster " << e);
+                                brushModeMaster = e;
+                            }
+                        }
+                        if (!theTouchInputManager.isTouched()) {
+                            LOGI_IF(brushModeMaster, "Stopping brushModeMaster");
+                            brushModeMaster = 0;
+                        }
+                    } else {
+                        if (IntersectionUtil::pointRectangle(theTouchInputManager.getOverLastPosition(), TRANSFORM(e)->position, TRANSFORM(e)->size * BUTTON(e)->overSize, 0.0f)) {
+                            GRID(e)->type = GRID(brushModeMaster)->type;
+                            RENDERING(e)->color = typeToColor(GRID(e)->type);
+                            dumpLevel(game->camera, *game->grid);
+                        }
                     }
-                    GRID(e)->type = b;
-                    RENDERING(e)->color = typeToColor(b);
-
-                    dumpLevel(game->camera, *game->grid);
                 }
             }
         });
