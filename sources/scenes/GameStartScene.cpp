@@ -63,27 +63,17 @@ class GameStartScene : public SceneState<Scene::Enum> {
     void onEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onEnter(f);
 
-        if (game->level) {
-            game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level), true);
-            theGridSystem.forEachECDo([this] (Entity e, GridComponent* gc) -> void {
-                if (gc->type == Case::Dog) {
-                    LOGI("dog found: " << e);
-                    dog = e;
-                }
-            });
+        if (!game->level) {
+            game->level = "1.lvl";
         }
-        if (!game->grid) {
-            LOGE_IF(game->level, "Invalid level filename '" << game->level << "'");
 
-            game->grid = new HexSpatialGrid(11, 9, 2.6);
-            game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
-                std::string type = std::string("field/cell_grass");
-                Entity e = theEntityManager.CreateEntityFromTemplate(type.c_str());
-                game->grid->addEntityAt(e, pos, true);
-            });
-            dog = theEntityManager.CreateEntityFromTemplate("dog");
-            game->grid->addEntityAt(dog, GridPos(0, 0), true);
-        }
+        game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level), true);
+        theGridSystem.forEachECDo([this] (Entity e, GridComponent* gc) -> void {
+            if (gc->type == Case::Dog) {
+                LOGI("dog found: " << e);
+                dog = e;
+            }
+        });
 
         AABB aabb = game->grid->boundingBox(false);
         TRANSFORM(game->camera)->position.x = (aabb.left + aabb.right) * 0.5f;
