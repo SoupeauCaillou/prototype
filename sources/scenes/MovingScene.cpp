@@ -56,7 +56,7 @@ class MovingScene : public SceneState<Scene::Enum> {
     Scene::Enum update(float) override {
         int movementsLeft = theMoveCommandSystem.entityCount();
         if (movementsLeft == 0)
-            return Scene::Game;
+            return Scene::CheckVictory;
         std::vector<Entity> toDelete;
         theMoveCommandSystem.forEachECDo([this, &toDelete] (Entity e, MoveCommandComponent* mc) -> void {
             float progress = ADSR(e)->value;
