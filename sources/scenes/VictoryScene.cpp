@@ -38,6 +38,7 @@ class VictoryScene : public SceneState<Scene::Enum> {
     }
 
     void onPreEnter(Scene::Enum f) override {
+        SceneState<Scene::Enum>::onPreEnter(f);
         TEXT(game->movesCountE)->show = false;
     }
 

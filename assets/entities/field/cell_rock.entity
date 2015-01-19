@@ -1,7 +1,7 @@
 extends = field/cell
 
 [Rendering]
-color = 0.55,0.55,0.55,1, .25,.25,.25,1
+color = 0.05,0.05, 0.55,1, .05,.20,.25,1
 
 [Grid]
 type = 2
