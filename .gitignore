@@ -20,4 +20,3 @@ cmake_install.cmake
 
 # IDE & versionning
 *.sublime-workspace
-sources/*GitVersion.h
