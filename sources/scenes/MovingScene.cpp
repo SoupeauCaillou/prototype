@@ -28,17 +28,17 @@
 
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
-#include "../SacHelloWorldGame.h"
+#include "../HerdingDogGame.h"
 
 #include "base/SceneState.h"
 
 
 class MovingScene : public SceneState<Scene::Enum> {
-    SacHelloWorldGame* game;
+    HerdingDogGame* game;
 
     public:
 
-    MovingScene(SacHelloWorldGame* game) : SceneState<Scene::Enum>("moving", SceneEntityMode::Fading, SceneEntityMode::Fading) {
+    MovingScene(HerdingDogGame* game) : SceneState<Scene::Enum>("moving", SceneEntityMode::Fading, SceneEntityMode::Fading) {
         this->game = game;
     }
 
@@ -88,7 +88,7 @@ class MovingScene : public SceneState<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMovingSceneHandler(SacHelloWorldGame* game) {
+    StateHandler<Scene::Enum>* CreateMovingSceneHandler(HerdingDogGame* game) {
         return new MovingScene(game);
     }
 }

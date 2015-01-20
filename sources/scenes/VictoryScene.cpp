@@ -23,17 +23,17 @@
 #include "systems/GridSystem.h"
 #include "systems/TextSystem.h"
 
-#include "../SacHelloWorldGame.h"
+#include "../HerdingDogGame.h"
 #include "base/TouchInputManager.h"
 #include "base/SceneState.h"
 
 
 class VictoryScene : public SceneState<Scene::Enum> {
-    SacHelloWorldGame* game;
+    HerdingDogGame* game;
 
     public:
 
-    VictoryScene(SacHelloWorldGame* game) : SceneState<Scene::Enum>("victory", SceneEntityMode::Fading, SceneEntityMode::Fading) {
+    VictoryScene(HerdingDogGame* game) : SceneState<Scene::Enum>("victory", SceneEntityMode::Fading, SceneEntityMode::Fading) {
         this->game = game;
     }
 
@@ -52,7 +52,7 @@ class VictoryScene : public SceneState<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateVictorySceneHandler(SacHelloWorldGame* game) {
+    StateHandler<Scene::Enum>* CreateVictorySceneHandler(HerdingDogGame* game) {
         return new VictoryScene(game);
     }
 }

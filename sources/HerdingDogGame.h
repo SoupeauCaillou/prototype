@@ -18,9 +18,9 @@ namespace Case {
 
 static const GridPos invalidGridPos(-100, -100);
 
-class SacHelloWorldGame : public Game {
+class HerdingDogGame : public Game {
     public:
-        SacHelloWorldGame();
+        HerdingDogGame();
         void init(const uint8_t* in = 0, int size = 0);
         bool wantsAPI(ContextAPI::Enum api) const;
 

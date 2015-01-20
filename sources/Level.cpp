@@ -3,7 +3,7 @@
 #include "util/FileBufferHelper.h"
 #include "base/Log.h"
 #include "base/EntityManager.h"
-#include "SacHelloWorldGame.h"
+#include "HerdingDogGame.h"
 #include "systems/GridSystem.h"
 
 /*

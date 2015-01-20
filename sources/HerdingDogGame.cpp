@@ -1,4 +1,4 @@
-#include "SacHelloWorldGame.h"
+#include "HerdingDogGame.h"
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "base/Log.h"
@@ -11,10 +11,10 @@
 #include "systems/TextSystem.h"
 
 #include "systems/MoveCommandSystem.h"
-SacHelloWorldGame::SacHelloWorldGame() {
+HerdingDogGame::HerdingDogGame() {
 }
 
-void SacHelloWorldGame::init(const uint8_t*, int) {
+void HerdingDogGame::init(const uint8_t*, int) {
     MoveCommandSystem::CreateInstance();
 
     CAMERA(camera)->clearColor = Color(0,0,0);
@@ -42,7 +42,7 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
     sceneStateMachine.start(start);
 }
 
-bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
+bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
         case ContextAPI::Asset:
         return true;
@@ -51,11 +51,11 @@ bool SacHelloWorldGame::wantsAPI(ContextAPI::Enum api) const {
     }
 }
 
-void SacHelloWorldGame::tick(float dt) {
+void HerdingDogGame::tick(float dt) {
     sceneStateMachine.update(dt);
 }
 
-void SacHelloWorldGame::updateMovesCount(int value) {
+void HerdingDogGame::updateMovesCount(int value) {
     movesCount = value;
     TEXT(movesCountE)->text = std::to_string(value);
 }

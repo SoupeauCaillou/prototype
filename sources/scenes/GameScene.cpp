@@ -37,14 +37,14 @@
 
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
-#include "../SacHelloWorldGame.h"
+#include "../HerdingDogGame.h"
 
 #include "../Level.h"
 #include "base/SceneState.h"
 #include "systems/MoveCommandSystem.h"
 
 class GameScene : public SceneState<Scene::Enum> {
-    SacHelloWorldGame* game;
+    HerdingDogGame* game;
     Entity dog;
     // Which GridPos are occupied for next turn, and by whom.
     std::vector<GridPos> unavailable;
@@ -58,7 +58,7 @@ class GameScene : public SceneState<Scene::Enum> {
 
     public:
 
-    GameScene(SacHelloWorldGame* game) : SceneState<Scene::Enum>("game", SceneEntityMode::Fading, SceneEntityMode::Fading) {
+    GameScene(HerdingDogGame* game) : SceneState<Scene::Enum>("game", SceneEntityMode::Fading, SceneEntityMode::Fading) {
         this->game = game;
     }
 
@@ -299,7 +299,7 @@ class GameScene : public SceneState<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateGameSceneHandler(SacHelloWorldGame* game) {
+    StateHandler<Scene::Enum>* CreateGameSceneHandler(HerdingDogGame* game) {
         return new GameScene(game);
     }
 }

@@ -29,18 +29,18 @@
 
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
-#include "../SacHelloWorldGame.h"
+#include "../HerdingDogGame.h"
 #include "../Level.h"
 
 #include "base/SceneState.h"
 
 
 class EditorScene : public SceneState<Scene::Enum> {
-    SacHelloWorldGame* game;
+    HerdingDogGame* game;
 
     public:
 
-    EditorScene(SacHelloWorldGame* game) : SceneState<Scene::Enum>("editor", SceneEntityMode::Fading, SceneEntityMode::Fading) {
+    EditorScene(HerdingDogGame* game) : SceneState<Scene::Enum>("editor", SceneEntityMode::Fading, SceneEntityMode::Fading) {
         this->game = game;
     }
 
@@ -193,7 +193,7 @@ class EditorScene : public SceneState<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateEditorSceneHandler(SacHelloWorldGame* game) {
+    StateHandler<Scene::Enum>* CreateEditorSceneHandler(HerdingDogGame* game) {
         return new EditorScene(game);
     }
 }
