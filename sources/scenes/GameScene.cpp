@@ -228,9 +228,12 @@ class GameScene : public SceneState<Scene::Enum> {
             GridPos position = game->grid->positionToGridPos(TRANSFORM(sheep)->position);
             // prefered new position
             GridPos chosen = position + dir;
-            if (!cellIsAvailable(chosen)||!game->grid->isPosValid(chosen)) {
+            if (!game->grid->isPosValid(chosen)) {
+                LOGF("Fix me: all level should have a proper border");
+            }
+            {/*if (!cellIsAvailable(chosen)||!game->grid->isPosValid(chosen)) {
                 LOGI("Cannot find a valid optional move for sheep " << sheep);
-            } else {
+            } else {*/
                 unavailable.push_back(chosen);
                 LOGI("Sheep " << sheep << " moved.");
                 updateMovingSheepList(position, chosen);

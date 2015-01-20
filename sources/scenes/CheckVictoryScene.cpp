@@ -38,23 +38,29 @@ class CheckVictoryScene : public SceneState<Scene::Enum> {
 
     Scene::Enum update(float) {
         bool allSheepOnEndingCell = true;
+        bool oneSheepOnObstacleCell = false;
 
-        game->grid->forEachCellDo([this, &allSheepOnEndingCell] (const GridPos& pos) -> void {
+        game->grid->forEachCellDo([this, &allSheepOnEndingCell, &oneSheepOnObstacleCell] (const GridPos& pos) -> void {
             bool thereIsASheep = false;
             bool thereIsAnEnd = false;
+            bool thereIsAnObstacle = false;
             for (Entity e : game->grid->getEntitiesAt(pos)) {
                 bitfield_t type = GRID(e)->type;
 
                 thereIsASheep |= type & Case::Sheep;
                 thereIsAnEnd |= type & Case::End;
+                thereIsAnObstacle |= type & Case::Rock;
             }
-            if (thereIsASheep && !thereIsAnEnd) {
-                allSheepOnEndingCell = false;
+            if (thereIsASheep) {
+                allSheepOnEndingCell &= thereIsAnEnd;
+                oneSheepOnObstacleCell |= thereIsAnObstacle;
             }
         });
 
         if (allSheepOnEndingCell)
             return Scene::Victory;
+        else if (oneSheepOnObstacleCell)
+            return Scene::Lose;
         else
             return Scene::Game;
     }

@@ -1,0 +1,7 @@
+[Text]
+text = Defeat
+char_height = 2.0
+blink_off_duration = 0.35
+blink_on_duration = 0.35
+
+[Transformation]
