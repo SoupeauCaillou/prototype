@@ -25,19 +25,19 @@
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 
-#include "../SacHelloWorldGame.h"
+#include "../HerdingDogGame.h"
 
 #include "base/SceneState.h"
 
 #include <cstdio>
 
 class MenuScene : public SceneState<Scene::Enum> {
-    SacHelloWorldGame* game;
+    HerdingDogGame* game;
     std::list<Entity>  buttons;
 
     public:
 
-    MenuScene(SacHelloWorldGame* game) : SceneState<Scene::Enum>("menu", SceneEntityMode::Fading, SceneEntityMode::Fading) {
+    MenuScene(HerdingDogGame* game) : SceneState<Scene::Enum>("menu", SceneEntityMode::Fading, SceneEntityMode::Fading) {
         this->game = game;
     }
 
@@ -87,7 +87,7 @@ class MenuScene : public SceneState<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMenuSceneHandler(SacHelloWorldGame* game) {
+    StateHandler<Scene::Enum>* CreateMenuSceneHandler(HerdingDogGame* game) {
         return new MenuScene(game);
     }
 }
