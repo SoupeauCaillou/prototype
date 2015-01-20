@@ -210,7 +210,7 @@ class GameScene : public SceneState<Scene::Enum> {
             updateMovingSheepList(position, chosen);
 
 
-            LOGI(theEntityManager.entityName(sheep) << " moved to " << chosen);
+            LOGI(theEntityManager.entityName(sheep) << " mand-moved to " << chosen);
             // move sheep
             Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
             MOVE_CMD(e)->target = sheep;
@@ -228,18 +228,15 @@ class GameScene : public SceneState<Scene::Enum> {
             GridPos position = game->grid->positionToGridPos(TRANSFORM(sheep)->position);
             // prefered new position
             GridPos chosen = position + dir;
-            if (!game->grid->isPosValid(chosen)) {
-                LOGF("Fix me: all level should have a proper border");
-            }
-            {/*if (!cellIsAvailable(chosen)||!game->grid->isPosValid(chosen)) {
+            if (!cellIsAvailable(chosen, true)||!game->grid->isPosValid(chosen)) {
                 LOGI("Cannot find a valid optional move for sheep " << sheep);
-            } else {*/
+            } else {
                 unavailable.push_back(chosen);
                 LOGI("Sheep " << sheep << " moved.");
                 updateMovingSheepList(position, chosen);
                 // move sheep
                 // ...
-                LOGI(theEntityManager.entityName(sheep) << " moved to " << chosen);
+                LOGI(theEntityManager.entityName(sheep) << " opt-moved to " << chosen);
                 Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
                 MOVE_CMD(e)->target = sheep;
                 MOVE_CMD(e)->from = position;

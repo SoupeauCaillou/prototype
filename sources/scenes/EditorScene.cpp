@@ -73,6 +73,11 @@ class EditorScene : public SceneState<Scene::Enum> {
         glm::vec2 size = TRANSFORM(game->camera)->size;
         TRANSFORM(game->camera)->size.x = (aabb.right - aabb.left);
         TRANSFORM(game->camera)->size.y = TRANSFORM(game->camera)->size.x * size.y / size.x;
+        if (TRANSFORM(game->camera)->size.y < (aabb.top - aabb.bottom)) {
+            TRANSFORM(game->camera)->size.y = (aabb.top - aabb.bottom);
+            TRANSFORM(game->camera)->size.x = TRANSFORM(game->camera)->size.y * size.x / size.y;
+        }
+
     }
 
     static Color typeToColor(bitfield_t b) {
@@ -101,28 +106,29 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     void dumpLevel(Entity camera, HexSpatialGrid& grid) {
         LOGI("### Level Start");
-        LOGI("11,9");
         SpatialGrid::Iterate::Result result =
             grid.iterate(invalidGridPos);
 
-        std::stringstream s;
+        std::stringstream output;
+        output << '\n';
+        output << grid.getWidth() << ',' << grid.getHeight() << '\n';
         while (result.valid) {
             auto& eList = game->grid->getEntitiesAt(result.pos);
             // LOGI(result.pos);
             for (auto e: eList) {
                 auto* btn = theButtonSystem.Get(e, false);
                 if (btn) {
-                    s << typeToChar(GRID(e)->type);
+                    output << typeToChar(GRID(e)->type);
                     break;
                 }
             }
             result = grid.iterate(result.pos);
 
             if (result.newLine) {
-                LOGI(s.str());
-                s.str(""); s.clear();
+                output << '\n';
             }
         }
+        LOGI(output.str());
         LOGI("### Level End\n");
     }
 

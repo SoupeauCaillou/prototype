@@ -51,7 +51,7 @@ HexSpatialGrid* Level::load(const FileBuffer& fb, bool createEntities) {
             result = grid->iterate(invalidGridPos);
         } else {
             // try to parse M int
-            LOGE_IF((int)strlen(line) != n, "Invalid line '" << line << "' for row #" << row);
+            LOGE_IF((int)strlen(line) != n, "Invalid line '" << line << "' for row #" << row << ". " << strlen(line) << " items but " << n << " expected");
             for (int i=0; i<n; i++) {
                 const char* entity[2] = {0, 0};
                 bitfield_t type = 0;

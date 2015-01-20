@@ -81,6 +81,10 @@ class GameStartScene : public SceneState<Scene::Enum> {
         glm::vec2 size = TRANSFORM(game->camera)->size;
         TRANSFORM(game->camera)->size.x = (aabb.right - aabb.left);
         TRANSFORM(game->camera)->size.y = TRANSFORM(game->camera)->size.x * size.y / size.x;
+        if (TRANSFORM(game->camera)->size.y < (aabb.top - aabb.bottom)) {
+            TRANSFORM(game->camera)->size.y = (aabb.top - aabb.bottom);
+            TRANSFORM(game->camera)->size.x = TRANSFORM(game->camera)->size.y * size.x / size.y;
+        }
 
         game->updateMovesCount(0);
     }
