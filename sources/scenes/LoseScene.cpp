@@ -45,7 +45,7 @@ class LoseScene : public SceneState<Scene::Enum> {
     Scene::Enum update(float) override {
         if (theTouchInputManager.hasClicked()) {
             theGridSystem.deleteAllEntities();
-            return Scene::GameStart;
+            return Scene::Menu;
         }
         return Scene::Lose;
     }

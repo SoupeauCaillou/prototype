@@ -1,0 +1,12 @@
+[Transformation]
+size = 10,2
+z = 0.7
+
+[Button]
+
+[Rendering]
+show = 0
+
+[Text]
+char_height = 1.0
+color%rgba= 255,0,0,255

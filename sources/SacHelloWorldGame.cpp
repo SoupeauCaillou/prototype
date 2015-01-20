@@ -25,7 +25,7 @@ void SacHelloWorldGame::init(const uint8_t*, int) {
     registerScenes(this, sceneStateMachine);
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
-    Scene::Enum start = Scene::GameStart;
+    Scene::Enum start = Scene::Menu;
     level = NULL;
     for (int i=1; i<arg.c; i++) {
         if (strcmp("-e", arg.v[i]) == 0 ||
