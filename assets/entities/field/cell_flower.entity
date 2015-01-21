@@ -5,7 +5,7 @@ size = .9,.9
 shape = 1
 
 [Rendering]
-color%rgb = 100,100,0,255
+color%rgb = 255,25,240,255
 
 
 [Grid]
