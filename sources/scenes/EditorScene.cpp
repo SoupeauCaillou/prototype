@@ -54,6 +54,9 @@ class EditorScene : public SceneState<Scene::Enum> {
     void onEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onEnter(f);
 
+        delete game->grid;
+        game->grid=0;
+
         if (game->level) {
             game->grid = Level::load(game->gameThreadContext->assetAPI->loadAsset(game->level), false);
             game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
@@ -219,6 +222,10 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     void onPreExit(Scene::Enum f) override {
         SceneState<Scene::Enum>::onPreExit(f);
+
+        for (auto logo : logos) {
+            theEntityManager.DeleteEntity(logo.second);
+        }
     }
 
     void onExit(Scene::Enum to) override {

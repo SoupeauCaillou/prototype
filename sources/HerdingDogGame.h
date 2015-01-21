@@ -33,6 +33,7 @@ class HerdingDogGame : public Game {
         HexSpatialGrid* grid;
 
         const char* level;
-        int movesCount; /*number of moves done by user for current level*/
-        Entity movesCountE; /*display movesCount to user*/
+        int movesCountV; /*number of moves done by user for current level*/
+        Entity movesCount; /*display movesCount to user*/
+        Entity homeButton; /*display movesCount to user*/
 };

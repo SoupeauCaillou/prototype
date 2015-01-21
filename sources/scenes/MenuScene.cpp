@@ -52,7 +52,7 @@ class MenuScene : public SceneState<Scene::Enum> {
         float buttonSize = .3 * (PlacementHelper::ScreenSize.y) / list.size();
         float ypos = (PlacementHelper::ScreenSize.y * 0.5);
         for (auto l : list) {
-            Entity e = theEntityManager.CreateEntityFromTemplate("menu/menubutton");
+            Entity e = theEntityManager.CreateEntityFromTemplate("menu/button");
             TEXT(e)->text = l.c_str();
             TRANSFORM(e)->position.y = ypos ;
             ypos -= buttonSize + 1;

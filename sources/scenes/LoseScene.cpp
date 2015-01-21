@@ -37,11 +37,6 @@ class LoseScene : public SceneState<Scene::Enum> {
         this->game = game;
     }
 
-    void onPreEnter(Scene::Enum f) override {
-        SceneState<Scene::Enum>::onPreEnter(f);
-        TEXT(game->movesCountE)->show = false;
-    }
-
     Scene::Enum update(float) override {
         if (theTouchInputManager.hasClicked()) {
             theGridSystem.deleteAllEntities();

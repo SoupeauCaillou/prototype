@@ -90,7 +90,6 @@ class GameStartScene : public SceneState<Scene::Enum> {
     }
 
     Scene::Enum update(float) override {
-        TEXT(game->movesCountE)->show = true;
         return Scene::Game;
     }
 };

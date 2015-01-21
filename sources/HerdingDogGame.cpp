@@ -20,7 +20,8 @@ void HerdingDogGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(0,0,0);
     TRANSFORM(camera)->size = glm::vec2(28, 17);
 
-    movesCountE = theEntityManager.CreateEntityFromTemplate("menu/moves_count");
+    movesCount = theEntityManager.CreateEntityFromTemplate("hud/moves_count");
+    homeButton = theEntityManager.CreateEntityFromTemplate("hud/home");
 
     registerScenes(this, sceneStateMachine);
     sceneStateMachine.setup(gameThreadContext->assetAPI);
@@ -54,9 +55,35 @@ bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const {
 
 void HerdingDogGame::tick(float dt) {
     sceneStateMachine.update(dt);
+    switch (sceneStateMachine.getCurrentState()) {
+    case Scene::GameStart:
+    case Scene::Editor:
+        TEXT(movesCount)->show = true;
+        RENDERING(homeButton)->show = true;
+        BUTTON(homeButton)->enabled = true;
+        break;
+    case Scene::Victory:
+    case Scene::Lose:
+        TEXT(movesCount)->show = false;
+        RENDERING(homeButton)->show = false;
+        BUTTON(homeButton)->enabled = false;
+        break;
+    default:
+        break;
+    }
+
+    if (BUTTON(homeButton)->clicked) {
+        TEXT(movesCount)->show = false;
+        RENDERING(homeButton)->show = false;
+        BUTTON(homeButton)->enabled = false;
+        sceneStateMachine.forceNewState(Scene::Menu);
+        sceneStateMachine.update(dt);
+        theGridSystem.deleteAllEntities();
+    }
+
 }
 
 void HerdingDogGame::updateMovesCount(int value) {
-    movesCount = value;
-    TEXT(movesCountE)->text = std::to_string(value);
+    movesCountV = value;
+    TEXT(movesCount)->text = std::to_string(movesCountV);
 }

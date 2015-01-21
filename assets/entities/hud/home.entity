@@ -1,0 +1,14 @@
+[Button]
+texture_active = fin_logo
+texture_inactive = fin_logo
+
+[Rendering]
+
+[Transformation]
+z = 0.8
+size = 2
+
+[Anchor]
+parent%name = camera
+position = 0, 0
+anchor%screen = -.8, -.75
