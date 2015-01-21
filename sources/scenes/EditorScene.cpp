@@ -226,6 +226,7 @@ class EditorScene : public SceneState<Scene::Enum> {
         for (auto logo : logos) {
             theEntityManager.DeleteEntity(logo.second);
         }
+        logos.clear();
     }
 
     void onExit(Scene::Enum to) override {
