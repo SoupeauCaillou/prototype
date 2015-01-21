@@ -1,0 +1,13 @@
+[Text]
+text = WAOUF!
+color = 1, 0, 0
+show = 1
+char_height = 1.2,2
+
+[Transformation]
+z = 0.8
+
+[AutoDestroy]
+type = 1
+lifetime/value = 0.2
+lifetime/map2AlphaText = 1

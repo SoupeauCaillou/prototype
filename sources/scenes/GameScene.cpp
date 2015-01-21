@@ -162,30 +162,53 @@ class GameScene : public SceneState<Scene::Enum> {
         if (!dogHasMoved) {
             GridPos dogPos = game->grid->positionToGridPos(TRANSFORM(dog)->position);
             /*from dog pos, verify if any of its neighbor has been clicked*/
-            for (auto & neighbor : game->grid->getNeighbors(dogPos)) {
+            const std::vector<GridPos> neighbourPositions = game->grid->getNeighbors(dogPos);
+            for (const auto & neighbor : neighbourPositions) {
                 for (Entity elem : game->grid->getEntitiesAt(neighbor)) {
                     if (!dogHasMoved && theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
-                        //if possible move the dog
-                        if (cellIsAvailable(neighbor)) {
-                            // move dog to neighbor
-                            //....
+
+                        // bark
+                        if (theTouchInputManager.isTouched(1)) {
+                            updateUnavailablePositions(dogPos);
                             dogHasMoved = true;
+                            // ask all neighbours sheep to move in this direction
+                            GridDirection dir = neighbor - dogPos;
 
-                            LOGI("Dog moved");
-                            updateMovingSheepList(dogPos, neighbor, false);
-                            LOGI(theEntityManager.entityName(dog) << " moved to " << neighbor);
-                            Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
-                            MOVE_CMD(e)->target = dog;
-                            MOVE_CMD(e)->from = dogPos;
-                            MOVE_CMD(e)->to = neighbor;
-                            moves.push_back(e);
-
-                            updateUnavailablePositions(neighbor);
+                            for (const auto & n : neighbourPositions) {
+                                Entity sheep = gameElementAt(n, Case::Sheep);
+                                if (sheep) {
+                                    optionallyMovingSheeps.push_back(std::make_pair(sheep, dir));
+                                }
+                            }
+                            Entity w = theEntityManager.CreateEntityFromTemplate("waouf");
+                            TRANSFORM(w)->position = game->grid->gridPosToPosition(neighbor);
+                            LOGI("Waouf!");
                             break;
+
+                        } else {
+                            //if possible move the dog
+                            if (cellIsAvailable(neighbor)) {
+                                // move dog to neighbor
+                                //....
+                                dogHasMoved = true;
+
+                                LOGI("Dog moved");
+                                updateMovingSheepList(dogPos, neighbor, false);
+                                LOGI(theEntityManager.entityName(dog) << " moved to " << neighbor);
+                                Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
+                                MOVE_CMD(e)->target = dog;
+                                MOVE_CMD(e)->from = dogPos;
+                                MOVE_CMD(e)->to = neighbor;
+                                moves.push_back(e);
+
+                                updateUnavailablePositions(neighbor);
+                                break;
+                            }
                         }
                     }
                 }
             }
+
             return Scene::Game;
         }
         if (!mandatoryMovingSheeps.empty()) {
