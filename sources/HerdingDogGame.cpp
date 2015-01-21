@@ -57,8 +57,8 @@ void HerdingDogGame::tick(float dt) {
     sceneStateMachine.update(dt);
     switch (sceneStateMachine.getCurrentState()) {
     case Scene::GameStart:
-    case Scene::Editor:
         TEXT(movesCount)->show = true;
+    case Scene::Editor:
         RENDERING(homeButton)->show = true;
         BUTTON(homeButton)->enabled = true;
         break;
