@@ -35,7 +35,7 @@
 
 class MenuScene : public SceneState<Scene::Enum> {
     HerdingDogGame* game;
-    std::list<Entity>  buttons;
+    std::list<Entity> buttons;
 
     public:
 
@@ -44,51 +44,37 @@ class MenuScene : public SceneState<Scene::Enum> {
     }
 
     virtual void setup(AssetAPI* asset) override {
-        std::list<std::string> list = asset->listAssetContent( ".lvl" );
+        std::list<std::string> list = asset->listAssetContent(".lvl");
         list.sort();
+        list.insert(list.begin(), "Level editor");
 
-        float buttonSize = (PlacementHelper::ScreenSize.y - 1 * list.size()) / list.size();
+
+        float buttonSize = .3 * (PlacementHelper::ScreenSize.y) / list.size();
         float ypos = (PlacementHelper::ScreenSize.y * 0.5);
-        for(auto l : list) {
+        for (auto l : list) {
             Entity e = theEntityManager.CreateEntityFromTemplate("menu/menubutton");
             TEXT(e)->text = l.c_str();
             TRANSFORM(e)->position.y = ypos ;
             ypos -= buttonSize + 1;
             TRANSFORM(e)->size.y = buttonSize;
             buttons.push_back(e);
-        }
-    }
-
-    void onEnter(Scene::Enum f) override {
-        SceneState<Scene::Enum>::onEnter(f);
-
-        for( auto e: buttons){
-            RENDERING( e )->show =
-                TEXT( e )->show =
-                BUTTON( e )->enabled = true;
+            this->batch.addEntity(e);
         }
     }
 
     Scene::Enum update(float) override {
-        for(auto e : buttons){
-            if(BUTTON(e)->clicked)
-            {
+        if (BUTTON(*buttons.begin())->clicked) {
+            return Scene::Editor;
+        }
+
+        for (auto e : buttons) {
+            if(BUTTON(e)->clicked) {
                 game->level = strdup((TEXT(e)->text + ".lvl").c_str());
                 return  Scene::GameStart;
             }
         }
 
         return  Scene::Menu;
-    }
-
-    void onExit(Scene::Enum f) override {
-        for( auto e: buttons){
-            RENDERING( e )->show =
-                TEXT( e )->show =
-                BUTTON( e )->enabled = false;
-        }
-
-        SceneState<Scene::Enum>::onExit(f);
     }
 };
 
