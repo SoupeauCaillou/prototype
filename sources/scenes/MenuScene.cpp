@@ -25,6 +25,8 @@
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 
+#include "base/PlacementHelper.h"
+
 #include "../HerdingDogGame.h"
 
 #include "base/SceneState.h"
@@ -41,22 +43,25 @@ class MenuScene : public SceneState<Scene::Enum> {
         this->game = game;
     }
 
-    virtual void setup(AssetAPI* asset) {
-        std::list<std::string>  list = asset->listAssetContent( ".lvl" );
+    virtual void setup(AssetAPI* asset) override {
+        std::list<std::string> list = asset->listAssetContent( ".lvl" );
         list.sort();
 
-        int i = 0;
-        float  buttonSize = 10.0 / list.size();
-        for(auto l: list){
+        float buttonSize = (PlacementHelper::ScreenSize.y - 1 * list.size()) / list.size();
+        float ypos = (PlacementHelper::ScreenSize.y * 0.5);
+        for(auto l : list) {
             Entity e = theEntityManager.CreateEntityFromTemplate("menu/menubutton");
             TEXT(e)->text = l.c_str();
-            TRANSFORM(e)->position.y = 7 - i * ( buttonSize + 1 ); ++i;
+            TRANSFORM(e)->position.y = ypos ;
+            ypos -= buttonSize + 1;
             TRANSFORM(e)->size.y = buttonSize;
             buttons.push_back(e);
         }
     }
 
-    void onEnter( Scene::Enum ) {
+    void onEnter(Scene::Enum f) override {
+        SceneState<Scene::Enum>::onEnter(f);
+
         for( auto e: buttons){
             RENDERING( e )->show =
                 TEXT( e )->show =
@@ -64,12 +69,11 @@ class MenuScene : public SceneState<Scene::Enum> {
         }
     }
 
-    Scene::Enum update(float) {
-        for( auto e: buttons){
-            if( BUTTON( e )->clicked )
+    Scene::Enum update(float) override {
+        for(auto e : buttons){
+            if(BUTTON(e)->clicked)
             {
-                game->level = strdup( (TEXT(e)->text + ".lvl").c_str() );
-
+                game->level = strdup((TEXT(e)->text + ".lvl").c_str());
                 return  Scene::GameStart;
             }
         }
@@ -77,12 +81,14 @@ class MenuScene : public SceneState<Scene::Enum> {
         return  Scene::Menu;
     }
 
-    void onExit( Scene::Enum ) {
+    void onExit(Scene::Enum f) override {
         for( auto e: buttons){
             RENDERING( e )->show =
                 TEXT( e )->show =
                 BUTTON( e )->enabled = false;
         }
+
+        SceneState<Scene::Enum>::onExit(f);
     }
 };
 
