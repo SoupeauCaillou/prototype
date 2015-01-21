@@ -7,12 +7,13 @@
 
 namespace Case {
     enum Enum {
-        Empty  = 1 << 0,
-        Rock   = 1 << 1,
-        Dog     = 1 << 2,
-        Sheep  = 1 << 3,
-        Start   = 1 << 4,
-        End     = 1 << 5,
+        Empty      = 1 << 0,
+        Rock       = 1 << 1,
+        Dog        = 1 << 2,
+        Sheep      = 1 << 3,
+        Start      = 1 << 4,
+        End        = 1 << 5,
+        Flower     = 1 << 6,
     };
 }
 

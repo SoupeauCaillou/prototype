@@ -94,11 +94,12 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     static Color typeToColor(bitfield_t b) {
         switch (b) {
-            case Case::Empty: return Color(0.01, 1, 0.01);
-            case Case::Dog:   return Color(0.9, 0.8, 0.03);
-            case Case::Rock:  return Color(0.3, 0.3, 0.3);
-            case Case::Start: return Color(0.9, 0.9, 0.9);
-            case Case::End:   return Color(0.6, 0.1, 0.1);
+            case Case::Empty:  return Color(0.01, 1, 0.01);
+            case Case::Dog:    return Color(0.9, 0.8, 0.03);
+            case Case::Rock:   return Color(0.3, 0.3, 0.3);
+            case Case::Start:  return Color(0.9, 0.9, 0.9);
+            case Case::End:    return Color(0.6, 0.1, 0.1);
+            case Case::Flower: return Color(1.0, 0.2, 0.9);
             default:
                 return Color(0, 0, 0);
         }
@@ -106,11 +107,12 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     static hash_t typeToTexture(bitfield_t b) {
         switch (b) {
-            case Case::Empty: return 0;
-            case Case::Dog:   return HASH("dog_logo", 0x0);
-            case Case::Rock:  return 0;
-            case Case::Start: return HASH("sheep_logo", 0x0);
-            case Case::End:   return HASH("fin_logo", 0x0);
+            case Case::Empty:  return 0;
+            case Case::Dog:    return HASH("dog_logo", 0x0);
+            case Case::Rock:   return 0;
+            case Case::Start:  return HASH("sheep_logo", 0x0);
+            case Case::End:    return HASH("fin_logo", 0x0);
+            case Case::Flower: return 0;
             default:
                 return 0;
         }
@@ -118,11 +120,12 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     static char typeToChar(bitfield_t b) {
         switch (b) {
-            case Case::Empty: return '.';
-            case Case::Dog:   return 'D';
-            case Case::Rock:  return 'X';
-            case Case::Start: return 'S';
-            case Case::End:   return 'E';
+            case Case::Empty:  return '.';
+            case Case::Dog:    return 'D';
+            case Case::Rock:   return 'X';
+            case Case::Start:  return 'S';
+            case Case::End:    return 'E';
+            case Case::Flower: return 'F';
             default:
                 return '.';
         }
@@ -174,12 +177,13 @@ class EditorScene : public SceneState<Scene::Enum> {
                             bitfield_t b = GRID(e)->type;
 
                             switch (b) {
-                                case Case::Empty: b = Case::Rock; break;
-                                case Case::Rock: b = Case::Start; break;
-                                case Case::Start: b = Case::End; break;
-                                case Case::End: b = Case::Dog; break;
-                                case Case::Dog: b = Case::Empty; break;
-                                default: b = Case::Empty; break;
+                                case Case::Empty:   b = Case::Rock; break;
+                                case Case::Rock:    b = Case::Start; break;
+                                case Case::Start:   b = Case::End; break;
+                                case Case::End:     b = Case::Dog; break;
+                                case Case::Dog:     b = Case::Flower; break;
+                                case Case::Flower:  b = Case::Empty; break;
+                                default:            b = Case::Empty; break;
                             }
                             GRID(e)->type = b;
                             RENDERING(e)->color = typeToColor(b);

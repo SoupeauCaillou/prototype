@@ -64,6 +64,16 @@ class GameScene : public SceneState<Scene::Enum> {
 
     void onPreEnter(Scene::Enum f) override {
         SceneState<Scene::Enum>::onPreEnter(f);
+
+        //remove eaten flower from field, if any
+        game->grid->forEachCellDo([this] (const GridPos &pos) -> void {
+            Entity flower = gameElementAt(pos, Case::Flower);
+            if (flower != 0 && gameElementAt(pos, Case::Sheep) != 0) {
+                LOGI("Flower " << flower << " has been eaten by " << gameElementAt(pos, Case::Sheep));
+                game->grid->removeEntityFrom(flower, pos);
+                theEntityManager.DeleteEntity(flower);
+            }
+        });
     }
 
     void onEnter(Scene::Enum f) override {
@@ -145,8 +155,24 @@ class GameScene : public SceneState<Scene::Enum> {
                 Entity s = gameElementAt(neighbor, Case::Sheep);
                 if (s) {
                     if (!didSheepMove(s)) {
-                        LOGI("Add " << s << " to optional_move list");
-                        optionallyMovingSheeps.push_back(std::make_pair(s, to - from));
+                        // if a flower is available on current cell, do not move: eat it.
+                        // Otherwise, if a flower is available on a neighbor cell, sheep
+                        // should go there. Finally, if there is no flower, follow the herd.
+                        if (gameElementAt(neighbor, Case::Flower) != 0) {
+                            LOGI(s << " will not move but eat a flower instead");
+                            updateUnavailablePositions(neighbor);
+                        } else {
+                            GridPos preferedDirection = to - from;
+                            for (auto & sheepNeighbor : game->grid->getNeighbors(neighbor)) {
+                                if (gameElementAt(sheepNeighbor, Case::Flower) != 0) {
+                                    LOGI(s << " will optionally move to eat a flower");
+                                    preferedDirection = sheepNeighbor - neighbor;
+                                    break;
+                                }
+                            }
+                            LOGI_IF(preferedDirection==to-from, s << " will optionally move to follow the herd");
+                            optionallyMovingSheeps.push_back(std::make_pair(s, preferedDirection));
+                        }
                         staticSheeps.remove(s);
                     }
                 }
@@ -268,7 +294,7 @@ class GameScene : public SceneState<Scene::Enum> {
                 Entity otherSheep = gameElementAt(chosen, Case::Sheep);
                 if (otherSheep != 0) {
                     if (std::find_if(optionallyMovingSheeps.begin(),
-                        optionallyMovingSheeps.end(),
+                                     optionallyMovingSheeps.end(),
                         [otherSheep](const std::pair<Entity, GridDirection>& p) -> bool {
                             return p.first == otherSheep;
                         }) != optionallyMovingSheeps.end()) {
@@ -311,7 +337,6 @@ class GameScene : public SceneState<Scene::Enum> {
             - initial state: contains Case::Rock only
             - when something moves (dog, sheep), its destination becomes unavailable
             - when something cant move, its position becomes unavailable
-
         */
         auto find = std::find_if(unavailable.begin(), unavailable.end(), [pos] (const GridPos& p) {
             return pos == p;

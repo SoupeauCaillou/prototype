@@ -21,6 +21,7 @@ XXXX = grid content
     - X: block
     - S: start point
     - E: end point
+    - F: flower
 
 Number of ships = number of start point
 Number of E must be >= S
@@ -59,6 +60,11 @@ HexSpatialGrid* Level::load(const FileBuffer& fb, bool createEntities) {
                     case '.': entity[0] = "field/cell_grass"; type = Case::Empty; break;
                     case 'X': entity[0] = "field/cell_rock"; type = Case::Rock; break;
                     case 'E': entity[0] = "field/cell_end"; type = Case::End; break;
+                    case 'F':
+                        entity[0] = "field/cell_grass";
+                        entity[1] = "field/cell_flower";
+                        type = Case::Flower;
+                        break;
                     case 'D':
                         entity[0] = "field/cell_grass";
                         entity[1] = "dog";

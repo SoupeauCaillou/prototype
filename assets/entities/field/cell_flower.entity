@@ -1,0 +1,14 @@
+extends = field/cell
+
+[Transformation]
+size = .9,.9
+shape = 1
+
+[Rendering]
+color%rgb = 100,100,0,255
+
+
+[Grid]
+type = 64
+blocks_path = 0
+can_be_on_multiple_cells = 0
