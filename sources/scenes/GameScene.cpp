@@ -338,7 +338,7 @@ class GameScene : public SceneState<Scene::Enum> {
 
     void onPreExit(Scene::Enum f) override {
         SceneState<Scene::Enum>::onPreExit(f);
-        game->updateMovesCount(game->movesCount+1);
+        game->updateMovesCount(game->movesCountV+1);
         moves.clear();
     }
 
