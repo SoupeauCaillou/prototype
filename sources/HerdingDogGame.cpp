@@ -37,6 +37,7 @@ void HerdingDogGame::init(const uint8_t*, int) {
             }
         } else {
             level = arg.v[i];
+            start = Scene::GameStart;
         }
     }
     sceneStateMachine.start(start);
