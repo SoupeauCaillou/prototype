@@ -26,6 +26,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 #include "systems/ButtonSystem.h"
+#include "systems/AnchorSystem.h"
 
 #include "base/TouchInputManager.h"
 #include "base/PlacementHelper.h"
@@ -38,9 +39,11 @@
 class EditorScene : public SceneState<Scene::Enum> {
     HerdingDogGame* game;
 
+
+    std::map<GridPos, Entity> logos;
     public:
 
-    EditorScene(HerdingDogGame* game) : SceneState<Scene::Enum>("editor", SceneEntityMode::Fading, SceneEntityMode::Fading) {
+    EditorScene(HerdingDogGame* game) : SceneState<Scene::Enum>("editor", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
         this->game = game;
     }
 
@@ -67,6 +70,15 @@ class EditorScene : public SceneState<Scene::Enum> {
                 game->grid->addEntityAt(e, pos, true);
             });
         }
+
+        game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+            Entity e = game->grid->getEntitiesAt(pos).front();
+            Entity logo = theEntityManager.CreateEntityFromTemplate("editor/editor_logo");
+            ANCHOR(logo)->parent = e;
+            RENDERING(logo)->texture = typeToTexture(GRID(game->grid->getEntitiesAt(pos).front())->type);
+            logos.insert(std::make_pair(pos, logo));
+        });
+
         AABB aabb = game->grid->boundingBox(false);
         TRANSFORM(game->camera)->position.x = (aabb.left + aabb.right) * 0.5f;
         TRANSFORM(game->camera)->position.y = (aabb. bottom + aabb.top) * 0.5f;
@@ -89,6 +101,18 @@ class EditorScene : public SceneState<Scene::Enum> {
             case Case::End:   return Color(0.6, 0.1, 0.1);
             default:
                 return Color(0, 0, 0);
+        }
+    }
+
+    static hash_t typeToTexture(bitfield_t b) {
+        switch (b) {
+            case Case::Empty: return 0;
+            case Case::Dog:   return HASH("dog_logo", 0x0);
+            case Case::Rock:  return 0;
+            case Case::Start: return HASH("sheep_logo", 0x0);
+            case Case::End:   return HASH("fin_logo", 0x0);
+            default:
+                return 0;
         }
     }
 
@@ -136,6 +160,8 @@ class EditorScene : public SceneState<Scene::Enum> {
 
     Scene::Enum update(float) override {
         game->grid->forEachCellDo([this] (const GridPos& pos) -> void {
+            Entity logo = logos[pos];
+
             auto& eList = game->grid->getEntitiesAt(pos);
             for (auto e: eList) {
                 auto* btn = theButtonSystem.Get(e, false);
@@ -157,6 +183,7 @@ class EditorScene : public SceneState<Scene::Enum> {
                             }
                             GRID(e)->type = b;
                             RENDERING(e)->color = typeToColor(b);
+                            RENDERING(logo)->texture = typeToTexture(b);
 
                             dumpLevel(game->camera, *game->grid);
                         } else {
@@ -173,11 +200,14 @@ class EditorScene : public SceneState<Scene::Enum> {
                         if (IntersectionUtil::pointRectangle(theTouchInputManager.getOverLastPosition(), TRANSFORM(e)->position, TRANSFORM(e)->size * BUTTON(e)->overSize, 0.0f)) {
                             GRID(e)->type = GRID(brushModeMaster)->type;
                             RENDERING(e)->color = typeToColor(GRID(e)->type);
+                            RENDERING(logo)->texture = typeToTexture(GRID(e)->type);
                             dumpLevel(game->camera, *game->grid);
                         }
                     }
                 }
             }
+
+            RENDERING(logo)->show = RENDERING(logo)->texture != 0;
         });
 
         return Scene::Editor;

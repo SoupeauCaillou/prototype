@@ -1,0 +1,8 @@
+[Transformation]
+size = 2,2
+
+[Anchor]
+z = 0.1
+
+[Rendering]
+flags = 1
