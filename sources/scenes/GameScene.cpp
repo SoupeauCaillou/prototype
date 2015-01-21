@@ -154,6 +154,10 @@ class GameScene : public SceneState<Scene::Enum> {
         }
     }
 
+    void updateUnavailablePositions(GridPos pos) {
+        unavailable.push_back(pos);
+    }
+
     Scene::Enum update(float) override {
         if (!dogHasMoved) {
             GridPos dogPos = game->grid->positionToGridPos(TRANSFORM(dog)->position);
@@ -163,7 +167,6 @@ class GameScene : public SceneState<Scene::Enum> {
                     if (!dogHasMoved && theButtonSystem.Get(elem, false) && BUTTON(elem)->clicked) {
                         //if possible move the dog
                         if (cellIsAvailable(neighbor)) {
-                            unavailable.push_back(neighbor);
                             // move dog to neighbor
                             //....
                             dogHasMoved = true;
@@ -176,6 +179,8 @@ class GameScene : public SceneState<Scene::Enum> {
                             MOVE_CMD(e)->from = dogPos;
                             MOVE_CMD(e)->to = neighbor;
                             moves.push_back(e);
+
+                            updateUnavailablePositions(neighbor);
                             break;
                         }
                     }
@@ -185,6 +190,8 @@ class GameScene : public SceneState<Scene::Enum> {
         }
         if (!mandatoryMovingSheeps.empty()) {
             auto& sheepDir = mandatoryMovingSheeps.front();
+            mandatoryMovingSheeps.pop_front();
+
             Entity sheep = sheepDir.first;
             GridDirection dir = sheepDir.second;
             GridPos position = game->grid->positionToGridPos(TRANSFORM(sheep)->position);
@@ -203,14 +210,12 @@ class GameScene : public SceneState<Scene::Enum> {
                 }
                 return Scene::Moving;
             }
-            unavailable.push_back(chosen);
-            mandatoryMovingSheeps.pop_front();
-            LOGI("Sheep " << sheep << " moved.");
 
             updateMovingSheepList(position, chosen);
+            updateUnavailablePositions(chosen);
 
 
-            LOGI(theEntityManager.entityName(sheep) << " mand-moved to " << chosen);
+            LOGI("sheep " << sheep << " mand-moved to " << chosen);
             // move sheep
             Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
             MOVE_CMD(e)->target = sheep;
@@ -222,29 +227,45 @@ class GameScene : public SceneState<Scene::Enum> {
         }
 
         if (!optionallyMovingSheeps.empty()) {
-            auto& sheepDir = optionallyMovingSheeps.front();
+            auto& sheepDir = optionallyMovingSheeps.back();
+            optionallyMovingSheeps.pop_back();
+
             Entity sheep = sheepDir.first;
             GridDirection dir = sheepDir.second;
             GridPos position = game->grid->positionToGridPos(TRANSFORM(sheep)->position);
             // prefered new position
             GridPos chosen = position + dir;
-            if (!cellIsAvailable(chosen, true)||!game->grid->isPosValid(chosen)) {
+            if (!cellIsAvailable(chosen, false)||!game->grid->isPosValid(chosen)) {
                 LOGI("Cannot find a valid optional move for sheep " << sheep);
+                updateUnavailablePositions(position);
             } else {
-                unavailable.push_back(chosen);
-                LOGI("Sheep " << sheep << " moved.");
+                // If cell is occupied by a sheep that has not yet moved,
+                // we must first check that it can indeed move.
+                // So reschedule ourself later.
+                Entity otherSheep = gameElementAt(chosen, Case::Sheep);
+                if (otherSheep != 0) {
+                    if (std::find_if(optionallyMovingSheeps.begin(),
+                        optionallyMovingSheeps.end(),
+                        [otherSheep](const std::pair<Entity, GridDirection>& p) -> bool {
+                            return p.first == otherSheep;
+                        }) != optionallyMovingSheeps.end()) {
+                        LOGI("Reschedule sheep " << sheep << " after sheep " << otherSheep);
+                        optionallyMovingSheeps.insert(optionallyMovingSheeps.begin(), sheepDir);
+                        return Scene::Game;
+                    }
+                }
+
+                LOGI("sheep " << sheep << " opt-moved to " << chosen);
                 updateMovingSheepList(position, chosen);
+                updateUnavailablePositions(chosen);
                 // move sheep
                 // ...
-                LOGI(theEntityManager.entityName(sheep) << " opt-moved to " << chosen);
                 Entity e = theEntityManager.CreateEntityFromTemplate("move_command");
                 MOVE_CMD(e)->target = sheep;
                 MOVE_CMD(e)->from = position;
                 MOVE_CMD(e)->to = chosen;
                 moves.push_back(e);
             }
-            optionallyMovingSheeps.pop_front();
-
 
             return Scene::Game;
         }
@@ -263,6 +284,12 @@ class GameScene : public SceneState<Scene::Enum> {
     }
 
     bool cellIsAvailable(GridPos pos, bool obstacleAllowed = false) {
+        /* unavailable list build rules:
+            - initial state: contains Case::Rock only
+            - when something moves (dog, sheep), its destination becomes unavailable
+            - when something cant move, its position becomes unavailable
+
+        */
         auto find = std::find_if(unavailable.begin(), unavailable.end(), [pos] (const GridPos& p) {
             return pos == p;
         });
