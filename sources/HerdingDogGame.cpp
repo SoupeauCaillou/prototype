@@ -28,6 +28,7 @@ void HerdingDogGame::init(const uint8_t*, int) {
 
     Scene::Enum start = Scene::Menu;
     level = NULL;
+#if SAC_DESKTOP
     for (int i=1; i<arg.c; i++) {
         if (strcmp("-e", arg.v[i]) == 0 ||
             strcmp("--editor", arg.v[i]) == 0) {
@@ -41,6 +42,7 @@ void HerdingDogGame::init(const uint8_t*, int) {
             start = Scene::GameStart;
         }
     }
+#endif
     sceneStateMachine.start(start);
 }
 
@@ -80,9 +82,17 @@ void HerdingDogGame::tick(float dt) {
         sceneStateMachine.update(dt);
         theGridSystem.deleteAllEntities();
     }
-
 }
 
+#ifdef SAC_ANDROID
+namespace std {
+    template <class T> std::string to_string(T v) {
+        std::ostringstream oss;
+        oss << v;
+        return oss.str();
+    }
+}
+#endif
 void HerdingDogGame::updateMovesCount(int value) {
     movesCountV = value;
     TEXT(movesCount)->text = std::to_string(movesCountV);

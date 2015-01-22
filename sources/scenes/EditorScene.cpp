@@ -204,12 +204,14 @@ class EditorScene : public SceneState<Scene::Enum> {
                             brushModeMaster = 0;
                         }
                     } else {
+#if SAC_DESKTOP
                         if (IntersectionUtil::pointRectangle(theTouchInputManager.getOverLastPosition(), TRANSFORM(e)->position, TRANSFORM(e)->size * BUTTON(e)->overSize, 0.0f)) {
                             GRID(e)->type = GRID(brushModeMaster)->type;
                             RENDERING(e)->color = typeToColor(GRID(e)->type);
                             RENDERING(logo)->texture = typeToTexture(GRID(e)->type);
                             dumpLevel(game->camera, *game->grid);
                         }
+#endif
                     }
                 }
             }
