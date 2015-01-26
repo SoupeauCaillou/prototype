@@ -18,24 +18,23 @@
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #pragma once
 
 #include "systems/System.h"
 #include "util/SpatialGrid.h"
 
 struct MoveCommandComponent {
-    Entity target;
-    GridPos from, to;
+  Entity target;
+  GridPos from, to;
 };
 
 #define theMoveCommandSystem MoveCommandSystem::GetInstance()
 #if SAC_DEBUG
-#define MOVE_CMD(e) theMoveCommandSystem.Get(e,true,__FILE__,__LINE__)
+#define MOVE_CMD(e) theMoveCommandSystem.Get(e, true, __FILE__, __LINE__)
 #else
 #define MOVE_CMD(e) theMoveCommandSystem.Get(e)
 #endif
 
 UPDATABLE_SYSTEM(MoveCommand)
-};
+}
+;

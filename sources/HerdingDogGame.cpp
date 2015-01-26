@@ -11,13 +11,13 @@
 #include "systems/TextSystem.h"
 
 #include "systems/MoveCommandSystem.h"
-HerdingDogGame::HerdingDogGame() {
-}
+HerdingDogGame::HerdingDogGame() {}
 
-void HerdingDogGame::init(const uint8_t*, int) {
+void HerdingDogGame::init(const uint8_t*, int)
+{
     MoveCommandSystem::CreateInstance();
 
-    CAMERA(camera)->clearColor = Color(0,0,0);
+    CAMERA(camera)->clearColor = Color(0, 0, 0);
     TRANSFORM(camera)->size = glm::vec2(28, 17);
 
     movesCount = theEntityManager.CreateEntityFromTemplate("hud/moves_count");
@@ -29,15 +29,15 @@ void HerdingDogGame::init(const uint8_t*, int) {
     Scene::Enum start = Scene::Menu;
     level = NULL;
 #if SAC_DESKTOP
-    for (int i=1; i<arg.c; i++) {
-        if (strcmp("-e", arg.v[i]) == 0 ||
-            strcmp("--editor", arg.v[i]) == 0) {
+    for (int i = 1; i < arg.c; i++) {
+        if (strcmp("-e", arg.v[i]) == 0 || strcmp("--editor", arg.v[i]) == 0) {
             start = Scene::Editor;
             if (i < (arg.c - 1)) {
-                level = arg.v[i+1];
+                level = arg.v[i + 1];
                 i++;
             }
-        } else {
+        }
+        else {
             level = arg.v[i];
             start = Scene::GameStart;
         }
@@ -46,16 +46,18 @@ void HerdingDogGame::init(const uint8_t*, int) {
     sceneStateMachine.start(start);
 }
 
-bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const {
+bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const
+{
     switch (api) {
-        case ContextAPI::Asset:
+    case ContextAPI::Asset:
         return true;
-        default:
+    default:
         return false;
     }
 }
 
-void HerdingDogGame::tick(float dt) {
+void HerdingDogGame::tick(float dt)
+{
     sceneStateMachine.update(dt);
     switch (sceneStateMachine.getCurrentState()) {
     case Scene::GameStart:
@@ -86,14 +88,17 @@ void HerdingDogGame::tick(float dt) {
 
 #ifdef SAC_ANDROID
 namespace std {
-    template <class T> std::string to_string(T v) {
-        std::ostringstream oss;
-        oss << v;
-        return oss.str();
-    }
+template <class T>
+std::string to_string(T v)
+{
+    std::ostringstream oss;
+    oss << v;
+    return oss.str();
+}
 }
 #endif
-void HerdingDogGame::updateMovesCount(int value) {
+void HerdingDogGame::updateMovesCount(int value)
+{
     movesCountV = value;
     TEXT(movesCount)->text = std::to_string(movesCountV);
 }
