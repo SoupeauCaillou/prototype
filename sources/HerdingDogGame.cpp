@@ -13,8 +13,7 @@
 #include "systems/MoveCommandSystem.h"
 HerdingDogGame::HerdingDogGame() {}
 
-void HerdingDogGame::init(const uint8_t*, int)
-{
+void HerdingDogGame::init(const uint8_t*, int) {
     MoveCommandSystem::CreateInstance();
 
     CAMERA(camera)->clearColor = Color(0, 0, 0);
@@ -36,8 +35,7 @@ void HerdingDogGame::init(const uint8_t*, int)
                 level = arg.v[i + 1];
                 i++;
             }
-        }
-        else {
+        } else {
             level = arg.v[i];
             start = Scene::GameStart;
         }
@@ -46,8 +44,7 @@ void HerdingDogGame::init(const uint8_t*, int)
     sceneStateMachine.start(start);
 }
 
-bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const
-{
+bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const {
     switch (api) {
     case ContextAPI::Asset:
         return true;
@@ -56,8 +53,7 @@ bool HerdingDogGame::wantsAPI(ContextAPI::Enum api) const
     }
 }
 
-void HerdingDogGame::tick(float dt)
-{
+void HerdingDogGame::tick(float dt) {
     sceneStateMachine.update(dt);
     switch (sceneStateMachine.getCurrentState()) {
     case Scene::GameStart:
@@ -88,17 +84,14 @@ void HerdingDogGame::tick(float dt)
 
 #ifdef SAC_ANDROID
 namespace std {
-template <class T>
-std::string to_string(T v)
-{
-    std::ostringstream oss;
-    oss << v;
-    return oss.str();
-}
+    template <class T> std::string to_string(T v) {
+        std::ostringstream oss;
+        oss << v;
+        return oss.str();
+    }
 }
 #endif
-void HerdingDogGame::updateMovesCount(int value)
-{
+void HerdingDogGame::updateMovesCount(int value) {
     movesCountV = value;
     TEXT(movesCount)->text = std::to_string(movesCountV);
 }
