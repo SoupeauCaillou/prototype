@@ -18,7 +18,7 @@
 #include "systems/ZSQDSystem.h"
 
 #include "api/KeyboardInputHandlerAPI.h"
-#include <SDL/SDL_keysym.h>
+#include <SDL2/SDL_keycode.h>
 #include "LoopHelper.h"
 
 struct InputInterface {

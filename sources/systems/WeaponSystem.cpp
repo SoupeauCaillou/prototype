@@ -30,7 +30,8 @@
 #include "systems/AnchorSystem.h"
 #include "util/Random.h"
 #include <glm/gtx/rotate_vector.hpp>
-
+#include "util/SerializerProperty.h"
+#include "base/EntityManager.h"
 #include "../LoopHelper.h"
 
 INSTANCE_IMPL(WeaponSystem);

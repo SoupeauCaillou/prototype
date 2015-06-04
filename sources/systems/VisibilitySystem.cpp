@@ -7,7 +7,8 @@
 #include "AISystem.h"
 #include "UnitSystem.h"
 #include "../LoopHelper.h"
-
+#include "util/SerializerProperty.h"
+#include "base/EntityManager.h"
 #include "util/Random.h"
 
 INSTANCE_IMPL(VisibilitySystem);

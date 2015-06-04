@@ -10,6 +10,7 @@
 
 #include "../LoopHelper.h"
 #include "util/Random.h"
+#include "util/SerializerProperty.h"
 
 INSTANCE_IMPL(AISystem);
 

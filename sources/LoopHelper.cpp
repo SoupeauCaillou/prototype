@@ -120,7 +120,7 @@ void LoopHelper::update(float dt, bool fastforward) {
     loop.durations[loop.id] += dt;
     LOGV(1, "Loop #" << loop.id << " new duration = " << loop.durations[loop.id]);
 
-    LOGV(1, "Saved input: " << std::hex << (int)(*loop.player.input[loop.id])[loop.currentFrame] << std::dec);
+    LOGV(1, "Saved input: " << LogFmt("%08x") << (int)(*loop.player.input[loop.id])[loop.currentFrame]);
     loop.currentFrame++;
 
     {

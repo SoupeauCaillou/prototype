@@ -18,7 +18,7 @@
 #include "systems/WeaponSystem.h"
 
 #include "api/KeyboardInputHandlerAPI.h"
-#include <SDL/SDL_keysym.h>
+//#include <SDL/SDL_keysym.h>
 #include "util/Random.h"
 #include "util/IntersectionUtil.h"
 #include "base/PlacementHelper.h"
@@ -44,7 +44,7 @@ void MyTestGame::init(const uint8_t*, int) {
     VisionSystem::CreateInstance();
     WeaponSystem::CreateInstance();
 
-    glm::vec2 worldSize = PlacementHelper::ScreenSize * 2.0f;
+    glm::vec2 worldSize = PlacementHelper::ScreenSize * 4.0f;
     theCollisionSystem.worldSize = worldSize * 1.2f;
 
     sceneStateMachine = new StateMachine<Scene::Enum>();

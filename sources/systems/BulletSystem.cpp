@@ -11,6 +11,9 @@
 #include "systems/UnitSystem.h"
 #include "systems/WeaponSystem.h"
 
+#include "base/EntityManager.h"
+#include <algorithm>
+
 INSTANCE_IMPL(BulletSystem);
 
 BulletSystem::BulletSystem() : ComponentSystemImpl<BulletComponent>(HASH("Bullet", 0xca94697f)) {

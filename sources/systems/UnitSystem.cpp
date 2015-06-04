@@ -2,6 +2,7 @@
 
 #include "base/PlacementHelper.h"
 #include "systems/TransformationSystem.h"
+#include "util/SerializerProperty.h"
 
 INSTANCE_IMPL(UnitSystem);
 

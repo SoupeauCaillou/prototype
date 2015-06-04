@@ -16,6 +16,7 @@
 #include "systems/WeaponSystem.h"
 
 #include "base/PlacementHelper.h"
+#include "base/EntityManager.h"
 #include "../LoopHelper.h"
 
 class CreateLevelScene : public SceneState<Scene::Enum> {

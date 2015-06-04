@@ -1,6 +1,7 @@
 #pragma once
 
 #include "systems/System.h"
+#include "base/Interval.h"
 
 namespace State
 {
