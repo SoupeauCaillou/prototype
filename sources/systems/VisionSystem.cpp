@@ -7,6 +7,9 @@
 
 #include "util/Draw.h"
 #include "glm/gtx/norm.hpp"
+#include "util/SerializerProperty.h"
+#include "base/EntityManager.h"
+#include <algorithm>
 
 INSTANCE_IMPL(VisionSystem);
 
@@ -82,35 +85,54 @@ void VisionSystem::DoUpdate(float) {
             Color(1, 0, 0),
             Color(0, 1, 0),
             Color(0, 0, 1)};
+
         const auto& pos = TRANSFORM(rays[0].e)->position;
+        Entity prevEntityHit = 0;
         for (int i=first; i<=latest; i++) {
             const auto* cc = COLLISION(rays[i].e);
-            Entity col = 0;
-            for (int j=0; j<cc->collision.count; j++) {
-                float d = glm::distance2(pos, cc->collision.at[j]);
+            /* collision #0 can be either:
+                * the corner/vertex aimed by the ray: in this case we want to keep this hit + the next hit on a different entity
+                * a middle of a edge: ignored because it's a useless intermediate point (eg when aiming the back corner)
+                * before corner
+            */
+            float d0 = glm::distance2(pos, cc->collision.at[0]);
 
-                if (d - rays[i].d < -0.1) {
-                    break;
-                    vertices[resultIndex + vc->vertices.count] = cc->collision.at[j];
-                    vc->vertices.count++;
-                    Draw::Point(cc->collision.at[j], Color(1, 0, 1));
-                    break;
-                }
+            /* case 1: corner hit */
+            if (glm::abs(d0 - rays[i].d) < 0.001) {
+                Entity hit1 = cc->collision.with[0];
 
-                if (cc->collision.with[j] != col) {
-                    vertices[resultIndex + vc->vertices.count] = cc->collision.at[j];
+                int nextHitIndex = 1;
+                /*while (nextHitIndex < cc->collision.count &&
+                    cc->collision.with[nextHitIndex] == hit1) {
+                    nextHitIndex++;
+                }*/
+
+                if (nextHitIndex == cc->collision.count) {
+                    /* no further hit, keep track of 1st hit */
+                    vertices[resultIndex + vc->vertices.count] = cc->collision.at[0];
                     vc->vertices.count++;
-                    std::stringstream a;
-                    a << i << '.' << j << ':' << cc->collision.with[j] << '=' << col;
-                    Draw::Point(cc->collision.at[j], color[j], a.str());
-                    col = cc->collision.with[j];
+
+                    prevEntityHit = hit1;
                 } else {
-                    break;
+                    Entity hit2 = cc->collision.with[nextHitIndex];
+
+                    if (hit2 != hit1) {
+                        if (hit1 == prevEntityHit) {
+                            vertices[resultIndex + vc->vertices.count] = cc->collision.at[0];
+                            vertices[resultIndex + vc->vertices.count + 1] = cc->collision.at[nextHitIndex];
+
+                            prevEntityHit = hit2;
+                        } else {
+                            vertices[resultIndex + vc->vertices.count] = cc->collision.at[nextHitIndex];
+                            vertices[resultIndex + vc->vertices.count + 1] = cc->collision.at[0];
+
+                            prevEntityHit = hit1;
+                        }
+                        vc->vertices.count += 2;
+                    }
                 }
             }
         }
-        resultIndex += vc->vertices.count;
-
 
 #if 1
         /* draw...*/
@@ -125,25 +147,37 @@ void VisionSystem::DoUpdate(float) {
                 ADD_COMPONENT(e, Transformation);
                 ADD_COMPONENT(e, Rendering);
                 triangles[i] = e;
+                RENDERING(e)->flags = RenderingFlags::NonOpaque | RenderingFlags::NoCulling;
             }
         }
         for (int i=0; i<vc->vertices.count; i++) {
+            char id[10]; sprintf(id, "%d", i);
+            Draw::Point(vertices[resultIndex + i], color[1], id);
             Polygon tri = Polygon::create(Shape::Triangle);
             tri.vertices[0] = glm::vec2(0.0f);
-            tri.vertices[1] = vertices[i] - pos;
-            tri.vertices[2] = vertices[(i + 1) % vc->vertices.count] - pos;
+            tri.vertices[1] = vertices[resultIndex + i] - pos;
+            tri.vertices[2] = vertices[resultIndex + (i + 1) % vc->vertices.count] - pos;
             theTransformationSystem.shapes[i + (int)Shape::Count] = tri;
 
             Entity e = triangles[i];
             TRANSFORM(e)->position = pos;
             RENDERING(e)->show = true;
-            RENDERING(e)->flags = RenderingFlags::NoCulling;
+
+            float t = (float)i / vc->vertices.count;
+            glm::vec3 a(0.5f);
+            glm::vec3 b(0.5f);
+            glm::vec3 c(1.0f, 0.7f, 0.4f);
+            glm::vec3 d(0.0f, 0.15f, 0.20f);
+
+            glm::vec3 col = a + b * glm::cos(2 * glm::pi<float>() * (c * t + d));
+            RENDERING(e)->color = Color(col.x, col.y, col.z, 0.7f);
             TRANSFORM(e)->shape = (Shape::Enum) (i + (int)Shape::Count);
         }
         for (int i=vc->vertices.count; i<(int)triangles.size();i++) {
             RENDERING(triangles[i])->show = false;
         }
 #endif
+        resultIndex += vc->vertices.count;
     END_FOR_EACH()
 
     /* update rays */
