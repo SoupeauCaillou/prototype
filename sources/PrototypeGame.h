@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include "base/StateMachine.h"
-#include "states/Scenes.h"
+#include "gen/Scenes.h"
 
 #include "base/Color.h"
 #include "base/Game.h"
@@ -34,29 +34,13 @@
 
 class PrototypeGame : public Game {
     public:
-        PrototypeGame(int argc, char** argv);
+    PrototypeGame();
 
-        bool wantsAPI(ContextAPI::Enum api) const;
-        void sacInit(int windowW, int windowH);
-        void init(const uint8_t* in = 0, int size = 0);
-        void tick(float dt);
-        void togglePause(bool activate);
-        bool willConsumeBackEvent();
-        void backPressed();
-        void quickInit() {}
+    void init(const uint8_t* in = 0, int size = 0);
+    void tick(float dt);
 
-        Entity camera;
-        FaderHelper faderHelper;
-
-        Color playerColors[5];
-        int score[4];
-        int playerActive[4];
-        Entity playerButtons[4];
-        std::vector<Entity> bees;
-        std::vector<Entity> selected;
-
-        DataFileParser parameters;
+    FaderHelper faderHelper;
 
     private:
-        StateMachine<Scene::Enum> sceneStateMachine;
+    StateMachine<Scene::Enum> sceneStateMachine;
 };

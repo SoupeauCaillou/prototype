@@ -6,6 +6,6 @@ project(Prototype)
 # set (NETWORK_BUILD 1)
 
 #and let the magic begin :-)
-include(sac/build/cmake/CMakeLists.txt)
+include(sac/CMakeLists.txt)
 
 

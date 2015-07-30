@@ -18,65 +18,44 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "base/StateMachine.h"
-#include "base/EntityManager.h"
-#include "Scenes.h"
+#include "base/SceneState.h"
 
-#include "../PrototypeGame.h"
-#include "systems/AnchorSystem.h"
-#include "systems/ButtonSystem.h"
-#include "systems/TextSystem.h"
-#include "systems/TransformationSystem.h"
-#include "systems/RenderingSystem.h"
+#include "PrototypeGame.h"
 
-
-struct InGameScene : public StateHandler<Scene::Enum> {
+struct GameEndScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
 
-    InGameScene(PrototypeGame* game) : StateHandler<Scene::Enum>() {
+    GameEndScene(PrototypeGame* game)
+        : SceneState<Scene::Enum>("game_end",
+                                  SceneEntityMode::DoNothing,
+                                  SceneEntityMode::DoNothing) {
         this->game = game;
     }
 
-    void setup() {
-    }
-
-
+    void setup(AssetAPI*) override {}
 
     ///----------------------------------------------------------------------------//
-    ///--------------------- ENTER SECTION ----------------------------------------//
+    ///--------------------- ENTER SECTION
+    ///----------------------------------------//
     ///----------------------------------------------------------------------------//
-    float timeLeft;
-    void onEnter(Scene::Enum) override {
-        timeLeft = 5;
-        game->parameters.get("Game", "round_duration", &timeLeft);
-    }
 
+    void onEnter(Scene::Enum) override {}
 
     ///----------------------------------------------------------------------------//
-    ///--------------------- UPDATE SECTION ---------------------------------------//
+    ///--------------------- UPDATE SECTION
+    ///---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float dt) override {
-        timeLeft -= dt;
-
-        if (timeLeft <= 0)
-            return Scene::GameEnd;
-
-        return Scene::InGame;
-    }
-
+    Scene::Enum update(float) override { return Scene::GameEnd; }
 
     ///----------------------------------------------------------------------------//
-    ///--------------------- EXIT SECTION -----------------------------------------//
+    ///--------------------- EXIT SECTION
+    ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
-    }
-
-    void onExit(Scene::Enum) override {
-    }
+    void onPreExit(Scene::Enum) override {}
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateInGameSceneHandler(PrototypeGame* game) {
-        return new InGameScene(game);
+    StateHandler<Scene::Enum>* CreateGameEndSceneHandler(PrototypeGame* game) {
+        return new GameEndScene(game);
     }
 }
