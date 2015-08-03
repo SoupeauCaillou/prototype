@@ -1,0 +1,18 @@
+[meta]
+speed = 12
+loop = infinite
+num_frames = 6
+
+[frame0]
+texture = run1
+[frame1]
+texture = run2
+[frame2]
+texture = run3
+[frame3]
+texture = run4
+[frame4]
+texture = run5
+[frame5]
+texture = run6
+

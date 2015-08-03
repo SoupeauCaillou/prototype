@@ -23,8 +23,13 @@
 #include "base/PlacementHelper.h"
 #include "base/StateMachine.inl"
 #include "base/EntityManager.h"
+#include "base/TouchInputManager.h"
+#include "util/Random.h"
 
+#include "systems/AnchorSystem.h"
+#include "systems/AnimationSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/TransformationSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -41,6 +46,8 @@ PrototypeGame::PrototypeGame() : Game() {
     registerScenes(this, sceneStateMachine);
 }
 
+Entity player;
+
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
@@ -48,11 +55,48 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     faderHelper.init(camera);
 
+    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "idle", "idle");
+    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "run", "run");
+
+    CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
+
+    player = theEntityManager.CreateEntityFromTemplate("player");
+    Entity shadow = theEntityManager.CreateEntityFromTemplate("shadow");
+    ANCHOR(shadow)->parent = player;
+
     sceneStateMachine.start(Scene::Menu);
+
+    float b_pos[200];
+    Random::N_Floats(200, b_pos, -20, 20);
+    for (int i = 0; i < 100; i++) {
+        Entity b = theEntityManager.CreateEntityFromTemplate("brush");
+        TRANSFORM(b)->position = glm::vec2(b_pos[2 * i], b_pos[2 * i + 1]);
+    }
 }
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
-    float c = glm::abs(glm::cos(TimeUtil::GetTime()));
-    CAMERA(camera)->clearColor = Color(c, c, c);
+
+    float runningSpeed = 0.0f;
+
+    if (theTouchInputManager.isTouched()) {
+        runningSpeed = 2.0f;
+    } else if (ANIMATION(player)->name == HASH("run", 0xf665a795) &&
+               RENDERING(player)->texture != HASH("run2", 0x11401477) &&
+               RENDERING(player)->texture != HASH("run5", 0xe188f3d5)) {
+        runningSpeed = 0.5;
+    } else {
+        runningSpeed = 0.0f;
+    }
+
+    if (runningSpeed > 0) {
+        TRANSFORM(player)->position.x += runningSpeed * dt;
+        ANIMATION(player)->name = HASH("run", 0xf665a795);
+    } else {
+        ANIMATION(player)->name = HASH("idle", 0xed137eaa);
+    }
+
+    glm::vec2 diff = TRANSFORM(player)->position - TRANSFORM(camera)->position;
+    float l = glm::length(diff);
+    TRANSFORM(camera)->position += diff * glm::min(1.5f, l) * dt;
 }

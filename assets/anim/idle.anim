@@ -1,0 +1,10 @@
+[meta]
+speed = 0.2
+loop = infinite
+num_frames = 2
+
+[frame0]
+texture = idle1
+[frame1]
+texture = idle2
+

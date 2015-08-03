@@ -1,0 +1,17 @@
+atlas_size=1024,256
+[image0]
+name=bee_highlight
+original_size=128,128
+position_in_atlas=259,1
+size_in_atlas=128,128
+crop_offset=0,0
+rotated=0
+opaque_rect=9,10,110,108
+[image1]
+name=player_button
+original_size=256,128
+position_in_atlas=1,1
+size_in_atlas=256,128
+crop_offset=0,0
+rotated=0
+opaque_rect=15,5,226,118
