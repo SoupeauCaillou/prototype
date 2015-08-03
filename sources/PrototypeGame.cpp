@@ -58,6 +58,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "idle", "idle");
     theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "run", "run");
+    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "tackle", "tackle");
 
     CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
 
@@ -75,24 +76,74 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 }
 
+bool canChangeAction(Entity p) {
+    switch (ANIMATION(player)->name) {
+        case 0xf665a795: /* run */
+            return
+                RENDERING(player)->texture == HASH("run2", 0x11401477) ||
+                RENDERING(player)->texture == HASH("run5", 0xe188f3d5);
+
+        case 0xed137eaa: /* idle */
+            return true;
+
+        case 0x79891832: /* tackle */
+            return
+                RENDERING(player)->texture == HASH("tackle4", 0x4eed9509);
+        default:
+            return true;
+    }
+}
+
+namespace actions {
+    enum Enum {
+        Idle,
+        Run,
+        Tackle
+    };
+}
+
 glm::vec2 previousDir;
+actions::Enum currentAction = actions::Idle;
+
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
     float runningSpeed = 0.0f;
 
+    actions::Enum nextAction = actions::Idle;
+
     glm::vec2 dir = gameThreadContext->joystickAPI->getPadDirection(0, 0);
     float dirLength = glm::length(dir);
 
     if (theTouchInputManager.isTouched() || dirLength > 0.1) {
-        runningSpeed = 3.5f;
-    } else if (ANIMATION(player)->name == HASH("run", 0xf665a795) &&
-               RENDERING(player)->texture != HASH("run2", 0x11401477) &&
-               RENDERING(player)->texture != HASH("run5", 0xe188f3d5)) {
-        runningSpeed = 0.5;
+        nextAction = actions::Run;
+    } else {
+        nextAction = actions::Idle;
+    }
+    if (gameThreadContext->joystickAPI->hasClicked(0, 0)) {
+        nextAction = actions::Tackle;
+    }
+
+    if (!canChangeAction(player)) {
         dir = previousDir;
     } else {
+        currentAction = nextAction;
+    }
+
+    switch(currentAction) {
+    case actions::Idle:
         runningSpeed = 0.0f;
+        ANIMATION(player)->name = HASH("idle", 0xed137eaa);
+        break;
+    case actions::Run:
+        runningSpeed = 3.5f;
+        ANIMATION(player)->name = HASH("run", 0xf665a795);
+        break;
+    case actions::Tackle:
+        runningSpeed = 2.5f;
+        ANIMATION(player)->name = HASH("tackle", 0x79891832);
+        dir = previousDir;
+        break;
     }
 
     if (runningSpeed > 0) {
@@ -101,17 +152,17 @@ void PrototypeGame::tick(float dt) {
                   TRANSFORM(player)->position;
             dirLength = 1.0f;
         }
+
         TRANSFORM(player)
             ->position +=
             runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
-        ANIMATION(player)->name = HASH("run", 0xf665a795);
+
+
         if (dir.x < 0) {
             RENDERING(player)->flags |= RenderingFlags::MirrorHorizontal;
         } else {
             RENDERING(player)->flags &= ~RenderingFlags::MirrorHorizontal;
         }
-    } else {
-        ANIMATION(player)->name = HASH("idle", 0xed137eaa);
     }
 
     glm::vec2 diff = TRANSFORM(player)->position - TRANSFORM(camera)->position;
