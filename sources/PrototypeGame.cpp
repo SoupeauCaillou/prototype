@@ -32,6 +32,7 @@
 #include "systems/TransformationSystem.h"
 
 #include "base/TimeUtil.h"
+#include "api/JoystickAPI.h"
 
 #if SAC_EMSCRIPTEN
 #include <emscripten/emscripten.h>
@@ -74,25 +75,35 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 }
 
+glm::vec2 previousDir;
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
     float runningSpeed = 0.0f;
 
-    if (theTouchInputManager.isTouched()) {
-        runningSpeed = 2.5f;
+    glm::vec2 dir = gameThreadContext->joystickAPI->getPadDirection(0, 0);
+    float dirLength = glm::length(dir);
+
+    if (theTouchInputManager.isTouched() || dirLength > 0.1) {
+        runningSpeed = 3.5f;
     } else if (ANIMATION(player)->name == HASH("run", 0xf665a795) &&
                RENDERING(player)->texture != HASH("run2", 0x11401477) &&
                RENDERING(player)->texture != HASH("run5", 0xe188f3d5)) {
         runningSpeed = 0.5;
+        dir = previousDir;
     } else {
         runningSpeed = 0.0f;
     }
 
     if (runningSpeed > 0) {
-        glm::vec2 dir = theTouchInputManager.getTouchLastPosition() -
-                        TRANSFORM(player)->position;
-        TRANSFORM(player)->position += runningSpeed * dt * glm::normalize(dir);
+        if (theTouchInputManager.isTouched()) {
+            dir = theTouchInputManager.getTouchLastPosition() -
+                  TRANSFORM(player)->position;
+            dirLength = 1.0f;
+        }
+        TRANSFORM(player)
+            ->position +=
+            runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
         ANIMATION(player)->name = HASH("run", 0xf665a795);
         if (dir.x < 0) {
             RENDERING(player)->flags |= RenderingFlags::MirrorHorizontal;
@@ -106,4 +117,5 @@ void PrototypeGame::tick(float dt) {
     glm::vec2 diff = TRANSFORM(player)->position - TRANSFORM(camera)->position;
     float l = glm::length(diff);
     TRANSFORM(camera)->position += diff * glm::min(1.5f, l) * dt;
+    previousDir = dir;
 }
