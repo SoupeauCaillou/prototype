@@ -1,6 +1,6 @@
 
 [Animation]
-name = run
+name = idle
 playback_speed = 1.000
 accum = 0.000
 wait_accum = 0.000

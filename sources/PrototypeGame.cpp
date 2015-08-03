@@ -80,7 +80,7 @@ void PrototypeGame::tick(float dt) {
     float runningSpeed = 0.0f;
 
     if (theTouchInputManager.isTouched()) {
-        runningSpeed = 2.0f;
+        runningSpeed = 2.5f;
     } else if (ANIMATION(player)->name == HASH("run", 0xf665a795) &&
                RENDERING(player)->texture != HASH("run2", 0x11401477) &&
                RENDERING(player)->texture != HASH("run5", 0xe188f3d5)) {
@@ -90,8 +90,15 @@ void PrototypeGame::tick(float dt) {
     }
 
     if (runningSpeed > 0) {
-        TRANSFORM(player)->position.x += runningSpeed * dt;
+        glm::vec2 dir = theTouchInputManager.getTouchLastPosition() -
+                        TRANSFORM(player)->position;
+        TRANSFORM(player)->position += runningSpeed * dt * glm::normalize(dir);
         ANIMATION(player)->name = HASH("run", 0xf665a795);
+        if (dir.x < 0) {
+            RENDERING(player)->flags |= RenderingFlags::MirrorHorizontal;
+        } else {
+            RENDERING(player)->flags &= ~RenderingFlags::MirrorHorizontal;
+        }
     } else {
         ANIMATION(player)->name = HASH("idle", 0xed137eaa);
     }
