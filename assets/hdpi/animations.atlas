@@ -1,5 +1,21 @@
 atlas_size=1024,1024
 [image0]
+name=ball2
+original_size=120,120
+position_in_atlas=877,487
+size_in_atlas=120,120
+crop_offset=0,0
+rotated=0
+opaque_rect=0,30,120,60
+[image1]
+name=ball
+original_size=240,240
+position_in_atlas=1,729
+size_in_atlas=240,240
+crop_offset=0,0
+rotated=0
+opaque_rect=30,30,180,180
+[image2]
 name=idle1
 original_size=360,360
 position_in_atlas=333,183
@@ -7,7 +23,7 @@ size_in_atlas=330,150
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,270
-[image1]
+[image3]
 name=idle2
 original_size=360,360
 position_in_atlas=665,183
@@ -15,7 +31,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image2]
+[image4]
 name=run1
 original_size=360,360
 position_in_atlas=1,487
@@ -23,7 +39,7 @@ size_in_atlas=300,240
 crop_offset=60,30
 rotated=1
 opaque_rect=60,0,120,270
-[image3]
+[image5]
 name=run2
 original_size=360,360
 position_in_atlas=1,365
@@ -31,7 +47,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image4]
+[image6]
 name=run3
 original_size=360,360
 position_in_atlas=1,1
@@ -39,7 +55,7 @@ size_in_atlas=330,180
 crop_offset=90,30
 rotated=1
 opaque_rect=30,0,120,270
-[image5]
+[image7]
 name=run4
 original_size=360,360
 position_in_atlas=303,487
@@ -47,7 +63,7 @@ size_in_atlas=300,240
 crop_offset=60,30
 rotated=1
 opaque_rect=60,0,120,270
-[image6]
+[image8]
 name=run5
 original_size=360,360
 position_in_atlas=333,335
@@ -55,7 +71,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image7]
+[image9]
 name=run6
 original_size=360,360
 position_in_atlas=333,1
@@ -63,7 +79,7 @@ size_in_atlas=330,180
 crop_offset=90,30
 rotated=1
 opaque_rect=30,0,120,270
-[image8]
+[image10]
 name=tackle1
 original_size=360,360
 position_in_atlas=665,305
@@ -71,7 +87,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image9]
+[image11]
 name=tackle2
 original_size=360,360
 position_in_atlas=605,487
@@ -79,7 +95,7 @@ size_in_atlas=270,210
 crop_offset=90,30
 rotated=1
 opaque_rect=30,0,90,210
-[image10]
+[image12]
 name=tackle3
 original_size=360,360
 position_in_atlas=665,1
@@ -87,7 +103,7 @@ size_in_atlas=330,180
 crop_offset=30,180
 rotated=0
 opaque_rect=90,30,120,150
-[image11]
+[image13]
 name=tackle4
 original_size=360,360
 position_in_atlas=1,183

@@ -20,3 +20,6 @@ show = 1
 flags = 1
 camera_bitmask = 1
 color = 1.000, 1.000, 1.000, 1.000
+
+[Anchor]
+position = 0, 0.3

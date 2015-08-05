@@ -25,10 +25,12 @@
 #include "base/EntityManager.h"
 #include "base/TouchInputManager.h"
 #include "util/Random.h"
+#include "util/IntersectionUtil.h"
 
 #include "systems/AnchorSystem.h"
 #include "systems/AnimationSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/PhysicsSystem.h"
 #include "systems/TransformationSystem.h"
 
 #include "base/TimeUtil.h"
@@ -48,6 +50,8 @@ PrototypeGame::PrototypeGame() : Game() {
 }
 
 Entity player;
+Entity ball;
+Entity hitzone;
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
@@ -63,8 +67,12 @@ void PrototypeGame::init(const uint8_t*, int) {
     CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
 
     player = theEntityManager.CreateEntityFromTemplate("player");
+    hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
     Entity shadow = theEntityManager.CreateEntityFromTemplate("shadow");
-    ANCHOR(shadow)->parent = player;
+    ball = theEntityManager.CreateEntityFromTemplate("ball");
+    ANCHOR(player)->parent =
+        ANCHOR(shadow)->parent =
+        hitzone;
 
     sceneStateMachine.start(Scene::Menu);
 
@@ -149,11 +157,11 @@ void PrototypeGame::tick(float dt) {
     if (runningSpeed > 0) {
         if (theTouchInputManager.isTouched()) {
             dir = theTouchInputManager.getTouchLastPosition() -
-                  TRANSFORM(player)->position;
+                  TRANSFORM(hitzone)->position;
             dirLength = 1.0f;
         }
 
-        TRANSFORM(player)
+        TRANSFORM(hitzone)
             ->position +=
             runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
 
@@ -165,7 +173,29 @@ void PrototypeGame::tick(float dt) {
         }
     }
 
-    glm::vec2 diff = TRANSFORM(player)->position - TRANSFORM(camera)->position;
+    // kick the ball
+    if (currentAction == actions::Run) {
+        static bool kickEnabled = true;
+        const float kickForce = 450;
+
+        bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(hitzone));
+
+        if (kickEnabled) {
+            if (touchBall) {
+                PHYSICS(ball)->addForce(Force(glm::normalize(dir) * kickForce, glm::vec2(0.0f)), 0.016f);
+                kickEnabled = false;
+            }
+        } else {
+            if (!touchBall) {
+                kickEnabled = true;
+            }
+        }
+        RENDERING(hitzone)->color = Color(!kickEnabled, 0, kickEnabled);
+    }
+
+
+    // adjust camera position
+    glm::vec2 diff = TRANSFORM(hitzone)->position - TRANSFORM(camera)->position;
     float l = glm::length(diff);
     TRANSFORM(camera)->position += diff * glm::min(1.5f, l) * dt;
     previousDir = dir;

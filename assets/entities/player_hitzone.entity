@@ -1,0 +1,13 @@
+[Transformation]
+position = 0.000, 0.000
+size = 0.4, 0.4
+rotation = 0.000
+z = 0.6
+shape = 0
+
+[Rendering]
+#texture =
+show = 0
+flags = 1
+camera_bitmask = 1
+color = 1.000, 0.000, 0.00, 0.200
