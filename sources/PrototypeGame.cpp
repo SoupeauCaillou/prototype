@@ -37,6 +37,7 @@
 #include "ShadowSystem.h"
 
 #include "base/TimeUtil.h"
+#include "base/Interval.h"
 #include "api/JoystickAPI.h"
 
 #if SAC_EMSCRIPTEN
@@ -130,6 +131,16 @@ namespace actions {
 
 glm::vec2 previousDir;
 actions::Enum currentAction = actions::Idle;
+
+void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<float>& camera) {
+    auto* tc = TRANSFORM(e);
+    float t = camera.invLerp(tc->position.y);
+    Interval<float> z(
+        game->tuning.f(HASH("adjust_min_z", 0x533b118a)),
+        game->tuning.f(HASH("adjust_max_z", 0x583d04f9))
+        );
+    tc->z = z.lerp(t);
+}
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
@@ -239,4 +250,32 @@ void PrototypeGame::tick(float dt) {
     float l = glm::length(diff);
     TRANSFORM(camera)->position += diff * glm::min(1.5f, l) * dt;
     previousDir = dir;
+
+    {
+        #if 0
+        #define OFFSET(member, p) ((uint8_t*)&p.member - (uint8_t*)&p)
+        TransformationComponent tc;
+        unsigned long offsetPosY = OFFSET(position, tc) + sizeof(float);
+        unsigned long offsetZ = OFFSET(z, tc);
+        BINDER(ball)->from.system = TransformationSystem::GetInstancePointer();
+        BINDER(ball)->from.offset = offsetPosY;
+        BINDER(ball)->from.interval.t1 = TRANSFORM(camera)->size.y * -0.5f;
+        BINDER(ball)->from.interval.t2 = TRANSFORM(camera)->size.y * 0.5f;
+        BINDER(ball)->to.system = TransformationSystem::GetInstancePointer();
+        BINDER(ball)->to.offset = offsetZ;
+        BINDER(ball)->to.interval.t1 = 0.9f;
+        BINDER(ball)->to.interval.t2 = 0.1f;
+        #undef OFFSET
+        #endif
+        Interval<float> cameraInterval;
+        cameraInterval.t1 =
+            TRANSFORM(camera)->position.y + TRANSFORM(camera)->size.y * 0.5f;
+        cameraInterval.t2 =
+            TRANSFORM(camera)->position.y - TRANSFORM(camera)->size.y * 0.5f;
+        adjustZWithOnScreenPosition(this, ball, cameraInterval);
+        adjustZWithOnScreenPosition(this, plot, cameraInterval);
+        adjustZWithOnScreenPosition(this, hitzone, cameraInterval);
+
+    }
+
 }
