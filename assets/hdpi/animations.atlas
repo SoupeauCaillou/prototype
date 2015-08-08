@@ -32,6 +32,14 @@ crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
 [image4]
+name=plot
+original_size=210,210
+position_in_atlas=243,729
+size_in_atlas=210,210
+crop_offset=0,0
+rotated=0
+opaque_rect=30,90,150,120
+[image5]
 name=run1
 original_size=360,360
 position_in_atlas=1,487
@@ -39,7 +47,7 @@ size_in_atlas=300,240
 crop_offset=60,30
 rotated=1
 opaque_rect=60,0,120,270
-[image5]
+[image6]
 name=run2
 original_size=360,360
 position_in_atlas=1,365
@@ -47,7 +55,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image6]
+[image7]
 name=run3
 original_size=360,360
 position_in_atlas=1,1
@@ -55,7 +63,7 @@ size_in_atlas=330,180
 crop_offset=90,30
 rotated=1
 opaque_rect=30,0,120,270
-[image7]
+[image8]
 name=run4
 original_size=360,360
 position_in_atlas=303,487
@@ -63,7 +71,7 @@ size_in_atlas=300,240
 crop_offset=60,30
 rotated=1
 opaque_rect=60,0,120,270
-[image8]
+[image9]
 name=run5
 original_size=360,360
 position_in_atlas=333,335
@@ -71,7 +79,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image9]
+[image10]
 name=run6
 original_size=360,360
 position_in_atlas=333,1
@@ -79,7 +87,7 @@ size_in_atlas=330,180
 crop_offset=90,30
 rotated=1
 opaque_rect=30,0,120,270
-[image10]
+[image11]
 name=tackle1
 original_size=360,360
 position_in_atlas=665,305
@@ -87,7 +95,7 @@ size_in_atlas=330,120
 crop_offset=120,30
 rotated=1
 opaque_rect=0,0,120,240
-[image11]
+[image12]
 name=tackle2
 original_size=360,360
 position_in_atlas=605,487
@@ -95,7 +103,7 @@ size_in_atlas=270,210
 crop_offset=90,30
 rotated=1
 opaque_rect=30,0,90,210
-[image12]
+[image13]
 name=tackle3
 original_size=360,360
 position_in_atlas=665,1
@@ -103,7 +111,7 @@ size_in_atlas=330,180
 crop_offset=30,180
 rotated=0
 opaque_rect=90,30,120,150
-[image13]
+[image14]
 name=tackle4
 original_size=360,360
 position_in_atlas=1,183

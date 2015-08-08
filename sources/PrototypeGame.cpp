@@ -26,12 +26,15 @@
 #include "base/TouchInputManager.h"
 #include "util/Random.h"
 #include "util/IntersectionUtil.h"
+#include "util/Tuning.h"
 
 #include "systems/AnchorSystem.h"
 #include "systems/AnimationSystem.h"
 #include "systems/CameraSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/TransformationSystem.h"
+
+#include "ShadowSystem.h"
 
 #include "base/TimeUtil.h"
 #include "api/JoystickAPI.h"
@@ -52,9 +55,19 @@ PrototypeGame::PrototypeGame() : Game() {
 Entity player;
 Entity ball;
 Entity hitzone;
+Entity plot;
+
+void addShadow(PrototypeGame* game, Entity e) {
+    Entity shadow = theEntityManager.CreateEntityFromTemplate("shadow");
+    ANCHOR(shadow)->parent = e;
+    ANCHOR(shadow)->position.y = -TRANSFORM(e)->size.y * 0.5;
+}
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
+
+    ShadowSystem::CreateInstance();
+    orderedSystemsToUpdate.push_back(ShadowSystem::GetInstancePointer());
 
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
@@ -68,11 +81,16 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     player = theEntityManager.CreateEntityFromTemplate("player");
     hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
-    Entity shadow = theEntityManager.CreateEntityFromTemplate("shadow");
     ball = theEntityManager.CreateEntityFromTemplate("ball");
+    plot = theEntityManager.CreateEntityFromTemplate("plot");
+
     ANCHOR(player)->parent =
-        ANCHOR(shadow)->parent =
         hitzone;
+
+    addShadow(this, player);
+    addShadow(this, ball);
+    addShadow(this, plot);
+
 
     sceneStateMachine.start(Scene::Menu);
 
@@ -120,20 +138,33 @@ void PrototypeGame::tick(float dt) {
 
     actions::Enum nextAction = actions::Idle;
 
+    // joystick control
     glm::vec2 dir = gameThreadContext->joystickAPI->getPadDirection(0, 0);
     float dirLength = glm::length(dir);
+    // mouse control override
+    if (theTouchInputManager.isTouched()) {
+        dir = theTouchInputManager.getTouchLastPosition() -
+              TRANSFORM(hitzone)->position;
+        dirLength = 1.0f;
+    }
 
-    if (theTouchInputManager.isTouched() || dirLength > 0.1) {
+    if (dirLength > 0.1) {
         nextAction = actions::Run;
     } else {
         nextAction = actions::Idle;
     }
-    if (gameThreadContext->joystickAPI->hasClicked(0, 0)) {
+    // A button or right click -> tackle
+    if (gameThreadContext->joystickAPI->hasClicked(0, 0) ||
+        theTouchInputManager.hasClicked(1)) {
         nextAction = actions::Tackle;
     }
 
+    // Allow new actions only at certain key-frames of animations
     if (!canChangeAction(player)) {
-        dir = previousDir;
+        // prevent direction change during non-running actions
+        if (currentAction != actions::Run) {
+            dir = previousDir;
+        }
     } else {
         currentAction = nextAction;
     }
@@ -144,45 +175,28 @@ void PrototypeGame::tick(float dt) {
         ANIMATION(player)->name = HASH("idle", 0xed137eaa);
         break;
     case actions::Run:
-        runningSpeed = 3.5f;
+        runningSpeed = tuning.f(HASH("running_speed", 0x1f34eb01));
         ANIMATION(player)->name = HASH("run", 0xf665a795);
         break;
     case actions::Tackle:
-        runningSpeed = 2.5f;
+        runningSpeed = tuning.f(HASH("tackle_speed", 0));
         ANIMATION(player)->name = HASH("tackle", 0x79891832);
         dir = previousDir;
         break;
     }
 
-    if (runningSpeed > 0) {
-        if (theTouchInputManager.isTouched()) {
-            dir = theTouchInputManager.getTouchLastPosition() -
-                  TRANSFORM(hitzone)->position;
-            dirLength = 1.0f;
-        }
-
-        TRANSFORM(hitzone)
-            ->position +=
-            runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
-
-
-        if (dir.x < 0) {
-            RENDERING(player)->flags |= RenderingFlags::MirrorHorizontal;
-        } else {
-            RENDERING(player)->flags &= ~RenderingFlags::MirrorHorizontal;
-        }
-    }
+    bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(hitzone));
+    const float kickForce = tuning.f(HASH("kick_force", 0xde7152e1));
 
     // kick the ball
-    if (currentAction == actions::Run) {
+    if (currentAction == actions::Run && dirLength > 0) {
         static bool kickEnabled = true;
-        const float kickForce = 450;
-
-        bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(hitzone));
 
         if (kickEnabled) {
             if (touchBall) {
-                PHYSICS(ball)->addForce(Force(glm::normalize(dir) * kickForce, glm::vec2(0.0f)), 0.016f);
+                LOGI(dir);
+                PHYSICS(ball)->addForce(
+                    Force(glm::normalize(dir) * kickForce,glm::vec2(0.0f)), 0.016f);
                 kickEnabled = false;
             }
         } else {
@@ -193,6 +207,32 @@ void PrototypeGame::tick(float dt) {
         RENDERING(hitzone)->color = Color(!kickEnabled, 0, kickEnabled);
     }
 
+    if (runningSpeed > 0) {
+        if (gameThreadContext->joystickAPI->isDown(0, 1)) {
+            // lock direction until contact
+            if (!touchBall) {
+                dir = glm::normalize(
+                    TRANSFORM(ball)->position -
+                    TRANSFORM(hitzone)->position);
+            } else {
+                LOGI("Ok, new dir " << __(dir));
+            }
+        }
+
+        if (dir.x || dir.y) {
+            TRANSFORM(hitzone)
+                ->position +=
+                runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
+            LOGV(1, __(TRANSFORM(hitzone)->position) << __(dir) << __(dirLength) << __(previousDir));
+        }
+
+
+        if (dir.x < 0) {
+            RENDERING(player)->flags |= RenderingFlags::MirrorHorizontal;
+        } else {
+            RENDERING(player)->flags &= ~RenderingFlags::MirrorHorizontal;
+        }
+    }
 
     // adjust camera position
     glm::vec2 diff = TRANSFORM(hitzone)->position - TRANSFORM(camera)->position;

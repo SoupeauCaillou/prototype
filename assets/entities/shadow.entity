@@ -1,5 +1,6 @@
 [Anchor]
 position = 0, -0.2
+anchor = 0, 0.025
 z = -0.1
 
 [Rendering]
@@ -9,3 +10,5 @@ flags = 1
 
 [Transformation]
 size = 0.4, 0.05
+
+[Shadow]
