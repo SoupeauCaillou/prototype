@@ -1,0 +1,19 @@
+[Transformation]
+position = 0.000, 0.000
+size = 0.4, 0.4
+rotation = 0.000
+z = 0.6
+shape = 0
+
+[Rendering]
+#texture =
+show = 1
+flags = 1
+camera_bitmask = 1
+color = 0.000, 0.000, 1.00, 0.200
+
+[Anchor]
+
+[Collision]
+group = 1
+collide_with = 0

@@ -31,6 +31,7 @@
 #include "systems/AnchorSystem.h"
 #include "systems/AnimationSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/CollisionSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/TransformationSystem.h"
 
@@ -56,8 +57,23 @@ PrototypeGame::PrototypeGame() : Game() {
 Entity player;
 Entity hitzone;
 
-Entity ball;
+Entity ball, ballHitzone;
 std::vector<Entity> plots;
+std::vector<Entity> hitzones;
+
+void addHitzone(PrototypeGame* game, Entity e) {
+    Entity h = theEntityManager.CreateEntityFromTemplate("hitzone");
+    ANCHOR(h)->parent = e;
+    TRANSFORM(h)->size = glm::vec2(TRANSFORM(e)->size.x);
+
+    hitzones.push_back(h);
+
+    if (e == ball) {
+        COLLISION(h)->group = 2;
+        COLLISION(h)->collideWith = 0xffffffff;
+        ballHitzone = h;
+    }
+}
 
 void addShadow(PrototypeGame* game, Entity e) {
     Entity shadow = theEntityManager.CreateEntityFromTemplate("shadow");
@@ -81,6 +97,8 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
 
+    theCollisionSystem.worldSize = glm::vec2(20, 20);
+
     // load entity from entity_desc.ini file
     FileBuffer fb = gameThreadContext->assetAPI->loadAsset("entity_desc.ini");
     if (fb.size) {
@@ -100,7 +118,7 @@ void PrototypeGame::init(const uint8_t*, int) {
             int noShadow = 0;
             dfp.get(section, HASH("type", 0xf3ebd1bf), &entity);
             dfp.get(section, HASH("position", 0xffab91ef), &position.x, 2);
-            dfp.get(section, HASH("no_shadow", 0xffab91ef), &noShadow, 1);
+            dfp.get(section, HASH("no_shadow", 0x4370b3f1), &noShadow, 1);
 
             Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
             TRANSFORM(e)->position = position;
@@ -111,9 +129,10 @@ void PrototypeGame::init(const uint8_t*, int) {
             if (entity == "plot") plots.push_back(e);
             else if (entity == "ball") ball = e;
 
+            addHitzone(this, e);
+
             all.push_back(e);
         }
-
     }
 
 
@@ -237,7 +256,6 @@ void PrototypeGame::tick(float dt) {
 
         if (kickEnabled) {
             if (touchBall) {
-                LOGI(dir);
                 PHYSICS(ball)->addForce(
                     Force(glm::normalize(dir) * kickForce,glm::vec2(0.0f)), 0.016f);
                 kickEnabled = false;
@@ -317,4 +335,29 @@ void PrototypeGame::tick(float dt) {
         glm::sign(PHYSICS(ball)->linearVelocity.x) *
         ballSpeed *
         tuning.f(HASH("ball_angular_vel", 0xbe84c99b));
+
+    // bounce
+    static bool b = false;
+    if (!b && (COLLISION(ballHitzone)->collision.count > 0)) {
+        // bounce as if 2 objects are spheres
+        glm::vec2 toCollider =
+            glm::normalize(
+                TRANSFORM(COLLISION(ballHitzone)->collision.with[0])->position -
+                TRANSFORM(ballHitzone)->position);
+
+        glm::vec2 velocity = PHYSICS(ball)->linearVelocity;
+
+        float proj = glm::dot(velocity, toCollider);
+
+        if (proj > 0) {
+            //b = true;
+            glm::vec2 newVelocity =
+                velocity +
+                (-2 * proj * tuning.f(HASH("ball_bounce_factor", 0x9d5d189d))) *
+                toCollider;
+
+            PHYSICS(ball)->linearVelocity = newVelocity;
+        }
+    }
+
 }
