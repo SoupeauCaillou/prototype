@@ -54,9 +54,10 @@ PrototypeGame::PrototypeGame() : Game() {
 }
 
 Entity player;
-Entity ball;
 Entity hitzone;
-Entity plot;
+
+Entity ball;
+std::vector<Entity> plots;
 
 void addShadow(PrototypeGame* game, Entity e) {
     Entity shadow = theEntityManager.CreateEntityFromTemplate("shadow");
@@ -80,18 +81,49 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
 
+    // load entity from entity_desc.ini file
+    FileBuffer fb = gameThreadContext->assetAPI->loadAsset("entity_desc.ini");
+    if (fb.size) {
+        DataFileParser dfp;
+        dfp.load(fb, "entity_desc.ini");
+        int count = 0;
+        dfp.get(DataFileParser::GlobalSection,
+            "count", &count);
+        std::vector<Entity> all;
+        for (int i=0; i<count; i++) {
+            char tmp[128];
+            sprintf(tmp, "%d", i + 1);
+            hash_t section = Murmur::RuntimeHash(tmp);
+
+            std::string entity;
+            glm::vec2 position;
+            int noShadow = 0;
+            dfp.get(section, HASH("type", 0xf3ebd1bf), &entity);
+            dfp.get(section, HASH("position", 0xffab91ef), &position.x, 2);
+            dfp.get(section, HASH("no_shadow", 0xffab91ef), &noShadow, 1);
+
+            Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
+            TRANSFORM(e)->position = position;
+            if (!noShadow) {
+                addShadow(this, e);
+            }
+
+            if (entity == "plot") plots.push_back(e);
+            else if (entity == "ball") ball = e;
+
+            all.push_back(e);
+        }
+
+    }
+
+
     player = theEntityManager.CreateEntityFromTemplate("player");
     hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
-    ball = theEntityManager.CreateEntityFromTemplate("ball");
-    plot = theEntityManager.CreateEntityFromTemplate("plot");
 
     ANCHOR(player)->parent =
         hitzone;
 
     addShadow(this, player);
-    addShadow(this, ball);
-    addShadow(this, plot);
-
 
     sceneStateMachine.start(Scene::Menu);
 
@@ -273,9 +305,16 @@ void PrototypeGame::tick(float dt) {
         cameraInterval.t2 =
             TRANSFORM(camera)->position.y - TRANSFORM(camera)->size.y * 0.5f;
         adjustZWithOnScreenPosition(this, ball, cameraInterval);
-        adjustZWithOnScreenPosition(this, plot, cameraInterval);
+        for (auto plot: plots) {
+            adjustZWithOnScreenPosition(this, plot, cameraInterval);
+        }
         adjustZWithOnScreenPosition(this, hitzone, cameraInterval);
-
     }
 
+    // update ball angular velocity
+    float ballSpeed = glm::length(PHYSICS(ball)->linearVelocity);
+    PHYSICS(ball)->angularVelocity =
+        glm::sign(PHYSICS(ball)->linearVelocity.x) *
+        ballSpeed *
+        tuning.f(HASH("ball_angular_vel", 0xbe84c99b));
 }
