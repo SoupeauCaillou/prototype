@@ -148,30 +148,35 @@ void PrototypeGame::init(const uint8_t*, int) {
             dfp.get(section, HASH("position", 0xffab91ef), &position.x, 2);
             dfp.get(section, HASH("no_shadow", 0x4370b3f1), &noShadow, 1);
 
-            Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
-            TRANSFORM(e)->position = position;
-            if (!noShadow) {
-                addShadow(this, e);
+            if (entity == "player") {
+                Player p;
+                p.render = theEntityManager.CreateEntityFromTemplate("player");
+                p.hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
+                TRANSFORM(p.hitzone)->position = position;
+                ANCHOR(p.render)->parent = p.hitzone;
+                addShadow(this, p.render);
+                players.push_back(p);
+
+                all.push_back(p.render);
+            } else {
+                Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
+                TRANSFORM(e)->position = position;
+                if (!noShadow) {
+                    addShadow(this, e);
+                }
+
+                if (entity == "plot") plots.push_back(e);
+                else if (entity == "ball") ball = e;
+
+                addHitzone(this, e);
+                all.push_back(e);
             }
 
-            if (entity == "plot") plots.push_back(e);
-            else if (entity == "ball") ball = e;
-
-            addHitzone(this, e);
-
-            all.push_back(e);
         }
     }
 
-    Player p;
-    p.render = theEntityManager.CreateEntityFromTemplate("player");
-    p.hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
 
-    ANCHOR(p.render)->parent = p.hitzone;
-
-    addShadow(this, p.render);
-
-    players.push_back(p);
+    players[0].joystick = 0;
 
     sceneStateMachine.start(Scene::Menu);
 
@@ -215,7 +220,7 @@ static void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<flo
     tc->z = z.lerp(t);
 }
 
-void updateControlledPlayer(struct Player& player, float dt, Game* game) {
+bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     LOGF_IF(player.joystick < 0, "Invalid joystick");
 
     bool mouseControlAllowed = (player.joystick == 0);
@@ -246,8 +251,8 @@ void updateControlledPlayer(struct Player& player, float dt, Game* game) {
         nextAction = actions::Idle;
     }
     // A button or right click -> tackle
-    if (game->gameThreadContext->joystickAPI->hasClicked(0, 0) ||
-        theTouchInputManager.hasClicked(1)) {
+    if (game->gameThreadContext->joystickAPI->hasClicked(player.joystick, 0) ||
+        (mouseControlAllowed&& theTouchInputManager.hasClicked(1))) {
         nextAction = actions::Tackle;
     }
 
@@ -320,7 +325,7 @@ void updateControlledPlayer(struct Player& player, float dt, Game* game) {
         RENDERING(player.hitzone)->color = Color(!kickEnabled, 0, kickEnabled);
     }
     if (lastPlayerWhoKickedTheBall == player.render &&
-        game->gameThreadContext->joystickAPI->isDown(player.joystick, 1)) {
+        game->gameThreadContext->joystickAPI->isDown(player.joystick, 4)) {
         lastPlayerWhoKickedTheBall = 0;
     }
     if (runningSpeed > 0) {
@@ -353,14 +358,50 @@ void updateControlledPlayer(struct Player& player, float dt, Game* game) {
     }
 
     player.previousDir = dir;
+
+    if (game->gameThreadContext->joystickAPI->hasClicked(player.joystick, 1) ||
+        (mouseControlAllowed&& theTouchInputManager.hasClicked(2))) {
+        // change active player
+        float minDistToTheBall = 100000000;
+        int idx = 0;
+        for (int i=0; i<players.size(); i++) {
+            const auto& p = players[i];
+            if (p.render == player.render) {
+                continue;
+            }
+            if (p.joystick >= 0) {
+                continue;
+            }
+            float dist = glm::distance(
+                TRANSFORM(p.hitzone)->position,
+                TRANSFORM(ball)->position);
+            if (dist < minDistToTheBall) {
+                minDistToTheBall = dist;
+                idx = i;
+            }
+        }
+        players[idx].joystick = player.joystick;
+        player.joystick = -1;
+
+        return false;
+    }
+
+    return true;
 }
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
-    players[0].joystick = 0;
-    updateControlledPlayer(players[0], dt, this);
-
+    for (auto& player: players) {
+        if (player.joystick >= 0) {
+            if (!updateControlledPlayer(player, dt, this)) {
+                // silly hack to prevent continous player switching
+                break;
+            }
+        } else {
+            ANIMATION(player.render)->name = HASH("idle", 0xed137eaa);
+        }
+    }
 
     // adjust camera position
     glm::vec2 diff = TRANSFORM(ball)->position - TRANSFORM(camera)->position;
