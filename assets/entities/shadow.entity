@@ -1,7 +1,7 @@
 [Anchor]
 position = 0, -0.2
 anchor = 0, 0.025
-z = -0.1
+z = -0.03
 
 [Rendering]
 show = 1

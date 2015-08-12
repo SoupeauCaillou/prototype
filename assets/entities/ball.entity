@@ -24,4 +24,4 @@ color = 1.000, 1.000, 1.000, 1.000
 [Physics]
 mass = 1
 angular_velocity = 0
-frottement = 2
+frottement = 4
