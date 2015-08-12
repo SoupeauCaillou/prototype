@@ -54,8 +54,33 @@ PrototypeGame::PrototypeGame() : Game() {
     registerScenes(this, sceneStateMachine);
 }
 
-Entity player;
-Entity hitzone;
+
+namespace actions {
+    enum Enum {
+        Idle,
+        Run,
+        Tackle,
+        Walk
+    };
+}
+
+struct Player {
+    Player() {
+        render = hitzone = 0;
+        previousDir = glm::vec2(0.0f);
+        currentAction = actions::Idle;
+        joystick = -1;
+    }
+
+    Entity render;
+    Entity hitzone;
+
+    glm::vec2 previousDir;
+    actions::Enum currentAction;
+
+    int joystick;
+};
+std::vector<Player> players;
 
 Entity ball, ballHitzone;
 std::vector<Entity> plots;
@@ -138,14 +163,15 @@ void PrototypeGame::init(const uint8_t*, int) {
         }
     }
 
+    Player p;
+    p.render = theEntityManager.CreateEntityFromTemplate("player");
+    p.hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
 
-    player = theEntityManager.CreateEntityFromTemplate("player");
-    hitzone = theEntityManager.CreateEntityFromTemplate("player_hitzone");
+    ANCHOR(p.render)->parent = p.hitzone;
 
-    ANCHOR(player)->parent =
-        hitzone;
+    addShadow(this, p.render);
 
-    addShadow(this, player);
+    players.push_back(p);
 
     sceneStateMachine.start(Scene::Menu);
 
@@ -157,39 +183,29 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 }
 
-bool canChangeAction(Entity p) {
-    switch (ANIMATION(player)->name) {
+static bool canChangeAction(Entity p) {
+    switch (ANIMATION(p)->name) {
         case 0x5787408a: /* walk */
             return true;
         case 0xf665a795: /* run */
             return
-                RENDERING(player)->texture == HASH("run2", 0x11401477) ||
-                RENDERING(player)->texture == HASH("run5", 0xe188f3d5);
+                RENDERING(p)->texture == HASH("run2", 0x11401477) ||
+                RENDERING(p)->texture == HASH("run5", 0xe188f3d5);
 
         case 0xed137eaa: /* idle */
             return true;
 
         case 0x79891832: /* tackle */
             return
-                RENDERING(player)->texture == HASH("tackle4", 0x4eed9509);
+                RENDERING(p)->texture == HASH("tackle4", 0x4eed9509);
         default:
             return true;
     }
 }
 
-namespace actions {
-    enum Enum {
-        Idle,
-        Run,
-        Tackle,
-        Walk
-    };
-}
 
-glm::vec2 previousDir;
-actions::Enum currentAction = actions::Idle;
 
-void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<float>& camera) {
+static void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<float>& camera) {
     auto* tc = TRANSFORM(e);
     float t = camera.invLerp(tc->position.y);
     Interval<float> z(
@@ -199,25 +215,28 @@ void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<float>& ca
     tc->z = z.lerp(t);
 }
 
-void PrototypeGame::tick(float dt) {
-    sceneStateMachine.update(dt);
+void updateControlledPlayer(struct Player& player, float dt, Game* game) {
+    LOGF_IF(player.joystick < 0, "Invalid joystick");
 
+    bool mouseControlAllowed = (player.joystick == 0);
     float runningSpeed = 0.0f;
 
     actions::Enum nextAction = actions::Idle;
 
     // joystick control
-    glm::vec2 dir = gameThreadContext->joystickAPI->getPadDirection(0, 0);
-    bool sprint = gameThreadContext->joystickAPI->isDown(0, 5);
+    glm::vec2 dir = game->gameThreadContext->joystickAPI->getPadDirection(
+        player.joystick, 0);
+    bool sprint = game->gameThreadContext->joystickAPI->isDown(
+        player.joystick, 5);
     float dirLength = glm::length(dir);
     if (dirLength) {
         dir /= dirLength;
     }
 
     // mouse control override
-    if (theTouchInputManager.isTouched()) {
+    if (mouseControlAllowed && theTouchInputManager.isTouched()) {
         dir = theTouchInputManager.getTouchLastPosition() -
-              TRANSFORM(hitzone)->position;
+              TRANSFORM(player.hitzone)->position;
         dirLength = 1.0f;
     }
 
@@ -227,58 +246,59 @@ void PrototypeGame::tick(float dt) {
         nextAction = actions::Idle;
     }
     // A button or right click -> tackle
-    if (gameThreadContext->joystickAPI->hasClicked(0, 0) ||
+    if (game->gameThreadContext->joystickAPI->hasClicked(0, 0) ||
         theTouchInputManager.hasClicked(1)) {
         nextAction = actions::Tackle;
     }
 
     // Allow new actions only at certain key-frames of animations
-    if (!canChangeAction(player)) {
+    if (!canChangeAction(player.render)) {
         // prevent direction change during non-running actions
-        if (currentAction != actions::Run) {
-            dir = previousDir;
+        if (player.currentAction != actions::Run) {
+            dir = player.previousDir;
         }
     } else {
-        currentAction = nextAction;
+        player.currentAction = nextAction;
     }
 
-    switch(currentAction) {
+    switch(player.currentAction) {
     case actions::Idle:
         runningSpeed = 0.0f;
-        ANIMATION(player)->name = HASH("idle", 0xed137eaa);
+        ANIMATION(player.render)->name = HASH("idle", 0xed137eaa);
         break;
     case actions::Walk:
-        runningSpeed = tuning.f(HASH("walking_speed", 0x73dcc3ec));
-        ANIMATION(player)->name = HASH("walk", 0x5787408a);
+        runningSpeed = game->tuning.f(HASH("walking_speed", 0x73dcc3ec));
+        ANIMATION(player.render)->name = HASH("walk", 0x5787408a);
         break;
     case actions::Run:
-        runningSpeed = tuning.f(HASH("running_speed", 0x1f34eb01));
-        ANIMATION(player)->name = HASH("run", 0xf665a795);
+        runningSpeed = game->tuning.f(HASH("running_speed", 0x1f34eb01));
+        ANIMATION(player.render)->name = HASH("run", 0xf665a795);
         break;
     case actions::Tackle:
-        runningSpeed = tuning.f(HASH("tackle_speed", 0xf53acc8e));
-        ANIMATION(player)->name = HASH("tackle", 0x79891832);
-        dir = previousDir;
+        runningSpeed = game->tuning.f(HASH("tackle_speed", 0xf53acc8e));
+        ANIMATION(player.render)->name = HASH("tackle", 0x79891832);
+        dir = player.previousDir;
         break;
     }
 
-    bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(hitzone));
+    bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(player.hitzone));
 
     // kick the ball
-    if ((currentAction == actions::Run || currentAction == actions::Walk) && dirLength > 0) {
+    if ((player.currentAction == actions::Run || player.currentAction == actions::Walk) &&
+        dirLength > 0) {
         const float kickForce =
-            tuning.f(HASH("kick_force_slow", 0x3987715d));
-            // *            runningSpeed;
+            game->tuning.f(HASH("kick_force_slow", 0x3987715d));
+
         static bool kickEnabled = true;
 
         // only kick if ball is going slower and/or in the wrong direction
         if (kickEnabled) {
             if (touchBall) {
                 glm::vec2 desiredBallPosition =
-                    TRANSFORM(hitzone)->position +
+                    TRANSFORM(player.hitzone)->position +
                     dir *
                     runningSpeed *
-                    tuning.f(HASH("ball_advance_lookup_sec", 0xcf261ebb));
+                    game->tuning.f(HASH("ball_advance_lookup_sec", 0xcf261ebb));
 
                 glm::vec2 diff = desiredBallPosition -
                     TRANSFORM(ball)->position;
@@ -290,65 +310,65 @@ void PrototypeGame::tick(float dt) {
                         glm::vec2(0.0f)), 0.016f);
                 kickEnabled = false;
 
-                lastPlayerWhoKickedTheBall = player;
+                lastPlayerWhoKickedTheBall = player.render;
             }
         } else {
             if (!touchBall) {
                 kickEnabled = true;
             }
         }
-        RENDERING(hitzone)->color = Color(!kickEnabled, 0, kickEnabled);
+        RENDERING(player.hitzone)->color = Color(!kickEnabled, 0, kickEnabled);
     }
-    if (lastPlayerWhoKickedTheBall == player && gameThreadContext->joystickAPI->isDown(0, 1)) {
+    if (lastPlayerWhoKickedTheBall == player.render &&
+        game->gameThreadContext->joystickAPI->isDown(player.joystick, 1)) {
         lastPlayerWhoKickedTheBall = 0;
     }
     if (runningSpeed > 0) {
-        if (lastPlayerWhoKickedTheBall == player) {
+        if (lastPlayerWhoKickedTheBall == player.render) {
             // lock direction until contact
             if (!touchBall) {
                 dir = glm::normalize(
                     TRANSFORM(ball)->position -
-                    TRANSFORM(hitzone)->position);
+                    TRANSFORM(player.hitzone)->position);
             }
         }
 
         if (dir.x || dir.y) {
-            TRANSFORM(hitzone)
+            TRANSFORM(player.hitzone)
                 ->position +=
                 runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
-            LOGV(1, __(TRANSFORM(hitzone)->position) << __(dir) << __(dirLength) << __(previousDir));
+            LOGV(1,
+                __(TRANSFORM(player.hitzone)->position) <<
+                __(dir) <<
+                __(dirLength) <<
+                __(player.previousDir));
         }
 
 
         if (dir.x < 0) {
-            RENDERING(player)->flags |= RenderingFlags::MirrorHorizontal;
+            RENDERING(player.render)->flags |= RenderingFlags::MirrorHorizontal;
         } else {
-            RENDERING(player)->flags &= ~RenderingFlags::MirrorHorizontal;
+            RENDERING(player.render)->flags &= ~RenderingFlags::MirrorHorizontal;
         }
     }
 
+    player.previousDir = dir;
+}
+
+void PrototypeGame::tick(float dt) {
+    sceneStateMachine.update(dt);
+
+    players[0].joystick = 0;
+    updateControlledPlayer(players[0], dt, this);
+
+
     // adjust camera position
-    glm::vec2 diff = TRANSFORM(hitzone)->position - TRANSFORM(camera)->position;
+    glm::vec2 diff = TRANSFORM(ball)->position - TRANSFORM(camera)->position;
     float l = glm::length(diff);
     TRANSFORM(camera)->position += diff * glm::min(1.5f, l) * dt;
-    previousDir = dir;
+
 
     {
-        #if 0
-        #define OFFSET(member, p) ((uint8_t*)&p.member - (uint8_t*)&p)
-        TransformationComponent tc;
-        unsigned long offsetPosY = OFFSET(position, tc) + sizeof(float);
-        unsigned long offsetZ = OFFSET(z, tc);
-        BINDER(ball)->from.system = TransformationSystem::GetInstancePointer();
-        BINDER(ball)->from.offset = offsetPosY;
-        BINDER(ball)->from.interval.t1 = TRANSFORM(camera)->size.y * -0.5f;
-        BINDER(ball)->from.interval.t2 = TRANSFORM(camera)->size.y * 0.5f;
-        BINDER(ball)->to.system = TransformationSystem::GetInstancePointer();
-        BINDER(ball)->to.offset = offsetZ;
-        BINDER(ball)->to.interval.t1 = 0.9f;
-        BINDER(ball)->to.interval.t2 = 0.1f;
-        #undef OFFSET
-        #endif
         Interval<float> cameraInterval;
         cameraInterval.t1 =
             TRANSFORM(camera)->position.y + TRANSFORM(camera)->size.y * 0.5f;
@@ -358,7 +378,7 @@ void PrototypeGame::tick(float dt) {
         for (auto plot: plots) {
             adjustZWithOnScreenPosition(this, plot, cameraInterval);
         }
-        adjustZWithOnScreenPosition(this, hitzone, cameraInterval);
+        // adjustZWithOnScreenPosition(this, hitzone, cameraInterval);
     }
 
     // update ball angular velocity
