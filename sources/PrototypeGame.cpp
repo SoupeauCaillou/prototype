@@ -40,6 +40,7 @@
 #include "base/TimeUtil.h"
 #include "base/Interval.h"
 #include "api/JoystickAPI.h"
+#include "api/KeyboardInputHandlerAPI.h"
 
 #if SAC_EMSCRIPTEN
 #include <emscripten/emscripten.h>
@@ -232,7 +233,8 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     glm::vec2 dir = game->gameThreadContext->joystickAPI->getPadDirection(
         player.joystick, 0);
     bool sprint = game->gameThreadContext->joystickAPI->isDown(
-        player.joystick, 5);
+        player.joystick, 5) ||
+        game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(' ');
     float dirLength = glm::length(dir);
     if (dirLength) {
         dir /= dirLength;
@@ -240,8 +242,9 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
 
     // mouse control override
     if (mouseControlAllowed && theTouchInputManager.isTouched()) {
-        dir = theTouchInputManager.getTouchLastPosition() -
-              TRANSFORM(player.hitzone)->position;
+        dir = glm::normalize(
+                theTouchInputManager.getTouchLastPosition() -
+                TRANSFORM(player.hitzone)->position);
         dirLength = 1.0f;
     }
 
@@ -259,8 +262,10 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     // Allow new actions only at certain key-frames of animations
     if (!canChangeAction(player.render)) {
         // prevent direction change during non-running actions
-        if (player.currentAction != actions::Run) {
+        if (player.currentAction != actions::Run &&
+            player.currentAction != actions::Walk) {
             dir = player.previousDir;
+            dirLength = glm::length(dir);
         }
     } else {
         player.currentAction = nextAction;
