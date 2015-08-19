@@ -150,6 +150,15 @@ void PrototypeGame::init(const uint8_t*, int) {
                 players.push_back(p);
 
                 all.push_back(p.render);
+            } else if (entity == "cage") {
+                Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
+                TRANSFORM(e)->position = position;
+                Entity p1 = theEntityManager.CreateEntityFromTemplate("poteau");
+                ANCHOR(p1)->parent = e;
+                Entity p2 = theEntityManager.CreateEntityFromTemplate("poteau");
+                ANCHOR(p2)->parent = e;
+                ANCHOR(p2)->position.y +=
+                    tuning.f(HASH("poteau_diff_y_haut_bas", 0x7218439b));
             } else {
                 Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
                 TRANSFORM(e)->position = position;

@@ -1,0 +1,9 @@
+[Rendering]
+show = 0
+
+[Transformation]
+size = 0.125, 0.125
+z = 0.4
+
+[Anchor]
+position = -0.7, 1.6
