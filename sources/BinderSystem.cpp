@@ -18,29 +18,20 @@
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "BinderSystem.h"
 
 #include "util/Tuning.h"
 
 INSTANCE_IMPL(BinderSystem);
 
-BinderSystem::BinderSystem() : ComponentSystemImpl<BinderComponent>(HASH("Binder", 0x7195d9b4)) {
-}
+BinderSystem::BinderSystem() : ComponentSystemImpl<BinderComponent>(HASH("Binder", 0x7195d9b4)) {}
 
 void BinderSystem::DoUpdate(float) {
     FOR_EACH_ENTITY_COMPONENT(Binder, e, comp)
-        const float* varFrom =
-            static_cast<float*> (
-            comp->from.system->componentAsVoidPtr(e) +
-            comp->from.offset);
-        float* varTo =
-            static_cast<float*> (
-            comp->to.system->componentAsVoidPtr(e) +
-            comp->to.offset);
+    const float* varFrom = static_cast<float*>((float*)comp->from.system->componentAsVoidPtr(e) + comp->from.offset);
+    float* varTo = static_cast<float*>((float*)comp->to.system->componentAsVoidPtr(e) + comp->to.offset);
 
-        float t = comp->from.interval.invLerp(*varFrom);
-        *varTo = comp->to.interval.lerp(t);
-    }
+    float t = comp->from.interval.invLerp(*varFrom);
+    *varTo = comp->to.interval.lerp(t);
+}
 }

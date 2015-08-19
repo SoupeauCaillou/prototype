@@ -18,8 +18,6 @@
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "ShadowSystem.h"
 
 #include "systems/AnchorSystem.h"
@@ -30,23 +28,19 @@
 
 INSTANCE_IMPL(ShadowSystem);
 
-ShadowSystem::ShadowSystem() : ComponentSystemImpl<ShadowComponent>(HASH("Shadow", 0x1bf95fef)) {
-}
+ShadowSystem::ShadowSystem() : ComponentSystemImpl<ShadowComponent>(HASH("Shadow", 0x1bf95fef)) {}
 
 void ShadowSystem::DoUpdate(float) {
     FOR_EACH_ENTITY_COMPONENT(Shadow, e, comp)
-        Entity parent = ANCHOR(e)->parent;
-        glm::vec2 parentSize = TRANSFORM(parent)->size;
-        TextureRef texture = RENDERING(parent)->texture;
-        if (texture != InvalidTextureRef) {
-            auto* info =
-                theRenderingSystem.textureLibrary.get(texture, false);
-            if (info) {
-                parentSize *= info->reduxSize;
-            }
+    Entity parent = ANCHOR(e)->parent;
+    glm::vec2 parentSize = TRANSFORM(parent)->size;
+    TextureRef texture = RENDERING(parent)->texture;
+    if (texture != InvalidTextureRef) {
+        auto* info = theRenderingSystem.textureLibrary.get(texture, false);
+        if (info) {
+            parentSize *= info->reduxSize;
         }
-        TRANSFORM(e)->size.x =
-            theTuning.f(HASH("shadow_percent", 0x53fbfdd4)) *
-                parentSize.x;
     }
+    TRANSFORM(e)->size.x = theTuning.f(HASH("shadow_percent", 0x53fbfdd4)) * parentSize.x;
+}
 }

@@ -18,31 +18,31 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "android/sacjnilib.h"
 #include "../sources/PrototypeGame.h"
 /*
 class PrototypeGameThreadJNIEnvCtx : public GameThreadJNIEnvCtx {
-	public:
+    public:
 
     void init(JNIEnv* pEnv, jobject assetMgr) {
-	    GameThreadJNIEnvCtx::init(pEnv, assetMgr);
+        GameThreadJNIEnvCtx::init(pEnv, assetMgr);
     }
 
     void uninit(JNIEnv* pEnv) {
-		if (env == pEnv) {
-		}
-		GameThreadJNIEnvCtx::uninit(pEnv);
+        if (env == pEnv) {
+        }
+        GameThreadJNIEnvCtx::uninit(pEnv);
     }
 };
 */
 GameHolder* GameHolder::build() {
-	GameHolder* hld = new GameHolder();
+    GameHolder* hld = new GameHolder();
 
-/*
-	PrototypeGameThreadJNIEnvCtx* jniCtx = new PrototypeGameThreadJNIEnvCtx();
-	hld->gameThreadJNICtx = jniCtx;
-*/
-	hld->game = new PrototypeGame();
-	return hld;
+    /*
+        PrototypeGameThreadJNIEnvCtx* jniCtx = new
+       PrototypeGameThreadJNIEnvCtx();
+        hld->gameThreadJNICtx = jniCtx;
+    */
+    hld->game = new PrototypeGame();
+    return hld;
 };

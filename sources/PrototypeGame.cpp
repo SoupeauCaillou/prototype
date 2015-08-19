@@ -51,18 +51,10 @@
 #include <unistd.h>
 #endif
 
-PrototypeGame::PrototypeGame() : Game() {
-    registerScenes(this, sceneStateMachine);
-}
-
+PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
 
 namespace actions {
-    enum Enum {
-        Idle,
-        Run,
-        Tackle,
-        Walk
-    };
+    enum Enum { Idle, Run, Tackle, Walk };
 }
 
 struct Player {
@@ -134,10 +126,9 @@ void PrototypeGame::init(const uint8_t*, int) {
         DataFileParser dfp;
         dfp.load(fb, "entity_desc.ini");
         int count = 0;
-        dfp.get(DataFileParser::GlobalSection,
-            "count", &count);
+        dfp.get(DataFileParser::GlobalSection, "count", &count);
         std::vector<Entity> all;
-        for (int i=0; i<count; i++) {
+        for (int i = 0; i < count; i++) {
             char tmp[128];
             sprintf(tmp, "%d", i + 1);
             hash_t section = Murmur::RuntimeHash(tmp);
@@ -166,16 +157,16 @@ void PrototypeGame::init(const uint8_t*, int) {
                     addShadow(this, e);
                 }
 
-                if (entity == "plot") plots.push_back(e);
-                else if (entity == "ball") ball = e;
+                if (entity == "plot")
+                    plots.push_back(e);
+                else if (entity == "ball")
+                    ball = e;
 
                 addHitzone(this, e);
                 all.push_back(e);
             }
-
         }
     }
-
 
     players[0].joystick = 0;
 
@@ -194,30 +185,24 @@ static bool canChangeAction(Entity p) {
         case 0x5787408a: /* walk */
             return true;
         case 0xf665a795: /* run */
-            return
-                RENDERING(p)->texture == HASH("run2", 0x11401477) ||
-                RENDERING(p)->texture == HASH("run5", 0xe188f3d5);
+            return RENDERING(p)->texture == HASH("run2", 0x11401477) ||
+                   RENDERING(p)->texture == HASH("run5", 0xe188f3d5);
 
         case 0xed137eaa: /* idle */
             return true;
 
         case 0x79891832: /* tackle */
-            return
-                RENDERING(p)->texture == HASH("tackle4", 0x4eed9509);
+            return RENDERING(p)->texture == HASH("tackle4", 0x4eed9509);
         default:
             return true;
     }
 }
 
-
-
 static void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<float>& camera) {
     auto* tc = TRANSFORM(e);
     float t = camera.invLerp(tc->position.y);
-    Interval<float> z(
-        game->tuning.f(HASH("adjust_min_z", 0x533b118a)),
-        game->tuning.f(HASH("adjust_max_z", 0x583d04f9))
-        );
+    Interval<float> z(game->tuning.f(HASH("adjust_min_z", 0x533b118a)),
+                      game->tuning.f(HASH("adjust_max_z", 0x583d04f9)));
     tc->z = z.lerp(t);
 }
 
@@ -230,11 +215,9 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     actions::Enum nextAction = actions::Idle;
 
     // joystick control
-    glm::vec2 dir = game->gameThreadContext->joystickAPI->getPadDirection(
-        player.joystick, 0);
-    bool sprint = game->gameThreadContext->joystickAPI->isDown(
-        player.joystick, 5) ||
-        game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(' ');
+    glm::vec2 dir = game->gameThreadContext->joystickAPI->getPadDirection(player.joystick, 0);
+    bool sprint = game->gameThreadContext->joystickAPI->isDown(player.joystick, 5) ||
+                  game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(' ');
     float dirLength = glm::length(dir);
     if (dirLength) {
         dir /= dirLength;
@@ -242,9 +225,7 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
 
     // mouse control override
     if (mouseControlAllowed && theTouchInputManager.isTouched()) {
-        dir = glm::normalize(
-                theTouchInputManager.getTouchLastPosition() -
-                TRANSFORM(player.hitzone)->position);
+        dir = glm::normalize(theTouchInputManager.getTouchLastPosition() - TRANSFORM(player.hitzone)->position);
         dirLength = 1.0f;
     }
 
@@ -255,15 +236,14 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     }
     // A button or right click -> tackle
     if (game->gameThreadContext->joystickAPI->hasClicked(player.joystick, 0) ||
-        (mouseControlAllowed&& theTouchInputManager.hasClicked(1))) {
+        (mouseControlAllowed && theTouchInputManager.hasClicked(1))) {
         nextAction = actions::Tackle;
     }
 
     // Allow new actions only at certain key-frames of animations
     if (!canChangeAction(player.render)) {
         // prevent direction change during non-running actions
-        if (player.currentAction != actions::Run &&
-            player.currentAction != actions::Walk) {
+        if (player.currentAction != actions::Run && player.currentAction != actions::Walk) {
             dir = player.previousDir;
             dirLength = glm::length(dir);
         }
@@ -271,33 +251,31 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
         player.currentAction = nextAction;
     }
 
-    switch(player.currentAction) {
-    case actions::Idle:
-        runningSpeed = 0.0f;
-        ANIMATION(player.render)->name = HASH("idle", 0xed137eaa);
-        break;
-    case actions::Walk:
-        runningSpeed = game->tuning.f(HASH("walking_speed", 0x73dcc3ec));
-        ANIMATION(player.render)->name = HASH("walk", 0x5787408a);
-        break;
-    case actions::Run:
-        runningSpeed = game->tuning.f(HASH("running_speed", 0x1f34eb01));
-        ANIMATION(player.render)->name = HASH("run", 0xf665a795);
-        break;
-    case actions::Tackle:
-        runningSpeed = game->tuning.f(HASH("tackle_speed", 0xf53acc8e));
-        ANIMATION(player.render)->name = HASH("tackle", 0x79891832);
-        dir = player.previousDir;
-        break;
+    switch (player.currentAction) {
+        case actions::Idle:
+            runningSpeed = 0.0f;
+            ANIMATION(player.render)->name = HASH("idle", 0xed137eaa);
+            break;
+        case actions::Walk:
+            runningSpeed = game->tuning.f(HASH("walking_speed", 0x73dcc3ec));
+            ANIMATION(player.render)->name = HASH("walk", 0x5787408a);
+            break;
+        case actions::Run:
+            runningSpeed = game->tuning.f(HASH("running_speed", 0x1f34eb01));
+            ANIMATION(player.render)->name = HASH("run", 0xf665a795);
+            break;
+        case actions::Tackle:
+            runningSpeed = game->tuning.f(HASH("tackle_speed", 0xf53acc8e));
+            ANIMATION(player.render)->name = HASH("tackle", 0x79891832);
+            dir = player.previousDir;
+            break;
     }
 
     bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(player.hitzone));
 
     // kick the ball
-    if ((player.currentAction == actions::Run || player.currentAction == actions::Walk) &&
-        dirLength > 0) {
-        const float kickForce =
-            game->tuning.f(HASH("kick_force_slow", 0x3987715d));
+    if ((player.currentAction == actions::Run || player.currentAction == actions::Walk) && dirLength > 0) {
+        const float kickForce = game->tuning.f(HASH("kick_force_slow", 0x3987715d));
 
         static bool kickEnabled = true;
 
@@ -306,18 +284,12 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
             if (touchBall) {
                 glm::vec2 desiredBallPosition =
                     TRANSFORM(player.hitzone)->position +
-                    dir *
-                    runningSpeed *
-                    game->tuning.f(HASH("ball_advance_lookup_sec", 0xcf261ebb));
+                    dir * runningSpeed * game->tuning.f(HASH("ball_advance_lookup_sec", 0xcf261ebb));
 
-                glm::vec2 diff = desiredBallPosition -
-                    TRANSFORM(ball)->position;
+                glm::vec2 diff = desiredBallPosition - TRANSFORM(ball)->position;
 
                 PHYSICS(ball)->linearVelocity = glm::vec2(0.0f);
-                PHYSICS(ball)->addForce(
-                    Force(
-                        glm::length(diff) * kickForce * dir,
-                        glm::vec2(0.0f)), 0.016f);
+                PHYSICS(ball)->addForce(Force(glm::length(diff) * kickForce * dir, glm::vec2(0.0f)), 0.016f);
                 kickEnabled = false;
 
                 lastPlayerWhoKickedTheBall = player.render;
@@ -337,23 +309,14 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
         if (lastPlayerWhoKickedTheBall == player.render) {
             // lock direction until contact
             if (!touchBall) {
-                dir = glm::normalize(
-                    TRANSFORM(ball)->position -
-                    TRANSFORM(player.hitzone)->position);
+                dir = glm::normalize(TRANSFORM(ball)->position - TRANSFORM(player.hitzone)->position);
             }
         }
 
         if (dir.x || dir.y) {
-            TRANSFORM(player.hitzone)
-                ->position +=
-                runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
-            LOGV(1,
-                __(TRANSFORM(player.hitzone)->position) <<
-                __(dir) <<
-                __(dirLength) <<
-                __(player.previousDir));
+            TRANSFORM(player.hitzone)->position += runningSpeed * dt * glm::normalize(dir) * glm::min(dirLength, 1.0f);
+            LOGV(1, __(TRANSFORM(player.hitzone)->position) << __(dir) << __(dirLength) << __(player.previousDir));
         }
-
 
         if (dir.x < 0) {
             RENDERING(player.render)->flags |= RenderingFlags::MirrorHorizontal;
@@ -365,11 +328,11 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     player.previousDir = dir;
 
     if (game->gameThreadContext->joystickAPI->hasClicked(player.joystick, 1) ||
-        (mouseControlAllowed&& theTouchInputManager.hasClicked(2))) {
+        (mouseControlAllowed && theTouchInputManager.hasClicked(2))) {
         // change active player
         float minDistToTheBall = 100000000;
         int idx = 0;
-        for (int i=0; i<players.size(); i++) {
+        for (int i = 0; i < players.size(); i++) {
             const auto& p = players[i];
             if (p.render == player.render) {
                 continue;
@@ -377,9 +340,7 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
             if (p.joystick >= 0) {
                 continue;
             }
-            float dist = glm::distance(
-                TRANSFORM(p.hitzone)->position,
-                TRANSFORM(ball)->position);
+            float dist = glm::distance(TRANSFORM(p.hitzone)->position, TRANSFORM(ball)->position);
             if (dist < minDistToTheBall) {
                 minDistToTheBall = dist;
                 idx = i;
@@ -397,7 +358,7 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
-    for (auto& player: players) {
+    for (auto& player : players) {
         if (player.joystick >= 0) {
             if (!updateControlledPlayer(player, dt, this)) {
                 // silly hack to prevent continous player switching
@@ -413,15 +374,12 @@ void PrototypeGame::tick(float dt) {
     float l = glm::length(diff);
     TRANSFORM(camera)->position += diff * glm::min(1.5f, l) * dt;
 
-
     {
         Interval<float> cameraInterval;
-        cameraInterval.t1 =
-            TRANSFORM(camera)->position.y + TRANSFORM(camera)->size.y * 0.5f;
-        cameraInterval.t2 =
-            TRANSFORM(camera)->position.y - TRANSFORM(camera)->size.y * 0.5f;
+        cameraInterval.t1 = TRANSFORM(camera)->position.y + TRANSFORM(camera)->size.y * 0.5f;
+        cameraInterval.t2 = TRANSFORM(camera)->position.y - TRANSFORM(camera)->size.y * 0.5f;
         adjustZWithOnScreenPosition(this, ball, cameraInterval);
-        for (auto plot: plots) {
+        for (auto plot : plots) {
             adjustZWithOnScreenPosition(this, plot, cameraInterval);
         }
         // adjustZWithOnScreenPosition(this, hitzone, cameraInterval);
@@ -430,17 +388,13 @@ void PrototypeGame::tick(float dt) {
     // update ball angular velocity
     float ballSpeed = glm::length(PHYSICS(ball)->linearVelocity);
     PHYSICS(ball)->angularVelocity =
-        glm::sign(PHYSICS(ball)->linearVelocity.x) *
-        ballSpeed *
-        tuning.f(HASH("ball_angular_vel", 0xbe84c99b));
+        glm::sign(PHYSICS(ball)->linearVelocity.x) * ballSpeed * tuning.f(HASH("ball_angular_vel", 0xbe84c99b));
 
     // bounce
     if (COLLISION(ballHitzone)->collision.count > 0) {
         // bounce as if 2 objects are spheres
-        glm::vec2 toCollider =
-            glm::normalize(
-                TRANSFORM(COLLISION(ballHitzone)->collision.with[0])->position -
-                TRANSFORM(ballHitzone)->position);
+        glm::vec2 toCollider = glm::normalize(TRANSFORM(COLLISION(ballHitzone)->collision.with[0])->position -
+                                              TRANSFORM(ballHitzone)->position);
 
         glm::vec2 velocity = PHYSICS(ball)->linearVelocity;
 
@@ -448,14 +402,11 @@ void PrototypeGame::tick(float dt) {
 
         if (proj > 0) {
             glm::vec2 newVelocity =
-                velocity +
-                (-2 * proj * tuning.f(HASH("ball_bounce_factor", 0x9d5d189d))) *
-                toCollider;
+                velocity + (-2 * proj * tuning.f(HASH("ball_bounce_factor", 0x9d5d189d))) * toCollider;
 
             PHYSICS(ball)->linearVelocity = newVelocity;
             LOGI("Bounce");
             lastPlayerWhoKickedTheBall = 0;
         }
     }
-
 }

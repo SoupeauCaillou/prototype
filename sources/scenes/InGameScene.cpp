@@ -26,9 +26,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
 
     InGameScene(PrototypeGame* game)
-        : SceneState<Scene::Enum>("in_game",
-                                  SceneEntityMode::DoNothing,
-                                  SceneEntityMode::DoNothing) {
+        : SceneState<Scene::Enum>("in_game", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
         this->game = game;
     }
 
@@ -55,7 +53,5 @@ struct InGameScene : public SceneState<Scene::Enum> {
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateInGameSceneHandler(PrototypeGame* game) {
-        return new InGameScene(game);
-    }
+    StateHandler<Scene::Enum>* CreateInGameSceneHandler(PrototypeGame* game) { return new InGameScene(game); }
 }
