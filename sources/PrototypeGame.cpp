@@ -51,6 +51,8 @@
 #include <unistd.h>
 #endif
 
+#include <algorithm>
+
 PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
 
 namespace actions {
@@ -91,6 +93,7 @@ void addHitzone(PrototypeGame* game, Entity e) {
     if (e == ball) {
         COLLISION(h)->group = 2;
         COLLISION(h)->collideWith = 0xffffffff;
+        COLLISION(h)->restorePositionOnCollision = true;
         ballHitzone = h;
     }
 }
@@ -159,6 +162,12 @@ void PrototypeGame::init(const uint8_t*, int) {
                 ANCHOR(p2)->parent = e;
                 ANCHOR(p2)->position.y +=
                     tuning.f(HASH("poteau_diff_y_haut_bas", 0x7218439b));
+                Entity back = theEntityManager.CreateEntityFromTemplate("dos_cage");
+                ANCHOR(back)->parent = e;
+
+                hitzones.push_back(p1);
+                hitzones.push_back(p2);
+                hitzones.push_back(back);
             } else {
                 Entity e = theEntityManager.CreateEntityFromTemplate(entity.c_str());
                 TRANSFORM(e)->position = position;
@@ -401,17 +410,27 @@ void PrototypeGame::tick(float dt) {
 
     // bounce
     if (COLLISION(ballHitzone)->collision.count > 0) {
-        // bounce as if 2 objects are spheres
-        glm::vec2 toCollider = glm::normalize(TRANSFORM(COLLISION(ballHitzone)->collision.with[0])->position -
-                                              TRANSFORM(ballHitzone)->position);
+        glm::vec2 normalAwayFromCollider(0.0f);
 
+        if (std::find(
+            plots.begin(),
+            plots.end(),
+            COLLISION(ballHitzone)->collision.with[0]) != plots.end()) {
+            // bounce as if 2 objects are spheres
+            normalAwayFromCollider = -glm::normalize(TRANSFORM(COLLISION(ballHitzone)->collision.with[0])->position -
+                                              TRANSFORM(ballHitzone)->position);
+        } else {
+            normalAwayFromCollider = COLLISION(ballHitzone)->collision.normal[0];
+        }
         glm::vec2 velocity = PHYSICS(ball)->linearVelocity;
 
-        float proj = glm::dot(velocity, toCollider);
+        float proj = glm::dot(velocity, normalAwayFromCollider);
 
-        if (proj > 0) {
+        if (proj < 0) {
             glm::vec2 newVelocity =
-                velocity + (-2 * proj * tuning.f(HASH("ball_bounce_factor", 0x9d5d189d))) * toCollider;
+                velocity +
+                (2 * -proj * tuning.f(HASH("ball_bounce_factor", 0x9d5d189d)))
+                * normalAwayFromCollider;
 
             PHYSICS(ball)->linearVelocity = newVelocity;
             LOGI("Bounce");

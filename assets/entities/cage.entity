@@ -2,7 +2,7 @@
 position = 0.000, 0.000
 size = 1.500, 5.000
 rotation = 0.000
-z = 1.000
+z = 0.5
 shape = 0
 
 [Rendering]

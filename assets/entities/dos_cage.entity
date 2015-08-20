@@ -1,14 +1,14 @@
 [Rendering]
 show = 1
-color = 1, 0, 0
+color = 1, 1, 0, 0.4
+flags = 1
 
 [Transformation]
-size = 1.5, 0.125
-
+size = 0.05, 4.1
 
 [Anchor]
-position = -0.0, 1.6
-z = 0.5
+position = 0.75, -0.45
+z = 0.2
 
 [Collision]
 group = 1
