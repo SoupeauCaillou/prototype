@@ -1,0 +1,20 @@
+[Transformation]
+size = 0.1, 0.1
+
+[Anchor]
+z = 0
+position = -1.25, 1.8
+
+[Particule]
+force_dir = 0
+mass = 1
+duration = -1
+emission_rate = 50
+lifetime = 1
+force_direction = 1.52
+force_amplitude = 50
+moment = 2
+initial_size = 0.02, 0.1
+final_size = 0.0
+initial_color = 0, 0, 0, 1, 0.4, 0.4, 0.4, 1
+final_color = 0, 0, 0, 1, 0.3, 0.3, 0.3, 1

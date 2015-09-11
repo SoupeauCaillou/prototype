@@ -29,6 +29,7 @@
 #include "systems/AnimationSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/TransformationSystem.h"
+#include "systems/AnchorSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -41,7 +42,7 @@
 #include <unistd.h>
 #endif
 
-Entity vehicle;
+Entity vehicle, smoke;
 
 PrototypeGame::PrototypeGame() : Game() {
     registerScenes(this, sceneStateMachine);
@@ -62,6 +63,9 @@ void PrototypeGame::init(const uint8_t*, int) {
         "bulldo_move", "bulldo_move");
 
     vehicle = theEntityManager.CreateEntityFromTemplate("vehicle");
+    smoke = theEntityManager.CreateEntityFromTemplate("smoke");
+    ANCHOR(smoke)->parent = vehicle;
+
 
     ADD_COMPONENT(camera, Physics);
     PHYSICS(camera)->mass = 1;
