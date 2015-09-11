@@ -4,3 +4,6 @@ z = 0
 
 [Camera]
 clear_color%html = 2ace1d
+
+[Physics]
+mass = 1

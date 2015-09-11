@@ -28,6 +28,7 @@
 #include "systems/CameraSystem.h"
 #include "systems/AnimationSystem.h"
 #include "systems/PhysicsSystem.h"
+#include "systems/TransformationSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -61,6 +62,9 @@ void PrototypeGame::init(const uint8_t*, int) {
         "bulldo_move", "bulldo_move");
 
     vehicle = theEntityManager.CreateEntityFromTemplate("vehicle");
+
+    ADD_COMPONENT(camera, Physics);
+    PHYSICS(camera)->mass = 1;
 }
 
 void PrototypeGame::tick(float dt) {
@@ -74,9 +78,19 @@ void PrototypeGame::tick(float dt) {
             0.016);
     }
 
-    if (PHYSICS(vehicle)->linearVelocity.x > 0.1) {
+    if (PHYSICS(vehicle)->linearVelocity.x >
+        tuning.f(HASH("min_speed_animation", 0x8d3ec027))) {
         ANIMATION(vehicle)->name = HASH("bulldo_move", 0xa7240136);
     } else {
         ANIMATION(vehicle)->name = HASH("bulldo_idle", 0x96648810);
     }
+
+    // objective: keep the vehicle at 2/3x
+    float obj = TRANSFORM(camera)->position.x +
+        TRANSFORM(camera)->size.x * (-1/2.0f + 1/3.0f);
+
+    float diff = TRANSFORM(vehicle)->position.x - obj;
+
+    TRANSFORM(camera)->position.x +=
+        diff * dt * tuning.f(HASH("camera_update_speed", 0xecef88a5));
 }
