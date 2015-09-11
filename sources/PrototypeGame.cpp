@@ -23,9 +23,11 @@
 #include "base/PlacementHelper.h"
 #include "base/StateMachine.inl"
 #include "base/EntityManager.h"
+#include "base/TouchInputManager.h"
 
 #include "systems/CameraSystem.h"
 #include "systems/AnimationSystem.h"
+#include "systems/PhysicsSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -54,11 +56,27 @@ void PrototypeGame::init(const uint8_t*, int) {
     sceneStateMachine.start(Scene::Menu);
 
     theAnimationSystem.loadAnim(gameThreadContext->assetAPI,
-        "bulldo", "bulldo");
+        "bulldo_idle", "bulldo_idle");
+    theAnimationSystem.loadAnim(gameThreadContext->assetAPI,
+        "bulldo_move", "bulldo_move");
 
     vehicle = theEntityManager.CreateEntityFromTemplate("vehicle");
 }
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
+
+    if (theTouchInputManager.isTouched()) {
+        PHYSICS(vehicle)->addForce(
+            Force(
+                glm::vec2(tuning.f(HASH("move_force", 0x476a8439)), 0),
+                glm::vec2(0.0f)),
+            0.016);
+    }
+
+    if (PHYSICS(vehicle)->linearVelocity.x > 0.1) {
+        ANIMATION(vehicle)->name = HASH("bulldo_move", 0xa7240136);
+    } else {
+        ANIMATION(vehicle)->name = HASH("bulldo_idle", 0x96648810);
+    }
 }

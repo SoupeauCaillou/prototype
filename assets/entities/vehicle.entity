@@ -10,6 +10,8 @@ z = 0.5
 
 [Physics]
 mass = 1
+max_speed = 10
+frottement = 3
 
 [Animation]
-name = bulldo
+name = bulldo_idle

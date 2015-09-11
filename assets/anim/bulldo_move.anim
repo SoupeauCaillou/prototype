@@ -4,7 +4,7 @@ loop = infinite
 num_frames = 2
 
 [frame0]
-texture = bulldo1
+texture = bulldo_idle1
 
 [frame1]
-texture = bulldo2
+texture = bulldo_move
