@@ -113,7 +113,7 @@ void PrototypeGame::tick(float dt) {
     while (i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x / 2.f + 3) {
         const auto & size = PlacementHelper::ScreenSize;
         Entity elem = theEntityManager.CreateEntityFromTemplate("background");
-        TRANSFORM(elem)->position = glm::vec2(i, size.y * Random::Float(-.3, .4));
+        TRANSFORM(elem)->position = glm::vec2(i, -size.y/4.f + TRANSFORM(elem)->size.y / 2.f);//size.y * Random::Float(-.3, .4));
         TRANSFORM(elem)->z = .4 - TRANSFORM(elem)->position.y / 1000.;
 
         for (int j = 0; j < 3; j++) {
