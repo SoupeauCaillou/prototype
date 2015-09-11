@@ -33,6 +33,9 @@
 
 #include "base/TimeUtil.h"
 
+#include "util/Random.h"
+#include "util/IntersectionUtil.h"
+
 #if SAC_EMSCRIPTEN
 #include <emscripten/emscripten.h>
 #endif
@@ -43,13 +46,18 @@
 #endif
 
 Entity vehicle, smoke;
+int lastBackgroundX;
 
-PrototypeGame::PrototypeGame() : Game() {
-    registerScenes(this, sceneStateMachine);
-}
+glm::vec3 coeffA = {.5, .5, .5};
+glm::vec3 coeffB = {.5, .5, .5};
+glm::vec3 coeffC = {1/20., .7/20., .4/20.};
+glm::vec3 coeffD = {0., .15, .2};
+
+PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
+
 
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
@@ -67,8 +75,10 @@ void PrototypeGame::init(const uint8_t*, int) {
     ANCHOR(smoke)->parent = vehicle;
 
 
+    lastBackgroundX = TRANSFORM(camera)->position.x - (5 + TRANSFORM(camera)->size.x / 2.f);
     ADD_COMPONENT(camera, Physics);
     PHYSICS(camera)->mass = 1;
+
 }
 
 void PrototypeGame::tick(float dt) {
@@ -97,4 +107,17 @@ void PrototypeGame::tick(float dt) {
 
     TRANSFORM(camera)->position.x +=
         diff * dt * tuning.f(HASH("camera_update_speed", 0xecef88a5));
+
+
+    int i = lastBackgroundX;
+    for (; i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x / 2.f + 3; i++) {
+        const auto & size = PlacementHelper::ScreenSize;
+        Entity elem = theEntityManager.CreateEntityFromTemplate("background");
+        TRANSFORM(elem)->position = glm::vec2(i, size.y * Random::Float(-.4, .4));
+
+        for (int j = 0; j < 3; j++) {
+            RENDERING(elem)->color.rgba[j] = coeffA[j] + coeffB[j] * cos(2 * M_PI * (i%20 * coeffC[j] + coeffD[j]));
+        }
+    }
+    lastBackgroundX = i;
 }
