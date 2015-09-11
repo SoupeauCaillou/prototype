@@ -1,0 +1,17 @@
+atlas_size=1024,512
+[image0]
+name=bulldo1
+original_size=480,480
+position_in_atlas=1,1
+size_in_atlas=465,374
+crop_offset=0,31
+rotated=0
+opaque_rect=30,284,330,90
+[image1]
+name=bulldo2
+original_size=480,480
+position_in_atlas=468,1
+size_in_atlas=465,360
+crop_offset=0,45
+rotated=0
+opaque_rect=30,165,330,195

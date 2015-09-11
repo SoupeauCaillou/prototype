@@ -1,0 +1,10 @@
+[meta]
+speed = 10
+loop = infinite
+num_frames = 2
+
+[frame0]
+texture = bulldo1
+
+[frame1]
+texture = bulldo2

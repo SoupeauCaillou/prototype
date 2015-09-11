@@ -25,6 +25,7 @@
 #include "base/EntityManager.h"
 
 #include "systems/CameraSystem.h"
+#include "systems/AnimationSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -36,6 +37,8 @@
 #if SAC_LINUX && SAC_DESKTOP
 #include <unistd.h>
 #endif
+
+Entity vehicle;
 
 PrototypeGame::PrototypeGame() : Game() {
     registerScenes(this, sceneStateMachine);
@@ -49,10 +52,13 @@ void PrototypeGame::init(const uint8_t*, int) {
     faderHelper.init(camera);
 
     sceneStateMachine.start(Scene::Menu);
+
+    theAnimationSystem.loadAnim(gameThreadContext->assetAPI,
+        "bulldo", "bulldo");
+
+    vehicle = theEntityManager.CreateEntityFromTemplate("vehicle");
 }
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
-    float c = glm::abs(glm::cos(TimeUtil::GetTime()));
-    CAMERA(camera)->clearColor = Color(c, c, c);
 }
