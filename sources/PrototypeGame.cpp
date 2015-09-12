@@ -166,6 +166,7 @@ void PrototypeGame::tick(float dt) {
     while (i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x / 2.f + 3) {
         Entity e = theEntityManager.CreateEntityFromTemplate("background");
         TRANSFORM(e)->position.x = i;
+        TRANSFORM(e)->z += (int)i % 10 / 1000.f;
         for (int j = 0; j < 3; j++) {
             RENDERING(e)->color.rgba[j] = coeffA[j] + coeffB[j] * cos(2 * M_PI * ((int)i%20 * coeffC[j] + coeffD[j]));
         }

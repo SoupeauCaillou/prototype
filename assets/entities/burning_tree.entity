@@ -17,6 +17,7 @@ initial_color = .85, 0, 0, 1, 0.4, 0.4, 0.4, 1
 final_color = 0, 0, 0, 1, 0.3, 0.3, 0.3, 1
 
 [Transformation]
-size%screen = .025, .05, .1, .3
+size%screen = .025, .2, .05, .4
 positionS%screen = 0, -.35
 z = .4
+shape = 1
