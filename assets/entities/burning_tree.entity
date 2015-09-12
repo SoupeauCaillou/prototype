@@ -1,0 +1,23 @@
+[Rendering]
+flags = 1
+show = 1
+color = .8,1,0
+
+[Particule]
+force_dir = 0
+mass = 1
+duration = -1
+emission_rate = 50
+lifetime = 1.5
+force_direction = 1.52
+force_amplitude = 100
+moment = 2
+initial_size = 0.02, 0.1
+final_size = 0.0
+initial_color = .85, 0, 0, 1, 0.4, 0.4, 0.4, 1
+final_color = 0, 0, 0, 1, 0.3, 0.3, 0.3, 1
+
+[Transformation]
+size%screen = .025, .05, .1, .3
+positionS%screen = 0, -.35
+z = .4

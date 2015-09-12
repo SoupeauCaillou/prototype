@@ -112,15 +112,18 @@ void PrototypeGame::tick(float dt) {
     float i = lastBackgroundX;
     while (i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x / 2.f + 3) {
         const auto & size = PlacementHelper::ScreenSize;
-        Entity elem = theEntityManager.CreateEntityFromTemplate("background");
-        TRANSFORM(elem)->position = glm::vec2(i, -size.y/4.f + TRANSFORM(elem)->size.y / 2.f);//size.y * Random::Float(-.3, .4));
-        TRANSFORM(elem)->z = .4 - TRANSFORM(elem)->position.y / 1000.;
 
+        Entity e = theEntityManager.CreateEntityFromTemplate("background");
+        TRANSFORM(e)->position.x = i;
         for (int j = 0; j < 3; j++) {
-            RENDERING(elem)->color.rgba[j] = coeffA[j] + coeffB[j] * cos(2 * M_PI * ((int)i%20 * coeffC[j] + coeffD[j]));
+            RENDERING(e)->color.rgba[j] = coeffA[j] + coeffB[j] * cos(2 * M_PI * ((int)i%20 * coeffC[j] + coeffD[j]));
         }
 
-        i += TRANSFORM(elem)->size.x;
+        if (Random::Int(0, 100) > 60) {
+            Entity tree = theEntityManager.CreateEntityFromTemplate("burning_tree");
+            TRANSFORM(tree)->position.x = TRANSFORM(e)->position.x + TRANSFORM(e)->size.x / 2.f;
+        }
+        i += TRANSFORM(e)->size.x;
     }
     lastBackgroundX = i;
 }
