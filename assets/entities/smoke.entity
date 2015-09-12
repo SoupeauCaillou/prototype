@@ -6,7 +6,6 @@ z = 0
 position = -1.25, 1.8
 
 [Particule]
-force_dir = 0
 mass = 1
 duration = -1
 emission_rate = 50

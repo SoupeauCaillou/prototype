@@ -164,8 +164,6 @@ void PrototypeGame::tick(float dt) {
 
     float i = lastBackgroundX;
     while (i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x / 2.f + 3) {
-        const auto & size = PlacementHelper::ScreenSize;
-
         Entity e = theEntityManager.CreateEntityFromTemplate("background");
         TRANSFORM(e)->position.x = i;
         for (int j = 0; j < 3; j++) {

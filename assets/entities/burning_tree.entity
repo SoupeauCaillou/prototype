@@ -4,7 +4,6 @@ show = 1
 color = .8,1,0
 
 [Particule]
-force_dir = 0
 mass = 1
 duration = -1
 emission_rate = 50
