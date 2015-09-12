@@ -1,0 +1,16 @@
+[meta]
+speed = 10
+loop = infinite
+num_frames = 4
+
+[frame0]
+texture = firetruck1
+
+[frame1]
+texture = firetruck2
+
+[frame2]
+texture = firetruck3
+
+[frame3]
+texture = firetruck4

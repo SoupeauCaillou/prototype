@@ -30,6 +30,7 @@
 #include "systems/PhysicsSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/AnchorSystem.h"
+#include "systems/MusicSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -53,6 +54,15 @@ glm::vec3 coeffB = {.5, .5, .5};
 glm::vec3 coeffC = {1/20., .7/20., .4/20.};
 glm::vec3 coeffD = {0., .15, .2};
 
+namespace Vehicle {
+    enum Enum {
+        Bulldozer = 0,
+        Firetruck,
+        Count
+    };
+}
+Vehicle::Enum currentVehicle = Vehicle::Bulldozer;
+
 PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
 
 void PrototypeGame::init(const uint8_t*, int) {
@@ -69,6 +79,8 @@ void PrototypeGame::init(const uint8_t*, int) {
         "bulldo_idle", "bulldo_idle");
     theAnimationSystem.loadAnim(gameThreadContext->assetAPI,
         "bulldo_move", "bulldo_move");
+    theAnimationSystem.loadAnim(gameThreadContext->assetAPI,
+        "firetruck_move", "firetruck_move");
 
     vehicle = theEntityManager.CreateEntityFromTemplate("vehicle");
     smoke = theEntityManager.CreateEntityFromTemplate("smoke");
@@ -84,7 +96,27 @@ void PrototypeGame::init(const uint8_t*, int) {
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
-    if (theTouchInputManager.isTouched()) {
+    if (theTouchInputManager.hasClicked(1)) {
+        currentVehicle =
+            (Vehicle::Enum) ((currentVehicle + 1) % Vehicle::Count);
+
+        switch (currentVehicle) {
+            case Vehicle::Bulldozer:
+                MUSIC(vehicle)->music =
+                    MUSIC(vehicle)->loopNext =
+                        theMusicSystem.loadMusicFile("audio/bulldo.ogg");
+                MUSIC(vehicle)->autoLoopName = "audio/bulldo.ogg";
+                break;
+            case Vehicle::Firetruck:
+                MUSIC(vehicle)->music =
+                    MUSIC(vehicle)->loopNext =
+                        theMusicSystem.loadMusicFile("audio/pinpon.ogg");
+                MUSIC(vehicle)->autoLoopName = "audio/pinpon.ogg";
+                break;
+        }
+    }
+
+    if (theTouchInputManager.isTouched(0)) {
         PHYSICS(vehicle)->addForce(
             Force(
                 glm::vec2(tuning.f(HASH("move_force", 0x476a8439)), 0),
@@ -92,11 +124,32 @@ void PrototypeGame::tick(float dt) {
             0.016);
     }
 
+    // sound
+    static bool b = false;
+
+
+
     if (PHYSICS(vehicle)->linearVelocity.x >
         tuning.f(HASH("min_speed_animation", 0x8d3ec027))) {
-        ANIMATION(vehicle)->name = HASH("bulldo_move", 0xa7240136);
+        ANIMATION(vehicle)->playbackSpeed = 1;
+        switch (currentVehicle) {
+            case Vehicle::Bulldozer:
+                ANIMATION(vehicle)->name = HASH("bulldo_move", 0xa7240136);
+                break;
+            case Vehicle::Firetruck:
+                ANIMATION(vehicle)->name = HASH("firetruck_move", 0x5d9033af);
+                break;
+        }
     } else {
-        ANIMATION(vehicle)->name = HASH("bulldo_idle", 0x96648810);
+        switch (currentVehicle) {
+            case Vehicle::Bulldozer:
+                ANIMATION(vehicle)->name = HASH("bulldo_idle", 0x96648810);
+                break;
+            case Vehicle::Firetruck:
+                ANIMATION(vehicle)->name = HASH("firetruck_move", 0x5d9033af);
+                ANIMATION(vehicle)->playbackSpeed = 0;
+                break;
+        }
     }
 
     // objective: keep the vehicle at 2/3x
