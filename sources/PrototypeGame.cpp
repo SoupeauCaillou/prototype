@@ -63,6 +63,23 @@ namespace Vehicle {
 }
 Vehicle::Enum currentVehicle = Vehicle::Bulldozer;
 
+const char* vehicleToSound(Vehicle::Enum v) {
+    switch (currentVehicle) {
+    case Vehicle::Bulldozer:
+        return "audio/bulldo.ogg";
+    case Vehicle::Firetruck:
+        return "audio/pinpon.ogg";
+    }
+}
+
+float vehicleToLoopAt(Tuning* t, Vehicle::Enum v) {
+    switch (currentVehicle) {
+    case Vehicle::Bulldozer:
+        return t->f(HASH("bulldo_sound_loop", 0xaa675878));
+    case Vehicle::Firetruck:
+        return t->f(HASH("firetruck_sound_loop", 0xa2e41431));
+    }
+}
 PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
 
 void PrototypeGame::init(const uint8_t*, int) {
@@ -90,7 +107,16 @@ void PrototypeGame::init(const uint8_t*, int) {
     ADD_COMPONENT(camera, Physics);
     PHYSICS(camera)->mass = 1;
 
+
+    MUSIC(vehicle)->music = theMusicSystem.loadMusicFile(
+        vehicleToSound(currentVehicle));
+    MUSIC(vehicle)->loopAt = vehicleToLoopAt(&tuning, currentVehicle);
+    MUSIC(vehicle)->fadeOut = MUSIC(vehicle)->loopAt * 0.8;
+
+    theMusicSystem.toggleMute(false);
 }
+
+
 
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
@@ -99,22 +125,15 @@ void PrototypeGame::tick(float dt) {
         currentVehicle =
             (Vehicle::Enum) ((currentVehicle + 1) % Vehicle::Count);
 
-        switch (currentVehicle) {
-            case Vehicle::Bulldozer:
-                MUSIC(vehicle)->music =
-                    MUSIC(vehicle)->loopNext =
-                        theMusicSystem.loadMusicFile("audio/bulldo.ogg");
-                MUSIC(vehicle)->autoLoopName = "audio/bulldo.ogg";
-                break;
-            case Vehicle::Firetruck:
-                MUSIC(vehicle)->music =
-                    MUSIC(vehicle)->loopNext =
-                        theMusicSystem.loadMusicFile("audio/pinpon.ogg");
-                MUSIC(vehicle)->autoLoopName = "audio/pinpon.ogg";
-                break;
-            case Vehicle::Count:
-                break;
-        }
+        MUSIC(vehicle)->music = theMusicSystem.loadMusicFile(
+            vehicleToSound(currentVehicle));
+        MUSIC(vehicle)->loopAt = vehicleToLoopAt(&tuning, currentVehicle);
+        MUSIC(vehicle)->fadeOut = MUSIC(vehicle)->loopAt * 0.8;
+    }
+
+    if (MUSIC(vehicle)->loopNext == InvalidMusicRef) {
+        MUSIC(vehicle)->loopNext = theMusicSystem.loadMusicFile(
+            vehicleToSound(currentVehicle));
     }
 
     if (theTouchInputManager.isTouched(0)) {
