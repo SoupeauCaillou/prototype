@@ -68,7 +68,6 @@ PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
-
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
     faderHelper.init(camera);
@@ -113,6 +112,8 @@ void PrototypeGame::tick(float dt) {
                         theMusicSystem.loadMusicFile("audio/pinpon.ogg");
                 MUSIC(vehicle)->autoLoopName = "audio/pinpon.ogg";
                 break;
+            case Vehicle::Count:
+                break;
         }
     }
 
@@ -124,11 +125,6 @@ void PrototypeGame::tick(float dt) {
             0.016);
     }
 
-    // sound
-    static bool b = false;
-
-
-
     if (PHYSICS(vehicle)->linearVelocity.x >
         tuning.f(HASH("min_speed_animation", 0x8d3ec027))) {
         ANIMATION(vehicle)->playbackSpeed = 1;
@@ -139,6 +135,8 @@ void PrototypeGame::tick(float dt) {
             case Vehicle::Firetruck:
                 ANIMATION(vehicle)->name = HASH("firetruck_move", 0x5d9033af);
                 break;
+            case Vehicle::Count:
+                break;
         }
     } else {
         switch (currentVehicle) {
@@ -148,6 +146,8 @@ void PrototypeGame::tick(float dt) {
             case Vehicle::Firetruck:
                 ANIMATION(vehicle)->name = HASH("firetruck_move", 0x5d9033af);
                 ANIMATION(vehicle)->playbackSpeed = 0;
+                break;
+            case Vehicle::Count:
                 break;
         }
     }
