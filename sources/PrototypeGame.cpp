@@ -32,6 +32,8 @@
 #include "systems/AnchorSystem.h"
 #include "systems/MusicSystem.h"
 
+#include "systems/BackgroundSystem.h"
+
 #include "base/TimeUtil.h"
 
 #include "util/Random.h"
@@ -85,6 +87,7 @@ PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
+    theBackgroundSystem.CreateInstance();
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
     faderHelper.init(camera);
@@ -180,16 +183,17 @@ void PrototypeGame::tick(float dt) {
     TRANSFORM(camera)->position.x +=
         diff * dt * tuning.f(HASH("camera_update_speed", 0xecef88a5));
 
-
     float i = lastBackgroundX;
-    while (i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x / 2.f + 3) {
-        Entity e = theEntityManager.CreateEntityFromTemplate("background");
+    //create building for the whole scrolling camera next screen
+    while (i < TRANSFORM(camera)->position.x + TRANSFORM(camera)->size.x) {
+        Entity e = theEntityManager.CreateEntityFromTemplate("building");
         TRANSFORM(e)->position.x = i;
         TRANSFORM(e)->z += (int)i % 10 / 1000.f;
         for (int j = 0; j < 3; j++) {
             RENDERING(e)->color.rgba[j] = coeffA[j] + coeffB[j] * cos(2 * M_PI * ((int)i%20 * coeffC[j] + coeffD[j]));
         }
 
+        //also create some burning trees
         if (Random::Int(0, 100) > 60) {
             Entity tree = theEntityManager.CreateEntityFromTemplate("burning_tree");
             TRANSFORM(tree)->position.x = TRANSFORM(e)->position.x + TRANSFORM(e)->size.x / 2.f;
@@ -197,4 +201,5 @@ void PrototypeGame::tick(float dt) {
         i += TRANSFORM(e)->size.x;
     }
     lastBackgroundX = i;
+    theBackgroundSystem.DoUpdate(dt);
 }

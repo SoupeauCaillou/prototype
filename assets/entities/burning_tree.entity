@@ -21,3 +21,6 @@ size%screen = .025, .2, .05, .4
 positionS%screen = 0, -.35
 z = .4
 shape = 1
+
+[Background]
+burning_speed=5
