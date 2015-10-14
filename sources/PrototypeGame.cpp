@@ -120,7 +120,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     {
         std::string colors[] = { "color", "white", "color", "orange_blue" };
-        char* animations[] = { "idle", "run", "tackle", "walk" };
+        const char* animations[] = { "idle", "run", "tackle", "walk" };
         for (int i=0; i<2; i++) {
             for  (int j=0; j<4; j++) {
                 char animationName[64];
@@ -163,7 +163,7 @@ void PrototypeGame::init(const uint8_t*, int) {
                 TRANSFORM(p.hitzone)->position = position;
                 ANCHOR(p.render)->parent = p.hitzone;
                 addShadow(this, p.render);
-                p.team = 0;
+                p.team = i % 2;
                 players.push_back(p);
 
                 all.push_back(p.render);
