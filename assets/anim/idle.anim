@@ -5,6 +5,8 @@ num_frames = 2
 
 [frame0]
 texture = $color_idle1
+can_change_action = 1
+
 [frame1]
 texture = $color_idle2
-
+can_change_action = 1

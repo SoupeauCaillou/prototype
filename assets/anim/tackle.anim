@@ -15,3 +15,4 @@ texture = $color_tackle3
 texture = $color_tackle3
 [frame5]
 texture = $color_tackle4
+can_change_action = 1

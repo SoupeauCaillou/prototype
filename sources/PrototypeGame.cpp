@@ -213,20 +213,15 @@ void PrototypeGame::init(const uint8_t*, int) {
 }
 
 static bool canChangeAction(Entity p) {
-    switch (ANIMATION(p)->name) {
-        case 0x5787408a: /* walk */
-            return true;
-        case 0xf665a795: /* run */
-            return RENDERING(p)->texture == HASH("run2", 0x11401477) ||
-                   RENDERING(p)->texture == HASH("run5", 0xe188f3d5);
-
-        case 0xed137eaa: /* idle */
-            return true;
-
-        case 0x79891832: /* tackle */
-            return RENDERING(p)->texture == HASH("tackle4", 0x4eed9509);
-        default:
-            return true;
+    float can = 0;
+    if (theAnimationSystem.queryAttributes(
+        ANIMATION(p),
+        HASH("can_change_action", 0xef3afa0c),
+        &can,
+        1)) {
+        return can > 0;
+    } else {
+        return false;
     }
 }
 

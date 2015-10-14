@@ -5,14 +5,24 @@ num_frames = 6
 
 [frame0]
 texture = $color_run1
+can_change_action = 0
+
 [frame1]
 texture = $color_run2
+can_change_action = 1
+
 [frame2]
 texture = $color_run3
+can_change_action = 0
+
 [frame3]
 texture = $color_run4
+can_change_action = 0
+
 [frame4]
 texture = $color_run5
+can_change_action = 0
+
 [frame5]
 texture = $color_run6
-
+can_change_action = 1
