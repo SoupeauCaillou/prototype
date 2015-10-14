@@ -4,7 +4,7 @@ loop = infinite
 num_frames = 2
 
 [frame0]
-texture = idle1
+texture = $color_idle1
 [frame1]
-texture = idle2
+texture = $color_idle2
 

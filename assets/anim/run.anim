@@ -4,15 +4,15 @@ loop = infinite
 num_frames = 6
 
 [frame0]
-texture = run1
+texture = $color_run1
 [frame1]
-texture = run2
+texture = $color_run2
 [frame2]
-texture = run3
+texture = $color_run3
 [frame3]
-texture = run4
+texture = $color_run4
 [frame4]
-texture = run5
+texture = $color_run5
 [frame5]
-texture = run6
+texture = $color_run6
 

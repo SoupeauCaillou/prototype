@@ -56,8 +56,10 @@
 PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
 
 namespace actions {
-    enum Enum { Idle, Run, Tackle, Walk };
+    enum Enum { Idle, Run, Tackle, Walk, Count };
 }
+
+hash_t teamAnimations[2][actions::Count];
 
 struct Player {
     Player() {
@@ -65,6 +67,7 @@ struct Player {
         previousDir = glm::vec2(0.0f);
         currentAction = actions::Idle;
         joystick = -1;
+        team = -1;
     }
 
     Entity render;
@@ -74,6 +77,7 @@ struct Player {
     actions::Enum currentAction;
 
     int joystick;
+    int team;
 };
 std::vector<Player> players;
 
@@ -114,10 +118,19 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     faderHelper.init(camera);
 
-    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "idle", "idle");
-    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "run", "run");
-    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "walk", "walk");
-    theAnimationSystem.loadAnim(gameThreadContext->assetAPI, "tackle", "tackle");
+    {
+        std::string colors[] = { "color", "white", "color", "orange_blue" };
+        char* animations[] = { "idle", "run", "tackle", "walk" };
+        for (int i=0; i<2; i++) {
+            for  (int j=0; j<4; j++) {
+                char animationName[64];
+                sprintf(animationName, "%s_%s", animations[j], colors[2*i + 1].c_str());
+                theAnimationSystem.loadAnim(gameThreadContext->assetAPI, animationName, animations[j], &colors[2 * i], 1);
+
+                teamAnimations[i][(actions::Enum) j] = Murmur::RuntimeHash(animationName);
+            }
+        }
+    }
 
     CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
 
@@ -150,6 +163,7 @@ void PrototypeGame::init(const uint8_t*, int) {
                 TRANSFORM(p.hitzone)->position = position;
                 ANCHOR(p.render)->parent = p.hitzone;
                 addShadow(this, p.render);
+                p.team = 0;
                 players.push_back(p);
 
                 all.push_back(p.render);
@@ -272,22 +286,19 @@ bool updateControlledPlayer(struct Player& player, float dt, Game* game) {
     switch (player.currentAction) {
         case actions::Idle:
             runningSpeed = 0.0f;
-            ANIMATION(player.render)->name = HASH("idle", 0xed137eaa);
             break;
         case actions::Walk:
             runningSpeed = game->tuning.f(HASH("walking_speed", 0x73dcc3ec));
-            ANIMATION(player.render)->name = HASH("walk", 0x5787408a);
             break;
         case actions::Run:
             runningSpeed = game->tuning.f(HASH("running_speed", 0x1f34eb01));
-            ANIMATION(player.render)->name = HASH("run", 0xf665a795);
             break;
         case actions::Tackle:
             runningSpeed = game->tuning.f(HASH("tackle_speed", 0xf53acc8e));
-            ANIMATION(player.render)->name = HASH("tackle", 0x79891832);
             dir = player.previousDir;
             break;
     }
+    ANIMATION(player.render)->name = teamAnimations[player.team][player.currentAction];
 
     bool touchBall = IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(player.hitzone));
 
@@ -383,7 +394,7 @@ void PrototypeGame::tick(float dt) {
                 break;
             }
         } else {
-            ANIMATION(player.render)->name = HASH("idle", 0xed137eaa);
+            ANIMATION(player.render)->name = teamAnimations[player.team][actions::Idle];
         }
     }
 

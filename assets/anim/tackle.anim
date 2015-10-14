@@ -4,14 +4,14 @@ loop = 0
 num_frames = 6
 
 [frame0]
-texture = tackle2
+texture = $color_tackle2
 [frame1]
-texture = tackle3
+texture = $color_tackle3
 [frame2]
-texture = tackle3
+texture = $color_tackle3
 [frame3]
-texture = tackle3
+texture = $color_tackle3
 [frame4]
-texture = tackle3
+texture = $color_tackle3
 [frame5]
-texture = tackle4
+texture = $color_tackle4
