@@ -32,6 +32,10 @@
 #include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
+namespace actions {
+    enum Enum { Idle, Run, Tackle, Walk, Count };
+}
+
 class PrototypeGame : public Game {
     public:
     PrototypeGame();
@@ -40,6 +44,10 @@ class PrototypeGame : public Game {
     void tick(float dt);
 
     FaderHelper faderHelper;
+
+    hash_t teamAnimations[2][actions::Count];
+    Entity ball;
+    Entity lastPlayerWhoKickedTheBall;
 
     private:
     StateMachine<Scene::Enum> sceneStateMachine;
