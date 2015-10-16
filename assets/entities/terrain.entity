@@ -1,0 +1,7 @@
+[Transformation]
+size = 30, 15
+z = 0.01
+
+[Rendering]
+color%html = 2ace1d
+show =1

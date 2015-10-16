@@ -125,7 +125,7 @@ void PrototypeGame::init(const uint8_t*, int) {
         }
     }
 
-    CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.188);
+    CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.95);
 
     theCollisionSystem.worldSize = glm::vec2(20, 20);
 
@@ -195,13 +195,17 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     players[0].joystick = 0;
 
+    Entity terrain = theEntityManager.CreateEntityFromTemplate("terrain");
+
     sceneStateMachine.start(Scene::Menu);
 
-    float b_pos[200];
-    Random::N_Floats(200, b_pos, -20, 20);
+    float x_pos[100], y_pos[100];
+    glm::vec2 hSize = TRANSFORM(terrain)->size * 0.5f;
+    Random::N_Floats(100, x_pos, -hSize.x, hSize.x);
+    Random::N_Floats(100, y_pos, -hSize.y, hSize.y);
     for (int i = 0; i < 100; i++) {
         Entity b = theEntityManager.CreateEntityFromTemplate("brush");
-        TRANSFORM(b)->position = glm::vec2(b_pos[2 * i], b_pos[2 * i + 1]);
+        TRANSFORM(b)->position = glm::vec2(x_pos[i], y_pos[i]);
     }
 }
 
