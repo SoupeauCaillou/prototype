@@ -125,9 +125,9 @@ void PrototypeGame::init(const uint8_t*, int) {
         }
     }
 
-    CAMERA(camera)->clearColor = Color(0.415, 0.745, 0.95);
+    CAMERA(camera)->clearColor = Color(0.1, 0.55, 0.05);
 
-    theCollisionSystem.worldSize = glm::vec2(20, 20);
+    theCollisionSystem.worldSize = glm::vec2(40, 20);
 
     // load entity from entity_desc.ini file
     FileBuffer fb = gameThreadContext->assetAPI->loadAsset("entity_desc.ini");
@@ -172,6 +172,13 @@ void PrototypeGame::init(const uint8_t*, int) {
                 Entity back = theEntityManager.CreateEntityFromTemplate("dos_cage");
                 ANCHOR(back)->parent = e;
 
+                int mirror = 0;
+                dfp.get(section, HASH("mirror", 0x0), &mirror);
+                if (mirror) {
+                    ANCHOR(back)->position.x = -ANCHOR(back)->position.x;
+                    RENDERING(e)->flags |= RenderingFlags::MirrorHorizontal;
+                }
+
                 hitzones.push_back(p1);
                 hitzones.push_back(p2);
                 hitzones.push_back(back);
@@ -196,6 +203,11 @@ void PrototypeGame::init(const uint8_t*, int) {
     players[0].joystick = 0;
 
     Entity terrain = theEntityManager.CreateEntityFromTemplate("terrain");
+    TRANSFORM(terrain)->z += 0.01;
+    Entity border = theEntityManager.CreateEntityFromTemplate("terrain");
+    TRANSFORM(border)->size.x += 0.25;
+    TRANSFORM(border)->size.y += 0.25;
+    RENDERING(border)->color = Color(1, 1, 1);
 
     sceneStateMachine.start(Scene::Menu);
 
