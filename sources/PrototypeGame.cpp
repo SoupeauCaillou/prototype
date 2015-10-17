@@ -173,7 +173,7 @@ void PrototypeGame::init(const uint8_t*, int) {
                 ANCHOR(back)->parent = e;
 
                 int mirror = 0;
-                dfp.get(section, HASH("mirror", 0x0), &mirror);
+                dfp.get(section, HASH("mirror", 0xcf083e19), &mirror);
                 if (mirror) {
                     ANCHOR(back)->position.x = -ANCHOR(back)->position.x;
                     RENDERING(e)->flags |= RenderingFlags::MirrorHorizontal;
