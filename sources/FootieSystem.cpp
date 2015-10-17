@@ -51,6 +51,14 @@ static bool canChangeAction(Entity p) {
 }
 
 void FootieSystem::DoUpdate(float dt) {
+    /** XXX: should probably be a 2 step update.
+     *  - #1: update as if each player is alone (kick the ball, move anywhere)
+     *  - #2: resolve conflicts (B tackled the ball that A intended to shot etc)
+     */
+
+     /** XXX: remember intended action (tackle) if it cannot be performed atm
+      *  (wrong anim frame)
+      */
     FOR_EACH_ENTITY_COMPONENT(Footie, e, comp)
         float runningSpeed = 0.0f;
 
