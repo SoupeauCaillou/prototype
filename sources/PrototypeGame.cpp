@@ -172,12 +172,15 @@ void PrototypeGame::init(const uint8_t*, int) {
                     tuning.f(HASH("poteau_diff_y_haut_bas", 0x7218439b));
                 Entity back = theEntityManager.CreateEntityFromTemplate("dos_cage");
                 ANCHOR(back)->parent = e;
+                Entity goal = theEntityManager.CreateEntityFromTemplate("cage_hitzone");
+                ANCHOR(goal)->parent = e;
 
                 int mirror = 0;
                 dfp.get(section, HASH("mirror", 0xcf083e19), &mirror);
                 if (mirror) {
                     ANCHOR(back)->position.x = -ANCHOR(back)->position.x;
                     RENDERING(e)->flags |= RenderingFlags::MirrorHorizontal;
+                    ANCHOR(goal)->position.x = -ANCHOR(goal)->position.x;
                 }
 
                 hitzones.push_back(p1);
@@ -307,15 +310,23 @@ void PrototypeGame::tick(float dt) {
         glm::sign(PHYSICS(ball)->linearVelocity.x) * ballSpeed * tuning.f(HASH("ball_angular_vel", 0xbe84c99b));
 
     // bounce
-    if (COLLISION(ballHitzone)->collision.count > 0) {
+    int collCount = COLLISION(ballHitzone)->collision.count > 0;
+
+    for (int i=0; i<collCount; i++) {
+        Entity with = COLLISION(ballHitzone)->collision.with[i];
+        if (COLLISION(with)->group != 1) {
+            // ignore
+            continue;
+        }
+
         glm::vec2 normalAwayFromCollider(0.0f);
 
         if (std::find(
             plots.begin(),
             plots.end(),
-            COLLISION(ballHitzone)->collision.with[0]) != plots.end()) {
+            with) != plots.end()) {
             // bounce as if 2 objects are spheres
-            normalAwayFromCollider = -glm::normalize(TRANSFORM(COLLISION(ballHitzone)->collision.with[0])->position -
+            normalAwayFromCollider = -glm::normalize(TRANSFORM(with)->position -
                                               TRANSFORM(ballHitzone)->position);
         } else {
             normalAwayFromCollider = COLLISION(ballHitzone)->collision.normal[0];
