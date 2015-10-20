@@ -71,6 +71,7 @@ struct Player {
 std::vector<Player> players;
 
 Entity ballHitzone;
+Entity terrain;
 std::vector<Entity> plots;
 std::vector<Entity> hitzones;
 
@@ -202,7 +203,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     players[0].joystick = 0;
 
-    Entity terrain = theEntityManager.CreateEntityFromTemplate("terrain");
+    terrain = theEntityManager.CreateEntityFromTemplate("terrain");
     TRANSFORM(terrain)->z += 0.01;
     Entity border = theEntityManager.CreateEntityFromTemplate("terrain");
     TRANSFORM(border)->size.x += 0.25;
@@ -232,6 +233,7 @@ static void adjustZWithOnScreenPosition(Game* game, Entity e, const Interval<flo
 void PrototypeGame::tick(float dt) {
     sceneStateMachine.update(dt);
 
+    // input handling
     for (auto& player : players) {
         const int mapping[buttons::Count] = { 's', 'd', 'q', SDLK_LSHIFT, 'e' };
 
@@ -251,10 +253,9 @@ void PrototypeGame::tick(float dt) {
                 }
             }
 
-            /* direction (normalized) XXX shouldn't be normalized but simply scaled to [-1;-1],[1,1] */
             f->input.direction = gameThreadContext->joystickAPI->getPadDirection(player.joystick, 0);
             float l = glm::length(f->input.direction);
-            if (l > 0) {
+            if (l > 1) {
                 f->input.direction /= l;
             }
             if (l <= 0 && kbAllowed) {
@@ -290,6 +291,14 @@ void PrototypeGame::tick(float dt) {
             adjustZWithOnScreenPosition(this, plot, cameraInterval);
         }
         // adjustZWithOnScreenPosition(this, hitzone, cameraInterval);
+    }
+
+    // field limits
+    if (!IntersectionUtil::rectangleRectangle(TRANSFORM(ball), TRANSFORM(terrain))) {
+        TRANSFORM(ball)->position =
+            PHYSICS(ball)->linearVelocity = glm::vec2(0.0f);
+        PHYSICS(ball)->forces.clear();
+        lastPlayerWhoKickedTheBall = 0;
     }
 
     // update ball angular velocity
