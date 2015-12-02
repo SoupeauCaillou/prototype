@@ -1,0 +1,12 @@
+[Transformation]
+size = 0.15, 1
+
+[Rendering]
+show = 1
+color = 0, 0, 0
+
+[Anchor]
+z = 0.8
+
+[Collision]
+group = 1

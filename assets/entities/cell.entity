@@ -1,0 +1,6 @@
+[Transformation]
+size = 1
+z = 0.1
+
+[Rendering]
+show = 1

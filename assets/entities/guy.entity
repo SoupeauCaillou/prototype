@@ -1,0 +1,23 @@
+[Transformation]
+size = 0.3
+z = 0.5
+#shape = 2
+
+[Rendering]
+show = 1
+color = 0.2, 0.2, 0.8
+
+[ZSQD]
+friction_coeff = 20
+max_speed = 4
+new_direction_coeff = 500
+rotation_speed = 30
+rotate_to_face_direction = 0
+collide_with = 2
+
+[Physics]
+mass = 1
+
+[Collision]
+group = 2
+collide_with = 1
