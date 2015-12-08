@@ -10,3 +10,5 @@ z = 0.8
 
 [Collision]
 group = 1
+
+[SpatialPartition]

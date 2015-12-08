@@ -249,7 +249,6 @@ bool buildMaze() {
     grid[c.x][c.y].attr = cell_attibute::In;
     frontier.erase(frontier.begin() + idx);
 
-    LOGI(__(c) << "->" << __(from));
     LOGF_IF(std::find(in.begin(), in.end(), from) == in.end(), "Uh");
 
     // update walls

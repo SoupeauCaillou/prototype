@@ -21,3 +21,5 @@ mass = 1
 [Collision]
 group = 2
 collide_with = 1
+
+[SpatialPartition]
