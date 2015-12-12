@@ -99,9 +99,9 @@ float wallIdxToRotation(direction::Enum dir) {
     }
 }
 
-
 std::vector<Entity> walls;
 
+glm::vec2 first;
 Entity guy;
 static void initMaze();
 void PrototypeGame::init(const uint8_t*, int) {
@@ -113,11 +113,11 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     sceneStateMachine.start(Scene::Menu);
 
-    walls.push_back(0);
+    walls.push_back(0); // dummy invalid wall
 
     glm::vec2 is = glm::vec2((int)TRANSFORM(camera)->size.x,
         (int)TRANSFORM(camera)->size.y);
-    glm::vec2 first = glm::vec2(-0.5 * MAZE_SIZE, -0.5 * MAZE_SIZE)
+    first = glm::vec2(-0.5 * MAZE_SIZE, -0.5 * MAZE_SIZE)
         + glm::vec2(0.5f, 0.5f);
     for (int i=0; i<MAZE_SIZE; i++) {
         for (int j=0; j<MAZE_SIZE; j++) {
@@ -150,26 +150,109 @@ void PrototypeGame::init(const uint8_t*, int) {
     initMaze();
 
     guy = theEntityManager.CreateEntityFromTemplate("guy");
-    TRANSFORM(guy)->position = first;
-
-    theCollisionSystem.worldSize = TRANSFORM(camera)->size;
-
+    int pos[2];
+    Random::N_Ints(2, pos, 0, MAZE_SIZE - 1);
+    TRANSFORM(guy)->position = TRANSFORM(grid[pos[0]][pos[1]].e)->position;
 }
 static float spawn = 1;
 static bool mazeBuilt = false;
 
 static bool buildMaze();
 
+#include "util/IntersectionUtil.h"
 
+int iterBeginValue(int current, float dir) {
+    return (dir >= 0 || current == 0) ? current : current - 1;
+}
+int iterEndValue(int current, float dir) {
+    return (dir <= 0 || current == (MAZE_SIZE - 1)) ? current : current + 1;
+}
 
+glm::vec2 previousDirection, previousPosition;
+bool tryPosition(const glm::vec2& testPosition, int _x, int _y) {
+    auto* tc = TRANSFORM(guy);
+    const glm::vec2 old = tc->position;
+    tc->position = testPosition;
+
+    int xStart = iterBeginValue(_x, previousDirection.x);
+    int xEnd = iterEndValue(_x, previousDirection.x);
+
+    int yStart = iterBeginValue(_y, previousDirection.y);
+    int yEnd = iterEndValue(_y, previousDirection.y);
+
+    bool success = true;
+    for (int x=xStart; x<=xEnd; x++) {
+        for (int y=yStart; y<=yEnd; y++) {
+            const Cell& cell = grid[x][y];
+            for (int i=0; i<4; i++) {
+                Entity wall = walls[cell.wallIndirect[i]];
+                if (wall) {
+                    if (IntersectionUtil::rectangleRectangleAABB(
+                        tc,
+                        TRANSFORM(wall))) {
+                        success = false;
+                        goto end;
+                    }
+                }
+            }
+        }
+    }
+end:
+    tc->position = old;
+    return success;
+}
+
+void fixPosition() {
+    glm::vec2 p = TRANSFORM(guy)->position - first;
+    int x = glm::round(p.x);
+    int y = glm::round(p.y);
+
+    const auto newPosition = TRANSFORM(guy)->position;
+
+    if (tryPosition(newPosition, x, y)) {
+        return;
+    }
+
+    if (previousDirection.x) {
+        glm::vec2 cancelXMovement(previousPosition.x, newPosition.y);
+
+        if (tryPosition(cancelXMovement, x, y)) {
+            TRANSFORM(guy)->position = cancelXMovement;
+            return;
+        }
+    }
+
+    if (previousDirection.y) {
+        glm::vec2 cancelYMovement(newPosition.x, previousPosition.y);
+
+        if (tryPosition(cancelYMovement, x, y)) {
+            TRANSFORM(guy)->position = cancelYMovement;
+            return;
+        }
+    }
+
+    TRANSFORM(guy)->position = previousPosition;
+}
+
+#include "util/Draw.h"
 void PrototypeGame::tick(float dt) {
+
+
     spawn += dt;
     if (!mazeBuilt) {
         if (spawn >= 1) {
             spawn -= 1;
         }
         mazeBuilt = buildMaze();
+        return;
     }
+
+    /* position */
+    previousDirection = ZSQD(guy)->currentDirection;
+    fixPosition();
+    previousPosition = TRANSFORM(guy)->position;
+
+    // Draw::Rectangle(TRANSFORM(grid[x][y].e)->position, glm::vec2(1, 1), 0.0f, Color(1, 0, 1));
 
     if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_LEFT)) {
         ZSQD(guy)->directions.push_back(glm::vec2(-1.0f, 0.0));
@@ -181,6 +264,7 @@ void PrototypeGame::tick(float dt) {
     } else if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_DOWN)) {
         ZSQD(guy)->directions.push_back(glm::vec2(0.0f, -1.0));
     }
+
 
     for (int i=0; i<MAZE_SIZE; i++) {
         for (int j=0; j<MAZE_SIZE; j++) {
@@ -255,21 +339,25 @@ bool buildMaze() {
     if (from.x < c.x) {
         int idx = grid[c.x][c.y].wallIndirect[direction::W];
         theEntityManager.DeleteEntity(walls[idx]);
+        walls[idx] = 0;
         grid[c.x][c.y].wallIndirect[direction::W] = 0;
     }
     if (from.x > c.x) {
         int idx = grid[c.x][c.y].wallIndirect[direction::E];
         theEntityManager.DeleteEntity(walls[idx]);
+        walls[idx] = 0;
         grid[c.x][c.y].wallIndirect[direction::E] = 0;
     }
     if (from.y < c.y) {
         int idx = grid[c.x][c.y].wallIndirect[direction::S];
         theEntityManager.DeleteEntity(walls[idx]);
+        walls[idx] = 0;
         grid[c.x][c.y].wallIndirect[direction::S] = 0;
     }
     if (from.y > c.y)  {
         int idx = grid[c.x][c.y].wallIndirect[direction::N];
         theEntityManager.DeleteEntity(walls[idx]);
+        walls[idx] = 0;
         grid[c.x][c.y].wallIndirect[direction::N] = 0;
     }
 
