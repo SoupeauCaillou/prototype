@@ -2,8 +2,8 @@
 size = 0.15, 1
 
 [Rendering]
-show = 1
-color = 0, 0, 0
+show = 0
+color = 0.1, 0.2, 0.1
 
 [Anchor]
 z = 0.8

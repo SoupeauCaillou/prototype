@@ -32,6 +32,26 @@
 #include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
+
+const int MAZE_SIZE = 12;
+
+namespace cell_attibute
+{
+    enum Enum { In, Frontier, Out };
+}
+namespace direction
+{
+    enum Enum { N = 0, E, S, W };
+}
+struct Cell {
+    Cell();
+    Entity e;
+    cell_attibute::Enum attr;
+
+    int wallIndirect[4];
+};
+
+
 class PrototypeGame : public Game {
     public:
     PrototypeGame();
@@ -40,6 +60,13 @@ class PrototypeGame : public Game {
     void tick(float dt);
 
     FaderHelper faderHelper;
+
+    public:
+    Cell grid[MAZE_SIZE][MAZE_SIZE];
+    std::vector<Entity> walls;
+    Entity guy[4];
+
+    static glm::vec2 firstCellPosition();
 
     private:
     StateMachine<Scene::Enum> sceneStateMachine;

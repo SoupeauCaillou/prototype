@@ -19,16 +19,17 @@
 */
 
 #include "base/SceneState.h"
-
+#include "util/Random.h"
 #include "PrototypeGame.h"
-#include "base/TouchInputManager.h"
+#include "systems/TransformationSystem.h"
+#include "systems/RenderingSystem.h"
 
-struct MenuScene : public SceneState<Scene::Enum> {
+struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
 
-    MenuScene(PrototypeGame* game)
+    PlaceYourBetsScene(PrototypeGame* game)
         : SceneState<Scene::Enum>(
-              "menu", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
+              "PlaceYourBets", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
         this->game = game;
     }
 
@@ -40,6 +41,10 @@ struct MenuScene : public SceneState<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        int pos[2];
+        Random::N_Ints(2, pos, 0, MAZE_SIZE - 1);
+        TRANSFORM(game->guy[0])->position = TRANSFORM(game->grid[pos[0]][pos[1]].e)->position;
+        RENDERING(game->guy[0])->show = true;
     }
 
     ///----------------------------------------------------------------------------//
@@ -47,22 +52,18 @@ struct MenuScene : public SceneState<Scene::Enum> {
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        if (theTouchInputManager.hasClicked()) {
-            return Scene::MazeGeneration;
-        }
-        return Scene::Menu;
+        return Scene::InGame;
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION
     ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
-    }
+    void onPreExit(Scene::Enum) override {}
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreateMenuSceneHandler(PrototypeGame* game) {
-        return new MenuScene(game);
+    StateHandler<Scene::Enum>* CreatePlaceYourBetsSceneHandler(PrototypeGame* game) {
+        return new PlaceYourBetsScene(game);
     }
 }

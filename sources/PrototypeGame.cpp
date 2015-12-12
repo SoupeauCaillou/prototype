@@ -30,8 +30,6 @@
 #include "systems/RenderingSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
-#include "systems/AutonomousAgentSystem.h"
-#include "systems/ZSQDSystem.h"
 #include "base/TimeUtil.h"
 #include "util/Random.h"
 
@@ -46,64 +44,22 @@
 #include <unistd.h>
 #endif
 
-#include "api/KeyboardInputHandlerAPI.h"
-#include <SDL2/SDL.h>
-
 PrototypeGame::PrototypeGame() : Game() {
     registerScenes(this, sceneStateMachine);
 }
 
-namespace cell_attibute
-{
-    enum Enum { In, Frontier, Out };
-}
-Color attributeToColor(cell_attibute::Enum attr) {
-    switch(attr) {
-        case cell_attibute::In: return Color(1, 1, 1);
-        case cell_attibute::Frontier: return Color(0.9, 0.3, 0.3);
-        case cell_attibute::Out:
-        default:
-            return Color(0.6, 0.6, 0.6);
+Cell::Cell() {
+    for (int i=0; i<4; i++) {
+        wallIndirect[i] = 0;
     }
+    attr = cell_attibute::Out;
 }
 
-const int MAZE_SIZE = 12;
-struct Cell {
-    Entity e;
-    cell_attibute::Enum attr;
-
-    int wallIndirect[4];
-};
-Cell grid[MAZE_SIZE][MAZE_SIZE];
-
-namespace direction
-{
-    enum Enum { N = 0, E, S, W };
+glm::vec2 PrototypeGame::firstCellPosition() {
+    return glm::vec2(-0.5 * MAZE_SIZE, -0.5 * MAZE_SIZE)
+                + glm::vec2(0.5f, 0.5f);
 }
 
-glm::vec2 wallIdxToAnchor(direction::Enum dir) {
-    switch (dir) {
-        case direction::S: return glm::vec2(0, -0.5f);
-        case direction::N: return glm::vec2(0, 0.5f);
-        case direction::E: return glm::vec2(0.5f, 0);
-        case direction::W: return glm::vec2(-0.5f, 0);
-    }
-}
-float wallIdxToRotation(direction::Enum dir) {
-    switch (dir) {
-        case direction::N:
-        case direction::S: return glm::pi<float>() * 0.5f;
-        case direction::E:
-        case direction::W:
-        default:           return 0.0f;
-    }
-}
-
-std::vector<Entity> walls;
-
-glm::vec2 first;
-Entity guy;
-static void initMaze();
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
@@ -113,260 +69,17 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     sceneStateMachine.start(Scene::Menu);
 
-    walls.push_back(0); // dummy invalid wall
-
-    glm::vec2 is = glm::vec2((int)TRANSFORM(camera)->size.x,
-        (int)TRANSFORM(camera)->size.y);
-    first = glm::vec2(-0.5 * MAZE_SIZE, -0.5 * MAZE_SIZE)
-        + glm::vec2(0.5f, 0.5f);
-    for (int i=0; i<MAZE_SIZE; i++) {
-        for (int j=0; j<MAZE_SIZE; j++) {
-            grid[i][j].e = theEntityManager.CreateEntityFromTemplate("cell");
-
-            TRANSFORM(grid[i][j].e)->position = first + glm::vec2(i, j);
-            grid[i][j].attr = cell_attibute::Out;
-
-            for (int k=0; k<4; k++) {
-                // always create north and east walls
-                if ((k < 2) || (i==0 && k == 3) || (j==0 && k == 4)) {
-                    Entity wall = theEntityManager.CreateEntityFromTemplate("wall");
-                    ANCHOR(wall)->parent = grid[i][j].e;
-                    ANCHOR(wall)->position = wallIdxToAnchor((direction::Enum)k);
-                    ANCHOR(wall)->rotation = wallIdxToRotation((direction::Enum)k);
-                    walls.push_back(wall);
-
-                    grid[i][j].wallIndirect[k] = walls.size() - 1;
-                } else if (k == 2) {
-                    // south
-                    grid[i][j].wallIndirect[k] = grid[i][j-1].wallIndirect[0];
-                } else {
-                    // west
-                    grid[i][j].wallIndirect[k] = grid[i-1][j].wallIndirect[1];
-                }
-            }
-        }
-    }
-
-    initMaze();
-
-    guy = theEntityManager.CreateEntityFromTemplate("guy");
-    int pos[2];
-    Random::N_Ints(2, pos, 0, MAZE_SIZE - 1);
-    TRANSFORM(guy)->position = TRANSFORM(grid[pos[0]][pos[1]].e)->position;
-}
-static float spawn = 1;
-static bool mazeBuilt = false;
-
-static bool buildMaze();
-
-#include "util/IntersectionUtil.h"
-
-int iterBeginValue(int current, float dir) {
-    return (dir >= 0 || current == 0) ? current : current - 1;
-}
-int iterEndValue(int current, float dir) {
-    return (dir <= 0 || current == (MAZE_SIZE - 1)) ? current : current + 1;
+    guy[0] = theEntityManager.CreateEntityFromTemplate("guy");
 }
 
-glm::vec2 previousDirection, previousPosition;
-bool tryPosition(const glm::vec2& testPosition, int _x, int _y) {
-    auto* tc = TRANSFORM(guy);
-    const glm::vec2 old = tc->position;
-    tc->position = testPosition;
-
-    int xStart = iterBeginValue(_x, previousDirection.x);
-    int xEnd = iterEndValue(_x, previousDirection.x);
-
-    int yStart = iterBeginValue(_y, previousDirection.y);
-    int yEnd = iterEndValue(_y, previousDirection.y);
-
-    bool success = true;
-    for (int x=xStart; x<=xEnd; x++) {
-        for (int y=yStart; y<=yEnd; y++) {
-            const Cell& cell = grid[x][y];
-            for (int i=0; i<4; i++) {
-                Entity wall = walls[cell.wallIndirect[i]];
-                if (wall) {
-                    if (IntersectionUtil::rectangleRectangleAABB(
-                        tc,
-                        TRANSFORM(wall))) {
-                        success = false;
-                        goto end;
-                    }
-                }
-            }
-        }
-    }
-end:
-    tc->position = old;
-    return success;
-}
-
-void fixPosition() {
-    glm::vec2 p = TRANSFORM(guy)->position - first;
-    int x = glm::round(p.x);
-    int y = glm::round(p.y);
-
-    const auto newPosition = TRANSFORM(guy)->position;
-
-    if (tryPosition(newPosition, x, y)) {
-        return;
-    }
-
-    if (previousDirection.x) {
-        glm::vec2 cancelXMovement(previousPosition.x, newPosition.y);
-
-        if (tryPosition(cancelXMovement, x, y)) {
-            TRANSFORM(guy)->position = cancelXMovement;
-            return;
-        }
-    }
-
-    if (previousDirection.y) {
-        glm::vec2 cancelYMovement(newPosition.x, previousPosition.y);
-
-        if (tryPosition(cancelYMovement, x, y)) {
-            TRANSFORM(guy)->position = cancelYMovement;
-            return;
-        }
-    }
-
-    TRANSFORM(guy)->position = previousPosition;
-}
 
 #include "util/Draw.h"
 void PrototypeGame::tick(float dt) {
-
-
-    spawn += dt;
-    if (!mazeBuilt) {
-        if (spawn >= 1) {
-            spawn -= 1;
-        }
-        mazeBuilt = buildMaze();
-        return;
-    }
-
-    /* position */
-    previousDirection = ZSQD(guy)->currentDirection;
-    fixPosition();
-    previousPosition = TRANSFORM(guy)->position;
-
-    // Draw::Rectangle(TRANSFORM(grid[x][y].e)->position, glm::vec2(1, 1), 0.0f, Color(1, 0, 1));
-
-    if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_LEFT)) {
-        ZSQD(guy)->directions.push_back(glm::vec2(-1.0f, 0.0));
-    } else if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_RIGHT)) {
-        ZSQD(guy)->directions.push_back(glm::vec2(1.0f, 0.0));
-    }
-    if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_UP)) {
-        ZSQD(guy)->directions.push_back(glm::vec2(0.0f, 1.0));
-    } else if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_DOWN)) {
-        ZSQD(guy)->directions.push_back(glm::vec2(0.0f, -1.0));
-    }
-
-
-    for (int i=0; i<MAZE_SIZE; i++) {
-        for (int j=0; j<MAZE_SIZE; j++) {
-            RENDERING(grid[i][j].e)->color = attributeToColor(grid[i][j].attr);
-        }
-    }
-
     sceneStateMachine.update(dt);
 }
 
-typedef glm::ivec2 Coords;
-std::vector<Coords> in;
-std::vector<Coords> frontier;
 
-std::vector<Coords> neighbours(Coords c) {
-    std::vector<Coords> arounds;
-    if (c.y < (MAZE_SIZE - 1)) { arounds.push_back(Coords(c.x, c.y + 1)); }
-    if (c.y >= 1 ) { arounds.push_back(Coords(c.x, c.y - 1)); }
-    if (c.x < (MAZE_SIZE - 1)) { arounds.push_back(Coords(c.x + 1, c.y)); }
-    if (c.x >= 1 ) { arounds.push_back(Coords(c.x - 1, c.y)); }
-    return arounds;
-}
 
-void updateFrontier(Coords c) {
-    std::vector<Coords> arounds = neighbours(c);
 
-    for (size_t i=0; i<arounds.size(); i++) {
-        const Coords& d = arounds[i];
-        // not 'in' maze, nor in frontier
-        if (std::find(in.begin(), in.end(), d) == in.end() &&
-            std::find(frontier.begin(), frontier.end(), d) == frontier.end()) {
-            frontier.push_back(d);
 
-            grid[d.x][d.y].attr = cell_attibute::Frontier;
-        }
-    }
-}
 
-void initMaze() {
-    glm::ivec2 first(Random::Int(0, MAZE_SIZE - 1), Random::Int(0, MAZE_SIZE - 1));
-    grid[first.x][first.y].attr = cell_attibute::In;
-    in.push_back(first);
-    updateFrontier(first);
-}
-
-#include "util/Draw.h"
-bool buildMaze() {
-    if (frontier.empty()) {
-        return true;
-    }
-
-    // pick a new cell
-    int idx = Random::Int(0, frontier.size() - 1);
-    const Coords c = frontier[idx];
-
-    std::vector<Coords> n = neighbours(c);
-    n.erase(std::remove_if(n.begin(), n.end(), [] (const Coords& nb) {
-        // remove if not in maze
-        return std::find(in.begin(), in.end(), nb) == in.end();
-    }), n.end());
-
-    LOGF_IF(n.empty(), "Every frontier cell should have at least 1 neighbour in maze");
-    Coords from = n[Random::Int(0, n.size() - 1)];
-
-    in.push_back(c);
-    grid[c.x][c.y].attr = cell_attibute::In;
-    frontier.erase(frontier.begin() + idx);
-
-    LOGF_IF(std::find(in.begin(), in.end(), from) == in.end(), "Uh");
-
-    // update walls
-    if (from.x < c.x) {
-        int idx = grid[c.x][c.y].wallIndirect[direction::W];
-        theEntityManager.DeleteEntity(walls[idx]);
-        walls[idx] = 0;
-        grid[c.x][c.y].wallIndirect[direction::W] = 0;
-    }
-    if (from.x > c.x) {
-        int idx = grid[c.x][c.y].wallIndirect[direction::E];
-        theEntityManager.DeleteEntity(walls[idx]);
-        walls[idx] = 0;
-        grid[c.x][c.y].wallIndirect[direction::E] = 0;
-    }
-    if (from.y < c.y) {
-        int idx = grid[c.x][c.y].wallIndirect[direction::S];
-        theEntityManager.DeleteEntity(walls[idx]);
-        walls[idx] = 0;
-        grid[c.x][c.y].wallIndirect[direction::S] = 0;
-    }
-    if (from.y > c.y)  {
-        int idx = grid[c.x][c.y].wallIndirect[direction::N];
-        theEntityManager.DeleteEntity(walls[idx]);
-        walls[idx] = 0;
-        grid[c.x][c.y].wallIndirect[direction::N] = 0;
-    }
-
-    Draw::Vec2(
-        TRANSFORM(grid[from.x][from.y].e)->position,
-        TRANSFORM(grid[c.x][c.y].e)->position - TRANSFORM(grid[from.x][from.y].e)->position,
-        Color(0, 0, 1));
-
-    updateFrontier(c);
-
-    return false;
-}
