@@ -63,13 +63,27 @@ glm::vec2 PrototypeGame::firstCellPosition() {
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
 
+    colors[0] = Color(0.9, 0.1, 0.05);
+    Color::nameColor(colors[0], HASH("red", 0x08d91d68));
+    colors[1] = Color(0.05, 0.1, 0.9);
+    Color::nameColor(colors[1], HASH("blue", 0x975a0655));
+    colors[2] = Color(0.5, 0.95, 0.05);
+    Color::nameColor(colors[2], HASH("green", 0x615465c4));
+    colors[3] = Color(0.9, 0.8, 0.1);
+    Color::nameColor(colors[3], HASH("yellow", 0x74ae7e79));
+
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
     faderHelper.init(camera);
 
     sceneStateMachine.start(Scene::Menu);
 
-    guy[0] = theEntityManager.CreateEntityFromTemplate("guy");
+
+    CAMERA(camera)->clearColor = Color(0.1, 0.1, 0.1);
+    for (int i=0; i<4; i++) {
+        guy[i] = theEntityManager.CreateEntityFromTemplate("guy");
+        RENDERING(guy[i])->color = colors[i];
+    }
 }
 
 

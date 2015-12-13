@@ -25,6 +25,7 @@
 #include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 #include "util/IntersectionUtil.h"
+#include "base/EntityManager.h"
 
 #include "api/KeyboardInputHandlerAPI.h"
 #include <SDL2/SDL.h>
@@ -72,6 +73,11 @@ struct InGameScene : public SceneState<Scene::Enum> {
         } else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_DOWN)) {
             ZSQD(game->guy[0])->directions.push_back(glm::vec2(0.0f, -1.0));
         }
+
+        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(SDLK_SPACE)) {
+            return Scene::Score;
+        }
+
         return Scene::InGame;
     }
 
@@ -79,8 +85,20 @@ struct InGameScene : public SceneState<Scene::Enum> {
     ///--------------------- EXIT SECTION
     ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {}
-
+    void onExit(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            RENDERING(game->guy[i])->show = false;
+        }
+        for (auto e: game->coins) {
+            theEntityManager.DeleteEntity(e);
+        }
+        game->coins.clear();
+        for (auto w: game->walls) {
+            if (w) {
+                RENDERING(w)->show = false;
+            }
+        }
+    }
 
 
     int iterBeginValue(int current, float dir) {

@@ -65,6 +65,8 @@ class PrototypeGame : public Game {
     Cell grid[MAZE_SIZE][MAZE_SIZE];
     std::vector<Entity> walls;
     Entity guy[4];
+    Color colors[4];
+    std::vector<Entity> coins;
 
     static glm::vec2 firstCellPosition();
 

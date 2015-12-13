@@ -1,0 +1,15 @@
+[Transformation]
+size = 0.25
+z = 0.6
+shape = 2
+rotation = 0, 6.28
+
+[Rendering]
+color = 0.4, 0.4, 0.4
+show = 1
+
+[SpatialPartition]
+
+[Physics]
+mass = 1
+angular_velocity = 1

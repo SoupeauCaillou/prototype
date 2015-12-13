@@ -19,18 +19,16 @@
 */
 
 #include "base/SceneState.h"
-#include "util/Random.h"
-#include "PrototypeGame.h"
-#include "systems/TransformationSystem.h"
-#include "systems/RenderingSystem.h"
-#include "base/EntityManager.h"
 
-struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
+#include "PrototypeGame.h"
+#include "base/TouchInputManager.h"
+
+struct ScoreScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
 
-    PlaceYourBetsScene(PrototypeGame* game)
+    ScoreScene(PrototypeGame* game)
         : SceneState<Scene::Enum>(
-              "PlaceYourBets", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
+              "score", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
         this->game = game;
     }
 
@@ -42,34 +40,6 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
-         const int CoinCount = 8;
-         const int PlayerCount = 4;
-        int pos[PlayerCount * 2 + CoinCount * 2];
-        // generate coords for players and coins
-        // they must be different
-    generate:
-        Random::N_Ints(sizeof(pos)/sizeof(int), pos, 0, MAZE_SIZE - 1);
-        for (int i=0; i<PlayerCount+CoinCount; i++) {
-            for (int j=i+1; j<PlayerCount+CoinCount; j++) {
-                if (pos[2*i] == pos[2*j] &&
-                    pos[2*i+1] == pos[2*j+1]) {
-                    goto generate;
-                }
-            }
-        }
-
-        for (int i=0; i<4; i++) {
-            TRANSFORM(game->guy[i])->position =
-                TRANSFORM(game->grid[pos[2*i]][pos[2*i+1]].e)->position;
-            RENDERING(game->guy[i])->show = true;
-        }
-
-        for (int i=0; i<CoinCount; i++) {
-            Entity coin = theEntityManager.CreateEntityFromTemplate("coin");
-            TRANSFORM(coin)->position =
-                TRANSFORM(game->grid[pos[PlayerCount * 2 + 2*i]][pos[PlayerCount * 2 + 2*i+1]].e)->position;
-            game->coins.push_back(coin);
-        }
     }
 
     ///----------------------------------------------------------------------------//
@@ -77,18 +47,22 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
-        return Scene::InGame;
+        if (theTouchInputManager.hasClicked()) {
+            return Scene::Menu;
+        }
+        return Scene::Score;
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION
     ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {}
+    void onPreExit(Scene::Enum) override {
+    }
 };
 
 namespace Scene {
-    StateHandler<Scene::Enum>* CreatePlaceYourBetsSceneHandler(PrototypeGame* game) {
-        return new PlaceYourBetsScene(game);
+    StateHandler<Scene::Enum>* CreateScoreSceneHandler(PrototypeGame* game) {
+        return new ScoreScene(game);
     }
 }
