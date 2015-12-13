@@ -57,7 +57,8 @@ struct ScoreScene : public SceneState<Scene::Enum> {
     ///--------------------- EXIT SECTION
     ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {
+    void onExit(Scene::Enum) override {
+        game->round++;
     }
 };
 

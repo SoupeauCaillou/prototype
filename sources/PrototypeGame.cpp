@@ -30,6 +30,8 @@
 #include "systems/RenderingSystem.h"
 #include "systems/TextSystem.h"
 #include "systems/TransformationSystem.h"
+
+#include "PlayerSystem.h"
 #include "base/TimeUtil.h"
 #include "util/Random.h"
 
@@ -46,6 +48,9 @@
 
 PrototypeGame::PrototypeGame() : Game() {
     registerScenes(this, sceneStateMachine);
+
+    PlayerSystem::CreateInstance();
+    thePlayerSystem.game = this;
 }
 
 Cell::Cell() {
@@ -76,13 +81,41 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     faderHelper.init(camera);
 
+    round = 0;
+
     sceneStateMachine.start(Scene::Menu);
 
-
+    glm::vec2 hCamSize = TRANSFORM(camera)->size * .5f;
     CAMERA(camera)->clearColor = Color(0.1, 0.1, 0.1);
     for (int i=0; i<4; i++) {
         guy[i] = theEntityManager.CreateEntityFromTemplate("guy");
         RENDERING(guy[i])->color = colors[i];
+
+        ui[i].root = theEntityManager.CreateEntityFromTemplate("score_root");
+        ui[i].score = theEntityManager.CreateEntityFromTemplate("score_text");
+        ui[i].bet = theEntityManager.CreateEntityFromTemplate("score_bet");
+        ANCHOR(ui[i].score)->parent = ui[i].root;
+        ANCHOR(ui[i].bet)->parent = ui[i].root;
+        TRANSFORM(ui[i].root)->size = hCamSize - glm::vec2(MAZE_SIZE * 0.5f, 0);
+        RENDERING(ui[i].root)->color = colors[i];
+
+        TRANSFORM(ui[i].score)->position = glm::vec2(
+            TRANSFORM(camera)->size.x * 0.5,
+            0);
+
+        glm::vec2 absPosition = glm::vec2(
+            (i % 2) ? hCamSize.x : -hCamSize.x,
+            (i < 2) ? hCamSize.y : -hCamSize.y);
+        Cardinal::Enum cardinals[] = {
+            Cardinal::NW, Cardinal::NE, Cardinal::SW, Cardinal::SE
+        };
+        TRANSFORM(ui[i].root)->position = AnchorSystem::adjustPositionWithCardinal(
+            absPosition, TRANSFORM(ui[i].root)->size,
+            cardinals[i]);
+
+        ANCHOR(ui[i].score)->position = glm::vec2(
+            TRANSFORM(ui[i].root)->size.x * -0.5 + 0.1,
+            TRANSFORM(ui[i].root)->size.y * 0.5 - 1);
     }
 }
 

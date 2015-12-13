@@ -27,6 +27,7 @@
 #include "util/IntersectionUtil.h"
 #include "base/EntityManager.h"
 
+#include "PlayerSystem.h"
 #include "api/KeyboardInputHandlerAPI.h"
 #include <SDL2/SDL.h>
 
@@ -55,7 +56,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
     ///--------------------- UPDATE SECTION
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    Scene::Enum update(float dt) override {
         /* position */
         previousDirection = ZSQD(game->guy[0])->currentDirection;
         fixPosition(game);
@@ -77,6 +78,8 @@ struct InGameScene : public SceneState<Scene::Enum> {
         if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(SDLK_SPACE)) {
             return Scene::Score;
         }
+
+        thePlayerSystem.Update(dt);
 
         return Scene::InGame;
     }

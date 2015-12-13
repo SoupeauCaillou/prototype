@@ -24,6 +24,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
 #include "base/EntityManager.h"
+#include "PlayerSystem.h"
 
 struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
@@ -62,6 +63,9 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
             TRANSFORM(game->guy[i])->position =
                 TRANSFORM(game->grid[pos[2*i]][pos[2*i+1]].e)->position;
             RENDERING(game->guy[i])->show = true;
+            PLAYER(game->guy[i])->score[game->round].bet = 0;
+            PLAYER(game->guy[i])->score[game->round].coinCount = 0;
+            PLAYER(game->guy[i])->score[game->round].score = 0;
         }
 
         for (int i=0; i<CoinCount; i++) {

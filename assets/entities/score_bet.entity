@@ -1,0 +1,13 @@
+#[Anchor]
+
+
+[Text]
+text = 1 - 5
+show = 1
+color = 1, 1, 1
+char_height = 1
+positioning = 0.5
+
+[Transformation]
+
+[Anchor]
