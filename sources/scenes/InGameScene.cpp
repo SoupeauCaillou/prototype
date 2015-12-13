@@ -28,8 +28,6 @@
 #include "base/EntityManager.h"
 
 #include "PlayerSystem.h"
-#include "api/KeyboardInputHandlerAPI.h"
-#include <SDL2/SDL.h>
 
 struct InGameScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
@@ -62,22 +60,23 @@ struct InGameScene : public SceneState<Scene::Enum> {
         fixPosition(game);
         previousPosition = TRANSFORM(game->guy[0])->position;
 
-        // Draw::Rectangle(TRANSFORM(grid[x][y].e)->position, glm::vec2(1, 1), 0.0f, Color(1, 0, 1));
 
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_LEFT)) {
-            ZSQD(game->guy[0])->directions.push_back(glm::vec2(-1.0f, 0.0));
-        } else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_RIGHT)) {
-            ZSQD(game->guy[0])->directions.push_back(glm::vec2(1.0f, 0.0));
-        }
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_UP)) {
-            ZSQD(game->guy[0])->directions.push_back(glm::vec2(0.0f, 1.0));
-        } else if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(SDLK_DOWN)) {
-            ZSQD(game->guy[0])->directions.push_back(glm::vec2(0.0f, -1.0));
+        for (int i=0; i<4; i++) {
+            if (PLAYER(game->guy[0])->input.directions[direction::W] == InputState::Pressed) {
+                ZSQD(game->guy[0])->directions.push_back(glm::vec2(-1.0f, 0.0));
+            } else if (PLAYER(game->guy[0])->input.directions[direction::E] == InputState::Pressed) {
+                ZSQD(game->guy[0])->directions.push_back(glm::vec2(1.0f, 0.0));
+            }
+            if (PLAYER(game->guy[0])->input.directions[direction::N] == InputState::Pressed) {
+                ZSQD(game->guy[0])->directions.push_back(glm::vec2(0.0f, 1.0));
+            } else if (PLAYER(game->guy[0])->input.directions[direction::S] == InputState::Pressed) {
+                ZSQD(game->guy[0])->directions.push_back(glm::vec2(0.0f, -1.0));
+            }
         }
 
-        if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(SDLK_SPACE)) {
+        /*if (game->gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(SDLK_SPACE)) {
             return Scene::Score;
-        }
+        }*/
 
         thePlayerSystem.Update(dt);
 

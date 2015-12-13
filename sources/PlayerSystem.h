@@ -24,9 +24,19 @@
 
 class PrototypeGame;
 
+namespace InputState {
+    enum Enum {
+        Pressed, Released, None
+    };
+}
+
 struct PlayerComponent {
     PlayerComponent() {
     }
+
+    struct {
+        InputState::Enum directions[4];
+    } input;
 
     struct {
         int bet;

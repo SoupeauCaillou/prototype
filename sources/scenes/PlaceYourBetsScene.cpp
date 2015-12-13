@@ -23,6 +23,7 @@
 #include "PrototypeGame.h"
 #include "systems/TransformationSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/TextSystem.h"
 #include "base/EntityManager.h"
 #include "PlayerSystem.h"
 
@@ -74,6 +75,10 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
                 TRANSFORM(game->grid[pos[PlayerCount * 2 + 2*i]][pos[PlayerCount * 2 + 2*i+1]].e)->position;
             game->coins.push_back(coin);
         }
+
+        for (int i=0; i<4; i++) {
+            TEXT(game->ui[i].bet)->show = true;
+        }
     }
 
     ///----------------------------------------------------------------------------//
@@ -81,6 +86,13 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
+        char tmp[64];
+        for (int i=0; i<4; i++) {
+
+
+            sprintf(tmp, "%d - 8", PLAYER(game->guy[i])->score[game->round].bet);
+            TEXT(game->ui[i].bet)->show = true;
+        }
         return Scene::InGame;
     }
 

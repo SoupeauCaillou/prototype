@@ -35,6 +35,8 @@
 #include "base/TimeUtil.h"
 #include "util/Random.h"
 
+#include "api/KeyboardInputHandlerAPI.h"
+#include <SDL2/SDL.h>
 #include <algorithm>
 
 #if SAC_EMSCRIPTEN
@@ -119,9 +121,18 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 }
 
-
-#include "util/Draw.h"
 void PrototypeGame::tick(float dt) {
+    int key2Dir[] = { SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT };
+    for (int i=0; i<4; i++) {
+        if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(key2Dir[i])) {
+            PLAYER(guy[0])->input.directions[i] = InputState::Pressed;
+        } else if (gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(key2Dir[i])) {
+            PLAYER(guy[0])->input.directions[i] = InputState::Released;
+        } else {
+            PLAYER(guy[0])->input.directions[i] = InputState::None;
+        }
+    }
+
     sceneStateMachine.update(dt);
 }
 
