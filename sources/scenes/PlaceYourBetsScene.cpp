@@ -43,8 +43,10 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     ///----------------------------------------//
     ///----------------------------------------------------------------------------//
 
+    int firstPlayer;
+    int currentPlayer;
+     const int CoinCount = 8;
     void onEnter(Scene::Enum) override {
-         const int CoinCount = 8;
          const int PlayerCount = 4;
         int pos[PlayerCount * 2 + CoinCount * 2];
         // generate coords for players and coins
@@ -63,7 +65,8 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
         for (int i=0; i<4; i++) {
             TRANSFORM(game->guy[i])->position =
                 TRANSFORM(game->grid[pos[2*i]][pos[2*i+1]].e)->position;
-            RENDERING(game->guy[i])->show = true;
+            RENDERING(game->guy[i])->show = false;
+            TEXT(game->ui[i].bet)->show = false;
             PLAYER(game->guy[i])->score[game->round].bet = 0;
             PLAYER(game->guy[i])->score[game->round].coinCount = 0;
             PLAYER(game->guy[i])->score[game->round].score = 0;
@@ -76,10 +79,11 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
             game->coins.push_back(coin);
         }
 
-        for (int i=0; i<4; i++) {
-            TEXT(game->ui[i].bet)->show = true;
-        }
+        firstPlayer = currentPlayer = Random::Int(0, 3);
+        RENDERING(game->guy[currentPlayer])->show = true;
+        TEXT(game->ui[currentPlayer].bet)->show = true;
     }
+
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION
@@ -87,20 +91,56 @@ struct PlaceYourBetsScene : public SceneState<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     Scene::Enum update(float) override {
         char tmp[64];
-        for (int i=0; i<4; i++) {
 
+        {
+            int& bet = PLAYER(game->guy[currentPlayer])->score[game->round].bet;
+            if (bet < 8 && PLAYER(game->guy[currentPlayer])->input.directions[direction::N] == InputState::Released) {
+                PLAYER(game->guy[currentPlayer])->score[game->round].bet++;
+            } else if (bet > 0 && PLAYER(game->guy[currentPlayer])->input.directions[direction::S] == InputState::Released) {
+                PLAYER(game->guy[currentPlayer])->score[game->round].bet--;
+            }
 
-            sprintf(tmp, "%d - 8", PLAYER(game->guy[i])->score[game->round].bet);
-            TEXT(game->ui[i].bet)->show = true;
+            sprintf(tmp, "%d - 8", PLAYER(game->guy[currentPlayer])->score[game->round].bet);
+            TEXT(game->ui[currentPlayer].bet)->show = true;
+            RENDERING(game->guy[currentPlayer])->show = true;
+            TEXT(game->ui[currentPlayer].bet)->text = tmp;
         }
-        return Scene::InGame;
+
+        int sum = 0;
+        for (int i=0; i<4; i++) {
+            sum += PLAYER(game->guy[i])->score[game->round].bet;
+        }
+        bool isLastPlayer = ((currentPlayer + 1) % 4 == firstPlayer);
+        bool isSumValid = CoinCount < sum;
+
+        if (isLastPlayer && !isSumValid) {
+            TEXT(game->ui[currentPlayer].bet)->color = Color(0, 0, 0);
+        } else {
+            TEXT(game->ui[currentPlayer].bet)->color = Color(1, 1, 1);
+
+            if (PLAYER(game->guy[currentPlayer])->input.actions[0] == InputState::Released) {
+                RENDERING(game->guy[currentPlayer])->show = false;
+                currentPlayer = (currentPlayer + 1) % 4;
+                if (currentPlayer == firstPlayer) {
+                    return Scene::InGame;
+                } else {
+                    RENDERING(game->guy[currentPlayer])->show = true;
+                }
+            }
+        }
+
+        return Scene::PlaceYourBets;
     }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION
     ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {}
+    void onPreExit(Scene::Enum) override {
+        for (int i=0; i<4; i++) {
+            RENDERING(game->guy[i])->show = true;
+        }
+    }
 };
 
 namespace Scene {

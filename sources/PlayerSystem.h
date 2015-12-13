@@ -36,6 +36,7 @@ struct PlayerComponent {
 
     struct {
         InputState::Enum directions[4];
+        InputState::Enum actions[1];
     } input;
 
     struct {

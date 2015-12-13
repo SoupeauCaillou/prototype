@@ -121,16 +121,24 @@ void PrototypeGame::init(const uint8_t*, int) {
     }
 }
 
+static InputState::Enum keyToState(KeyboardInputHandlerAPI* kb, int key) {
+    if (kb->isKeyPressed(key)) {
+        return InputState::Pressed;
+    } else if (kb->isKeyReleased(key)) {
+        return InputState::Released;
+    } else {
+        return InputState::None;
+    }
+}
+
 void PrototypeGame::tick(float dt) {
     int key2Dir[] = { SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT };
-    for (int i=0; i<4; i++) {
-        if (gameThreadContext->keyboardInputHandlerAPI->isKeyPressed(key2Dir[i])) {
-            PLAYER(guy[0])->input.directions[i] = InputState::Pressed;
-        } else if (gameThreadContext->keyboardInputHandlerAPI->isKeyReleased(key2Dir[i])) {
-            PLAYER(guy[0])->input.directions[i] = InputState::Released;
-        } else {
-            PLAYER(guy[0])->input.directions[i] = InputState::None;
+    auto* kb = gameThreadContext->keyboardInputHandlerAPI;
+    for (int j=0; j<4;j++) {
+        for (int i=0; i<4; i++) {
+            PLAYER(guy[j])->input.directions[i] = keyToState(kb, key2Dir[i]);
         }
+        PLAYER(guy[j])->input.actions[0] = keyToState(kb, SDLK_SPACE);
     }
 
     sceneStateMachine.update(dt);
