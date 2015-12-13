@@ -27,6 +27,7 @@
 #include "PrototypeGame.h"
 #include "util/Draw.h"
 #include "util/Random.h"
+#include "base/TouchInputManager.h"
 
 #include <algorithm>
 
@@ -66,6 +67,9 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
         game->walls.clear();
         game->walls.push_back(0); // dummy invalid wall
 
+        in.clear();
+        frontier.clear();
+
         // init cells
 
         for (int i=0; i<MAZE_SIZE; i++) {
@@ -74,7 +78,7 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
 
                 for (int k=0; k<4; k++) {
                     // always create north and east walls
-                    if ((k < 2) || (i==0 && k == 3) || (j==0 && k == 4)) {
+                    if ((k < 2) || (i==0 && k == 3) || (j==0 && k == 2)) {
                         Entity wall = theEntityManager.CreateEntityFromTemplate("wall");
                         ANCHOR(wall)->parent = game->grid[i][j].e;
                         ANCHOR(wall)->position = wallIdxToAnchor((direction::Enum)k);
@@ -96,21 +100,31 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
         initMaze();
     }
 
-    ///----------------------------------------------------------------------------//
-    ///--------------------- UPDATE SECTION
-    ///---------------------------------------//
-    ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override {
+    void updateColors() {
         for (int i=0; i<MAZE_SIZE; i++) {
             for (int j=0; j<MAZE_SIZE; j++) {
                 RENDERING(game->grid[i][j].e)->color = attributeToColor(game->grid[i][j].attr);
             }
         }
+    }
 
-        if (!buildMaze()) {
-            return Scene::MazeGeneration;
-        } else {
+    ///----------------------------------------------------------------------------//
+    ///--------------------- UPDATE SECTION
+    ///---------------------------------------//
+    ///----------------------------------------------------------------------------//
+    Scene::Enum update(float) override {
+
+        if (theTouchInputManager.hasClicked()) {
+            do {
+
+            } while (!buildMaze());
             return Scene::PlaceYourBets;
+        } else {
+            if (!buildMaze()) {
+                return Scene::MazeGeneration;
+            } else {
+                return Scene::PlaceYourBets;
+            }
         }
     }
 
@@ -118,7 +132,8 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
     ///--------------------- EXIT SECTION
     ///-----------------------------------------//
     ///----------------------------------------------------------------------------//
-    void onPreExit(Scene::Enum) override {}
+    void onPreExit(Scene::Enum) override {
+    }
 
 
     typedef glm::ivec2 Coords;
@@ -145,6 +160,13 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
                 frontier.push_back(d);
 
                 game->grid[d.x][d.y].attr = cell_attibute::Frontier;
+            }
+        }
+
+        for (int i=0; i<4; i++) {
+            int idx = game->grid[c.x][c.y].wallIndirect[i];
+            if (game->walls[idx]) {
+                RENDERING(game->walls[idx])->show = true;
             }
         }
     }
@@ -180,12 +202,6 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
 
         LOGF_IF(std::find(in.begin(), in.end(), from) == in.end(), "Uh");
 
-        for (int i=0; i<4; i++) {
-            int idx = game->grid[c.x][c.y].wallIndirect[i];
-            if (game->walls[idx]) {
-                RENDERING(game->walls[idx])->show = true;
-            }
-        }
         // update walls
         if (from.x < c.x) {
             int idx = game->grid[c.x][c.y].wallIndirect[direction::W];
@@ -218,6 +234,8 @@ struct MazeGenerationScene : public SceneState<Scene::Enum> {
             Color(0, 0, 1));
 
         updateFrontier(c);
+
+        updateColors();
 
         return false;
     }
