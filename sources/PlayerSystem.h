@@ -30,6 +30,13 @@ namespace InputState {
     };
 }
 
+namespace ScoreRule {
+    enum Enum {
+        Bet = 0,
+        Jordane
+    };
+}
+
 struct PlayerComponent {
     PlayerComponent() {
     }
@@ -43,6 +50,7 @@ struct PlayerComponent {
         int bet;
         int coinCount;
         int score;
+        ScoreRule::Enum rule;
     } score[10]; // assume 10 round game
 };
 

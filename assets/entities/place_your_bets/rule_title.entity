@@ -1,0 +1,20 @@
+[Text]
+show = 0
+color = 0, 0, 0, 0.5
+char_height = 2
+flags = 6;
+
+[Rendering]
+flags = 0
+color = 0.8, 0.8, 0.8, 1
+
+[Transformation]
+size = 10, 3
+z = 0.9
+
+[Anchor]
+
+[Blink]
+enabled = 0
+visible_duration = 1
+hidden_duration = 0.5

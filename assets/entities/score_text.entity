@@ -2,7 +2,7 @@
 
 
 [Text]
-text = Score: 123 pts
+text = Score: 0 pts
 show = 1
 color = 1, 1, 1
 char_height = 0.6

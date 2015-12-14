@@ -51,7 +51,6 @@ struct Cell {
     int wallIndirect[4];
 };
 
-
 class PrototypeGame : public Game {
     public:
     PrototypeGame();
