@@ -1,0 +1,33 @@
+[Transformation]
+size = 0.5
+z = 0.5
+#shape = 2
+
+[Rendering]
+color = 0.2, 0.2, 0.8
+show = 1
+
+[ZSQD]
+friction_coeff = 20
+max_speed = 5
+new_direction_coeff = 500
+rotation_speed = 30
+collide_with = 2
+rotate_to_face_direction = 1
+
+[Physics]
+mass = 1
+
+[Collision]
+group = 1
+collide_with = 2
+
+[SpatialPartition]
+
+[Player]
+
+[Equipment]
+
+[Health]
+current_hp = 1
+max_hp = 1

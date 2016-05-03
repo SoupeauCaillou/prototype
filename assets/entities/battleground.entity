@@ -1,0 +1,7 @@
+[Transformation]
+size = 10.5, 10.5
+z = 0.1
+
+[Rendering]
+color = 0.6, 0.6, 0.6
+show = 1

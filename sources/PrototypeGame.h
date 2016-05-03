@@ -32,6 +32,8 @@
 #include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
+#include <sac/tweak.h>
+
 class PrototypeGame : public Game {
     public:
     PrototypeGame();
@@ -43,4 +45,8 @@ class PrototypeGame : public Game {
 
     private:
     StateMachine<Scene::Enum> sceneStateMachine;
+
+    public:
+    Entity guy[4];
+    Entity battleground;
 };

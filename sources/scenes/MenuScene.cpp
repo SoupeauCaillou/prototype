@@ -44,7 +44,7 @@ struct MenuScene : public SceneState<Scene::Enum> {
     ///--------------------- UPDATE SECTION
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { return Scene::Menu; }
+    Scene::Enum update(float) override { return Scene::InGame; }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION
