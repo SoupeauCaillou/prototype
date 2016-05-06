@@ -20,9 +20,10 @@ mass = 1
 
 [Collision]
 group = 1
-collide_with = 2
+collide_with = 10
 
 [SpatialPartition]
+[BackInTime]
 
 [Player]
 

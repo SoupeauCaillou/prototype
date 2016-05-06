@@ -22,8 +22,10 @@
 
 #include "PrototypeGame.h"
 #include "systems/RenderingSystem.h"
+#include "systems/CollisionSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
+#include "systems/AnchorSystem.h"
 #include "util/IntersectionUtil.h"
 #include "util/Random.h"
 #include "base/EntityManager.h"
@@ -32,6 +34,7 @@
 #include "EquipmentSystem.h"
 #include "SwordSystem.h"
 #include "HealthSystem.h"
+#include "GunSystem.h"
 #include <algorithm>
 
 struct InGameScene : public SceneState<Scene::Enum> {
@@ -57,6 +60,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
         enemySpawned = 0;
         timeElapsed = 0;
         batch.enable(ActivationMode::Instantaneous);
+        HEALTH(game->guy[0])->currentHP = 1;
     }
 
     ///----------------------------------------------------------------------------//
@@ -81,11 +85,13 @@ struct InGameScene : public SceneState<Scene::Enum> {
 
         if (enemySpawned < totalEnemyCount) {
             for (int i=0; i<4; i++) {
-                if (PLAYER(game->guy[i])->input.actions[0] == InputState::Released) {
+                if (PLAYER(game->guy[i])->input.actions[1] == InputState::Released) {
                     // spawn enemy
                     Entity enemy = theEntityManager.CreateEntityFromTemplate("enemy");
                     TRANSFORM(enemy)->position.x = Random::Float(-5, 5);
                     TRANSFORM(enemy)->position.y = Random::Float(-5, 5);
+
+                    EQUIPMENT(enemy)->hand.right = theEntityManager.CreateEntityFromTemplate("gun");
                     aliveEnemies.push_back(enemy);
                     enemySpawned++;
                 }
@@ -107,6 +113,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
         thePlayerSystem.Update(dt);
         theEquipmentSystem.Update(dt);
         theSwordSystem.Update(dt);
+        theGunSystem.Update(dt);
 
         // fix entities position
         {
@@ -134,28 +141,22 @@ struct InGameScene : public SceneState<Scene::Enum> {
             }
         }
 
-        // check life
-        for (int i=0; i<4; i++) {
-            if (HEALTH(game->guy[i])->currentHP <= 0) {
-                LOGI("You lost");
-                return Scene::Menu;
-            }
-            break;
-        }
-
+        const std::vector<Entity>& players = thePlayerSystem.RetrieveAllEntityWithComponent();
         {
             TWEAK(float, forceAmplitude) = 1500.0f;
             TWEAK(float, dispersion) = 0.6f;
             TWEAK(float, partScale) = 5;
             std::vector<Entity> toRemove;
-            for (auto enemy: aliveEnemies) {
+            for (auto enemy: players) {
                 if (HEALTH(enemy)->currentHP <= 0) {
+                    Entity hitBy = HEALTH(enemy)->hitBy;
 
+                    /* split body */
                     for (int i=0; i<9; i++) {
                         glm::vec2 baseDirection =
                             glm::rotate(
                                 glm::vec2(1.0f, 0.0f),
-                                TRANSFORM(HEALTH(enemy)->hitBy)->rotation + glm::pi<float>() * 0.5f +
+                                TRANSFORM(hitBy)->rotation + glm::pi<float>() * 0.5f +
                                 Random::Float(-dispersion, dispersion));
                         Entity part = theEntityManager.CreateEntityFromTemplate("enemy_part");
                         TRANSFORM(part)->size *= Random::Float(1, partScale);
@@ -169,9 +170,46 @@ struct InGameScene : public SceneState<Scene::Enum> {
                             glm::vec2(0.0f),
                             dt);
                     }
+                    /* disperse weapons */
+                    if (enemy != game->guy[0]) {
+                        for (int i=0; i<2; i++) {
+                            Entity eq = EQUIPMENT(enemy)->hands[i];
+                            if (eq) {
+                                TRANSFORM(eq)->z = 0.2;
+                                glm::vec2 baseDirection =
+                                    glm::rotate(
+                                        glm::vec2(1.0f, 0.0f),
+                                        TRANSFORM(hitBy)->rotation + glm::pi<float>() * 0.5f +
+                                        Random::Float(-dispersion, dispersion));
+
+                                /* detach */
+                                ANCHOR(eq)->parent = 0;
+                                EQUIPMENT(enemy)->hands[i] = 0;
+                                /* move */
+                                PHYSICS(eq)->mass = 1;
+                                PHYSICS(eq)->addForce(
+                                    baseDirection * forceAmplitude * Random::Float(0.2, 1.0f),
+                                    //glm::rotate(glm::vec2(forceAmplitude, 0.0f), Random::Float(0, 6.2)),
+                                    glm::vec2(0.0f),
+                                    dt);
+                            }
+                        }
+                    }
+
+                    if (COLLISION(hitBy)->group == 3) {
+                        theEntityManager.DeleteEntity(hitBy);
+                    }
                     LOGI("killed " << enemy);
-                    theEntityManager.DeleteEntity(enemy);
-                    toRemove.push_back(enemy);
+                    // hackish
+                    if (enemy != game->guy[0]) {
+                        theEntityManager.DeleteEntity(enemy);
+                        toRemove.push_back(enemy);
+                    }
+                } else {
+                    if (enemy != game->guy[0]) {
+                        glm::vec2 diff = TRANSFORM(game->guy[0])->position - TRANSFORM(enemy)->position;
+                        TRANSFORM(enemy)->rotation = atan2(diff.y, diff.x);
+                    }
                 }
             }
             auto newEnd = std::remove_if(aliveEnemies.begin(),
@@ -179,6 +217,16 @@ struct InGameScene : public SceneState<Scene::Enum> {
                             [&toRemove] (Entity e) { return std::find(toRemove.begin(), toRemove.end(), e) != toRemove.end(); });
             aliveEnemies.erase(newEnd, aliveEnemies.end());
         }
+
+        // check life
+        for (int i=0; i<4; i++) {
+            if (HEALTH(game->guy[i])->currentHP <= 0) {
+                LOGI("You lost");
+                return Scene::Menu;
+            }
+            break;
+        }
+
 
         return Scene::InGame;
     }
@@ -189,8 +237,14 @@ struct InGameScene : public SceneState<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onExit(Scene::Enum) override {
         for (auto e: aliveEnemies) {
+            for (int i=0; i<2; i++) {
+                if (EQUIPMENT(e)->hands[i]) {
+                    theEntityManager.DeleteEntity(EQUIPMENT(e)->hands[i]);
+                }
+            }
             theEntityManager.DeleteEntity(e);
         }
+        aliveEnemies.clear();
     }
 };
 

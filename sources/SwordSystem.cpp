@@ -22,11 +22,10 @@
 #include "systems/AnchorSystem.h"
 #include "systems/TransformationSystem.h"
 #include "systems/CollisionSystem.h"
+#include "systems/BackInTimeSystem.h"
 #include "systems/RenderingSystem.h"
 #include "util/SerializerProperty.h"
 #include <glm/gtx/norm.hpp>
-
-#include "HealthSystem.h"
 
 #include "systems/ADSRSystem.h"
 #include <sac/tweak.h>
@@ -53,10 +52,7 @@ static SwordState::Enum updateAttackState(SwordComponent* sw, Entity sword, Enti
 
     RENDERING(sword)->show = true;
 
-    if (sw->stateDuration == 0) {
-        LOGE_IF(ADSR(sword)->active, "Already active...");
-        ADSR(sword)->active = true;
-    }
+    ADSR(sword)->active = true;
 
     float angle = ADSR(sword)->value - glm::pi<float>() * 0.5f;
 
@@ -122,15 +118,17 @@ void SwordSystem::DoUpdate(float dt) {
                 sw->state = updateAttackState(sw, entity, player);
             } break;
             case SwordState::Defense: {
+                LOGF_IF(ADSR(entity)->active, "Sword's ADSR should only be active in attack mode");
                 sw->state = updateDefenseState(sw, entity, player);
             } break;
             case SwordState::Resting: {
+                LOGF_IF(ADSR(entity)->active, "Sword's ADSR should only be active in attack mode");
                 RENDERING(entity)->show = false;
                 if (conditionToEnterState(SwordState::Attack, player, entity)) {
                     sw->stateDuration = 0;
                     sw->state = updateAttackState(sw, entity, player);
                 }
-                if (conditionToEnterState(SwordState::Defense, player, entity)) {
+                else if (conditionToEnterState(SwordState::Defense, player, entity)) {
                     sw->stateDuration = 0;
                     sw->state = updateDefenseState(sw, entity, player);
                 }
@@ -141,20 +139,28 @@ void SwordSystem::DoUpdate(float dt) {
             sw->stateDuration = 0;
         }
 
-        const auto* cc = COLLISION(entity);
-        for (int i=0; i<cc->collision.count; i++) {
-            Entity with = cc->collision.with[i];
-            // ignore self-collision
-            if (with == player) {
-                continue;
-            }
-            // hit someone -> instant-kill
-            if (sw->state == SwordState::Attack
+        TWEAK(int, swordCollisionGroup) = 2;
+        /* enable collision when ready to hit */
+        auto* cc = COLLISION(entity);
+        if (sw->state == SwordState::Attack
                 && ADSR(entity)->activationTime > ADSR(entity)->attackTiming) {
-                if (COLLISION(with)->group == 1) {
-                    HEALTH(with)->currentHP = 0;
-                    HEALTH(with)->hitBy = entity;
-                }
+            cc->group = swordCollisionGroup;
+        } else if (sw->state == SwordState::Defense) {
+            cc->group = 4;
+        } else {
+            cc->group = 0;
+        }
+
+        for (int i=0; i<cc->collision.count; i++) {
+            auto* cc2 = COLLISION(cc->collision.with[i]);
+            if (cc2->group == 8) {
+                Entity bullet = cc->collision.with[i];
+                LOGI("Hit by a bullet!");
+                RENDERING(cc->collision.with[i])->color = Color(0, 0, 0);
+                TRANSFORM(bullet)->position =
+                    glm::lerp(BACK_IN_TIME(bullet)->position,
+                        TRANSFORM(bullet)->position,
+                        cc->collision.at[i]);
             }
         }
 

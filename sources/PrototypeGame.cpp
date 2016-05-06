@@ -35,6 +35,7 @@
 #include "EquipmentSystem.h"
 #include "SwordSystem.h"
 #include "HealthSystem.h"
+#include "GunSystem.h"
 #include "systems/AnchorSystem.h"
 
 #if SAC_EMSCRIPTEN
@@ -55,6 +56,8 @@ PrototypeGame::PrototypeGame() : Game() {
     theSwordSystem.game = this;
     HealthSystem::CreateInstance();
     theHealthSystem.game = this;
+    GunSystem::CreateInstance();
+    theGunSystem.game = this;
 
 
     registerScenes(this, sceneStateMachine);
@@ -97,6 +100,7 @@ static InputState::Enum keyToState(KeyboardInputHandlerAPI* kb, int key) {
             PLAYER(guy[j])->input.directions.secondary[i] = keyToState(kb, key2DirSecondary[i]);
         }
         PLAYER(guy[j])->input.actions[0] = keyToState(kb, SDLK_SPACE);
+        PLAYER(guy[j])->input.actions[1] = keyToState(kb, SDLK_LSHIFT);
         break;
     }
 

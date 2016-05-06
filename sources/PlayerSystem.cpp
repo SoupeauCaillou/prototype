@@ -18,8 +18,12 @@
     along with Soupe Au Caillou.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PlayerSystem.h"
+#include "systems/CollisionSystem.h"
 #include "systems/ZSQDSystem.h"
 #include <glm/gtx/compatibility.hpp>
+
+#include "HealthSystem.h"
+#include "EquipmentSystem.h"
 
 INSTANCE_IMPL(PlayerSystem);
 
@@ -50,6 +54,30 @@ void PlayerSystem::DoUpdate(float dt) {
         } else {
             pc->facingDirection = facing;
         }
+
+        /* hits */
+        const auto* cc = COLLISION(entity);
+        for (int i=0; i<cc->collision.count; i++) {
+            Entity with = cc->collision.with[i];
+            auto* ccWith = COLLISION(with);
+
+            /* attack sword hit */
+            if (ccWith->group == 2) {
+                /* ignore self-hits */
+                if (with == EQUIPMENT(entity)->hands[0] ||
+                    with == EQUIPMENT(entity)->hands[1]) {
+                    continue;
+                }
+                HEALTH(entity)->currentHP = 0;
+                HEALTH(entity)->hitBy = with;
+            }
+            /* bullet hit */
+            if (ccWith->group == 8 && 0) {
+                HEALTH(entity)->currentHP = 0;
+                HEALTH(entity)->hitBy = with;
+            }
+        }
+
 
     END_FOR_EACH()
 }

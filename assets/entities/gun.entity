@@ -1,0 +1,17 @@
+[Transformation]
+size = 0.3, 0.1
+z = 0.7
+
+[Rendering]
+color = 0.8, 0.8, 0.8
+show  = 1
+
+[Anchor]
+position = 0.25, 0.3
+z = 0.1
+
+[Gun]
+
+[Physics]
+mass = 0
+frottement = 10
