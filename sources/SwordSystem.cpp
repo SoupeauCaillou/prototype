@@ -28,6 +28,7 @@
 #include <glm/gtx/norm.hpp>
 
 #include "systems/ADSRSystem.h"
+#include "systems/PhysicsSystem.h"
 #include <sac/tweak.h>
 
 INSTANCE_IMPL(SwordSystem);
@@ -156,7 +157,15 @@ void SwordSystem::DoUpdate(float dt) {
             if (cc2->group == 8) {
                 Entity bullet = cc->collision.with[i];
                 LOGI("Hit by a bullet!");
-                RENDERING(cc->collision.with[i])->color = Color(0, 0, 0);
+
+                /* treat sword as a line */
+                glm::vec2 sword = glm::rotate(glm::vec2(1.0f, 0.0f), TRANSFORM(entity)->rotation);
+                float d = glm::dot(PHYSICS(bullet)->linearVelocity, sword);
+                PHYSICS(bullet)->linearVelocity = -PHYSICS(bullet)->linearVelocity + 2 * d * sword;
+                TRANSFORM(bullet)->rotation = atan2(PHYSICS(bullet)->linearVelocity.y, PHYSICS(bullet)->linearVelocity.x);
+                PHYSICS(bullet)->mass = 1;
+                cc2->group = 0;
+                LOGI(cc->collision.at[i]);
                 TRANSFORM(bullet)->position =
                     glm::lerp(BACK_IN_TIME(bullet)->position,
                         TRANSFORM(bullet)->position,
