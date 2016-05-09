@@ -37,6 +37,7 @@ struct SwordComponent {
 
     SwordState::Enum state;
     float stateDuration;
+    bool defenseReady;
 };
 
 #define theSwordSystem SwordSystem::GetInstance()

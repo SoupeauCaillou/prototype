@@ -17,6 +17,16 @@ collide_with = 10
 [SpatialPartition]
 [BackInTime]
 
+[ZSQD]
+friction_coeff = 20
+max_speed = 2
+new_direction_coeff = 50
+rotation_speed = 20
+collide_with = 2
+rotate_to_face_direction = 1
+
+[IA]
+
 [Player]
 
 [Equipment]

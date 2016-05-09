@@ -29,6 +29,7 @@
 
 #include "base/TimeUtil.h"
 #include "api/KeyboardInputHandlerAPI.h"
+#include "api/JoystickAPI.h"
 #include <SDL2/SDL.h>
 
 #include "PlayerSystem.h"
@@ -36,6 +37,7 @@
 #include "SwordSystem.h"
 #include "HealthSystem.h"
 #include "GunSystem.h"
+#include "IASystem.h"
 #include "systems/AnchorSystem.h"
 
 #if SAC_EMSCRIPTEN
@@ -58,6 +60,8 @@ PrototypeGame::PrototypeGame() : Game() {
     theHealthSystem.game = this;
     GunSystem::CreateInstance();
     theGunSystem.game = this;
+    IASystem::CreateInstance();
+    theIASystem.game = this;
 
 
     registerScenes(this, sceneStateMachine);
@@ -89,19 +93,56 @@ static InputState::Enum keyToState(KeyboardInputHandlerAPI* kb, int key) {
     }
  }
 
+ static glm::vec2 keysToDirection(KeyboardInputHandlerAPI* kb, int* keys) {
+    glm::vec2 dir(0.0f);
+    if (keyToState(kb, keys[0]) == InputState::Pressed) {
+        dir.y = 1.0f;
+    } else if (keyToState(kb, keys[1]) == InputState::Pressed) {
+        dir.y = -1.0f;
+    }
+    if (keyToState(kb, keys[2]) == InputState::Pressed) {
+        dir.x = 1.0f;
+    } else if (keyToState(kb, keys[3]) == InputState::Pressed) {
+        dir.x = -1.0f;
+    }
+    return dir;
+ }
+
  void PrototypeGame::tick(float dt) {
+    /* keyboard control */
     int key2DirPrimary[] = { SDLK_UP, SDLK_DOWN, SDLK_RIGHT, SDLK_LEFT };
     int key2DirSecondary[] = { SDLK_z, SDLK_s, SDLK_d, SDLK_q };
     auto* kb = gameThreadContext->keyboardInputHandlerAPI;
 
     for (int j=0; j<4;j++) {
-        for (int i=0; i<4; i++) {
-            PLAYER(guy[j])->input.directions.primary[i] = keyToState(kb, key2DirPrimary[i]);
-            PLAYER(guy[j])->input.directions.secondary[i] = keyToState(kb, key2DirSecondary[i]);
-        }
+        PLAYER(guy[j])->input.directions.primary = keysToDirection(kb, key2DirPrimary);
+        PLAYER(guy[j])->input.directions.secondary = keysToDirection(kb, key2DirSecondary);
+
         PLAYER(guy[j])->input.actions[0] = keyToState(kb, SDLK_SPACE);
         PLAYER(guy[j])->input.actions[1] = keyToState(kb, SDLK_LSHIFT);
         break;
+    }
+
+    /* joystick control */
+    if (gameThreadContext->joystickAPI->availableJoystick()) {
+        PLAYER(guy[0])->input.directions.primary = gameThreadContext->joystickAPI->getPadDirection(0, 0);
+        PLAYER(guy[0])->input.directions.secondary = gameThreadContext->joystickAPI->getPadDirection(0, 1);
+        if (gameThreadContext->joystickAPI->hasClicked(0, 0)) {
+            PLAYER(guy[0])->input.actions[0] = InputState::Released;
+        } else if (gameThreadContext->joystickAPI->isDown(0, 0)) {
+            PLAYER(guy[0])->input.actions[0] = InputState::Pressed;
+        } else {
+            PLAYER(guy[0])->input.actions[0] = InputState::None;
+        }
+
+        if (gameThreadContext->joystickAPI->hasClicked(0, 1)) {
+            PLAYER(guy[0])->input.actions[1] = InputState::Released;
+        } else if (gameThreadContext->joystickAPI->isDown(0, 1)) {
+            PLAYER(guy[0])->input.actions[1] = InputState::Pressed;
+        } else {
+            PLAYER(guy[0])->input.actions[1] = InputState::None;
+        }
+
     }
 
     sceneStateMachine.update(dt);

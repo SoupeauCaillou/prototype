@@ -155,6 +155,7 @@ void SwordSystem::DoUpdate(float dt) {
         for (int i=0; i<cc->collision.count; i++) {
             auto* cc2 = COLLISION(cc->collision.with[i]);
             if (cc2->group == 8) {
+                TWEAK(float, epsilon) = -0.05;
                 Entity bullet = cc->collision.with[i];
                 LOGI("Hit by a bullet!");
 
@@ -164,12 +165,24 @@ void SwordSystem::DoUpdate(float dt) {
                 PHYSICS(bullet)->linearVelocity = -PHYSICS(bullet)->linearVelocity + 2 * d * sword;
                 TRANSFORM(bullet)->rotation = atan2(PHYSICS(bullet)->linearVelocity.y, PHYSICS(bullet)->linearVelocity.x);
                 PHYSICS(bullet)->mass = 1;
-                cc2->group = 0;
-                LOGI(cc->collision.at[i]);
+
                 TRANSFORM(bullet)->position =
                     glm::lerp(BACK_IN_TIME(bullet)->position,
                         TRANSFORM(bullet)->position,
-                        cc->collision.at[i]);
+                        cc->collision.at[i] + epsilon);
+
+                ADSR(entity)->active = false;
+                sw->stateDuration = 0;
+
+                /* if this bullet hits the sword owner -> cancel the hit */
+                auto* cp = COLLISION(player);
+                for (size_t j=0; j<cp->collision.count; j++) {
+                    if (cp->collision.with[j] == cc->collision.with[i]) {
+                        LOGI("Cancel hit");
+                        cp->collision.with[j] = 0;
+                    }
+                }
+
             }
         }
 

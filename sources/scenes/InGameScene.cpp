@@ -26,6 +26,7 @@
 #include "systems/TransformationSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/AnchorSystem.h"
+#include "systems/AutonomousAgentSystem.h"
 #include "util/IntersectionUtil.h"
 #include "util/Random.h"
 #include "base/EntityManager.h"
@@ -35,6 +36,7 @@
 #include "SwordSystem.h"
 #include "HealthSystem.h"
 #include "GunSystem.h"
+#include "IASystem.h"
 #include <algorithm>
 
 struct InGameScene : public SceneState<Scene::Enum> {
@@ -90,10 +92,24 @@ struct InGameScene : public SceneState<Scene::Enum> {
                     Entity enemy = theEntityManager.CreateEntityFromTemplate("enemy");
                     TRANSFORM(enemy)->position.x = Random::Float(-5, 5);
                     TRANSFORM(enemy)->position.y = Random::Float(-5, 5);
+                    TRANSFORM(enemy)->rotation = glm::pi<float>()+atan2(TRANSFORM(enemy)->position.y,TRANSFORM(enemy)->position.x);
 
                     EQUIPMENT(enemy)->hand.right = theEntityManager.CreateEntityFromTemplate("gun");
                     aliveEnemies.push_back(enemy);
                     enemySpawned++;
+
+                    #if 0
+                    TWEAK(float, maxSpeed) = 5;
+                    AUTONOMOUS(enemy)->maxSpeed = maxSpeed;
+                    TWEAK(float, maxForce) = 20;
+                    AUTONOMOUS(enemy)->maxForce = maxForce;
+                    AUTONOMOUS(enemy)->flee.radius = 3;
+                    AUTONOMOUS(enemy)->flee.target = game->guy[0];
+                    AUTONOMOUS(enemy)->limit.limit = game->battleground;
+                    TWEAK(float, epsilon) = 0.3;
+                    AUTONOMOUS(enemy)->limit.epsilon = epsilon;
+                    AUTONOMOUS(enemy)->dangerThreshold = 1.0f;
+                    #endif
                 }
                 break;
             }
@@ -110,10 +126,11 @@ struct InGameScene : public SceneState<Scene::Enum> {
             tc->position.x = (-TRANSFORM(game->camera)->size.x + tc->size.x) * 0.5f;
         }
 
-        thePlayerSystem.Update(dt);
         theEquipmentSystem.Update(dt);
         theSwordSystem.Update(dt);
+        thePlayerSystem.Update(dt);
         theGunSystem.Update(dt);
+        theIASystem.Update(dt);
 
         // fix entities position
         {
@@ -148,6 +165,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
             TWEAK(float, partScale) = 5;
             std::vector<Entity> toRemove;
             for (auto enemy: players) {
+
                 if (HEALTH(enemy)->currentHP <= 0) {
                     Entity hitBy = HEALTH(enemy)->hitBy;
 
@@ -169,6 +187,9 @@ struct InGameScene : public SceneState<Scene::Enum> {
                             //glm::rotate(glm::vec2(forceAmplitude, 0.0f), Random::Float(0, 6.2)),
                             glm::vec2(0.0f),
                             dt);
+                        if (enemy == game->guy[0]) {
+                            RENDERING(part)->color = RENDERING(game->guy[0])->color;
+                        }
                     }
                     /* disperse weapons */
                     if (enemy != game->guy[0]) {
@@ -205,7 +226,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
                         theEntityManager.DeleteEntity(enemy);
                         toRemove.push_back(enemy);
                     }
-                } else {
+                } else if (0){
                     if (enemy != game->guy[0]) {
                         glm::vec2 diff = TRANSFORM(game->guy[0])->position - TRANSFORM(enemy)->position;
                         TRANSFORM(enemy)->rotation = atan2(diff.y, diff.x);

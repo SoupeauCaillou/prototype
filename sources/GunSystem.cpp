@@ -81,15 +81,16 @@ void GunSystem::DoUpdate(float dt) {
                 sw->state = updateAttackState(sw, entity, player);
             } break;
             case GunState::CoolDown: {
-                TWEAK(float, gunCooldDown) = 1;
-                if (sw->stateDuration >= gunCooldDown) {
+                TWEAK(float, gunCoolDown) = 1;
+                if (sw->stateDuration >= gunCoolDown) {
                     sw->state = GunState::Resting;
                 }
             } break;
             case GunState::Resting: {
                 RENDERING(entity)->color = Color(0.5, 0.5, 0.5);
-                if (sw->stateDuration > 1) {
+                if (sw->trigger) {
                     sw->state = GunState::Fire;
+                    sw->trigger = false;
                 }
             } break;
         }

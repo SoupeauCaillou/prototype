@@ -20,6 +20,7 @@
 #include "EquipmentSystem.h"
 #include "PlayerSystem.h"
 #include "systems/AnchorSystem.h"
+#include "systems/RenderingSystem.h"
 #include "systems/TransformationSystem.h"
 #include "util/SerializerProperty.h"
 
@@ -38,6 +39,7 @@ void EquipmentSystem::DoUpdate(float dt) {
         for (int i=0; i<2; i++) {
             if (pc->hands[i]) {
                 ANCHOR(pc->hands[i])->parent = entity;
+                RENDERING(pc->hands[i])->show = true;
             }
         }
     END_FOR_EACH()

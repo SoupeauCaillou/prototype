@@ -27,27 +27,15 @@
 
 INSTANCE_IMPL(PlayerSystem);
 
-const glm::vec2 DIR[] = {
-    glm::vec2(0.0f, 1.0f),
-    glm::vec2(0.0f, -1.0f),
-    glm::vec2(1.0f, 0.0f),
-    glm::vec2(-1.0f, 0.0f)
-};
-
 PlayerSystem::PlayerSystem() : ComponentSystemImpl<PlayerComponent>(HASH("Player", 0x75a3a9db)) {
 }
 
 void PlayerSystem::DoUpdate(float dt) {
     FOR_EACH_ENTITY_COMPONENT(Player, entity, pc)
-        glm::vec2 facing(0.0f);
-        for (int i=0; i<4; i++) {
-            if (pc->input.directions.primary[i] == InputState::Pressed) {
-                ZSQD(entity)->directions.push_back(DIR[i]);
-            }
-            if (pc->input.directions.secondary[i] == InputState::Pressed) {
-                facing += DIR[i];
-            }
+        if (glm::length(pc->input.directions.primary)) {
+            ZSQD(entity)->directions.push_back(pc->input.directions.primary);
         }
+        glm::vec2 facing = pc->input.directions.secondary;
         float l = glm::length(facing);
         if (l > 0) {
             pc->facingDirection = facing / l;
@@ -59,6 +47,9 @@ void PlayerSystem::DoUpdate(float dt) {
         const auto* cc = COLLISION(entity);
         for (int i=0; i<cc->collision.count; i++) {
             Entity with = cc->collision.with[i];
+            if (with == 0) {
+                continue;
+            }
             auto* ccWith = COLLISION(with);
 
             /* attack sword hit */
@@ -72,7 +63,7 @@ void PlayerSystem::DoUpdate(float dt) {
                 HEALTH(entity)->hitBy = with;
             }
             /* bullet hit */
-            if (ccWith->group == 8 && 0) {
+            if (ccWith->group == 8) {
                 HEALTH(entity)->currentHP = 0;
                 HEALTH(entity)->hitBy = with;
             }

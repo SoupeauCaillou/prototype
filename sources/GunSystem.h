@@ -33,10 +33,11 @@ namespace GunState {
 }
 
 struct GunComponent {
-    GunComponent() { state = GunState::Resting; stateDuration = 0;}
+    GunComponent() { state = GunState::Resting; stateDuration = 0; trigger = false;}
 
     GunState::Enum state;
     float stateDuration;
+    bool trigger;
 };
 
 #define theGunSystem GunSystem::GetInstance()

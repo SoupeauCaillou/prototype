@@ -24,40 +24,46 @@
 
 class PrototypeGame;
 
-namespace InputState {
+namespace IAState {
     enum Enum {
-        Pressed, Released, None
+        Idle = 0,
+        Aiming,
+        Moving,
+        Count
     };
 }
 
-struct PlayerComponent {
-    PlayerComponent() {
-        facingDirection = glm::vec2(0.0f, 1.0f);
-        input.directions.primary = input.directions.secondary = glm::vec2(0.0f);
-        for (int i=0; i<4; i++) {
-            input.actions[i] = InputState::None;
-        }
-    }
+struct IAComponent {
 
+    IAComponent() : state (IAState::Idle), stateDuration(0) {}
+
+    IAState::Enum state;
+    float stateDuration;
+
+    float idleDuration;
+    float moveDuration;
+    glm::vec2 moveDirection;
+
+    /* escape from players */
     struct {
-        struct {
-            glm::vec2 primary;
-            glm::vec2 secondary;
-        } directions;
-        InputState::Enum actions[4];
-    } input;
+        float minDistance;
+        float weight;
+    } espace;
 
-    glm::vec2 facingDirection;
+    /* regroup with friends */
+    struct {
+        float weight;
+    } regroup;
 };
 
-#define thePlayerSystem PlayerSystem::GetInstance()
+#define theIASystem IASystem::GetInstance()
 #if SAC_DEBUG
-#define PLAYER(e) thePlayerSystem.Get(e, true, __FILE__, __LINE__)
+#define IA(e) theIASystem.Get(e, true, __FILE__, __LINE__)
 #else
-#define PLAYER(e) thePlayerSystem.Get(e)
+#define IA(e) theIASystem.Get(e)
 #endif
 
-UPDATABLE_SYSTEM(Player)
+UPDATABLE_SYSTEM(IA)
 
 public:
     PrototypeGame* game;

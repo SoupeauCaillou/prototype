@@ -21,6 +21,8 @@
 #include "base/SceneState.h"
 
 #include "PrototypeGame.h"
+#include "PlayerSystem.h"
+#include "systems/TransformationSystem.h"
 
 struct MenuScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
@@ -38,13 +40,19 @@ struct MenuScene : public SceneState<Scene::Enum> {
     ///----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onEnter(Scene::Enum) override {}
+    void onEnter(Scene::Enum) override {
+        TRANSFORM(game->guy[0])->position = glm::vec2(0.0f);
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { return Scene::InGame; }
+    Scene::Enum update(float) override {
+        if (PLAYER(game->guy[0])->input.actions[0] == InputState::Released)
+            return Scene::InGame;
+        return Scene::Menu;
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION
