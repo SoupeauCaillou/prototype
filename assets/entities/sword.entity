@@ -4,7 +4,7 @@ z = 0.6
 
 [Rendering]
 color = 0.8, 0.8, 0.8
-show  = 1
+show  = 0
 
 [Anchor]
 position = 0.2, 0.3

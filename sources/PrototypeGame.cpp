@@ -69,6 +69,9 @@ PrototypeGame::PrototypeGame() : Game() {
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
+    for (size_t i=0; i<4; i++) {
+        guy[i] = 0;
+    }
 
     sceneStateMachine.setup(gameThreadContext->assetAPI);
 
@@ -146,4 +149,22 @@ static InputState::Enum keyToState(KeyboardInputHandlerAPI* kb, int key) {
     }
 
     sceneStateMachine.update(dt);
+}
+
+void deletePlayer(Entity e) {
+    for (int i=0; i<2; i++) {
+        if (EQUIPMENT(e)->hands[i]) {
+            ANCHOR(EQUIPMENT(e)->hands[i])->parent = 0;
+        }
+    }
+    theEntityManager.DeleteEntity(e);
+
+}
+void deletePlayerAndWeapons(Entity e) {
+    for (int i=0; i<2; i++) {
+        if (EQUIPMENT(e)->hands[i]) {
+            theEntityManager.DeleteEntity(EQUIPMENT(e)->hands[i]);
+        }
+    }
+    theEntityManager.DeleteEntity(e);
 }

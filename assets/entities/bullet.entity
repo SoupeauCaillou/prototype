@@ -1,5 +1,5 @@
 [Transformation]
-size = 0.3, 0.1
+size = 0.1, 0.01
 z = 0.6
 
 [Rendering]
@@ -9,6 +9,7 @@ flags = 1
 
 [Collision]
 group = 8
+restore_transformation_before_collision = 1
 
 [SpatialPartition]
 [BackInTime]
@@ -19,3 +20,16 @@ mass = 1
 [AutoDestroy]
 type = 0
 area/size = 20, 20
+
+[Particule]
+emission_rate = 1000
+duration = -1
+lifetime = 0.02
+initial_color = 0.8, 0.1, 0.1
+final_color = 0.8, 0.8, 0.1
+initial_size = 0.09, 0.09
+final_size = 0.07, 0.07
+force_amplitude = 0
+force_direction = 0
+moment = 0
+mass = 0

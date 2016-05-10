@@ -88,13 +88,24 @@ struct InGameScene : public SceneState<Scene::Enum> {
         if (enemySpawned < totalEnemyCount) {
             for (int i=0; i<4; i++) {
                 if (PLAYER(game->guy[i])->input.actions[1] == InputState::Released) {
+                    glm::vec2 spawnPosition[] = {
+                        glm::vec2(7, 0.0f),
+                        glm::vec2(-7, 0.0f),
+                        glm::vec2(0.0f, 7.0f),
+                        glm::vec2(0.0f, -7.0f),
+                    };
+                    int nextSpawn = Random::Int(0, 3);
+
+
                     // spawn enemy
                     Entity enemy = theEntityManager.CreateEntityFromTemplate("enemy");
-                    TRANSFORM(enemy)->position.x = Random::Float(-5, 5);
-                    TRANSFORM(enemy)->position.y = Random::Float(-5, 5);
+
+                    nextSpawn = (nextSpawn + 1) % 4;
+                    TRANSFORM(enemy)->position = spawnPosition[nextSpawn];
                     TRANSFORM(enemy)->rotation = glm::pi<float>()+atan2(TRANSFORM(enemy)->position.y,TRANSFORM(enemy)->position.x);
 
                     EQUIPMENT(enemy)->hand.right = theEntityManager.CreateEntityFromTemplate("gun");
+                    IA(enemy)->state = IAState::EnterArena;
                     aliveEnemies.push_back(enemy);
                     enemySpawned++;
 
@@ -203,9 +214,6 @@ struct InGameScene : public SceneState<Scene::Enum> {
                                         TRANSFORM(hitBy)->rotation + glm::pi<float>() * 0.5f +
                                         Random::Float(-dispersion, dispersion));
 
-                                /* detach */
-                                ANCHOR(eq)->parent = 0;
-                                EQUIPMENT(enemy)->hands[i] = 0;
                                 /* move */
                                 PHYSICS(eq)->mass = 1;
                                 PHYSICS(eq)->addForce(
@@ -223,7 +231,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
                     LOGI("killed " << enemy);
                     // hackish
                     if (enemy != game->guy[0]) {
-                        theEntityManager.DeleteEntity(enemy);
+                        deletePlayer(enemy);
                         toRemove.push_back(enemy);
                     }
                 } else if (0){
@@ -258,12 +266,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
     ///----------------------------------------------------------------------------//
     void onExit(Scene::Enum) override {
         for (auto e: aliveEnemies) {
-            for (int i=0; i<2; i++) {
-                if (EQUIPMENT(e)->hands[i]) {
-                    theEntityManager.DeleteEntity(EQUIPMENT(e)->hands[i]);
-                }
-            }
-            theEntityManager.DeleteEntity(e);
+            deletePlayerAndWeapons(e);
         }
         aliveEnemies.clear();
     }

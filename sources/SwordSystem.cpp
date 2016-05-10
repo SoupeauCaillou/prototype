@@ -30,6 +30,7 @@
 #include "systems/ADSRSystem.h"
 #include "systems/PhysicsSystem.h"
 #include <sac/tweak.h>
+#include "util/Draw.h"
 
 INSTANCE_IMPL(SwordSystem);
 
@@ -152,37 +153,42 @@ void SwordSystem::DoUpdate(float dt) {
             cc->group = 0;
         }
 
-        for (int i=0; i<cc->collision.count; i++) {
-            auto* cc2 = COLLISION(cc->collision.with[i]);
-            if (cc2->group == 8) {
-                TWEAK(float, epsilon) = -0.05;
-                Entity bullet = cc->collision.with[i];
-                LOGI("Hit by a bullet!");
+        if (cc->collision.count > 0) {
+            glm::vec2 outsideNormal = glm::rotate(
+                glm::vec2(0.0f, -1.0f), TRANSFORM(entity)->rotation);
 
-                /* treat sword as a line */
-                glm::vec2 sword = glm::rotate(glm::vec2(1.0f, 0.0f), TRANSFORM(entity)->rotation);
-                float d = glm::dot(PHYSICS(bullet)->linearVelocity, sword);
-                PHYSICS(bullet)->linearVelocity = -PHYSICS(bullet)->linearVelocity + 2 * d * sword;
-                TRANSFORM(bullet)->rotation = atan2(PHYSICS(bullet)->linearVelocity.y, PHYSICS(bullet)->linearVelocity.x);
-                PHYSICS(bullet)->mass = 1;
+            for (int i=0; i<cc->collision.count; i++) {
+                auto* cc2 = COLLISION(cc->collision.with[i]);
+                if (cc2->group == 8) {
+                    Entity bullet = cc->collision.with[i];
+                    auto* ph = PHYSICS(bullet);
+                    if (glm::dot(ph->linearVelocity, outsideNormal) > 0) {
+                        // skip collision
+                        continue;
+                    }
 
-                TRANSFORM(bullet)->position =
-                    glm::lerp(BACK_IN_TIME(bullet)->position,
-                        TRANSFORM(bullet)->position,
-                        cc->collision.at[i] + epsilon);
+                    LOGI("Hit by a bullet!");
 
-                ADSR(entity)->active = false;
-                sw->stateDuration = 0;
+                    /* treat sword as a line */
+                    glm::vec2 sword = glm::rotate(glm::vec2(1.0f, 0.0f), TRANSFORM(entity)->rotation);
+                    float d = glm::dot(ph->linearVelocity, sword);
+                    ph->linearVelocity = -ph->linearVelocity + 2 * d * sword;
+                    TRANSFORM(bullet)->rotation = atan2(ph->linearVelocity.y, ph->linearVelocity.x);
+                    ph->mass = 1;
+                    RENDERING(bullet)->color.r = 0.5f;
 
-                /* if this bullet hits the sword owner -> cancel the hit */
-                auto* cp = COLLISION(player);
-                for (size_t j=0; j<cp->collision.count; j++) {
-                    if (cp->collision.with[j] == cc->collision.with[i]) {
-                        LOGI("Cancel hit");
-                        cp->collision.with[j] = 0;
+                    ADSR(entity)->active = false;
+                    sw->stateDuration = 0;
+
+                    /* if this bullet hits the sword owner -> cancel the hit */
+                    auto* cp = COLLISION(player);
+                    for (size_t j=0; j<cp->collision.count; j++) {
+                        if (cp->collision.with[j] == cc->collision.with[i]) {
+                            LOGI("Cancel hit");
+                            cp->collision.with[j] = 0;
+                        }
                     }
                 }
-
             }
         }
 

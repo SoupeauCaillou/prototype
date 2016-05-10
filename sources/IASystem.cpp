@@ -219,12 +219,37 @@ struct MovingState : public IAStateHandler{
     }
 };
 
+struct EnterArenaState : public IAStateHandler{
+    IAState::Enum update(PrototypeGame* game, Entity entity, IAComponent* ia, float dt) override {
+        float absLimitX = 0.5f * TRANSFORM(game->battleground)->size.x;
+        float absLimitY = 0.5f * TRANSFORM(game->battleground)->size.y;
+
+        const glm::vec2& pos = TRANSFORM(entity)->position;
+        const glm::vec2& size = TRANSFORM(entity)->size;
+        float diffX = glm::abs(pos.x) + size.x - absLimitX;
+        float diffY = glm::abs(pos.y) + size.y - absLimitY;
+
+        if (diffX < 0 && diffY < 0) {
+            return IAState::Idle;
+        }
+
+        if (0 < diffX) {
+            ZSQD(entity)->directions.push_back(glm::vec2(-glm::sign(pos.x), 0.0f));
+        } else {
+            ZSQD(entity)->directions.push_back(glm::vec2(0.0f, -glm::sign(pos.y)));
+        }
+
+        return IAState::EnterArena;
+    }
+};
+
 static std::array<IAStateHandler*, IAState::Count> handlers;
 
 IASystem::IASystem() : ComponentSystemImpl<IAComponent>(HASH("IA", 0x58109180)) {
     handlers[IAState::Idle] = new IdleState;
     handlers[IAState::Aiming] = new AimingState;
     handlers[IAState::Moving] = new MovingState;
+    handlers[IAState::EnterArena] = new EnterArenaState;
 }
 
 void IASystem::DoUpdate(float dt) {

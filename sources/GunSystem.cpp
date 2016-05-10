@@ -52,10 +52,12 @@ static bool conditionToEnterState(GunState::Enum state, Entity player, Entity Gu
 #endif
 
 static GunState::Enum updateAttackState(GunComponent* sw, Entity gun, Entity player) {
-    TWEAK(float, bulletSpeed) = 25;
+    TWEAK(float, bulletSpeed) = 20;
 
     Entity bullet = theEntityManager.CreateEntityFromTemplate("bullet");
-    TRANSFORM(bullet)->position = TRANSFORM(gun)->position;
+    TRANSFORM(bullet)->position =
+        TRANSFORM(gun)->position +
+        glm::rotate(glm::vec2(TRANSFORM(bullet)->size.x, 0.0f), TRANSFORM(gun)->rotation);
     TRANSFORM(bullet)->rotation = TRANSFORM(gun)->rotation;
 
     PHYSICS(bullet)->linearVelocity = glm::rotate(

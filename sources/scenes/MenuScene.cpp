@@ -23,6 +23,7 @@
 #include "PrototypeGame.h"
 #include "PlayerSystem.h"
 #include "systems/TransformationSystem.h"
+#include "base/EntityManager.h"
 
 struct MenuScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
@@ -41,6 +42,12 @@ struct MenuScene : public SceneState<Scene::Enum> {
     ///----------------------------------------------------------------------------//
 
     void onEnter(Scene::Enum) override {
+        /*for (size_t i=0; i<4; i++) {
+            if (game->guy[i]) {
+                theEntityManager.DeleteEntity(game->guy[i]);
+            }
+        }*/
+
         TRANSFORM(game->guy[0])->position = glm::vec2(0.0f);
     }
 

@@ -29,6 +29,7 @@ namespace IAState {
         Idle = 0,
         Aiming,
         Moving,
+        EnterArena,
         Count
     };
 }

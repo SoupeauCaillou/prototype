@@ -50,3 +50,6 @@ class PrototypeGame : public Game {
     Entity guy[4];
     Entity battleground;
 };
+
+extern void deletePlayer(Entity e);
+extern void deletePlayerAndWeapons(Entity e);
