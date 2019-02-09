@@ -173,6 +173,7 @@ void SwordSystem::DoUpdate(float dt) {
                     glm::vec2 sword = glm::rotate(glm::vec2(1.0f, 0.0f), TRANSFORM(entity)->rotation);
                     float d = glm::dot(ph->linearVelocity, sword);
                     ph->linearVelocity = -ph->linearVelocity + 2 * d * sword;
+                    TRANSFORM(bullet)->position += ph->linearVelocity * dt;
                     TRANSFORM(bullet)->rotation = atan2(ph->linearVelocity.y, ph->linearVelocity.x);
                     ph->mass = 1;
                     RENDERING(bullet)->color.r = 0.5f;

@@ -4,7 +4,7 @@ z = 0.5
 #shape = 2
 
 [Rendering]
-color = 0.2, 0.2, 0.8
+color = 0.2, 0.7, 0.8
 show = 1
 
 [ZSQD]
