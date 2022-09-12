@@ -51,8 +51,4 @@ void PrototypeGame::init(const uint8_t*, int) {
     sceneStateMachine.start(Scene::Menu);
 }
 
-void PrototypeGame::tick(float dt) {
-    sceneStateMachine.update(dt);
-    float c = glm::abs(glm::cos(TimeUtil::GetTime()));
-    CAMERA(camera)->clearColor = Color(c, c, c);
-}
+void PrototypeGame::tick(float dt) { sceneStateMachine.update(dt); }

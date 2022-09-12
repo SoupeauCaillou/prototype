@@ -20,6 +20,8 @@
 
 #include "base/SceneState.h"
 
+#include "systems/CameraSystem.h"
+
 #include "PrototypeGame.h"
 
 struct GameStartScene : public SceneState<Scene::Enum> {
@@ -45,7 +47,7 @@ struct GameStartScene : public SceneState<Scene::Enum> {
     ///--------------------- UPDATE SECTION
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { return Scene::GameStart; }
+    Scene::Enum update(float) override { return Scene::InGame; }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION

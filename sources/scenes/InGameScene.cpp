@@ -19,6 +19,9 @@
 */
 
 #include "base/SceneState.h"
+#include "base/TimeUtil.h"
+
+#include "systems/CameraSystem.h"
 
 #include "PrototypeGame.h"
 
@@ -39,7 +42,10 @@ struct InGameScene : public SceneState<Scene::Enum> {
     ///----------------------------------------//
     ///----------------------------------------------------------------------------//
 
-    void onEnter(Scene::Enum) override {}
+    void onEnter(Scene::Enum) override {
+        float c = glm::abs(glm::cos(TimeUtil::GetTime()));
+        CAMERA(this->game->camera)->clearColor = Color(c, c, c);
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- UPDATE SECTION
