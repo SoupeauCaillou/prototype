@@ -56,6 +56,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
 
         for (auto wall : this->walls) {
             RENDERING(wall)->show = true;
+            break;
         }
     }
 

@@ -1,7 +1,7 @@
 [Transformation]
 position%screen = -0.4, -0.4, 0.4, 0.4
+z = 0.9
 
 [Rendering]
 show = 1
 color = 0.1, 0.11, 0.1, 1, 0.9, 0.9, 0.9, 1
-z = 0.9

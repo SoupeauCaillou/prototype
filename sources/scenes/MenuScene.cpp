@@ -35,18 +35,18 @@ struct MenuScene : public SceneState<Scene::Enum> {
     MenuScene(PrototypeGame* game)
         : SceneState<Scene::Enum>("menu", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
         this->game = game;
+    }
 
+    void setup(AssetAPI*) override {
         this->bStart = theEntityManager.CreateEntity(HASH("bStart", 0));
         ADD_COMPONENT(this->bStart, Transformation);
         ADD_COMPONENT(this->bStart, Button);
         ADD_COMPONENT(this->bStart, Rendering);
-        TRANSFORM(this->bStart)->z = 1.;
         TRANSFORM(this->bStart)->size = glm::vec2(5, 5);
         BUTTON(this->bStart)->enabled = true;
         RENDERING(this->bStart)->color = Color(1, 0, 0);
+        TRANSFORM(this->bStart)->z = 1.;
     }
-
-    void setup(AssetAPI*) override {}
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION
