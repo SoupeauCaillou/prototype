@@ -20,11 +20,12 @@
 
 #include "PrototypeGame.h"
 
+#include "base/EntityManager.h"
 #include "base/PlacementHelper.h"
 #include "base/StateMachine.inl"
-#include "base/EntityManager.h"
 
 #include "systems/CameraSystem.h"
+#include "systems/CornSystem.h"
 
 #include "base/TimeUtil.h"
 
@@ -37,9 +38,14 @@
 #include <unistd.h>
 #endif
 
-PrototypeGame::PrototypeGame() : Game() {
-    registerScenes(this, sceneStateMachine);
+PrototypeGame::PrototypeGame() : Game() { registerScenes(this, sceneStateMachine); }
+
+void PrototypeGame::sacInitFromGameThread() {
+    CornSystem::CreateInstance();
+    Game::sacInitFromGameThread();
 }
+
+void PrototypeGame::preDestroy() { CornSystem::DestroyInstance(); }
 
 void PrototypeGame::init(const uint8_t*, int) {
     LOGI("PrototypeGame initialisation begins...");
@@ -51,4 +57,9 @@ void PrototypeGame::init(const uint8_t*, int) {
     sceneStateMachine.start(Scene::InGame);
 }
 
-void PrototypeGame::tick(float dt) { sceneStateMachine.update(dt); }
+void PrototypeGame::tick(float dt) {
+    sceneStateMachine.update(dt);
+
+    // systems update
+    theCornSystem.Update(dt);
+}

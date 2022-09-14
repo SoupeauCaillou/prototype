@@ -21,15 +21,19 @@
 #include "base/EntityManager.h"
 #include "base/SceneState.h"
 #include "base/TimeUtil.h"
+#include "base/TouchInputManager.h"
 
+#include "systems/ButtonSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/TransformationSystem.h"
 
 #include "PrototypeGame.h"
 
 struct InGameScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
 
-    Entity tractor, bee, walls[4];
+    Entity tractor, bee, ground, walls[4];
+    std::vector<Entity> corns;
 
     InGameScene(PrototypeGame* game)
         : SceneState<Scene::Enum>("in_game", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
@@ -39,6 +43,7 @@ struct InGameScene : public SceneState<Scene::Enum> {
     void setup(AssetAPI*) override {
         this->tractor = theEntityManager.CreateEntityFromTemplate("game/tractor");
         this->bee = theEntityManager.CreateEntityFromTemplate("game/bee");
+        this->ground = theEntityManager.CreateEntityFromTemplate("game/ground");
         this->walls[0] = theEntityManager.CreateEntityFromTemplate("game/wall_east");
         this->walls[1] = theEntityManager.CreateEntityFromTemplate("game/wall_north");
         this->walls[2] = theEntityManager.CreateEntityFromTemplate("game/wall_west");
@@ -54,9 +59,12 @@ struct InGameScene : public SceneState<Scene::Enum> {
         float c = glm::abs(glm::cos(TimeUtil::GetTime()));
         CAMERA(this->game->camera)->clearColor = Color(c, c, c);
 
+        RENDERING(this->tractor)->show = true;
+        RENDERING(this->bee)->show = true;
+        RENDERING(this->ground)->show = true;
+        BUTTON(this->ground)->enabled = true;
         for (auto wall : this->walls) {
             RENDERING(wall)->show = true;
-            break;
         }
     }
 
@@ -64,7 +72,16 @@ struct InGameScene : public SceneState<Scene::Enum> {
     ///--------------------- UPDATE SECTION
     ///---------------------------------------//
     ///----------------------------------------------------------------------------//
-    Scene::Enum update(float) override { return Scene::InGame; }
+    Scene::Enum update(float) override {
+        if (BUTTON(this->ground)->clicked) {
+            // pops some corn
+            Entity corn = theEntityManager.CreateEntityFromTemplate("game/corn");
+            TRANSFORM(corn)->position = theTouchInputManager.getTouchLastPosition(0);
+            corns.push_back(corn);
+        }
+
+        return Scene::InGame;
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- EXIT SECTION

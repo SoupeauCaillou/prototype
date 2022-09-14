@@ -43,7 +43,6 @@ struct MenuScene : public SceneState<Scene::Enum> {
         ADD_COMPONENT(this->bStart, Button);
         ADD_COMPONENT(this->bStart, Rendering);
         TRANSFORM(this->bStart)->size = glm::vec2(5, 5);
-        BUTTON(this->bStart)->enabled = true;
         RENDERING(this->bStart)->color = Color(1, 0, 0);
         TRANSFORM(this->bStart)->z = 1.;
     }

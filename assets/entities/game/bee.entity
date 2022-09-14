@@ -5,7 +5,7 @@ position%screen = -0.5, -0.5, 0.5, 0.5
 rotation = 0, 6.28
 
 [Rendering]
-color%html = e3e11e, fcff24
+color%html = 33e1fe, 4cfff4
 
 [AutonomousAgent]
 max_speed = 5

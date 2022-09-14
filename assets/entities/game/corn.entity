@@ -1,0 +1,15 @@
+[Transformation]
+size = 0.2, 0.2, 0.8, 0.8
+z = 0.3, 0.4
+
+[Rendering]
+color%html = e3e11e
+flags = 1
+show = 1
+
+[Corn]
+
+[AutoDestroy]
+type = 1
+lifetime/value = 3
+lifetime/map2AlphaRendering = 1

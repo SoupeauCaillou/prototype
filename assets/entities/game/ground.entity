@@ -1,0 +1,10 @@
+[Transformation]
+size = 20,20
+position%screen = 0,0
+z = 0.1
+
+[Rendering]
+show = 1
+color%html = 622222
+
+[Button]

@@ -32,9 +32,14 @@
 #include "util/DataFileParser.h"
 #include "util/FaderHelper.h"
 
+#include "systems/CornSystem.h"
+
 class PrototypeGame : public Game {
     public:
     PrototypeGame();
+
+    void preDestroy() override;
+    void sacInitFromGameThread() override;
 
     void init(const uint8_t* in = 0, int size = 0);
     void tick(float dt);
