@@ -18,6 +18,7 @@
     along with Prototype.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "base/EntityManager.h"
 #include "base/SceneState.h"
 #include "base/TimeUtil.h"
 
@@ -28,14 +29,21 @@
 struct InGameScene : public SceneState<Scene::Enum> {
     PrototypeGame* game;
 
+    Entity tractor, bee, walls[4];
+
     InGameScene(PrototypeGame* game)
-        : SceneState<Scene::Enum>("in_game",
-                                  SceneEntityMode::DoNothing,
-                                  SceneEntityMode::DoNothing) {
+        : SceneState<Scene::Enum>("in_game", SceneEntityMode::DoNothing, SceneEntityMode::DoNothing) {
         this->game = game;
     }
 
-    void setup(AssetAPI*) override {}
+    void setup(AssetAPI*) override {
+        this->tractor = theEntityManager.CreateEntityFromTemplate("game/tractor");
+        this->bee = theEntityManager.CreateEntityFromTemplate("game/bee");
+        this->walls[0] = theEntityManager.CreateEntityFromTemplate("game/wall_east");
+        this->walls[1] = theEntityManager.CreateEntityFromTemplate("game/wall_north");
+        this->walls[2] = theEntityManager.CreateEntityFromTemplate("game/wall_west");
+        this->walls[3] = theEntityManager.CreateEntityFromTemplate("game/wall_south");
+    }
 
     ///----------------------------------------------------------------------------//
     ///--------------------- ENTER SECTION
@@ -45,6 +53,10 @@ struct InGameScene : public SceneState<Scene::Enum> {
     void onEnter(Scene::Enum) override {
         float c = glm::abs(glm::cos(TimeUtil::GetTime()));
         CAMERA(this->game->camera)->clearColor = Color(c, c, c);
+
+        for (auto wall : this->walls) {
+            RENDERING(wall)->show = true;
+        }
     }
 
     ///----------------------------------------------------------------------------//

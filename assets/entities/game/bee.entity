@@ -1,11 +1,12 @@
 [Transformation]
 size = 0.4, 0.4, 0.6, 0.6
-z = 0.3, 0.4
 position%screen = -0.5, -0.5, 0.5, 0.5
 rotation = 0, 6.28
 
 [Rendering]
 color%html = e3e11e, fcff24
+z = 0.3, 0.4
+show = 1
 
 [AutonomousAgent]
 max_speed = 5
@@ -23,4 +24,4 @@ mass = 1
 max_force = 50
 
 [Button]
-enabled = 0
+enabled = 1

@@ -48,7 +48,7 @@ void PrototypeGame::init(const uint8_t*, int) {
 
     faderHelper.init(camera);
 
-    sceneStateMachine.start(Scene::Menu);
+    sceneStateMachine.start(Scene::InGame);
 }
 
 void PrototypeGame::tick(float dt) { sceneStateMachine.update(dt); }
